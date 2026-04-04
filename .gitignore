@@ -1,0 +1,13 @@
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.pyc
+.pytest_cache/
+*.pkl
+data/*.jsonl
+data/experiment*/
+.venv/
+*.pt
+*.bin
+.env

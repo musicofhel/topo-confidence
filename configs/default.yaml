@@ -1,0 +1,26 @@
+# Default configuration for topo-confidence
+
+model:
+  name: "Qwen/Qwen2.5-1.5B-Instruct"
+  device: "auto"
+  dtype: "float16"
+  layers: "last"
+
+features:
+  method: "token_trajectory"
+  max_dim: 1
+  n_pca: 30
+  subsample: 100
+  seed: 42
+
+calibration:
+  method: "logistic"  # "logistic" or "isotonic"
+  size: 100
+
+generation:
+  max_new_tokens: 256
+  max_length: 512
+
+evaluation:
+  cv_folds: 50
+  confidence_thresholds: [0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
