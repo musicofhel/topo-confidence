@@ -37,6 +37,10 @@ eval = [
     "datasets>=2.14",
     "human-eval",
 ]
+langchain = [
+    "langchain>=0.1",
+    "langchain-community>=0.1",
+]
 
 [project.scripts]
 topo-confidence = "topo_confidence.cli:main"
