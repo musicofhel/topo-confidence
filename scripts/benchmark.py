@@ -57,7 +57,7 @@ def main():
 
     # Extract hidden states + generate outputs (one pass)
     logger.info("Extracting hidden states and generating outputs...")
-    ext_result = tc.extractor.extract_with_output(prompts)
+    ext_result = tc.extractor.extract_with_output(prompts, collect_logits=True)
 
     # Compute topo features
     logger.info("Computing topological features...")

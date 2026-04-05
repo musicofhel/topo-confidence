@@ -6,7 +6,8 @@ build/
 .pytest_cache/
 *.pkl
 data/*.jsonl
-data/experiment*/
+data/experiment*/*.jsonl
+data/experiment*/*.pkl
 .venv/
 *.pt
 *.bin

@@ -1,0 +1,24 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 200,
+  "correctness_rate": 0.125,
+  "methods": {
+    "output_entropy": {
+      "auroc": 0.5942857142857143
+    },
+    "max_token_prob": {
+      "auroc": 0.5949714285714286
+    },
+    "first_token_prob": {
+      "auroc": 0.5620571428571429
+    },
+    "topo_confidence": {
+      "auroc": 0.536
+    },
+    "combined": {
+      "auroc": 0.5931428571428572
+    }
+  },
+  "correlation_topo_entropy": 0.061860263866365534,
+  "inference_time_s": 1182.0790195559994
+}

@@ -1,0 +1,24 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 50,
+  "timings": {
+    "model_load_s": 2.3704821669998637,
+    "inference_with_generation_s": 198.80487693400028,
+    "inference_per_problem_s": 3.9760975386800057,
+    "extract_only_s": 0.3180322180000985,
+    "extract_per_problem_s": 0.0063606443600019704,
+    "pca_fit_s": 0.1582816160002949,
+    "pca_transform_s": 0.01333263700007592,
+    "pca_transform_per_problem_s": 0.0002666527400015184,
+    "ripser_total_s": 0.021752764000666502,
+    "ripser_per_problem_s": 0.00043505528001333007,
+    "ripser_per_problem_mean_s": 0.00043505528001333007,
+    "ripser_per_problem_max_s": 0.0011716190001607174,
+    "feature_total_s": 0.3667106090001653,
+    "feature_per_problem_s": 0.007334212180003305,
+    "lr_prediction_s": 3.0457399998340406e-05,
+    "lr_per_problem_s": 6.091479999668081e-07,
+    "total_overhead_per_problem_s": 0.007334821328003272
+  },
+  "overhead_fraction": 0.0018447287212270712
+}

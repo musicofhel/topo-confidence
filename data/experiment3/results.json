@@ -1,0 +1,74 @@
+[
+  {
+    "benchmark": "math500",
+    "n_problems": 200,
+    "task_type": "math",
+    "correctness_rate": 0.125,
+    "combined_auroc": 0.5316571428571428,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.613257142857143,
+      "H1_max_lifetime": 0.5076571428571428,
+      "H0_total_persistence": 0.5844571428571428,
+      "H0_n_features": 0.6215999999999999,
+      "H1_persistence_entropy": 0.5723428571428572,
+      "H1_n_features": 0.5745142857142858
+    },
+    "top_feature": "H0_n_features",
+    "top_feature_auroc": 0.6215999999999999,
+    "inference_time_s": 2308.478985803
+  },
+  {
+    "benchmark": "gsm8k",
+    "n_problems": 200,
+    "task_type": "math",
+    "correctness_rate": 0.26,
+    "combined_auroc": 0.6761954261954262,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.661512474012474,
+      "H1_max_lifetime": 0.5667879417879418,
+      "H0_total_persistence": 0.6226611226611227,
+      "H0_n_features": 0.6688539501039501,
+      "H1_persistence_entropy": 0.6079781704781705,
+      "H1_n_features": 0.6225311850311851
+    },
+    "top_feature": "H0_n_features",
+    "top_feature_auroc": 0.6688539501039501,
+    "inference_time_s": 1205.218412825
+  },
+  {
+    "benchmark": "mmlu",
+    "n_problems": 200,
+    "task_type": "mcq",
+    "correctness_rate": 0.41,
+    "combined_auroc": 0.5622157916494419,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.5645928069450186,
+      "H1_max_lifetime": 0.586657709797437,
+      "H0_total_persistence": 0.5666597767672591,
+      "H0_n_features": 0.5571517155849526,
+      "H1_persistence_entropy": 0.5815419594873914,
+      "H1_n_features": 0.5611823067383216
+    },
+    "top_feature": "H1_max_lifetime",
+    "top_feature_auroc": 0.586657709797437,
+    "inference_time_s": 26.42448829500063
+  },
+  {
+    "benchmark": "humaneval",
+    "n_problems": 164,
+    "task_type": "code",
+    "correctness_rate": 0.18292682926829268,
+    "combined_auroc": 0.5845771144278606,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.6368159203980099,
+      "H1_max_lifetime": 0.5716417910447762,
+      "H0_total_persistence": 0.5032338308457711,
+      "H0_n_features": 0.6134328358208955,
+      "H1_persistence_entropy": 0.608955223880597,
+      "H1_n_features": 0.6218905472636816
+    },
+    "top_feature": "H0_persistence_entropy",
+    "top_feature_auroc": 0.6368159203980099,
+    "inference_time_s": 935.1941006229999
+  }
+]

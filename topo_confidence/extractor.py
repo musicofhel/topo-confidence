@@ -48,7 +48,7 @@ class HiddenStateExtractor:
 
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
-                torch_dtype=self.dtype,
+                dtype=self.dtype,
                 device_map=self.device if self.device != "cpu" else None,
                 trust_remote_code=True,
             )
@@ -85,6 +85,8 @@ class HiddenStateExtractor:
         all_token_counts = []
 
         for i in range(0, len(prompts), batch_size):
+            if i % 50 == 0:
+                logger.info("Extracting hidden states %d/%d...", i, len(prompts))
             batch = prompts[i : i + batch_size]
             inputs = self.tokenizer(
                 batch,
@@ -122,11 +124,14 @@ class HiddenStateExtractor:
         prompts: list[str],
         max_new_tokens: int = 256,
         max_length: int = 512,
+        batch_size: int = 8,
+        collect_logits: bool = False,
     ) -> dict[str, Any]:
         """Extract hidden states AND generate output text.
 
-        Processes prompts one at a time for generation (batch generation
-        with variable-length outputs is fragile).
+        Uses two passes to avoid storing hidden states during generation:
+        1. Forward pass: extract prompt hidden states (fast, batched)
+        2. Generation pass: generate text (+ optionally output logits)
 
         Returns:
             {
@@ -134,16 +139,20 @@ class HiddenStateExtractor:
                 "token_trajectories": list[np.ndarray],
                 "token_counts": np.ndarray,
                 "generated_texts": list[str],
-                "output_logits": list[np.ndarray],  # per-token logits for baselines
+                "output_logits": list[np.ndarray],  # only if collect_logits=True
             }
         """
-        all_last_hidden = []
-        all_trajectories = []
-        all_token_counts = []
+        # Pass 1: extract hidden states (batched)
+        extraction = self.extract(prompts, max_length=max_length, batch_size=batch_size)
+
+        # Pass 2: generate outputs one at a time
         all_texts = []
         all_logits = []
 
-        for prompt in prompts:
+        for i, prompt in enumerate(prompts):
+            if i % 50 == 0:
+                logger.info("Generating %d/%d...", i, len(prompts))
+
             inputs = self.tokenizer(
                 prompt,
                 return_tensors="pt",
@@ -153,42 +162,33 @@ class HiddenStateExtractor:
 
             prompt_len = inputs["input_ids"].shape[1]
 
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                output_hidden_states=True,
-                output_scores=True,
-                return_dict_in_generate=True,
-                do_sample=False,
-            )
+            gen_kwargs: dict[str, Any] = {
+                "max_new_tokens": max_new_tokens,
+                "do_sample": False,
+            }
+            if collect_logits:
+                gen_kwargs["output_scores"] = True
+                gen_kwargs["return_dict_in_generate"] = True
 
-            # Extract prompt hidden states from the first forward pass
-            # outputs.hidden_states[0] is the prefill step: tuple of (n_layers+1,) tensors
-            layer_idx = self.layers[-1] + 1
-            prompt_hidden = (
-                outputs.hidden_states[0][layer_idx][0].cpu().float().numpy()
-            )  # (prompt_len, hidden)
+            outputs = self.model.generate(**inputs, **gen_kwargs)
 
-            all_trajectories.append(prompt_hidden)
-            all_last_hidden.append(prompt_hidden[-1])
-            all_token_counts.append(len(prompt_hidden))
+            if collect_logits:
+                generated_ids = outputs.sequences[0][prompt_len:]
+                if outputs.scores:
+                    logits = torch.stack(outputs.scores, dim=0)
+                    all_logits.append(logits.cpu().float().numpy())
+                else:
+                    all_logits.append(np.array([]))
+            else:
+                generated_ids = outputs[0][prompt_len:]
 
-            # Decode generated text (excluding prompt)
-            generated_ids = outputs.sequences[0][prompt_len:]
             text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)
             all_texts.append(text)
 
-            # Collect output logits for baseline methods
-            if outputs.scores:
-                logits = torch.stack(outputs.scores, dim=0)  # (gen_len, vocab)
-                all_logits.append(logits.cpu().float().numpy())
-            else:
-                all_logits.append(np.array([]))
-
         return {
-            "hidden_states": np.stack(all_last_hidden),
-            "token_trajectories": all_trajectories,
-            "token_counts": np.array(all_token_counts),
+            "hidden_states": extraction["hidden_states"],
+            "token_trajectories": extraction["token_trajectories"],
+            "token_counts": extraction["token_counts"],
             "generated_texts": all_texts,
             "output_logits": all_logits,
         }

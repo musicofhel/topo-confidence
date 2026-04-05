@@ -1,0 +1,40 @@
+[
+  {
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "n_problems": 200,
+    "correctness_rate": 0.125,
+    "combined_auroc": 0.536457142857143,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.613257142857143,
+      "H1_max_lifetime": 0.5069714285714285,
+      "H0_total_persistence": 0.5846857142857143,
+      "H0_n_features": 0.6215999999999999,
+      "H1_persistence_entropy": 0.5700571428571429,
+      "H1_n_features": 0.571542857142857
+    },
+    "top_feature": "H0_n_features",
+    "top_feature_auroc": 0.6215999999999999,
+    "inference_time_s": 1125.7823840049987
+  },
+  {
+    "model": "microsoft/phi-2",
+    "n_problems": 200,
+    "correctness_rate": 0.075,
+    "combined_auroc": 0.3827027027027027,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.563963963963964,
+      "H1_max_lifetime": 0.5661261261261261,
+      "H0_total_persistence": 0.5430630630630631,
+      "H0_n_features": 0.5726126126126126,
+      "H1_persistence_entropy": 0.5855855855855856,
+      "H1_n_features": 0.5875675675675676
+    },
+    "top_feature": "H1_n_features",
+    "top_feature_auroc": 0.5875675675675676,
+    "inference_time_s": 2772.1910256829997
+  },
+  {
+    "model": "meta-llama/Llama-3.2-1B-Instruct",
+    "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct.\n401 Client Error. (Request ID: Root=1-69d1bf37-4ba8b84d5af8b9a424f7b15f;0437b46d-a890-433d-a39c-a057d2b3781e)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.2-1B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in."
+  }
+]

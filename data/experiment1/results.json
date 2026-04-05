@@ -1,0 +1,33 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 500,
+  "correctness_rate": 0.114,
+  "auroc": 0.6992990376618747,
+  "auroc_ci_95": [
+    0.6211782235813755,
+    0.7718583564476853
+  ],
+  "auroc_bootstrap_mean": 0.6985678585954682,
+  "auroc_bootstrap_std": 0.037722963421244884,
+  "cv_folds": 50,
+  "per_feature_auroc": {
+    "H0_persistence_entropy": 0.716961704486951,
+    "H1_max_lifetime": 0.5982337333174923,
+    "H0_total_persistence": 0.6957348223832719,
+    "H0_n_features": 0.721872401093026,
+    "H1_persistence_entropy": 0.6831016593402242,
+    "H1_n_features": 0.6898538671735773
+  },
+  "coefficients": {
+    "H0_persistence_entropy": -1.3687862515464055,
+    "H1_max_lifetime": -0.08218006138843346,
+    "H0_total_persistence": 1.1601370849797925,
+    "H0_n_features": -0.4584548346250471,
+    "H1_persistence_entropy": -0.44189805179245845,
+    "H1_n_features": 0.3992868141158138
+  },
+  "extraction_time_s": 2736.483542132,
+  "feature_time_s": 2.748305714000253,
+  "target": "AUROC >= 0.75",
+  "target_met": false
+}
