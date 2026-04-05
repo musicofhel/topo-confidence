@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>topo-confidence: Know when your LLM is wrong</title>
+<meta name="description" content="Topological confidence estimation for LLM outputs. Persistent homology on hidden states predicts correctness from a single forward pass.">
+<style>
+:root {
+  --bg: #0a0e17;
+  --surface: #111827;
+  --surface-2: #1a2332;
+  --border: #1e293b;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent: #818cf8;
+  --accent-dim: #6366f1;
+  --green: #34d399;
+  --green-dim: rgba(52, 211, 153, 0.15);
+  --orange: #fb923c;
+  --orange-dim: rgba(251, 146, 60, 0.15);
+  --red: #f87171;
+  --code-bg: #0d1117;
+  --max-w: 960px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  padding: 80px 0 60px;
+  text-align: center;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero .tagline {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 32px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: var(--accent-dim);
+  color: white;
+}
+.btn-primary:hover {
+  background: var(--accent);
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-secondary:hover {
+  border-color: var(--accent-dim);
+  text-decoration: none;
+}
+
+/* Headline stat */
+.headline {
+  padding: 60px 0;
+  text-align: center;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat .number {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.stat .number.green { color: var(--green); }
+.stat .number.accent { color: var(--accent); }
+.stat .number.orange { color: var(--orange); }
+
+.stat .label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.headline .explainer {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Sections */
+section {
+  padding: 60px 0;
+  border-top: 1px solid var(--border);
+}
+
+section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+
+/* Code blocks */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+code {
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+}
+
+.inline-code {
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.88em;
+}
+
+.kw { color: #c678dd; }
+.fn { color: #61afef; }
+.str { color: #98c379; }
+.cm { color: #5c6370; font-style: italic; }
+.num { color: #d19a66; }
+.op { color: #56b6c2; }
+
+/* Charts — pure CSS bar charts */
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar-label {
+  width: 200px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  flex: 1;
+  height: 28px;
+  background: var(--surface);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  min-width: 48px;
+  transition: width 0.8s ease-out;
+}
+
+.bar-fill.green { background: linear-gradient(90deg, #059669, #34d399); }
+.bar-fill.accent { background: linear-gradient(90deg, #4f46e5, #818cf8); }
+.bar-fill.orange { background: linear-gradient(90deg, #c2410c, #fb923c); }
+.bar-fill.muted { background: linear-gradient(90deg, #374151, #6b7280); }
+
+/* Feature table */
+.feature-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.feature-table th {
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.feature-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.feature-table tr:last-child td {
+  border-bottom: none;
+}
+
+.feature-table .feat-name {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.feature-table .new-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  background: var(--green-dim);
+  color: var(--green);
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+/* Grid cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Pipeline diagram */
+.pipeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 32px 0;
+  flex-wrap: wrap;
+}
+
+.pipeline-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 20px;
+  text-align: center;
+  min-width: 140px;
+}
+
+.pipeline-step .step-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.pipeline-step .step-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.pipeline-arrow {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+
+.pipeline-step.highlight {
+  border-color: var(--accent-dim);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* Selective prediction chart */
+.selective-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 180px;
+  padding: 0 0 32px;
+  margin: 24px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.selective-chart::before {
+  content: 'Accuracy %';
+  position: absolute;
+  top: -8px;
+  left: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sel-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.sel-bar .bar {
+  width: 100%;
+  max-width: 56px;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: height 0.5s ease-out;
+}
+
+.sel-bar .bar-val {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sel-bar .bar-pct {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Install section */
+.install-box {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 0.95rem;
+  margin: 20px 0;
+  max-width: 420px;
+}
+
+.install-box .prompt { color: var(--green); }
+.install-box .cmd { color: var(--text); }
+
+/* Cross-benchmark mini table */
+.mini-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.mini-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.mini-cell .bench-name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.mini-cell .bench-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.mini-cell .bench-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Footer */
+footer {
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+footer a { color: var(--accent); }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .hero h1 { font-size: 2rem; }
+  .stat .number { font-size: 2.2rem; }
+  .stat-row { gap: 24px; }
+  .bar-label { width: 120px; font-size: 0.78rem; }
+  .pipeline { gap: 4px; }
+  .pipeline-step { min-width: 100px; padding: 10px 12px; }
+  .pipeline-step .step-text { font-size: 0.8rem; }
+  .pipeline-arrow { padding: 0 4px; font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <h1>topo-confidence</h1>
+    <p class="tagline">Know when your LLM is wrong &mdash; from a single forward pass. Persistent homology on hidden-state geometry predicts correctness.</p>
+    <div class="hero-buttons">
+      <a href="https://github.com/musicofhel/topo-confidence" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="#install" class="btn btn-secondary">Get started</a>
+      <a href="#experiments" class="btn btn-secondary">See results</a>
+    </div>
+  </div>
+</div>
+
+<!-- Headline stats -->
+<div class="headline">
+  <div class="container">
+    <div class="stat-row">
+      <div class="stat">
+        <div class="number green">2.6x</div>
+        <div class="label">Selective prediction lift</div>
+      </div>
+      <div class="stat">
+        <div class="number accent">0.007s</div>
+        <div class="label">Overhead per problem</div>
+      </div>
+      <div class="stat">
+        <div class="number orange">r=0.062</div>
+        <div class="label">Correlation with entropy</div>
+      </div>
+    </div>
+    <p class="explainer">Topological features measure the <em>geometry of internal computation</em>, not the <em>uncertainty of output distribution</em>. That's why the correlation with output entropy is near zero &mdash; these are orthogonal signals.</p>
+  </div>
+</div>
+
+<!-- How it works -->
+<section>
+  <div class="container">
+    <h2>How it works</h2>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="step-label">Step 1</div>
+        <div class="step-text">Forward pass</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="step-label">Step 2</div>
+        <div class="step-text">Extract hidden states</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step highlight">
+        <div class="step-label">Step 3</div>
+        <div class="step-text">PCA + Ripser (PH)</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="step-label">Step 4</div>
+        <div class="step-text">7 topo features</div>
+      </div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step">
+        <div class="step-label">Step 5</div>
+        <div class="step-text">P(correct)</div>
+      </div>
+    </div>
+    <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; max-width: 600px; margin: 0 auto;">Each prompt's hidden states at the final layer form a point cloud in R<sup>d</sup>. Persistent homology extracts topological structure &mdash; connected components (H0) and loops (H1) &mdash; that correlates with whether the model will answer correctly.</p>
+  </div>
+</section>
+
+<!-- 7 Features -->
+<section>
+  <div class="container">
+    <h2>The 7 features</h2>
+    <table class="feature-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>What it measures</th>
+          <th>AUROC</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feat-name">H0_persistence_entropy</td>
+          <td>How fragmented the token representations are</td>
+          <td>0.717</td>
+        </tr>
+        <tr>
+          <td class="feat-name">H0_n_features</td>
+          <td>Number of distinct clusters</td>
+          <td>0.722</td>
+        </tr>
+        <tr>
+          <td class="feat-name">H0_total_persistence</td>
+          <td>Total spread of connected components</td>
+          <td>0.696</td>
+        </tr>
+        <tr>
+          <td class="feat-name">H1_n_features</td>
+          <td>Number of loops in the representation</td>
+          <td>0.690</td>
+        </tr>
+        <tr>
+          <td class="feat-name">H1_persistence_entropy</td>
+          <td>Complexity of loop structure</td>
+          <td>0.683</td>
+        </tr>
+        <tr>
+          <td class="feat-name">H1_max_lifetime</td>
+          <td>Strength of the dominant loop</td>
+          <td>0.598</td>
+        </tr>
+        <tr>
+          <td class="feat-name">bridge_silhouette<span class="new-badge">New</span></td>
+          <td>Position-0 token's boundary score in k=2 clustering</td>
+          <td>&mdash;</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 16px;">The bridge feature comes from a discovery that transformer hidden states universally organize into two clusters, with position 0 serving as the sole computational bridge between them. See <a href="https://github.com/musicofhel/att-docs">ATT research</a>.</p>
+  </div>
+</section>
+
+<!-- Selective prediction -->
+<section id="experiments">
+  <div class="container">
+    <h2>Selective prediction: answer only when confident</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 16px;">On MATH-500 (baseline accuracy 11.4%), selecting the most confident subset yields dramatically higher accuracy. The top 10% reaches 30% &mdash; a <strong style="color: var(--green)">2.6x lift</strong>.</p>
+
+    <div class="selective-chart">
+      <div class="sel-bar">
+        <div class="bar" style="height: 160px; background: linear-gradient(180deg, #34d399, #059669);">
+          <span class="bar-val" style="color: var(--green);">30.0%</span>
+        </div>
+        <span class="bar-pct">Top 10%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 133px; background: linear-gradient(180deg, #34d399, #059669); opacity: 0.85;">
+          <span class="bar-val" style="color: var(--green);">25.0%</span>
+        </div>
+        <span class="bar-pct">Top 20%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 113px; background: linear-gradient(180deg, #818cf8, #4f46e5); opacity: 0.9;">
+          <span class="bar-val" style="color: var(--accent);">21.3%</span>
+        </div>
+        <span class="bar-pct">Top 30%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 101px; background: linear-gradient(180deg, #818cf8, #4f46e5); opacity: 0.8;">
+          <span class="bar-val" style="color: var(--accent);">19.0%</span>
+        </div>
+        <span class="bar-pct">Top 40%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 89px; background: linear-gradient(180deg, #818cf8, #4f46e5); opacity: 0.7;">
+          <span class="bar-val" style="color: var(--accent);">16.8%</span>
+        </div>
+        <span class="bar-pct">Top 50%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 80px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.8;">
+          <span class="bar-val" style="color: var(--text-muted);">15.0%</span>
+        </div>
+        <span class="bar-pct">Top 60%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 76px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.7;">
+          <span class="bar-val" style="color: var(--text-muted);">14.3%</span>
+        </div>
+        <span class="bar-pct">Top 70%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 70px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.6;">
+          <span class="bar-val" style="color: var(--text-muted);">13.3%</span>
+        </div>
+        <span class="bar-pct">Top 80%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 66px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.5;">
+          <span class="bar-val" style="color: var(--text-muted);">12.4%</span>
+        </div>
+        <span class="bar-pct">Top 90%</span>
+      </div>
+      <div class="sel-bar">
+        <div class="bar" style="height: 60px; background: var(--border);">
+          <span class="bar-val" style="color: var(--text-muted);">11.4%</span>
+        </div>
+        <span class="bar-pct">All</span>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 40px; margin-bottom: 16px; font-size: 1.15rem;">Threshold sweep</h3>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">t=0.9 (0.2% answered)</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 100%;">100%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">t=0.8 (3.4% answered)</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 41%;">41.2%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">t=0.7 (10.8% answered)</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: 30%;">29.6%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">t=0.6 (20.8% answered)</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: 25%;">25.0%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">t=0.5 (34% answered)</span>
+        <div class="bar-track"><div class="bar-fill orange" style="width: 21%;">21.2%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">t=0.4 (54.6% answered)</span>
+        <div class="bar-track"><div class="bar-fill orange" style="width: 16%;">15.8%</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Baseline (all)</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width: 11.4%;">11.4%</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Cross-benchmark -->
+<section>
+  <div class="container">
+    <h2>Works across benchmarks and tasks</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">Topological features generalize across math, code, and multiple-choice tasks. The best single feature varies by domain &mdash; H0 entropy dominates math, H1 lifetime matters more for MCQ.</p>
+    <div class="mini-table">
+      <div class="mini-cell">
+        <div class="bench-name">MATH-500</div>
+        <div class="bench-val" style="color: var(--accent);">0.699</div>
+        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      </div>
+      <div class="mini-cell">
+        <div class="bench-name">GSM-8K</div>
+        <div class="bench-val" style="color: var(--accent);">0.676</div>
+        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      </div>
+      <div class="mini-cell">
+        <div class="bench-name">HumanEval</div>
+        <div class="bench-val" style="color: var(--accent);">0.585</div>
+        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      </div>
+      <div class="mini-cell">
+        <div class="bench-name">MMLU</div>
+        <div class="bench-val" style="color: var(--accent);">0.562</div>
+        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- vs Baselines -->
+<section>
+  <div class="container">
+    <h2>Orthogonal to output-based methods</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">Topo-confidence and output entropy are essentially uncorrelated (r=0.062). They capture different failure modes. Combining them captures strictly more information.</p>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Output entropy</span>
+        <div class="bar-track"><div class="bar-fill orange" style="width: 59.4%;">0.594</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Max token probability</span>
+        <div class="bar-track"><div class="bar-fill orange" style="width: 59.5%;">0.595</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">First token probability</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width: 56.2%;">0.562</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Topo-confidence</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: 53.6%;">0.536</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Combined (topo + output)</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 59.3%;">0.593</div></div>
+      </div>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">(Exp 4: 200 problems, Qwen2.5-1.5B, 50-fold cross-validated AUROC)</p>
+  </div>
+</section>
+
+<!-- Speed -->
+<section>
+  <div class="container">
+    <h2>Negligible overhead</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">The entire topological feature pipeline &mdash; PCA, Ripser, feature extraction, and classifier prediction &mdash; adds 0.007s per problem. That's 0.18% overhead on top of model inference.</p>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Model inference</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: 100%;">3.976s</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Hidden state extraction</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 0.16%;">0.006s</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Topo features (PCA + Ripser)</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 0.18%;">0.007s</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">LR prediction</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 0.005%;"><span style="position:absolute;left:8px;">&lt;0.001s</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Install + Usage -->
+<section id="install">
+  <div class="container">
+    <h2>Get started</h2>
+    <div class="install-box">
+      <span class="prompt">$</span>
+      <span class="cmd">pip install -e .</span>
+    </div>
+
+    <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">Python API</h3>
+<pre><code><span class="kw">from</span> topo_confidence <span class="kw">import</span> <span class="fn">TopoConfidence</span>
+
+tc = <span class="fn">TopoConfidence</span>(<span class="str">"Qwen/Qwen2.5-1.5B-Instruct"</span>)
+tc.<span class="fn">calibrate</span>(calibration_prompts, calibration_labels)
+
+<span class="cm"># Predict confidence on new problems</span>
+confidences = tc.<span class="fn">predict_confidence</span>([<span class="str">"What is 2+2?"</span>, <span class="str">"Prove the Riemann Hypothesis"</span>])
+
+<span class="cm"># Only answer when confident</span>
+results = tc.<span class="fn">selective_predict</span>(problems, threshold=<span class="num">0.7</span>)</code></pre>
+
+    <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">Combined scorer (topo + entropy fusion)</h3>
+<pre><code><span class="kw">from</span> topo_confidence <span class="kw">import</span> <span class="fn">CombinedConfidence</span>
+
+cc = <span class="fn">CombinedConfidence</span>(<span class="str">"Qwen/Qwen2.5-1.5B-Instruct"</span>)
+cc.<span class="fn">calibrate</span>(prompts, labels)  <span class="cm"># 7 topo + 2 output = 9 features</span></code></pre>
+
+    <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">CLI</h3>
+<pre><code><span class="cm"># Score prompts</span>
+$ topo-confidence score <span class="str">"What is 2+2?"</span>
+
+<span class="cm"># Calibrate on labeled data</span>
+$ topo-confidence calibrate data.jsonl -o calibrated.pkl
+
+<span class="cm"># Selective prediction</span>
+$ topo-confidence selective -c calibrated.pkl -f problems.txt -t <span class="num">0.7</span>
+
+<span class="cm"># Explain a prediction</span>
+$ topo-confidence explain -c calibrated.pkl <span class="str">"What is 2+2?"</span></code></pre>
+  </div>
+</section>
+
+<!-- Applications -->
+<section>
+  <div class="container">
+    <h2>Applications</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>Model routing</h3>
+        <p>Use as a gate for cheap-to-expensive model cascading. Route low-confidence queries to a stronger model.</p>
+      </div>
+      <div class="card">
+        <h3>Agentic verification</h3>
+        <p>Per-step confidence without multi-sampling. Know which tool calls and reasoning steps to trust.</p>
+      </div>
+      <div class="card">
+        <h3>Training data filtering</h3>
+        <p>Select high-confidence synthetic data for fine-tuning. Better training signal from the same generation budget.</p>
+      </div>
+      <div class="card">
+        <h3>Real-time monitoring</h3>
+        <p>Track hidden-state geometry during generation. Alert when topology shifts toward uncertain territory.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>topo-confidence &middot; MIT License &middot; <a href="https://github.com/musicofhel/topo-confidence">GitHub</a> &middot; Built on <a href="https://github.com/musicofhel/att-docs">ATT research</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
