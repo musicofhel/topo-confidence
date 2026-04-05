@@ -85,11 +85,11 @@ class TestTopologicalFeatureExtractor:
         trajectories = self._make_trajectories()
         ext = TopologicalFeatureExtractor(n_pca=10)
         features = ext.extract(token_trajectories=trajectories)
-        assert features.shape == (20, 6)
+        assert features.shape == (20, 7)
 
     def test_feature_names(self):
         ext = TopologicalFeatureExtractor()
-        assert len(ext.feature_names) == 6
+        assert len(ext.feature_names) == 7
         assert ext.feature_names[0] == "H0_persistence_entropy"
 
     def test_no_nans(self):
@@ -127,7 +127,17 @@ class TestTopologicalFeatureExtractor:
         trajectories = [np.random.default_rng(42).random((3, 64)) for _ in range(5)]
         ext = TopologicalFeatureExtractor(n_pca=2)
         features = ext.extract(token_trajectories=trajectories)
-        assert features.shape == (5, 6)
+        assert features.shape == (5, 7)
+
+    def test_bridge_feature_exists(self):
+        trajectories = self._make_trajectories()
+        ext = TopologicalFeatureExtractor(n_pca=10)
+        features = ext.extract(token_trajectories=trajectories)
+        assert features.shape == (20, 7)
+        assert ext.feature_names[-1] == "bridge_silhouette"
+        # Bridge silhouette should be in [-1, 1]
+        assert np.all(features[:, -1] >= -1.0)
+        assert np.all(features[:, -1] <= 1.0)
 
     def test_extract_single(self):
         trajectories = self._make_trajectories(n_problems=10)
@@ -138,7 +148,7 @@ class TestTopologicalFeatureExtractor:
         single = ext.extract_single(trajectories[0])
         # Note: not exactly equal because PCA is refit each time in extract(),
         # but extract_single reuses the fitted PCA
-        assert single.shape == (6,)
+        assert single.shape == (7,)
         assert not np.any(np.isnan(single))
 
 

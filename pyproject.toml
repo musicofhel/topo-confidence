@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "topo-confidence"
-version = "0.1.0"
+version = "0.2.0"
 description = "Topological uncertainty estimation for LLM reasoning"
 readme = "README.md"
 license = "MIT"
@@ -37,6 +37,9 @@ eval = [
     "datasets>=2.14",
     "human-eval",
 ]
+
+[project.scripts]
+topo-confidence = "topo_confidence.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["topo_confidence"]

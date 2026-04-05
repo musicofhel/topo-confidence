@@ -19,6 +19,7 @@ FEATURE_NAMES = [
     "H0_n_features",
     "H1_persistence_entropy",
     "H1_n_features",
+    "bridge_silhouette",
 ]
 
 
@@ -80,8 +81,29 @@ class TopologicalFeatureExtractor:
         result = ripser(points, maxdim=self.max_dim)
         return {dim: result["dgms"][dim] for dim in range(self.max_dim + 1)}
 
+    def _compute_bridge_silhouette(self, reduced: np.ndarray) -> float:
+        """Compute silhouette coefficient of position 0 in k=2 clustering.
+
+        Position 0 is the singleton computational bridge during layers 4-24.
+        Its geometry relative to the two clusters is a strong correctness signal.
+        """
+        if reduced.shape[0] < 10:
+            return 0.0
+
+        from sklearn.cluster import KMeans
+        from sklearn.metrics import silhouette_samples
+
+        km = KMeans(n_clusters=2, n_init=10, random_state=42)
+        labels = km.fit_predict(reduced)
+
+        if len(set(labels)) < 2:
+            return 0.0
+
+        sil_samples = silhouette_samples(reduced, labels)
+        return float(sil_samples[0])  # position 0
+
     def _features_from_diagrams(self, diagrams: dict[int, np.ndarray]) -> np.ndarray:
-        """Extract 6 scalar features from H0 and H1 diagrams."""
+        """Extract 6 scalar PH features from H0 and H1 diagrams."""
         features = np.zeros(6, dtype=np.float64)
 
         # H0 features
@@ -135,7 +157,9 @@ class TopologicalFeatureExtractor:
         for i, traj in enumerate(token_trajectories):
             reduced = self._reduce(traj)
             diagrams = self._compute_ph(reduced)
-            features[i] = self._features_from_diagrams(diagrams)
+            ph_features = self._features_from_diagrams(diagrams)
+            bridge_sil = self._compute_bridge_silhouette(reduced)
+            features[i] = np.append(ph_features, bridge_sil)
 
         return features
 
@@ -146,8 +170,10 @@ class TopologicalFeatureExtractor:
             trajectory: (n_tokens, hidden_dim) array.
 
         Returns:
-            (6,) feature vector.
+            (7,) feature vector.
         """
         reduced = self._reduce(trajectory)
         diagrams = self._compute_ph(reduced)
-        return self._features_from_diagrams(diagrams)
+        ph_features = self._features_from_diagrams(diagrams)
+        bridge_sil = self._compute_bridge_silhouette(reduced)
+        return np.append(ph_features, bridge_sil)
