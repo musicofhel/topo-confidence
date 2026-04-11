@@ -1,0 +1,57 @@
+task:
+  name: "Topological AUROC"
+  description: |
+    Maximize AUROC for predicting whether Qwen2.5-1.5B-Instruct answered
+    a MATH-500 problem correctly, using topological features of hidden states.
+
+    Your code: features.py must define extract_features(trajectories, layer_states).
+
+    Data (read-only, absolute paths):
+    - Token trajectories: ~/topo-confidence/data/experiment1_v2/trajectories.npz
+      500 arrays (traj_0..traj_499), each shape (n_tokens, 1536). Variable n_tokens (30-350).
+    - Layer states: ~/att-docs/data/transformer/math500_hidden_states_aligned.npz
+      Key 'layer_hidden_states', shape (500, 29, 1536). Mean hidden state per layer.
+
+    Evaluation: 50-fold StratifiedKFold LogisticRegression(balanced) on your features.
+    Baseline: 0.713 AUROC (7 features). Target: 0.75+.
+
+    Run `python check.py` to validate your features locally (shape, stats, timing).
+    Feature extraction must complete in <120s for all 500 problems.
+
+  tips: |
+    - The dataset is imbalanced: 57/500 correct (11.4%). class_weight="balanced" is used.
+    - Bridge silhouette (position-0 token in k=2 clustering) is the best structural feature.
+    - H0 features (connected components) are more predictive than H1 (loops) here.
+    - Read baseline_notes.md for what was tried and failed.
+    - layer_states gives you 29 points per problem in 1536D — the topology of how
+      representations evolve across layers. This data is UNEXPLOITED.
+    - Consider: persistence landscapes, Wasserstein distances between layers,
+      crystallization (when topology stabilizes), layer-wise entropy profiles.
+    - Avoid: shuffled-token null (degenerate), H2 at subsample=100 (too sparse),
+      topological sensitivity (no signal).
+
+grader:
+  timeout: 300
+  direction: maximize
+
+agents:
+  count: 3
+  runtime: claude_code
+  model: opus
+  max_turns: 200
+
+workspace:
+  results_dir: "./results"
+  repo_path: "./seed"
+  setup:
+    - "uv pip install numpy ripser persim scikit-learn scipy"
+
+sharing:
+  attempts: true
+  notes: true
+  skills: true
+
+run:
+  verbose: false
+  ui: true
+  session: tmux

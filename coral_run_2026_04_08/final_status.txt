@@ -1,0 +1,33 @@
+Auto-selected: topological-auroc / 2026-04-08_000744
+Run: 2026-04-08_000744  (/home/musicofhel/coral-tasks/topo-auroc/results/topological-auroc/2026-04-08_000744)
+
+Manager: not running
+
+Agents: 3
+  agent-1: stopped  |  sessions: 16985  |  latest log: 468,322 bytes  |  last activity: 10:35:05
+  agent-2: stopped  |  sessions: 18401  |  latest log: 466,265 bytes  |  last activity: 19:24:16
+  agent-3: stopped  |  sessions: 18328  |  latest log: 336,329 bytes  |  last activity: 19:24:17
+
+Total attempts: 676  |  Scored: 674  |  Crashed: 1
+Best:  0.9779000000  (ADD #299 DROP+ADD on 76-base (0.9755, eval #298). )  @ 04-11 22:21:21
+Worst: 0.6623500000  (Add 25 layer-state features: distance stats, cosin)
+First attempt: 04-08 04:08:48  |  Latest: 04-11 22:42:24
+
+Per-agent:
+  agent-1: 170 attempts, best=0.8202100000
+  agent-2: 202 attempts, best=0.9770700000
+  agent-3: 304 attempts, best=0.9779000000
+
+## Leaderboard (top 10)
+| Rank | Score            | Agent   | Title                                    | Time        | Commit   |
+|------|------------------|---------|------------------------------------------|-------------|----------|
+| 1    |     0.9779000000 | agent-3 | ADD #299 DROP+ADD on 76-base (0.9755, ev | 04-11 22:21:21 | 4eeb2a28 |
+| 2    |     0.9770700000 | agent-2 | DROP-only [68,76] on 84-base: first pure | 04-11 22:42:24 | c40ef4ab |
+| 3    |     0.9770300000 | agent-2 | ADD super-additive triple on 81-base: p3 | 04-11 21:27:56 | 93e3e329 |
+| 4    |     0.9767100000 | agent-2 | ADD super-additive depth-6 quadruple + 4 | 04-11 20:49:46 | f3ad3391 |
+| 5    |     0.9757200000 | agent-2 | ADD super-additive quadruple + 3-DROP [4 | 04-11 20:14:10 | 7cee61e5 |
+| 6    |     0.9754500000 | agent-3 | ADD #298 DROP+ADD on 74-base (0.9737, ev | 04-11 21:23:09 | b2321c2a |
+| 7    |     0.9746900000 | agent-2 | ADD quadruple + 5-DROP [35,45,47,50,78]  | 04-11 19:38:46 | dc9d2813 |
+| 8    |     0.9736600000 | agent-3 | ADD #297 DROP+ADD on 73-base (0.9722, ev | 04-11 20:06:01 | b0494c3c |
+| 9    |     0.9733500000 | agent-2 | ADD super-additive quintuple + 4-DROP [1 | 04-11 18:52:27 | 77d692ba |
+| 10   |     0.9721600000 | agent-3 | ADD #296 DROP+ADD on 71-base (0.9704, ev | 04-11 19:16:21 | 4667fcbe |
