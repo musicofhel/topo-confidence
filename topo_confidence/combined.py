@@ -52,7 +52,7 @@ class CombinedConfidence(TopoConfidence):
         ent = output_entropy(logits_list).reshape(-1, 1)
         mtp = max_token_probability(logits_list).reshape(-1, 1)
 
-        # Concatenate: 7 topo + 2 output = 9 features
+        # Concatenate: topo + 2 output features
         combined = np.hstack([topo_features, ent, mtp])
 
         return combined, result

@@ -8,6 +8,7 @@ import numpy as np
 from ripser import ripser
 from sklearn.decomposition import PCA
 
+from topo_confidence.null import ph_significance
 from topo_confidence.utils import persistence_entropy, subsample_points
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,13 @@ FEATURE_NAMES = [
     "H0_n_features",
     "H1_persistence_entropy",
     "H1_n_features",
+    "H2_n_features",
+    "H2_total_persistence",
+    "H2_persistence_entropy",
     "bridge_silhouette",
+    "H0_ph_significance",
+    "H1_ph_significance",
+    "topological_sensitivity",
 ]
 
 
@@ -28,22 +35,24 @@ class TopologicalFeatureExtractor:
 
     For each problem, the token-by-token hidden states at the final layer
     form a point cloud in R^d. We PCA-reduce to n_pca dimensions, optionally
-    subsample, compute persistent homology (H0 and H1), and extract 6 scalar
+    subsample, compute persistent homology (H0, H1, H2), and extract scalar
     features that summarize the topological structure.
     """
 
     def __init__(
         self,
         method: str = "token_trajectory",
-        max_dim: int = 1,
+        max_dim: int = 2,
         n_pca: int = 30,
         subsample: int = 100,
+        null_k: int = 100,
         seed: int = 42,
     ):
         self.method = method
         self.max_dim = max_dim
         self.n_pca = n_pca
         self.subsample = subsample
+        self.null_k = null_k
         self.rng = np.random.default_rng(seed)
         self._pca: PCA | None = None
 
@@ -103,8 +112,8 @@ class TopologicalFeatureExtractor:
         return float(sil_samples[0])  # position 0
 
     def _features_from_diagrams(self, diagrams: dict[int, np.ndarray]) -> np.ndarray:
-        """Extract 6 scalar PH features from H0 and H1 diagrams."""
-        features = np.zeros(6, dtype=np.float64)
+        """Extract 9 scalar PH features from H0, H1, and H2 diagrams."""
+        features = np.zeros(9, dtype=np.float64)
 
         # H0 features
         h0 = diagrams.get(0, np.empty((0, 2)))
@@ -124,7 +133,51 @@ class TopologicalFeatureExtractor:
         features[4] = persistence_entropy(h1_lifetimes)  # H1_persistence_entropy
         features[5] = len(h1_lifetimes)  # H1_n_features
 
+        # H2 features (cavities/voids — Varley et al. 2025 showed correlation
+        # with information-theoretic synergy at rho = -0.55 to -0.65)
+        h2 = diagrams.get(2, np.empty((0, 2)))
+        h2_finite = h2[np.isfinite(h2[:, 1])] if len(h2) > 0 else np.empty((0, 2))
+        h2_lifetimes = h2_finite[:, 1] - h2_finite[:, 0] if len(h2_finite) > 0 else np.array([])
+
+        features[6] = len(h2_lifetimes)  # H2_n_features
+        features[7] = h2_lifetimes.sum() if len(h2_lifetimes) > 0 else 0.0  # H2_total_persistence
+        features[8] = persistence_entropy(h2_lifetimes)  # H2_persistence_entropy
+
         return features
+
+    def _compute_topological_sensitivity(self, points: np.ndarray) -> float:
+        """Compute sensitivity of H1 total persistence to Gaussian noise.
+
+        Adds noise at epsilon in {0.01, 0.05, 0.1}, recomputes PH, and
+        returns the OLS slope of total_H1_persistence vs epsilon.
+        Steep slope = fragile topology = likely incorrect answer.
+        Inspired by anti-stability in QEC (Machine 4).
+        """
+        epsilons = [0.0, 0.01, 0.05, 0.1]
+        rng = np.random.default_rng(42)
+        persistences = []
+        for eps in epsilons:
+            if eps == 0.0:
+                noisy = points
+            else:
+                noisy = points + rng.normal(0, eps, size=points.shape)
+            result = ripser(noisy, maxdim=1)
+            h1 = result["dgms"][1]
+            if len(h1) > 0:
+                lifetimes = h1[:, 1] - h1[:, 0]
+                lifetimes = lifetimes[np.isfinite(lifetimes)]
+                persistences.append(lifetimes.sum())
+            else:
+                persistences.append(0.0)
+
+        # OLS slope: persistence = a + b * epsilon
+        eps_arr = np.array(epsilons)
+        pers_arr = np.array(persistences)
+        var_eps = np.var(eps_arr)
+        if var_eps < 1e-15:
+            return 0.0
+        slope = np.cov(eps_arr, pers_arr)[0, 1] / var_eps
+        return float(slope)
 
     def extract(
         self,
@@ -140,7 +193,7 @@ class TopologicalFeatureExtractor:
                 Required for token_trajectory method.
 
         Returns:
-            (n_problems, 6) feature array.
+            (n_problems, n_features) feature array.
         """
         if self.method != "token_trajectory":
             raise NotImplementedError(f"Method {self.method!r} not implemented")
@@ -156,10 +209,29 @@ class TopologicalFeatureExtractor:
         features = np.zeros((len(token_trajectories), self.n_features))
         for i, traj in enumerate(token_trajectories):
             reduced = self._reduce(traj)
+            subsampled = subsample_points(reduced, self.subsample, self.rng)
             diagrams = self._compute_ph(reduced)
             ph_features = self._features_from_diagrams(diagrams)
             bridge_sil = self._compute_bridge_silhouette(reduced)
-            features[i] = np.append(ph_features, bridge_sil)
+
+            # Null significance z-scores (Machine 6: shuffled-token null)
+            if self.null_k > 0 and len(subsampled) >= 3:
+                z_scores = ph_significance(
+                    subsampled, max_dim=min(self.max_dim, 1), k=self.null_k,
+                    seed=42 + i,
+                )
+                h0_sig = z_scores.get(0, 0.0)
+                h1_sig = z_scores.get(1, 0.0)
+            else:
+                h0_sig = 0.0
+                h1_sig = 0.0
+
+            # Perturbation sensitivity (Machine 4: Stability)
+            sensitivity = self._compute_topological_sensitivity(subsampled)
+
+            features[i] = np.concatenate([
+                ph_features, [bridge_sil, h0_sig, h1_sig, sensitivity],
+            ])
 
         return features
 
@@ -170,10 +242,24 @@ class TopologicalFeatureExtractor:
             trajectory: (n_tokens, hidden_dim) array.
 
         Returns:
-            (7,) feature vector.
+            (n_features,) feature vector.
         """
         reduced = self._reduce(trajectory)
+        subsampled = subsample_points(reduced, self.subsample, self.rng)
         diagrams = self._compute_ph(reduced)
         ph_features = self._features_from_diagrams(diagrams)
         bridge_sil = self._compute_bridge_silhouette(reduced)
-        return np.append(ph_features, bridge_sil)
+
+        if self.null_k > 0 and len(subsampled) >= 3:
+            z_scores = ph_significance(
+                subsampled, max_dim=min(self.max_dim, 1), k=self.null_k,
+                seed=42,
+            )
+            h0_sig = z_scores.get(0, 0.0)
+            h1_sig = z_scores.get(1, 0.0)
+        else:
+            h0_sig = 0.0
+            h1_sig = 0.0
+
+        sensitivity = self._compute_topological_sensitivity(subsampled)
+        return np.concatenate([ph_features, [bridge_sil, h0_sig, h1_sig, sensitivity]])

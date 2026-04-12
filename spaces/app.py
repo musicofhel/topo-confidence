@@ -117,7 +117,13 @@ FEATURE_NAMES = [
     "H0 feature count",
     "H1 persistence entropy",
     "H1 feature count",
+    "H2 feature count",
+    "H2 total persistence",
+    "H2 persistence entropy",
     "Bridge silhouette",
+    "H0 PH significance",
+    "H1 PH significance",
+    "Topological sensitivity",
 ]
 
 
