@@ -430,5 +430,321 @@
       "trusted_acc": 0.0
     }
   ],
-  "output_entropy": null
+  "output_entropy": [
+    {
+      "tau": 0.1,
+      "coverage": 0.39,
+      "trusted_acc": 0.1026,
+      "escalation_ppv": 0.8852
+    },
+    {
+      "tau": 0.15,
+      "coverage": 0.21,
+      "trusted_acc": 0.0952,
+      "escalation_ppv": 0.8861
+    },
+    {
+      "tau": 0.2,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.25,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.3,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.35,
+      "coverage": 0.05,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8842
+    },
+    {
+      "tau": 0.4,
+      "coverage": 0.03,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8866
+    },
+    {
+      "tau": 0.45,
+      "coverage": 0.02,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8878
+    },
+    {
+      "tau": 0.5,
+      "coverage": 0.01,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8889
+    },
+    {
+      "tau": 0.55,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.6,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.65,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.7,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.75,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.8,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.85,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.9,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    }
+  ],
+  "max_token_prob": [
+    {
+      "tau": 0.1,
+      "coverage": 0.39,
+      "trusted_acc": 0.1026,
+      "escalation_ppv": 0.8852
+    },
+    {
+      "tau": 0.15,
+      "coverage": 0.21,
+      "trusted_acc": 0.0952,
+      "escalation_ppv": 0.8861
+    },
+    {
+      "tau": 0.2,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.25,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.3,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.35,
+      "coverage": 0.05,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8842
+    },
+    {
+      "tau": 0.4,
+      "coverage": 0.03,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8866
+    },
+    {
+      "tau": 0.45,
+      "coverage": 0.02,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8878
+    },
+    {
+      "tau": 0.5,
+      "coverage": 0.01,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8889
+    },
+    {
+      "tau": 0.55,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.6,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.65,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.7,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.75,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.8,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.85,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.9,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    }
+  ],
+  "first_token_prob": [
+    {
+      "tau": 0.1,
+      "coverage": 0.39,
+      "trusted_acc": 0.1282,
+      "escalation_ppv": 0.9016
+    },
+    {
+      "tau": 0.15,
+      "coverage": 0.21,
+      "trusted_acc": 0.0476,
+      "escalation_ppv": 0.8734
+    },
+    {
+      "tau": 0.2,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.25,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.3,
+      "coverage": 0.1,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8778
+    },
+    {
+      "tau": 0.35,
+      "coverage": 0.05,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8842
+    },
+    {
+      "tau": 0.4,
+      "coverage": 0.03,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8866
+    },
+    {
+      "tau": 0.45,
+      "coverage": 0.02,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8878
+    },
+    {
+      "tau": 0.5,
+      "coverage": 0.01,
+      "trusted_acc": 0.0,
+      "escalation_ppv": 0.8889
+    },
+    {
+      "tau": 0.55,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.6,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.65,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.7,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.75,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.8,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.85,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    },
+    {
+      "tau": 0.9,
+      "coverage": 0.0,
+      "trusted_acc": null,
+      "escalation_ppv": null
+    }
+  ],
+  "entropy_summary": {
+    "mean_entropy": 0.6447876133024693,
+    "std_entropy": 0.2498813434990109,
+    "holdout_mean_entropy": 0.6595267209410668
+  }
 }

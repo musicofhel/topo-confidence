@@ -1,0 +1,3015 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "max_new_tokens": 256,
+  "n_problems": 500,
+  "extraction_time_s": 3267.2,
+  "summary": {
+    "mean_entropy": 0.6448,
+    "std_entropy": 0.2499,
+    "mean_max_token_prob": 0.8134,
+    "mean_first_token_prob": 0.4129,
+    "mean_gen_len": 222.9
+  },
+  "scores": [
+    {
+      "entropy": 0.496227890253067,
+      "max_token_prob": 0.8426326513290405,
+      "first_token_prob": 0.5600653290748596,
+      "gen_len": 188
+    },
+    {
+      "entropy": 0.4911026954650879,
+      "max_token_prob": 0.857700765132904,
+      "first_token_prob": 0.41572511196136475,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3917187750339508,
+      "max_token_prob": 0.8872079253196716,
+      "first_token_prob": 0.4863812029361725,
+      "gen_len": 164
+    },
+    {
+      "entropy": 0.6753519177436829,
+      "max_token_prob": 0.803041934967041,
+      "first_token_prob": 0.29177647829055786,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3974013328552246,
+      "max_token_prob": 0.8834366798400879,
+      "first_token_prob": 0.7612011432647705,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9050351977348328,
+      "max_token_prob": 0.7362020611763,
+      "first_token_prob": 0.4804477393627167,
+      "gen_len": 241
+    },
+    {
+      "entropy": 0.5792737603187561,
+      "max_token_prob": 0.8208365440368652,
+      "first_token_prob": 0.48313698172569275,
+      "gen_len": 215
+    },
+    {
+      "entropy": 1.0063011646270752,
+      "max_token_prob": 0.7240199446678162,
+      "first_token_prob": 0.1773320585489273,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4211955964565277,
+      "max_token_prob": 0.8716577291488647,
+      "first_token_prob": 0.3691401183605194,
+      "gen_len": 221
+    },
+    {
+      "entropy": 0.852118730545044,
+      "max_token_prob": 0.7670665979385376,
+      "first_token_prob": 0.3446248769760132,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.1560084819793701,
+      "max_token_prob": 0.6895920038223267,
+      "first_token_prob": 0.3197781443595886,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5917201042175293,
+      "max_token_prob": 0.828895092010498,
+      "first_token_prob": 0.30457398295402527,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8070025444030762,
+      "max_token_prob": 0.7803593873977661,
+      "first_token_prob": 0.184439018368721,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3335022032260895,
+      "max_token_prob": 0.8907496333122253,
+      "first_token_prob": 0.4942888617515564,
+      "gen_len": 197
+    },
+    {
+      "entropy": 0.4006401598453522,
+      "max_token_prob": 0.867236852645874,
+      "first_token_prob": 0.2348557859659195,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3087429404258728,
+      "max_token_prob": 0.900874137878418,
+      "first_token_prob": 0.61421138048172,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.531087338924408,
+      "max_token_prob": 0.8368029594421387,
+      "first_token_prob": 0.2275944948196411,
+      "gen_len": 97
+    },
+    {
+      "entropy": 0.47742071747779846,
+      "max_token_prob": 0.861961841583252,
+      "first_token_prob": 0.6593824028968811,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4865334928035736,
+      "max_token_prob": 0.847675085067749,
+      "first_token_prob": 0.21898981928825378,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7404029369354248,
+      "max_token_prob": 0.7808259129524231,
+      "first_token_prob": 0.337134450674057,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7087773680686951,
+      "max_token_prob": 0.7989624738693237,
+      "first_token_prob": 0.29496023058891296,
+      "gen_len": 49
+    },
+    {
+      "entropy": 0.7045758962631226,
+      "max_token_prob": 0.794279158115387,
+      "first_token_prob": 0.4293968677520752,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8729432225227356,
+      "max_token_prob": 0.7711638808250427,
+      "first_token_prob": 0.6751099228858948,
+      "gen_len": 252
+    },
+    {
+      "entropy": 0.7292267084121704,
+      "max_token_prob": 0.7866177558898926,
+      "first_token_prob": 0.48188865184783936,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6452666521072388,
+      "max_token_prob": 0.8110253810882568,
+      "first_token_prob": 0.4585932493209839,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.44592514634132385,
+      "max_token_prob": 0.8551833033561707,
+      "first_token_prob": 0.3997833728790283,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.1922032833099365,
+      "max_token_prob": 0.6824283003807068,
+      "first_token_prob": 0.18085692822933197,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7445179224014282,
+      "max_token_prob": 0.8038856387138367,
+      "first_token_prob": 0.3983759880065918,
+      "gen_len": 232
+    },
+    {
+      "entropy": 0.6498903632164001,
+      "max_token_prob": 0.8062889575958252,
+      "first_token_prob": 0.2449672669172287,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6817919611930847,
+      "max_token_prob": 0.8139046430587769,
+      "first_token_prob": 0.5352797508239746,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8043729662895203,
+      "max_token_prob": 0.7547419667243958,
+      "first_token_prob": 0.5159487128257751,
+      "gen_len": 104
+    },
+    {
+      "entropy": 0.5293997526168823,
+      "max_token_prob": 0.8305069208145142,
+      "first_token_prob": 0.2885243892669678,
+      "gen_len": 126
+    },
+    {
+      "entropy": 0.8356417417526245,
+      "max_token_prob": 0.7654651403427124,
+      "first_token_prob": 0.209700807929039,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5215810537338257,
+      "max_token_prob": 0.8474916219711304,
+      "first_token_prob": 0.36249110102653503,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5811072587966919,
+      "max_token_prob": 0.8175435066223145,
+      "first_token_prob": 0.3859054148197174,
+      "gen_len": 132
+    },
+    {
+      "entropy": 0.8208181262016296,
+      "max_token_prob": 0.7713346481323242,
+      "first_token_prob": 0.41257765889167786,
+      "gen_len": 179
+    },
+    {
+      "entropy": 0.40406060218811035,
+      "max_token_prob": 0.8850816488265991,
+      "first_token_prob": 0.4849352538585663,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0705721378326416,
+      "max_token_prob": 0.6996859312057495,
+      "first_token_prob": 0.35554155707359314,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9881408214569092,
+      "max_token_prob": 0.7091569304466248,
+      "first_token_prob": 0.5978037118911743,
+      "gen_len": 84
+    },
+    {
+      "entropy": 0.5446134209632874,
+      "max_token_prob": 0.8367042541503906,
+      "first_token_prob": 0.4391922950744629,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7839765548706055,
+      "max_token_prob": 0.7739624381065369,
+      "first_token_prob": 0.48349642753601074,
+      "gen_len": 85
+    },
+    {
+      "entropy": 0.8087013959884644,
+      "max_token_prob": 0.7658607363700867,
+      "first_token_prob": 0.26883891224861145,
+      "gen_len": 112
+    },
+    {
+      "entropy": 0.6642338037490845,
+      "max_token_prob": 0.8157008290290833,
+      "first_token_prob": 0.47904735803604126,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.41249921917915344,
+      "max_token_prob": 0.8767013549804688,
+      "first_token_prob": 0.3947971761226654,
+      "gen_len": 238
+    },
+    {
+      "entropy": 0.6095249652862549,
+      "max_token_prob": 0.8278144001960754,
+      "first_token_prob": 0.22911551594734192,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5860394239425659,
+      "max_token_prob": 0.8328313827514648,
+      "first_token_prob": 0.3696301579475403,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7533591985702515,
+      "max_token_prob": 0.792303740978241,
+      "first_token_prob": 0.3369339406490326,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9402858018875122,
+      "max_token_prob": 0.7310370206832886,
+      "first_token_prob": 0.17950722575187683,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8001722097396851,
+      "max_token_prob": 0.7634855508804321,
+      "first_token_prob": 0.40704646706581116,
+      "gen_len": 185
+    },
+    {
+      "entropy": 0.37472495436668396,
+      "max_token_prob": 0.8899967074394226,
+      "first_token_prob": 0.6396821737289429,
+      "gen_len": 165
+    },
+    {
+      "entropy": 0.9507796764373779,
+      "max_token_prob": 0.7375118732452393,
+      "first_token_prob": 0.7767103910446167,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6884683966636658,
+      "max_token_prob": 0.8150736689567566,
+      "first_token_prob": 0.4949086308479309,
+      "gen_len": 125
+    },
+    {
+      "entropy": 0.3978342115879059,
+      "max_token_prob": 0.880499541759491,
+      "first_token_prob": 0.31519320607185364,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.744000256061554,
+      "max_token_prob": 0.7825928926467896,
+      "first_token_prob": 0.47306105494499207,
+      "gen_len": 215
+    },
+    {
+      "entropy": 0.5481677055358887,
+      "max_token_prob": 0.8364750742912292,
+      "first_token_prob": 0.533993661403656,
+      "gen_len": 153
+    },
+    {
+      "entropy": 1.2355707883834839,
+      "max_token_prob": 0.6481485962867737,
+      "first_token_prob": 0.327035129070282,
+      "gen_len": 83
+    },
+    {
+      "entropy": 0.8099268674850464,
+      "max_token_prob": 0.7669667601585388,
+      "first_token_prob": 0.3581692576408386,
+      "gen_len": 212
+    },
+    {
+      "entropy": 0.7050020694732666,
+      "max_token_prob": 0.7971819639205933,
+      "first_token_prob": 0.37219738960266113,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8981401324272156,
+      "max_token_prob": 0.7422447204589844,
+      "first_token_prob": 0.6844873428344727,
+      "gen_len": 44
+    },
+    {
+      "entropy": 0.9475995302200317,
+      "max_token_prob": 0.7389337420463562,
+      "first_token_prob": 0.742637574672699,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9193957448005676,
+      "max_token_prob": 0.728003978729248,
+      "first_token_prob": 0.2906792461872101,
+      "gen_len": 150
+    },
+    {
+      "entropy": 0.5212200880050659,
+      "max_token_prob": 0.8401823043823242,
+      "first_token_prob": 0.44589582085609436,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.498646080493927,
+      "max_token_prob": 0.853751540184021,
+      "first_token_prob": 0.301047682762146,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.492800235748291,
+      "max_token_prob": 0.8455290794372559,
+      "first_token_prob": 0.22698605060577393,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6300514936447144,
+      "max_token_prob": 0.8172462582588196,
+      "first_token_prob": 0.30588048696517944,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7401024699211121,
+      "max_token_prob": 0.7847455739974976,
+      "first_token_prob": 0.5831228494644165,
+      "gen_len": 238
+    },
+    {
+      "entropy": 0.6071087718009949,
+      "max_token_prob": 0.8104376196861267,
+      "first_token_prob": 0.5243251323699951,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9140446782112122,
+      "max_token_prob": 0.7318704724311829,
+      "first_token_prob": 0.8607482314109802,
+      "gen_len": 97
+    },
+    {
+      "entropy": 0.42078882455825806,
+      "max_token_prob": 0.8781695365905762,
+      "first_token_prob": 0.33948397636413574,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3804604411125183,
+      "max_token_prob": 0.8820700645446777,
+      "first_token_prob": 0.46009597182273865,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7205599546432495,
+      "max_token_prob": 0.7955667972564697,
+      "first_token_prob": 0.6322234869003296,
+      "gen_len": 100
+    },
+    {
+      "entropy": 0.5253070592880249,
+      "max_token_prob": 0.849657416343689,
+      "first_token_prob": 0.4007560610771179,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6099667549133301,
+      "max_token_prob": 0.8283119201660156,
+      "first_token_prob": 0.5986818671226501,
+      "gen_len": 241
+    },
+    {
+      "entropy": 0.4265892505645752,
+      "max_token_prob": 0.8712425231933594,
+      "first_token_prob": 0.578774094581604,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3944650888442993,
+      "max_token_prob": 0.8799239993095398,
+      "first_token_prob": 0.5752860903739929,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.41982725262641907,
+      "max_token_prob": 0.8663275241851807,
+      "first_token_prob": 0.3376331031322479,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8669652938842773,
+      "max_token_prob": 0.7547834515571594,
+      "first_token_prob": 0.20361916720867157,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5721429586410522,
+      "max_token_prob": 0.8122824430465698,
+      "first_token_prob": 0.6127641201019287,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3972451090812683,
+      "max_token_prob": 0.8758690357208252,
+      "first_token_prob": 0.4635021686553955,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0869381427764893,
+      "max_token_prob": 0.681765615940094,
+      "first_token_prob": 0.7331647872924805,
+      "gen_len": 147
+    },
+    {
+      "entropy": 0.5833165645599365,
+      "max_token_prob": 0.8308013081550598,
+      "first_token_prob": 0.37956568598747253,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.520842432975769,
+      "max_token_prob": 0.8482743501663208,
+      "first_token_prob": 0.758087694644928,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5025482773780823,
+      "max_token_prob": 0.8576527833938599,
+      "first_token_prob": 0.20661181211471558,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.48651444911956787,
+      "max_token_prob": 0.8591654896736145,
+      "first_token_prob": 0.4021318852901459,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4789305329322815,
+      "max_token_prob": 0.8573179244995117,
+      "first_token_prob": 0.2650505304336548,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4328576922416687,
+      "max_token_prob": 0.8661823272705078,
+      "first_token_prob": 0.5777504444122314,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7360106706619263,
+      "max_token_prob": 0.7994776964187622,
+      "first_token_prob": 0.2727072834968567,
+      "gen_len": 74
+    },
+    {
+      "entropy": 0.6001430153846741,
+      "max_token_prob": 0.8263510465621948,
+      "first_token_prob": 0.25573697686195374,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8325055837631226,
+      "max_token_prob": 0.774449348449707,
+      "first_token_prob": 0.23628416657447815,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4274618327617645,
+      "max_token_prob": 0.880609393119812,
+      "first_token_prob": 0.2664978504180908,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5419140458106995,
+      "max_token_prob": 0.8391920924186707,
+      "first_token_prob": 0.3437470495700836,
+      "gen_len": 174
+    },
+    {
+      "entropy": 0.678265392780304,
+      "max_token_prob": 0.7978898882865906,
+      "first_token_prob": 0.2952597439289093,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5101057291030884,
+      "max_token_prob": 0.8402719497680664,
+      "first_token_prob": 0.26816436648368835,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5477545261383057,
+      "max_token_prob": 0.8413822650909424,
+      "first_token_prob": 0.313022255897522,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5449472665786743,
+      "max_token_prob": 0.8326346278190613,
+      "first_token_prob": 0.3673669099807739,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.16617746651172638,
+      "max_token_prob": 0.944404125213623,
+      "first_token_prob": 0.3343852162361145,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2587559223175049,
+      "max_token_prob": 0.9221149682998657,
+      "first_token_prob": 0.24311454594135284,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5645170211791992,
+      "max_token_prob": 0.8265113830566406,
+      "first_token_prob": 0.3118627965450287,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.532852053642273,
+      "max_token_prob": 0.8413718938827515,
+      "first_token_prob": 0.4454968571662903,
+      "gen_len": 96
+    },
+    {
+      "entropy": 0.6866927146911621,
+      "max_token_prob": 0.806573748588562,
+      "first_token_prob": 0.3614106774330139,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4996635317802429,
+      "max_token_prob": 0.8519622683525085,
+      "first_token_prob": 0.4851221442222595,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8353760242462158,
+      "max_token_prob": 0.7593293190002441,
+      "first_token_prob": 0.4087146520614624,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7237212657928467,
+      "max_token_prob": 0.7870708703994751,
+      "first_token_prob": 0.30263176560401917,
+      "gen_len": 214
+    },
+    {
+      "entropy": 0.8934099674224854,
+      "max_token_prob": 0.7318006753921509,
+      "first_token_prob": 0.449962317943573,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6705272197723389,
+      "max_token_prob": 0.7993096709251404,
+      "first_token_prob": 0.24597585201263428,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.36334168910980225,
+      "max_token_prob": 0.8873562812805176,
+      "first_token_prob": 0.7568153738975525,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.47043368220329285,
+      "max_token_prob": 0.8686275482177734,
+      "first_token_prob": 0.2851996421813965,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.90321284532547,
+      "max_token_prob": 0.7494319081306458,
+      "first_token_prob": 0.2734276354312897,
+      "gen_len": 227
+    },
+    {
+      "entropy": 0.9404895901679993,
+      "max_token_prob": 0.7410513758659363,
+      "first_token_prob": 0.18703393638134003,
+      "gen_len": 247
+    },
+    {
+      "entropy": 0.40751349925994873,
+      "max_token_prob": 0.8804927468299866,
+      "first_token_prob": 0.3521682918071747,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8749762773513794,
+      "max_token_prob": 0.7493391036987305,
+      "first_token_prob": 0.39683324098587036,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4241587817668915,
+      "max_token_prob": 0.8786734342575073,
+      "first_token_prob": 0.23739255964756012,
+      "gen_len": 199
+    },
+    {
+      "entropy": 0.4969164729118347,
+      "max_token_prob": 0.8575522303581238,
+      "first_token_prob": 0.3134666979312897,
+      "gen_len": 204
+    },
+    {
+      "entropy": 0.3559523820877075,
+      "max_token_prob": 0.8942066431045532,
+      "first_token_prob": 0.5829023122787476,
+      "gen_len": 214
+    },
+    {
+      "entropy": 0.2152492254972458,
+      "max_token_prob": 0.9283524751663208,
+      "first_token_prob": 0.30059272050857544,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.35834378004074097,
+      "max_token_prob": 0.8876833915710449,
+      "first_token_prob": 0.32429933547973633,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7282040119171143,
+      "max_token_prob": 0.7791377305984497,
+      "first_token_prob": 0.43386566638946533,
+      "gen_len": 154
+    },
+    {
+      "entropy": 0.4193534851074219,
+      "max_token_prob": 0.8714322447776794,
+      "first_token_prob": 0.2761094570159912,
+      "gen_len": 173
+    },
+    {
+      "entropy": 0.6873825192451477,
+      "max_token_prob": 0.8185916543006897,
+      "first_token_prob": 0.4951411485671997,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5975150465965271,
+      "max_token_prob": 0.824898362159729,
+      "first_token_prob": 0.2910761833190918,
+      "gen_len": 233
+    },
+    {
+      "entropy": 0.5875863432884216,
+      "max_token_prob": 0.827907145023346,
+      "first_token_prob": 0.408208966255188,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5393509864807129,
+      "max_token_prob": 0.8364930748939514,
+      "first_token_prob": 0.4990936815738678,
+      "gen_len": 123
+    },
+    {
+      "entropy": 0.8989999294281006,
+      "max_token_prob": 0.7517967820167542,
+      "first_token_prob": 0.5286818146705627,
+      "gen_len": 89
+    },
+    {
+      "entropy": 0.26936131715774536,
+      "max_token_prob": 0.9077210426330566,
+      "first_token_prob": 0.49486780166625977,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5239506959915161,
+      "max_token_prob": 0.8555811643600464,
+      "first_token_prob": 0.5683580040931702,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5499756336212158,
+      "max_token_prob": 0.8359383344650269,
+      "first_token_prob": 0.4946936368942261,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5079150199890137,
+      "max_token_prob": 0.8603047132492065,
+      "first_token_prob": 0.3605540096759796,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6710667014122009,
+      "max_token_prob": 0.8018463253974915,
+      "first_token_prob": 0.3648476004600525,
+      "gen_len": 135
+    },
+    {
+      "entropy": 1.048431634902954,
+      "max_token_prob": 0.6981040239334106,
+      "first_token_prob": 0.29134637117385864,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7092782258987427,
+      "max_token_prob": 0.7808934450149536,
+      "first_token_prob": 0.15342234075069427,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7387238144874573,
+      "max_token_prob": 0.790826678276062,
+      "first_token_prob": 0.6629177927970886,
+      "gen_len": 163
+    },
+    {
+      "entropy": 0.4689313769340515,
+      "max_token_prob": 0.8634283542633057,
+      "first_token_prob": 0.46554189920425415,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.497709184885025,
+      "max_token_prob": 0.854295551776886,
+      "first_token_prob": 0.3144553601741791,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5118728876113892,
+      "max_token_prob": 0.8461889028549194,
+      "first_token_prob": 0.7984766960144043,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6599187850952148,
+      "max_token_prob": 0.7943993806838989,
+      "first_token_prob": 0.2858334183692932,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.48032140731811523,
+      "max_token_prob": 0.8520086407661438,
+      "first_token_prob": 0.5690611004829407,
+      "gen_len": 205
+    },
+    {
+      "entropy": 0.27649351954460144,
+      "max_token_prob": 0.913398265838623,
+      "first_token_prob": 0.31752535700798035,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.46838515996932983,
+      "max_token_prob": 0.8589741587638855,
+      "first_token_prob": 0.4228418171405792,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8290954232215881,
+      "max_token_prob": 0.773504376411438,
+      "first_token_prob": 0.5310611128807068,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6167224645614624,
+      "max_token_prob": 0.8094743490219116,
+      "first_token_prob": 0.3137297034263611,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.046621322631836,
+      "max_token_prob": 0.7036769390106201,
+      "first_token_prob": 0.30941298604011536,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.1702609062194824,
+      "max_token_prob": 0.6770514249801636,
+      "first_token_prob": 0.6095879077911377,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.4651412963867188,
+      "max_token_prob": 0.6197470426559448,
+      "first_token_prob": 0.20060135424137115,
+      "gen_len": 94
+    },
+    {
+      "entropy": 0.5821302533149719,
+      "max_token_prob": 0.83998042345047,
+      "first_token_prob": 0.29750925302505493,
+      "gen_len": 219
+    },
+    {
+      "entropy": 0.23422439396381378,
+      "max_token_prob": 0.9245830178260803,
+      "first_token_prob": 0.25418397784233093,
+      "gen_len": 212
+    },
+    {
+      "entropy": 0.7298374176025391,
+      "max_token_prob": 0.7807115316390991,
+      "first_token_prob": 0.4458404779434204,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.606105625629425,
+      "max_token_prob": 0.8232542276382446,
+      "first_token_prob": 0.33816206455230713,
+      "gen_len": 161
+    },
+    {
+      "entropy": 0.4314931631088257,
+      "max_token_prob": 0.868236780166626,
+      "first_token_prob": 0.3424926698207855,
+      "gen_len": 171
+    },
+    {
+      "entropy": 0.8591550588607788,
+      "max_token_prob": 0.7571976184844971,
+      "first_token_prob": 0.3374940752983093,
+      "gen_len": 209
+    },
+    {
+      "entropy": 0.7235344648361206,
+      "max_token_prob": 0.7865164279937744,
+      "first_token_prob": 0.6776215434074402,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.49966752529144287,
+      "max_token_prob": 0.8481685519218445,
+      "first_token_prob": 0.3068320155143738,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3158663809299469,
+      "max_token_prob": 0.9087485074996948,
+      "first_token_prob": 0.3965817391872406,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7715740203857422,
+      "max_token_prob": 0.7812557220458984,
+      "first_token_prob": 0.4080762565135956,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5048052072525024,
+      "max_token_prob": 0.8485069274902344,
+      "first_token_prob": 0.36367976665496826,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7966275215148926,
+      "max_token_prob": 0.7850019931793213,
+      "first_token_prob": 0.543533205986023,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6967521905899048,
+      "max_token_prob": 0.8012842535972595,
+      "first_token_prob": 0.29674145579338074,
+      "gen_len": 198
+    },
+    {
+      "entropy": 0.544129490852356,
+      "max_token_prob": 0.8298224210739136,
+      "first_token_prob": 0.6410039067268372,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5358170866966248,
+      "max_token_prob": 0.8384215235710144,
+      "first_token_prob": 0.20601338148117065,
+      "gen_len": 181
+    },
+    {
+      "entropy": 0.9656163454055786,
+      "max_token_prob": 0.7248628735542297,
+      "first_token_prob": 0.33705657720565796,
+      "gen_len": 153
+    },
+    {
+      "entropy": 0.562770426273346,
+      "max_token_prob": 0.824590802192688,
+      "first_token_prob": 0.5778713226318359,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4778389632701874,
+      "max_token_prob": 0.8496590852737427,
+      "first_token_prob": 0.8296987414360046,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9033061861991882,
+      "max_token_prob": 0.7412068843841553,
+      "first_token_prob": 0.5537077188491821,
+      "gen_len": 45
+    },
+    {
+      "entropy": 0.8204345703125,
+      "max_token_prob": 0.7504921555519104,
+      "first_token_prob": 0.24349366128444672,
+      "gen_len": 130
+    },
+    {
+      "entropy": 1.0872057676315308,
+      "max_token_prob": 0.7026012539863586,
+      "first_token_prob": 0.38004201650619507,
+      "gen_len": 197
+    },
+    {
+      "entropy": 0.3746955394744873,
+      "max_token_prob": 0.892595112323761,
+      "first_token_prob": 0.5720310211181641,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4959281086921692,
+      "max_token_prob": 0.8530358076095581,
+      "first_token_prob": 0.5667087435722351,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6592648029327393,
+      "max_token_prob": 0.8042652010917664,
+      "first_token_prob": 0.6736158728599548,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6879447102546692,
+      "max_token_prob": 0.7992763519287109,
+      "first_token_prob": 0.45178234577178955,
+      "gen_len": 88
+    },
+    {
+      "entropy": 0.3814997375011444,
+      "max_token_prob": 0.8821160197257996,
+      "first_token_prob": 0.9993835687637329,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6433165669441223,
+      "max_token_prob": 0.8096606135368347,
+      "first_token_prob": 0.24439816176891327,
+      "gen_len": 227
+    },
+    {
+      "entropy": 0.6980802416801453,
+      "max_token_prob": 0.8057830333709717,
+      "first_token_prob": 0.3414781987667084,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.403046578168869,
+      "max_token_prob": 0.8774813413619995,
+      "first_token_prob": 0.23366940021514893,
+      "gen_len": 246
+    },
+    {
+      "entropy": 0.403592586517334,
+      "max_token_prob": 0.8790819644927979,
+      "first_token_prob": 0.3721991777420044,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8610273599624634,
+      "max_token_prob": 0.7511721849441528,
+      "first_token_prob": 0.2787606716156006,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5845779180526733,
+      "max_token_prob": 0.8210300803184509,
+      "first_token_prob": 0.31217658519744873,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8772062063217163,
+      "max_token_prob": 0.7490723133087158,
+      "first_token_prob": 0.5350200533866882,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6901134252548218,
+      "max_token_prob": 0.8062079548835754,
+      "first_token_prob": 0.40831229090690613,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8343037366867065,
+      "max_token_prob": 0.7473432421684265,
+      "first_token_prob": 0.5806864500045776,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8399043679237366,
+      "max_token_prob": 0.755420982837677,
+      "first_token_prob": 0.42472824454307556,
+      "gen_len": 159
+    },
+    {
+      "entropy": 0.3509807586669922,
+      "max_token_prob": 0.8935861587524414,
+      "first_token_prob": 0.4109340012073517,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8444995880126953,
+      "max_token_prob": 0.7656413912773132,
+      "first_token_prob": 0.4282975196838379,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.48829153180122375,
+      "max_token_prob": 0.8516767024993896,
+      "first_token_prob": 0.6127520203590393,
+      "gen_len": 232
+    },
+    {
+      "entropy": 0.38443702459335327,
+      "max_token_prob": 0.879281222820282,
+      "first_token_prob": 0.5290582180023193,
+      "gen_len": 198
+    },
+    {
+      "entropy": 0.40461936593055725,
+      "max_token_prob": 0.8758602142333984,
+      "first_token_prob": 0.5568930506706238,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4699282944202423,
+      "max_token_prob": 0.8597724437713623,
+      "first_token_prob": 0.2817270755767822,
+      "gen_len": 212
+    },
+    {
+      "entropy": 0.4942047894001007,
+      "max_token_prob": 0.844143271446228,
+      "first_token_prob": 0.48445379734039307,
+      "gen_len": 207
+    },
+    {
+      "entropy": 0.7369465827941895,
+      "max_token_prob": 0.7858213186264038,
+      "first_token_prob": 0.3483506441116333,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3482630252838135,
+      "max_token_prob": 0.8960788249969482,
+      "first_token_prob": 0.7491825222969055,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5944019556045532,
+      "max_token_prob": 0.833564281463623,
+      "first_token_prob": 0.19516535103321075,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.22310630977153778,
+      "max_token_prob": 0.9332997798919678,
+      "first_token_prob": 0.2936631739139557,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8736678957939148,
+      "max_token_prob": 0.7550095915794373,
+      "first_token_prob": 0.6352012157440186,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5659786462783813,
+      "max_token_prob": 0.8412854671478271,
+      "first_token_prob": 0.5173465013504028,
+      "gen_len": 138
+    },
+    {
+      "entropy": 0.5046628713607788,
+      "max_token_prob": 0.8503642082214355,
+      "first_token_prob": 0.21614156663417816,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4816911220550537,
+      "max_token_prob": 0.8524905443191528,
+      "first_token_prob": 0.1719146966934204,
+      "gen_len": 128
+    },
+    {
+      "entropy": 0.43606770038604736,
+      "max_token_prob": 0.865077793598175,
+      "first_token_prob": 0.2757887840270996,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.576038122177124,
+      "max_token_prob": 0.8312461376190186,
+      "first_token_prob": 0.4035910665988922,
+      "gen_len": 187
+    },
+    {
+      "entropy": 0.4396803081035614,
+      "max_token_prob": 0.8722834587097168,
+      "first_token_prob": 0.4074183702468872,
+      "gen_len": 162
+    },
+    {
+      "entropy": 0.5400491952896118,
+      "max_token_prob": 0.8412660360336304,
+      "first_token_prob": 0.24719156324863434,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8103019595146179,
+      "max_token_prob": 0.7556707262992859,
+      "first_token_prob": 0.20295439660549164,
+      "gen_len": 119
+    },
+    {
+      "entropy": 0.3918086886405945,
+      "max_token_prob": 0.8789991140365601,
+      "first_token_prob": 0.45622286200523376,
+      "gen_len": 174
+    },
+    {
+      "entropy": 0.4915117621421814,
+      "max_token_prob": 0.8599916696548462,
+      "first_token_prob": 0.33971163630485535,
+      "gen_len": 207
+    },
+    {
+      "entropy": 0.6708041429519653,
+      "max_token_prob": 0.8006797432899475,
+      "first_token_prob": 0.429047554731369,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7795237302780151,
+      "max_token_prob": 0.7718226909637451,
+      "first_token_prob": 0.6391440033912659,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4633479118347168,
+      "max_token_prob": 0.8671007752418518,
+      "first_token_prob": 0.41528111696243286,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.273120254278183,
+      "max_token_prob": 0.9166955947875977,
+      "first_token_prob": 0.4209621846675873,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.41493016481399536,
+      "max_token_prob": 0.8823673725128174,
+      "first_token_prob": 0.42194056510925293,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6732776165008545,
+      "max_token_prob": 0.7909010648727417,
+      "first_token_prob": 0.4520757496356964,
+      "gen_len": 114
+    },
+    {
+      "entropy": 0.4050225615501404,
+      "max_token_prob": 0.8713160157203674,
+      "first_token_prob": 0.21930231153964996,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0710222721099854,
+      "max_token_prob": 0.6981712579727173,
+      "first_token_prob": 0.37429288029670715,
+      "gen_len": 182
+    },
+    {
+      "entropy": 0.8925731182098389,
+      "max_token_prob": 0.7398573756217957,
+      "first_token_prob": 0.35389435291290283,
+      "gen_len": 181
+    },
+    {
+      "entropy": 0.5058802962303162,
+      "max_token_prob": 0.8433817625045776,
+      "first_token_prob": 0.5226390361785889,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4452904462814331,
+      "max_token_prob": 0.8689376711845398,
+      "first_token_prob": 0.7185469269752502,
+      "gen_len": 96
+    },
+    {
+      "entropy": 0.7159034013748169,
+      "max_token_prob": 0.786033570766449,
+      "first_token_prob": 0.7571951150894165,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3587154150009155,
+      "max_token_prob": 0.8916631937026978,
+      "first_token_prob": 0.3794294595718384,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5718299150466919,
+      "max_token_prob": 0.8353490829467773,
+      "first_token_prob": 0.8149431943893433,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6617527008056641,
+      "max_token_prob": 0.8173030614852905,
+      "first_token_prob": 0.4471395015716553,
+      "gen_len": 107
+    },
+    {
+      "entropy": 0.6955850720405579,
+      "max_token_prob": 0.7959345579147339,
+      "first_token_prob": 0.4312222898006439,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.5227359533309937,
+      "max_token_prob": 0.5958995819091797,
+      "first_token_prob": 0.3765183687210083,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.48058953881263733,
+      "max_token_prob": 0.8504769802093506,
+      "first_token_prob": 0.396310955286026,
+      "gen_len": 105
+    },
+    {
+      "entropy": 0.3729061484336853,
+      "max_token_prob": 0.8894218802452087,
+      "first_token_prob": 0.9998520612716675,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9117333889007568,
+      "max_token_prob": 0.7447909116744995,
+      "first_token_prob": 0.5057462453842163,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6504379510879517,
+      "max_token_prob": 0.8029801845550537,
+      "first_token_prob": 0.22654953598976135,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4086610674858093,
+      "max_token_prob": 0.8650252819061279,
+      "first_token_prob": 0.22227104008197784,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6217492818832397,
+      "max_token_prob": 0.8141924142837524,
+      "first_token_prob": 0.3349932134151459,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.43479087948799133,
+      "max_token_prob": 0.8716052770614624,
+      "first_token_prob": 0.3490525186061859,
+      "gen_len": 213
+    },
+    {
+      "entropy": 0.4986504018306732,
+      "max_token_prob": 0.8595032691955566,
+      "first_token_prob": 0.5437319278717041,
+      "gen_len": 238
+    },
+    {
+      "entropy": 0.5604608654975891,
+      "max_token_prob": 0.8347342014312744,
+      "first_token_prob": 0.37536635994911194,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9054176211357117,
+      "max_token_prob": 0.7206533551216125,
+      "first_token_prob": 0.5041139125823975,
+      "gen_len": 69
+    },
+    {
+      "entropy": 0.5152211785316467,
+      "max_token_prob": 0.8539817333221436,
+      "first_token_prob": 0.26516860723495483,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4545449912548065,
+      "max_token_prob": 0.8554084897041321,
+      "first_token_prob": 0.24752603471279144,
+      "gen_len": 252
+    },
+    {
+      "entropy": 0.3813028335571289,
+      "max_token_prob": 0.8874615430831909,
+      "first_token_prob": 0.3887736201286316,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.44797593355178833,
+      "max_token_prob": 0.87119460105896,
+      "first_token_prob": 0.6490364670753479,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8000900149345398,
+      "max_token_prob": 0.7711756229400635,
+      "first_token_prob": 0.32705923914909363,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.277444452047348,
+      "max_token_prob": 0.9106017351150513,
+      "first_token_prob": 0.3039284944534302,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4861942529678345,
+      "max_token_prob": 0.8538512587547302,
+      "first_token_prob": 0.24045021831989288,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5147083401679993,
+      "max_token_prob": 0.847658634185791,
+      "first_token_prob": 0.544219970703125,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3619065284729004,
+      "max_token_prob": 0.8957353830337524,
+      "first_token_prob": 0.45212119817733765,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7135474681854248,
+      "max_token_prob": 0.7979552745819092,
+      "first_token_prob": 0.47213342785835266,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9227568507194519,
+      "max_token_prob": 0.730553925037384,
+      "first_token_prob": 0.23563945293426514,
+      "gen_len": 153
+    },
+    {
+      "entropy": 0.6957559585571289,
+      "max_token_prob": 0.806172251701355,
+      "first_token_prob": 0.3004594147205353,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8264321684837341,
+      "max_token_prob": 0.7539982795715332,
+      "first_token_prob": 0.21103976666927338,
+      "gen_len": 143
+    },
+    {
+      "entropy": 0.7597402930259705,
+      "max_token_prob": 0.7742331027984619,
+      "first_token_prob": 0.34763845801353455,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4030400812625885,
+      "max_token_prob": 0.8723800182342529,
+      "first_token_prob": 0.20641426742076874,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.52208012342453,
+      "max_token_prob": 0.8439202904701233,
+      "first_token_prob": 0.572369396686554,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5970630645751953,
+      "max_token_prob": 0.8222396373748779,
+      "first_token_prob": 0.5324955582618713,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.850082278251648,
+      "max_token_prob": 0.7601309418678284,
+      "first_token_prob": 0.26655447483062744,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.945476233959198,
+      "max_token_prob": 0.7427287101745605,
+      "first_token_prob": 0.5551221370697021,
+      "gen_len": 50
+    },
+    {
+      "entropy": 0.6126711368560791,
+      "max_token_prob": 0.8239434957504272,
+      "first_token_prob": 0.5540474653244019,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.334484726190567,
+      "max_token_prob": 0.8980807065963745,
+      "first_token_prob": 0.39265504479408264,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9235765933990479,
+      "max_token_prob": 0.7397735714912415,
+      "first_token_prob": 0.329344779253006,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8676885962486267,
+      "max_token_prob": 0.7534928917884827,
+      "first_token_prob": 0.2884007692337036,
+      "gen_len": 99
+    },
+    {
+      "entropy": 0.7462365031242371,
+      "max_token_prob": 0.7734552621841431,
+      "first_token_prob": 0.2698396146297455,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.481453001499176,
+      "max_token_prob": 0.8602038621902466,
+      "first_token_prob": 0.542583703994751,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3779562711715698,
+      "max_token_prob": 0.8871065974235535,
+      "first_token_prob": 0.3897853493690491,
+      "gen_len": 227
+    },
+    {
+      "entropy": 0.733335018157959,
+      "max_token_prob": 0.7930487990379333,
+      "first_token_prob": 0.2271779626607895,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2843436896800995,
+      "max_token_prob": 0.8990764021873474,
+      "first_token_prob": 0.28061771392822266,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2745395600795746,
+      "max_token_prob": 0.9125781059265137,
+      "first_token_prob": 0.33902493119239807,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5747671723365784,
+      "max_token_prob": 0.8156477808952332,
+      "first_token_prob": 0.21264858543872833,
+      "gen_len": 229
+    },
+    {
+      "entropy": 0.5640442371368408,
+      "max_token_prob": 0.8354741334915161,
+      "first_token_prob": 0.8196119666099548,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5292220115661621,
+      "max_token_prob": 0.8478052616119385,
+      "first_token_prob": 0.23207081854343414,
+      "gen_len": 188
+    },
+    {
+      "entropy": 0.389755517244339,
+      "max_token_prob": 0.8858942985534668,
+      "first_token_prob": 0.2803809344768524,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6541689038276672,
+      "max_token_prob": 0.8118772506713867,
+      "first_token_prob": 0.2549697160720825,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6100978851318359,
+      "max_token_prob": 0.8148962259292603,
+      "first_token_prob": 0.718697726726532,
+      "gen_len": 179
+    },
+    {
+      "entropy": 0.552559494972229,
+      "max_token_prob": 0.8366209864616394,
+      "first_token_prob": 0.7510234713554382,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.83927983045578,
+      "max_token_prob": 0.7524511814117432,
+      "first_token_prob": 0.2964582145214081,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.46626409888267517,
+      "max_token_prob": 0.855974555015564,
+      "first_token_prob": 0.3047839105129242,
+      "gen_len": 177
+    },
+    {
+      "entropy": 1.110029697418213,
+      "max_token_prob": 0.7049365639686584,
+      "first_token_prob": 0.2420470118522644,
+      "gen_len": 129
+    },
+    {
+      "entropy": 0.6789970993995667,
+      "max_token_prob": 0.7864707708358765,
+      "first_token_prob": 0.31109246611595154,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.41361528635025024,
+      "max_token_prob": 0.8730672597885132,
+      "first_token_prob": 0.5833083391189575,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0922033786773682,
+      "max_token_prob": 0.7031205892562866,
+      "first_token_prob": 0.2883685529232025,
+      "gen_len": 245
+    },
+    {
+      "entropy": 0.9235585927963257,
+      "max_token_prob": 0.7407453060150146,
+      "first_token_prob": 0.36850473284721375,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6466214060783386,
+      "max_token_prob": 0.8130118250846863,
+      "first_token_prob": 0.5150147676467896,
+      "gen_len": 139
+    },
+    {
+      "entropy": 0.4495691955089569,
+      "max_token_prob": 0.8698577880859375,
+      "first_token_prob": 0.34902721643447876,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8633144497871399,
+      "max_token_prob": 0.7697144150733948,
+      "first_token_prob": 0.39976224303245544,
+      "gen_len": 139
+    },
+    {
+      "entropy": 1.528463363647461,
+      "max_token_prob": 0.6152481436729431,
+      "first_token_prob": 0.27516797184944153,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8156266212463379,
+      "max_token_prob": 0.7646201252937317,
+      "first_token_prob": 0.4871726930141449,
+      "gen_len": 164
+    },
+    {
+      "entropy": 0.8914403319358826,
+      "max_token_prob": 0.7531194686889648,
+      "first_token_prob": 0.35050129890441895,
+      "gen_len": 230
+    },
+    {
+      "entropy": 0.773709774017334,
+      "max_token_prob": 0.7770341038703918,
+      "first_token_prob": 0.5095171332359314,
+      "gen_len": 88
+    },
+    {
+      "entropy": 0.6501521468162537,
+      "max_token_prob": 0.8169152140617371,
+      "first_token_prob": 0.31490442156791687,
+      "gen_len": 236
+    },
+    {
+      "entropy": 0.4705767333507538,
+      "max_token_prob": 0.8611226081848145,
+      "first_token_prob": 0.681075394153595,
+      "gen_len": 162
+    },
+    {
+      "entropy": 0.977652370929718,
+      "max_token_prob": 0.7238584160804749,
+      "first_token_prob": 0.2839049994945526,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.46506398916244507,
+      "max_token_prob": 0.8584418892860413,
+      "first_token_prob": 0.5497270822525024,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9340755939483643,
+      "max_token_prob": 0.7449043989181519,
+      "first_token_prob": 0.28269949555397034,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4174448549747467,
+      "max_token_prob": 0.8703727722167969,
+      "first_token_prob": 0.48333701491355896,
+      "gen_len": 129
+    },
+    {
+      "entropy": 0.3365727961063385,
+      "max_token_prob": 0.8959717750549316,
+      "first_token_prob": 0.32644176483154297,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3846778869628906,
+      "max_token_prob": 0.8854472637176514,
+      "first_token_prob": 0.28717437386512756,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9616957902908325,
+      "max_token_prob": 0.7436178922653198,
+      "first_token_prob": 0.3385750949382782,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.03352689743042,
+      "max_token_prob": 0.7235791683197021,
+      "first_token_prob": 0.3765847682952881,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.1923760175704956,
+      "max_token_prob": 0.9390550851821899,
+      "first_token_prob": 0.21133828163146973,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.23676714301109314,
+      "max_token_prob": 0.9298186302185059,
+      "first_token_prob": 0.5062017440795898,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6050235629081726,
+      "max_token_prob": 0.8267327547073364,
+      "first_token_prob": 0.41278719902038574,
+      "gen_len": 200
+    },
+    {
+      "entropy": 1.5381203889846802,
+      "max_token_prob": 0.6074544191360474,
+      "first_token_prob": 0.3569178283214569,
+      "gen_len": 95
+    },
+    {
+      "entropy": 0.5396386981010437,
+      "max_token_prob": 0.8455819487571716,
+      "first_token_prob": 0.33098626136779785,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5158225893974304,
+      "max_token_prob": 0.8481051325798035,
+      "first_token_prob": 0.30652710795402527,
+      "gen_len": 200
+    },
+    {
+      "entropy": 0.7347910404205322,
+      "max_token_prob": 0.7803905010223389,
+      "first_token_prob": 0.7921485900878906,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0778378248214722,
+      "max_token_prob": 0.6918191313743591,
+      "first_token_prob": 0.23117434978485107,
+      "gen_len": 160
+    },
+    {
+      "entropy": 0.14934587478637695,
+      "max_token_prob": 0.9532492160797119,
+      "first_token_prob": 0.8152285218238831,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8118621706962585,
+      "max_token_prob": 0.7661675214767456,
+      "first_token_prob": 0.5905258655548096,
+      "gen_len": 250
+    },
+    {
+      "entropy": 0.2647932171821594,
+      "max_token_prob": 0.917502224445343,
+      "first_token_prob": 0.4200473129749298,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.6976690292358398,
+      "max_token_prob": 0.5426769256591797,
+      "first_token_prob": 0.3440035581588745,
+      "gen_len": 41
+    },
+    {
+      "entropy": 0.6576157808303833,
+      "max_token_prob": 0.8145492672920227,
+      "first_token_prob": 0.24135300517082214,
+      "gen_len": 160
+    },
+    {
+      "entropy": 0.2679052948951721,
+      "max_token_prob": 0.9281838536262512,
+      "first_token_prob": 0.9999589920043945,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.735899031162262,
+      "max_token_prob": 0.7896587252616882,
+      "first_token_prob": 0.33072754740715027,
+      "gen_len": 233
+    },
+    {
+      "entropy": 1.0353763103485107,
+      "max_token_prob": 0.7156642079353333,
+      "first_token_prob": 0.355328768491745,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4034402370452881,
+      "max_token_prob": 0.8782015442848206,
+      "first_token_prob": 0.2903340458869934,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.31463444232940674,
+      "max_token_prob": 0.9034969806671143,
+      "first_token_prob": 0.5789474844932556,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8695700764656067,
+      "max_token_prob": 0.7480087280273438,
+      "first_token_prob": 0.5264521837234497,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.700848400592804,
+      "max_token_prob": 0.7731284499168396,
+      "first_token_prob": 0.22367724776268005,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.1268504858016968,
+      "max_token_prob": 0.6838359832763672,
+      "first_token_prob": 0.11501479893922806,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0236730575561523,
+      "max_token_prob": 0.7108108997344971,
+      "first_token_prob": 0.3612031042575836,
+      "gen_len": 206
+    },
+    {
+      "entropy": 0.41659843921661377,
+      "max_token_prob": 0.8755162954330444,
+      "first_token_prob": 0.49829453229904175,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3688533902168274,
+      "max_token_prob": 0.896253228187561,
+      "first_token_prob": 0.3953169286251068,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6260941624641418,
+      "max_token_prob": 0.8018329739570618,
+      "first_token_prob": 0.5022453665733337,
+      "gen_len": 212
+    },
+    {
+      "entropy": 0.9243606328964233,
+      "max_token_prob": 0.726392388343811,
+      "first_token_prob": 0.28514739871025085,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.605475664138794,
+      "max_token_prob": 0.8150381445884705,
+      "first_token_prob": 0.31385648250579834,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8509246110916138,
+      "max_token_prob": 0.7554398775100708,
+      "first_token_prob": 0.22639477252960205,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6248758435249329,
+      "max_token_prob": 0.8193354606628418,
+      "first_token_prob": 0.5985931754112244,
+      "gen_len": 104
+    },
+    {
+      "entropy": 0.25396090745925903,
+      "max_token_prob": 0.9227224588394165,
+      "first_token_prob": 0.27153173089027405,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3734610676765442,
+      "max_token_prob": 0.8923625349998474,
+      "first_token_prob": 0.37214192748069763,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5314981341362,
+      "max_token_prob": 0.8383616209030151,
+      "first_token_prob": 0.4372740685939789,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6595321893692017,
+      "max_token_prob": 0.7971519827842712,
+      "first_token_prob": 0.5242297649383545,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5999574661254883,
+      "max_token_prob": 0.8200359344482422,
+      "first_token_prob": 0.42261046171188354,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7410908341407776,
+      "max_token_prob": 0.7758927941322327,
+      "first_token_prob": 0.551044225692749,
+      "gen_len": 75
+    },
+    {
+      "entropy": 1.1370925903320312,
+      "max_token_prob": 0.7043538093566895,
+      "first_token_prob": 0.13641756772994995,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7643893361091614,
+      "max_token_prob": 0.7734525203704834,
+      "first_token_prob": 0.5096257925033569,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4030649960041046,
+      "max_token_prob": 0.8832175731658936,
+      "first_token_prob": 0.34013816714286804,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6418411731719971,
+      "max_token_prob": 0.8131632804870605,
+      "first_token_prob": 0.38700103759765625,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6393258571624756,
+      "max_token_prob": 0.8135231733322144,
+      "first_token_prob": 0.27176040410995483,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7883716821670532,
+      "max_token_prob": 0.7772674560546875,
+      "first_token_prob": 0.2688930928707123,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5015237927436829,
+      "max_token_prob": 0.8473200798034668,
+      "first_token_prob": 0.39045727252960205,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4857290983200073,
+      "max_token_prob": 0.865933358669281,
+      "first_token_prob": 0.3100934326648712,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4621948003768921,
+      "max_token_prob": 0.867050290107727,
+      "first_token_prob": 0.3769741654396057,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5240573883056641,
+      "max_token_prob": 0.8355450630187988,
+      "first_token_prob": 0.3158290982246399,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.40953850746154785,
+      "max_token_prob": 0.8753517866134644,
+      "first_token_prob": 0.35300496220588684,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5246132612228394,
+      "max_token_prob": 0.840519905090332,
+      "first_token_prob": 0.45671963691711426,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7459543943405151,
+      "max_token_prob": 0.7919139266014099,
+      "first_token_prob": 0.3722265064716339,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.31697890162467957,
+      "max_token_prob": 0.9047583937644958,
+      "first_token_prob": 0.8255144357681274,
+      "gen_len": 226
+    },
+    {
+      "entropy": 0.5532569289207458,
+      "max_token_prob": 0.8431695699691772,
+      "first_token_prob": 0.7948232889175415,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8876552581787109,
+      "max_token_prob": 0.7684588432312012,
+      "first_token_prob": 0.3745737075805664,
+      "gen_len": 185
+    },
+    {
+      "entropy": 0.8952784538269043,
+      "max_token_prob": 0.7451663017272949,
+      "first_token_prob": 0.15373750030994415,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5716284513473511,
+      "max_token_prob": 0.8321738839149475,
+      "first_token_prob": 0.34812721610069275,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.827809751033783,
+      "max_token_prob": 0.7538329362869263,
+      "first_token_prob": 0.7608367204666138,
+      "gen_len": 66
+    },
+    {
+      "entropy": 0.9103227257728577,
+      "max_token_prob": 0.7316444516181946,
+      "first_token_prob": 0.5696037411689758,
+      "gen_len": 68
+    },
+    {
+      "entropy": 0.9007883071899414,
+      "max_token_prob": 0.7415976524353027,
+      "first_token_prob": 0.21489699184894562,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5332400798797607,
+      "max_token_prob": 0.8397514820098877,
+      "first_token_prob": 0.23268750309944153,
+      "gen_len": 247
+    },
+    {
+      "entropy": 0.36992567777633667,
+      "max_token_prob": 0.8901306390762329,
+      "first_token_prob": 0.4792943596839905,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9512432217597961,
+      "max_token_prob": 0.7371281385421753,
+      "first_token_prob": 0.5445039868354797,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4790210425853729,
+      "max_token_prob": 0.8648197650909424,
+      "first_token_prob": 0.4776221513748169,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7221667766571045,
+      "max_token_prob": 0.8001746535301208,
+      "first_token_prob": 0.5367804765701294,
+      "gen_len": 235
+    },
+    {
+      "entropy": 1.3297227621078491,
+      "max_token_prob": 0.639212965965271,
+      "first_token_prob": 0.20975086092948914,
+      "gen_len": 89
+    },
+    {
+      "entropy": 0.6809157133102417,
+      "max_token_prob": 0.8084684014320374,
+      "first_token_prob": 0.5873103737831116,
+      "gen_len": 238
+    },
+    {
+      "entropy": 0.466366708278656,
+      "max_token_prob": 0.8716976642608643,
+      "first_token_prob": 0.410480260848999,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8846586346626282,
+      "max_token_prob": 0.7406249642372131,
+      "first_token_prob": 0.46346515417099,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.35955810546875,
+      "max_token_prob": 0.6356433033943176,
+      "first_token_prob": 0.21249569952487946,
+      "gen_len": 79
+    },
+    {
+      "entropy": 0.5874398946762085,
+      "max_token_prob": 0.8238753080368042,
+      "first_token_prob": 0.7605233788490295,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.40628981590270996,
+      "max_token_prob": 0.8786200284957886,
+      "first_token_prob": 0.37251192331314087,
+      "gen_len": 252
+    },
+    {
+      "entropy": 0.7541132569313049,
+      "max_token_prob": 0.7948538064956665,
+      "first_token_prob": 0.5809416770935059,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0554990768432617,
+      "max_token_prob": 0.7037804126739502,
+      "first_token_prob": 0.27161067724227905,
+      "gen_len": 115
+    },
+    {
+      "entropy": 1.098464846611023,
+      "max_token_prob": 0.711055338382721,
+      "first_token_prob": 0.5674614906311035,
+      "gen_len": 127
+    },
+    {
+      "entropy": 0.4776679277420044,
+      "max_token_prob": 0.8634105920791626,
+      "first_token_prob": 0.41632160544395447,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3752239942550659,
+      "max_token_prob": 0.8786582946777344,
+      "first_token_prob": 0.5313408374786377,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9356700778007507,
+      "max_token_prob": 0.7389825582504272,
+      "first_token_prob": 0.5946742296218872,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4172338545322418,
+      "max_token_prob": 0.8755569458007812,
+      "first_token_prob": 0.22562840580940247,
+      "gen_len": 179
+    },
+    {
+      "entropy": 0.3734160363674164,
+      "max_token_prob": 0.8845409154891968,
+      "first_token_prob": 0.8217145800590515,
+      "gen_len": 163
+    },
+    {
+      "entropy": 0.8211033344268799,
+      "max_token_prob": 0.7517000436782837,
+      "first_token_prob": 0.2685958445072174,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8442584276199341,
+      "max_token_prob": 0.761690080165863,
+      "first_token_prob": 0.2912541627883911,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6703165769577026,
+      "max_token_prob": 0.789444625377655,
+      "first_token_prob": 0.24514532089233398,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6733934879302979,
+      "max_token_prob": 0.8010208606719971,
+      "first_token_prob": 0.43077778816223145,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.42928412556648254,
+      "max_token_prob": 0.8651608824729919,
+      "first_token_prob": 0.5636115074157715,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2557659447193146,
+      "max_token_prob": 0.9197131395339966,
+      "first_token_prob": 0.48055601119995117,
+      "gen_len": 236
+    },
+    {
+      "entropy": 0.40943920612335205,
+      "max_token_prob": 0.8646907806396484,
+      "first_token_prob": 0.3110843598842621,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2560420632362366,
+      "max_token_prob": 0.9140681624412537,
+      "first_token_prob": 0.26168662309646606,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.45117682218551636,
+      "max_token_prob": 0.8528209924697876,
+      "first_token_prob": 0.3572107255458832,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5322261452674866,
+      "max_token_prob": 0.8569844365119934,
+      "first_token_prob": 0.22149181365966797,
+      "gen_len": 158
+    },
+    {
+      "entropy": 0.5841363668441772,
+      "max_token_prob": 0.8301505446434021,
+      "first_token_prob": 0.30685955286026,
+      "gen_len": 219
+    },
+    {
+      "entropy": 0.5607965588569641,
+      "max_token_prob": 0.8354049921035767,
+      "first_token_prob": 0.20133604109287262,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6185648441314697,
+      "max_token_prob": 0.8190698027610779,
+      "first_token_prob": 0.5357296466827393,
+      "gen_len": 229
+    },
+    {
+      "entropy": 1.0382606983184814,
+      "max_token_prob": 0.7149536609649658,
+      "first_token_prob": 0.4867027997970581,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.284305453300476,
+      "max_token_prob": 0.6744178533554077,
+      "first_token_prob": 0.2671237289905548,
+      "gen_len": 73
+    },
+    {
+      "entropy": 0.29916203022003174,
+      "max_token_prob": 0.9124680757522583,
+      "first_token_prob": 0.4054946005344391,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6984279155731201,
+      "max_token_prob": 0.7995734214782715,
+      "first_token_prob": 0.4076571464538574,
+      "gen_len": 146
+    },
+    {
+      "entropy": 1.160888433456421,
+      "max_token_prob": 0.6948291659355164,
+      "first_token_prob": 0.2053661197423935,
+      "gen_len": 232
+    },
+    {
+      "entropy": 0.8178714513778687,
+      "max_token_prob": 0.7639958262443542,
+      "first_token_prob": 0.578049898147583,
+      "gen_len": 227
+    },
+    {
+      "entropy": 0.4520988464355469,
+      "max_token_prob": 0.8680137395858765,
+      "first_token_prob": 0.5710047483444214,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.48575228452682495,
+      "max_token_prob": 0.8591696619987488,
+      "first_token_prob": 0.3643198013305664,
+      "gen_len": 117
+    },
+    {
+      "entropy": 1.0029672384262085,
+      "max_token_prob": 0.725234866142273,
+      "first_token_prob": 0.5997087955474854,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7915498614311218,
+      "max_token_prob": 0.7785179615020752,
+      "first_token_prob": 0.5237594246864319,
+      "gen_len": 104
+    },
+    {
+      "entropy": 0.8002972602844238,
+      "max_token_prob": 0.7653520107269287,
+      "first_token_prob": 0.46643030643463135,
+      "gen_len": 42
+    },
+    {
+      "entropy": 0.6690876483917236,
+      "max_token_prob": 0.8140979409217834,
+      "first_token_prob": 0.4669803977012634,
+      "gen_len": 108
+    },
+    {
+      "entropy": 0.6553010940551758,
+      "max_token_prob": 0.8016821146011353,
+      "first_token_prob": 0.5324432849884033,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6889309883117676,
+      "max_token_prob": 0.8024162650108337,
+      "first_token_prob": 0.33254778385162354,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5190922021865845,
+      "max_token_prob": 0.842002272605896,
+      "first_token_prob": 0.4422557055950165,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.41111505031585693,
+      "max_token_prob": 0.8741055727005005,
+      "first_token_prob": 0.4777408242225647,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8847713470458984,
+      "max_token_prob": 0.7585428953170776,
+      "first_token_prob": 0.34961190819740295,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5275083780288696,
+      "max_token_prob": 0.8411039113998413,
+      "first_token_prob": 0.22503156960010529,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4092642664909363,
+      "max_token_prob": 0.876023530960083,
+      "first_token_prob": 0.6252856254577637,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7215100526809692,
+      "max_token_prob": 0.7896159887313843,
+      "first_token_prob": 0.6853500008583069,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3184145390987396,
+      "max_token_prob": 0.9044889807701111,
+      "first_token_prob": 0.48412078619003296,
+      "gen_len": 211
+    },
+    {
+      "entropy": 0.49421167373657227,
+      "max_token_prob": 0.869817852973938,
+      "first_token_prob": 0.35735616087913513,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4004371762275696,
+      "max_token_prob": 0.8792691826820374,
+      "first_token_prob": 0.3924143612384796,
+      "gen_len": 234
+    },
+    {
+      "entropy": 0.47229713201522827,
+      "max_token_prob": 0.8509913086891174,
+      "first_token_prob": 0.3186434805393219,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3951219618320465,
+      "max_token_prob": 0.8757228851318359,
+      "first_token_prob": 0.3325844705104828,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.929222822189331,
+      "max_token_prob": 0.7401151657104492,
+      "first_token_prob": 0.20665428042411804,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7641292810440063,
+      "max_token_prob": 0.7930522561073303,
+      "first_token_prob": 0.25398504734039307,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6621106266975403,
+      "max_token_prob": 0.8121289610862732,
+      "first_token_prob": 0.503711998462677,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9555894732475281,
+      "max_token_prob": 0.7450944185256958,
+      "first_token_prob": 0.1579529196023941,
+      "gen_len": 42
+    },
+    {
+      "entropy": 0.7431329488754272,
+      "max_token_prob": 0.7987149953842163,
+      "first_token_prob": 0.3996829092502594,
+      "gen_len": 56
+    },
+    {
+      "entropy": 0.4424614906311035,
+      "max_token_prob": 0.8624660968780518,
+      "first_token_prob": 0.42510682344436646,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7097079753875732,
+      "max_token_prob": 0.789313554763794,
+      "first_token_prob": 0.39445093274116516,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6604028940200806,
+      "max_token_prob": 0.7946609258651733,
+      "first_token_prob": 0.20424267649650574,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9664950966835022,
+      "max_token_prob": 0.7272561192512512,
+      "first_token_prob": 0.27406343817710876,
+      "gen_len": 217
+    },
+    {
+      "entropy": 0.9213880896568298,
+      "max_token_prob": 0.7545106410980225,
+      "first_token_prob": 0.5070984363555908,
+      "gen_len": 121
+    },
+    {
+      "entropy": 0.6408425569534302,
+      "max_token_prob": 0.8105403184890747,
+      "first_token_prob": 0.25285717844963074,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.743747889995575,
+      "max_token_prob": 0.7723257541656494,
+      "first_token_prob": 0.5407519340515137,
+      "gen_len": 104
+    },
+    {
+      "entropy": 0.3084939122200012,
+      "max_token_prob": 0.9106356501579285,
+      "first_token_prob": 0.5411706566810608,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9715636968612671,
+      "max_token_prob": 0.7130997776985168,
+      "first_token_prob": 0.5345224142074585,
+      "gen_len": 130
+    },
+    {
+      "entropy": 0.49467533826828003,
+      "max_token_prob": 0.8588680624961853,
+      "first_token_prob": 0.5317563414573669,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7404080033302307,
+      "max_token_prob": 0.7888199687004089,
+      "first_token_prob": 0.3013778030872345,
+      "gen_len": 254
+    },
+    {
+      "entropy": 0.5211479067802429,
+      "max_token_prob": 0.84332275390625,
+      "first_token_prob": 0.35532715916633606,
+      "gen_len": 191
+    },
+    {
+      "entropy": 0.691185474395752,
+      "max_token_prob": 0.7970744967460632,
+      "first_token_prob": 0.2638354003429413,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4222759008407593,
+      "max_token_prob": 0.8755382299423218,
+      "first_token_prob": 0.27319014072418213,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3490525484085083,
+      "max_token_prob": 0.886294960975647,
+      "first_token_prob": 0.28563666343688965,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8578720092773438,
+      "max_token_prob": 0.7536841630935669,
+      "first_token_prob": 0.19287265837192535,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5481540560722351,
+      "max_token_prob": 0.8400475382804871,
+      "first_token_prob": 0.42416414618492126,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6318199634552002,
+      "max_token_prob": 0.8209021687507629,
+      "first_token_prob": 0.5155515074729919,
+      "gen_len": 240
+    },
+    {
+      "entropy": 1.0331544876098633,
+      "max_token_prob": 0.7208012342453003,
+      "first_token_prob": 0.17615243792533875,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2327662855386734,
+      "max_token_prob": 0.9261319637298584,
+      "first_token_prob": 0.6442316174507141,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.42929160594940186,
+      "max_token_prob": 0.8751572370529175,
+      "first_token_prob": 0.6773566007614136,
+      "gen_len": 168
+    },
+    {
+      "entropy": 0.20871609449386597,
+      "max_token_prob": 0.9259406924247742,
+      "first_token_prob": 0.43618297576904297,
+      "gen_len": 135
+    },
+    {
+      "entropy": 0.48274385929107666,
+      "max_token_prob": 0.847130298614502,
+      "first_token_prob": 0.38153356313705444,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5535422563552856,
+      "max_token_prob": 0.8384543657302856,
+      "first_token_prob": 0.41443508863449097,
+      "gen_len": 129
+    },
+    {
+      "entropy": 0.6166024208068848,
+      "max_token_prob": 0.8042472004890442,
+      "first_token_prob": 0.3980230391025543,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.47521185874938965,
+      "max_token_prob": 0.8612198829650879,
+      "first_token_prob": 0.35875844955444336,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7641742825508118,
+      "max_token_prob": 0.7854809761047363,
+      "first_token_prob": 0.4073522388935089,
+      "gen_len": 233
+    },
+    {
+      "entropy": 0.7770966291427612,
+      "max_token_prob": 0.783052384853363,
+      "first_token_prob": 0.6629588007926941,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8542866110801697,
+      "max_token_prob": 0.7585614323616028,
+      "first_token_prob": 0.34538182616233826,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7373538017272949,
+      "max_token_prob": 0.7898898720741272,
+      "first_token_prob": 0.5240615010261536,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8926563262939453,
+      "max_token_prob": 0.7402765154838562,
+      "first_token_prob": 0.2930920124053955,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8165385723114014,
+      "max_token_prob": 0.7796209454536438,
+      "first_token_prob": 0.4863806962966919,
+      "gen_len": 155
+    },
+    {
+      "entropy": 0.5619074106216431,
+      "max_token_prob": 0.8431389927864075,
+      "first_token_prob": 0.47274208068847656,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3405734896659851,
+      "max_token_prob": 0.9030172824859619,
+      "first_token_prob": 0.43333005905151367,
+      "gen_len": 194
+    },
+    {
+      "entropy": 0.889931857585907,
+      "max_token_prob": 0.7520069479942322,
+      "first_token_prob": 0.36312028765678406,
+      "gen_len": 238
+    },
+    {
+      "entropy": 0.5334054827690125,
+      "max_token_prob": 0.8490936756134033,
+      "first_token_prob": 0.5855056047439575,
+      "gen_len": 79
+    },
+    {
+      "entropy": 0.6545583009719849,
+      "max_token_prob": 0.808789074420929,
+      "first_token_prob": 0.5395570397377014,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9196428060531616,
+      "max_token_prob": 0.7278568148612976,
+      "first_token_prob": 0.4283100366592407,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3717592656612396,
+      "max_token_prob": 0.8839339017868042,
+      "first_token_prob": 0.5873019695281982,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6824970245361328,
+      "max_token_prob": 0.7955626249313354,
+      "first_token_prob": 0.30778250098228455,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.061320424079895,
+      "max_token_prob": 0.7079022526741028,
+      "first_token_prob": 0.7790957689285278,
+      "gen_len": 158
+    },
+    {
+      "entropy": 0.4334799647331238,
+      "max_token_prob": 0.8735934495925903,
+      "first_token_prob": 0.40498116612434387,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4674510061740875,
+      "max_token_prob": 0.8638336062431335,
+      "first_token_prob": 0.7147777080535889,
+      "gen_len": 130
+    },
+    {
+      "entropy": 0.8954222202301025,
+      "max_token_prob": 0.7435503602027893,
+      "first_token_prob": 0.5338419079780579,
+      "gen_len": 236
+    },
+    {
+      "entropy": 0.6552232503890991,
+      "max_token_prob": 0.812330424785614,
+      "first_token_prob": 0.3405371308326721,
+      "gen_len": 176
+    },
+    {
+      "entropy": 0.5907326936721802,
+      "max_token_prob": 0.8192710876464844,
+      "first_token_prob": 0.850519061088562,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.308799147605896,
+      "max_token_prob": 0.6533358097076416,
+      "first_token_prob": 0.6587339043617249,
+      "gen_len": 182
+    },
+    {
+      "entropy": 0.36632397770881653,
+      "max_token_prob": 0.8908547759056091,
+      "first_token_prob": 0.2989347279071808,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.4875267744064331,
+      "max_token_prob": 0.8540460467338562,
+      "first_token_prob": 0.2568598687648773,
+      "gen_len": 253
+    },
+    {
+      "entropy": 0.30259189009666443,
+      "max_token_prob": 0.9032644033432007,
+      "first_token_prob": 0.23225532472133636,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.42181065678596497,
+      "max_token_prob": 0.8709093332290649,
+      "first_token_prob": 0.4185029864311218,
+      "gen_len": 184
+    },
+    {
+      "entropy": 0.8279487490653992,
+      "max_token_prob": 0.7844201326370239,
+      "first_token_prob": 0.7249325513839722,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.0301203727722168,
+      "max_token_prob": 0.7056350111961365,
+      "first_token_prob": 0.6939509510993958,
+      "gen_len": 115
+    },
+    {
+      "entropy": 0.8447220921516418,
+      "max_token_prob": 0.7495059967041016,
+      "first_token_prob": 0.20098336040973663,
+      "gen_len": 68
+    },
+    {
+      "entropy": 0.6800782680511475,
+      "max_token_prob": 0.8132185935974121,
+      "first_token_prob": 0.24691882729530334,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5266585350036621,
+      "max_token_prob": 0.8534284830093384,
+      "first_token_prob": 0.2811361849308014,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8540245294570923,
+      "max_token_prob": 0.754936158657074,
+      "first_token_prob": 0.28231191635131836,
+      "gen_len": 78
+    },
+    {
+      "entropy": 0.5497221946716309,
+      "max_token_prob": 0.8358399868011475,
+      "first_token_prob": 0.4989967942237854,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.9535377025604248,
+      "max_token_prob": 0.732535719871521,
+      "first_token_prob": 0.22501763701438904,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7903483510017395,
+      "max_token_prob": 0.7711597084999084,
+      "first_token_prob": 0.17490483820438385,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.39011770486831665,
+      "max_token_prob": 0.873539924621582,
+      "first_token_prob": 0.42145439982414246,
+      "gen_len": 132
+    },
+    {
+      "entropy": 0.6160047650337219,
+      "max_token_prob": 0.8175880312919617,
+      "first_token_prob": 0.4477309286594391,
+      "gen_len": 178
+    },
+    {
+      "entropy": 0.9029788970947266,
+      "max_token_prob": 0.7396158576011658,
+      "first_token_prob": 0.5388071537017822,
+      "gen_len": 116
+    },
+    {
+      "entropy": 0.46968382596969604,
+      "max_token_prob": 0.8642100095748901,
+      "first_token_prob": 0.285785973072052,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.6471071839332581,
+      "max_token_prob": 0.8111352920532227,
+      "first_token_prob": 0.2521970272064209,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5151553153991699,
+      "max_token_prob": 0.8377638459205627,
+      "first_token_prob": 0.370807945728302,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.68719881772995,
+      "max_token_prob": 0.8009799122810364,
+      "first_token_prob": 0.2944355607032776,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.2216552197933197,
+      "max_token_prob": 0.9338207244873047,
+      "first_token_prob": 0.5607882142066956,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.1111128330230713,
+      "max_token_prob": 0.6914023756980896,
+      "first_token_prob": 0.6363263726234436,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7671821713447571,
+      "max_token_prob": 0.7893556952476501,
+      "first_token_prob": 0.6448753476142883,
+      "gen_len": 251
+    },
+    {
+      "entropy": 1.3876394033432007,
+      "max_token_prob": 0.623140811920166,
+      "first_token_prob": 0.33516672253608704,
+      "gen_len": 232
+    },
+    {
+      "entropy": 0.38385605812072754,
+      "max_token_prob": 0.8800276517868042,
+      "first_token_prob": 0.26240572333335876,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7005152702331543,
+      "max_token_prob": 0.7906225919723511,
+      "first_token_prob": 0.1858265995979309,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.45157334208488464,
+      "max_token_prob": 0.8521924018859863,
+      "first_token_prob": 0.3247709572315216,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.21981334686279297,
+      "max_token_prob": 0.9380052089691162,
+      "first_token_prob": 0.33931460976600647,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.3107218742370605,
+      "max_token_prob": 0.650208592414856,
+      "first_token_prob": 0.13887202739715576,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5756287574768066,
+      "max_token_prob": 0.8267043232917786,
+      "first_token_prob": 0.3238167464733124,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.34380486607551575,
+      "max_token_prob": 0.8982431292533875,
+      "first_token_prob": 0.38735231757164,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.34373176097869873,
+      "max_token_prob": 0.896692156791687,
+      "first_token_prob": 0.40147683024406433,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7730595469474792,
+      "max_token_prob": 0.7700070738792419,
+      "first_token_prob": 0.5704570412635803,
+      "gen_len": 234
+    },
+    {
+      "entropy": 0.8720302581787109,
+      "max_token_prob": 0.7580839395523071,
+      "first_token_prob": 0.4472047686576843,
+      "gen_len": 200
+    },
+    {
+      "entropy": 0.6898755431175232,
+      "max_token_prob": 0.7923856973648071,
+      "first_token_prob": 0.5251306295394897,
+      "gen_len": 157
+    },
+    {
+      "entropy": 0.8806498050689697,
+      "max_token_prob": 0.7413437366485596,
+      "first_token_prob": 0.2598780393600464,
+      "gen_len": 256
+    },
+    {
+      "entropy": 1.3042700290679932,
+      "max_token_prob": 0.6409567594528198,
+      "first_token_prob": 0.20016734302043915,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5435836911201477,
+      "max_token_prob": 0.8354010581970215,
+      "first_token_prob": 0.358403742313385,
+      "gen_len": 248
+    },
+    {
+      "entropy": 0.46572113037109375,
+      "max_token_prob": 0.8553404808044434,
+      "first_token_prob": 0.26280921697616577,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5023080706596375,
+      "max_token_prob": 0.8498997688293457,
+      "first_token_prob": 0.41262003779411316,
+      "gen_len": 179
+    },
+    {
+      "entropy": 0.6443183422088623,
+      "max_token_prob": 0.8048235177993774,
+      "first_token_prob": 0.32154446840286255,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8902983665466309,
+      "max_token_prob": 0.7402589321136475,
+      "first_token_prob": 0.26471051573753357,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.8743704557418823,
+      "max_token_prob": 0.7599596977233887,
+      "first_token_prob": 0.5565697550773621,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.7742648720741272,
+      "max_token_prob": 0.7919595241546631,
+      "first_token_prob": 0.49103647470474243,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.5213353037834167,
+      "max_token_prob": 0.8452141284942627,
+      "first_token_prob": 0.2879890501499176,
+      "gen_len": 256
+    },
+    {
+      "entropy": 0.3547053933143616,
+      "max_token_prob": 0.8834593296051025,
+      "first_token_prob": 0.2045067846775055,
+      "gen_len": 256
+    }
+  ]
+}

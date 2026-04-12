@@ -310,32 +310,90 @@ def main():
     # Step 4: Output-entropy baseline
     # ==============================
     print("[6] Output-entropy baseline...")
-    # Check if logits exist
-    logits_path = TOPO_DIR / "data" / "experiment1_v2"
-    logits_files = list(logits_path.glob("*logit*"))
-    output_logits = None
-
-    if not logits_files:
-        print("  No cached logits found. Checking for alternative entropy source...")
-        # Try to compute from trajectory data as proxy
-        # Actually, we need the model's output logits. Check if extractor can help.
-        try:
-            from topo_confidence.baselines import output_entropy
-            print("  baselines.output_entropy available but needs logits.")
-        except ImportError:
-            print("  baselines module not available.")
-
-        # Check if there's a logits file anywhere in the repo
-        logits_any = list(TOPO_DIR.rglob("*logit*"))
-        if logits_any:
-            print(f"  Found logits files: {logits_any}")
-        else:
-            print("  No logits available. Skipping output-entropy baseline.")
-            print("  (Would need to re-extract with collect_logits=True, which requires GPU)")
+    data_dir = TOPO_DIR / "data" / "experiment1_v2"
+    scores_path = data_dir / "output_entropy_scores.json"
+    logits_path = data_dir / "output_logits.pkl"
 
     entropy_routing = None
-    if output_logits is not None:
-        pass  # Would compute entropy routing here
+    maxprob_routing = None
+    firstprob_routing = None
+    entropy_scores_all = None
+
+    if scores_path.exists():
+        # Preferred: load precomputed scores (no GPU needed)
+        print(f"  Loading precomputed scores from {scores_path.name}...")
+        with open(scores_path) as f:
+            scores_data = json.load(f)
+        scores_list = scores_data["scores"]
+        entropy_all = np.array([s["entropy"] for s in scores_list])
+        maxprob_all = np.array([s["max_token_prob"] for s in scores_list])
+        firstprob_all = np.array([s["first_token_prob"] for s in scores_list])
+        print(f"  Loaded {len(scores_list)} scores (mean entropy={entropy_all.mean():.4f})")
+    elif logits_path.exists():
+        # Fallback: compute from raw logits
+        print(f"  Loading raw logits from {logits_path.name}...")
+        import pickle
+        with open(logits_path, "rb") as f:
+            logits_list = pickle.load(f)
+        from topo_confidence.baselines import output_entropy as compute_entropy
+        from topo_confidence.baselines import max_token_probability, first_token_probability
+        entropy_all = compute_entropy(logits_list)
+        maxprob_all = max_token_probability(logits_list)
+        firstprob_all = first_token_probability(logits_list)
+        print(f"  Computed from {len(logits_list)} logit arrays (mean entropy={entropy_all.mean():.4f})")
+    else:
+        print("  No logits or precomputed scores found.")
+        print("  Run: python scripts/extract_logits.py")
+        entropy_all = None
+
+    if entropy_all is not None:
+        # Subset to holdout
+        entropy_holdout = entropy_all[hold_idx]
+        maxprob_holdout = maxprob_all[hold_idx]
+        firstprob_holdout = firstprob_all[hold_idx]
+
+        # Confidence: low entropy = high confidence → negate and normalize
+        entropy_conf = -entropy_holdout
+        entropy_conf = (entropy_conf - entropy_conf.min()) / (entropy_conf.max() - entropy_conf.min() + 1e-12)
+
+        # Max prob is already higher=more confident, just normalize
+        maxprob_conf = (maxprob_holdout - maxprob_holdout.min()) / (maxprob_holdout.max() - maxprob_holdout.min() + 1e-12)
+
+        # First token prob: same
+        firstprob_conf = (firstprob_holdout - firstprob_holdout.min()) / (firstprob_holdout.max() - firstprob_holdout.min() + 1e-12)
+
+        # Routing sweep at matched coverage levels
+        entropy_routing = []
+        maxprob_routing = []
+        firstprob_routing = []
+
+        for r in topo_routing:
+            target_coverage = r["coverage"]
+
+            for conf_arr, routing_list in [
+                (entropy_conf, entropy_routing),
+                (maxprob_conf, maxprob_routing),
+                (firstprob_conf, firstprob_routing),
+            ]:
+                if target_coverage >= 1.0:
+                    thresh = 0.0
+                elif target_coverage <= 0.0:
+                    thresh = 1.0
+                else:
+                    thresh = np.quantile(conf_arr, 1 - target_coverage)
+                m = routing_metrics(y_holdout, conf_arr, thresh)
+                routing_list.append({
+                    "tau": r["tau"],
+                    "coverage": round(float(m["coverage"]), 4),
+                    "trusted_acc": round(float(m["trusted_acc"]), 4) if m["trusted_acc"] is not None else None,
+                    "escalation_ppv": round(float(m["escalation_ppv"]), 4) if m["escalation_ppv"] is not None else None,
+                })
+
+        entropy_scores_all = {
+            "mean_entropy": float(entropy_all.mean()),
+            "std_entropy": float(entropy_all.std()),
+            "holdout_mean_entropy": float(entropy_holdout.mean()),
+        }
 
     # ==============================
     # Step 5: Prompt-length baseline (trivial)
@@ -396,16 +454,27 @@ def main():
     print("Baseline Comparison")
     print("=" * 60)
 
-    print(f"\n  {'Coverage':>9} {'Topo_acc':>9} {'Random_acc':>11} {'Length_acc':>11}")
-    for i, r in enumerate(topo_routing):
-        ta = f"{r['trusted_acc']:.4f}" if r['trusted_acc'] is not None else "N/A"
-        ra = f"{random_routing[i]['trusted_acc']:.4f}" if random_routing[i]['trusted_acc'] is not None else "N/A"
-        la = f"{length_routing[i]['trusted_acc']:.4f}" if length_routing[i]['trusted_acc'] is not None else "N/A"
-        print(f"  {r['coverage']:>9.4f} {ta:>9} {ra:>11} {la:>11}")
+    if entropy_routing:
+        print(f"\n  {'Coverage':>9} {'Topo_acc':>9} {'Entropy_acc':>12} {'Random_acc':>11} {'Length_acc':>11}")
+        for i, r in enumerate(topo_routing):
+            ta = f"{r['trusted_acc']:.4f}" if r['trusted_acc'] is not None else "N/A"
+            ea = f"{entropy_routing[i]['trusted_acc']:.4f}" if entropy_routing[i]['trusted_acc'] is not None else "N/A"
+            ra = f"{random_routing[i]['trusted_acc']:.4f}" if random_routing[i]['trusted_acc'] is not None else "N/A"
+            la = f"{length_routing[i]['trusted_acc']:.4f}" if length_routing[i]['trusted_acc'] is not None else "N/A"
+            print(f"  {r['coverage']:>9.4f} {ta:>9} {ea:>12} {ra:>11} {la:>11}")
+    else:
+        print(f"\n  {'Coverage':>9} {'Topo_acc':>9} {'Random_acc':>11} {'Length_acc':>11}")
+        for i, r in enumerate(topo_routing):
+            ta = f"{r['trusted_acc']:.4f}" if r['trusted_acc'] is not None else "N/A"
+            ra = f"{random_routing[i]['trusted_acc']:.4f}" if random_routing[i]['trusted_acc'] is not None else "N/A"
+            la = f"{length_routing[i]['trusted_acc']:.4f}" if length_routing[i]['trusted_acc'] is not None else "N/A"
+            print(f"  {r['coverage']:>9.4f} {ta:>9} {ra:>11} {la:>11}")
 
     # Count operating points where topo beats baselines
     topo_wins_random = 0
     topo_wins_length = 0
+    topo_wins_entropy = 0
+    topo_wins_maxprob = 0
     for i, r in enumerate(topo_routing):
         if r["trusted_acc"] is not None and random_routing[i]["trusted_acc"] is not None:
             if r["trusted_acc"] > random_routing[i]["trusted_acc"]:
@@ -413,16 +482,32 @@ def main():
         if r["trusted_acc"] is not None and length_routing[i]["trusted_acc"] is not None:
             if r["trusted_acc"] > length_routing[i]["trusted_acc"]:
                 topo_wins_length += 1
+        if entropy_routing and r["trusted_acc"] is not None and entropy_routing[i]["trusted_acc"] is not None:
+            if r["trusted_acc"] > entropy_routing[i]["trusted_acc"]:
+                topo_wins_entropy += 1
+        if maxprob_routing and r["trusted_acc"] is not None and maxprob_routing[i]["trusted_acc"] is not None:
+            if r["trusted_acc"] > maxprob_routing[i]["trusted_acc"]:
+                topo_wins_maxprob += 1
 
     n_points = len(topo_routing)
     print(f"\n  Topo beats random: {topo_wins_random}/{n_points} operating points")
     print(f"  Topo beats length: {topo_wins_length}/{n_points} operating points")
+    if entropy_routing:
+        print(f"  Topo beats entropy: {topo_wins_entropy}/{n_points} operating points")
+        print(f"  Topo beats max_prob: {topo_wins_maxprob}/{n_points} operating points")
 
     # Interpretation
     print("\n  Interpretation:")
     if not entropy_routing:
         print("  Output-entropy baseline not available (no cached logits, no GPU).")
-        print("  Topo vs random and topo vs prompt-length comparisons available.")
+        print("  Run: python scripts/extract_logits.py")
+    else:
+        if topo_wins_entropy >= 1:
+            print(f"  Topo beats entropy at {topo_wins_entropy}/{n_points} operating points.")
+            print("  Topology captures signal BEYOND output entropy.")
+        else:
+            print(f"  Topo does NOT beat entropy at any operating point.")
+            print("  Topology may be a proxy for forward-pass uncertainty.")
     print(f"  Topo-confidence router beats random routing at {topo_wins_random}/{n_points} points.")
     if topo_wins_random >= n_points * 0.8:
         print("  Topo-confidence carries substantial routing value beyond random.")
@@ -437,7 +522,11 @@ def main():
         "random": random_routing,
         "prompt_length": length_routing,
         "output_entropy": entropy_routing,
+        "max_token_prob": maxprob_routing,
+        "first_token_prob": firstprob_routing,
     }
+    if entropy_scores_all:
+        all_routing["entropy_summary"] = entropy_scores_all
     with open(PHASE4_DIR / "routing_metrics.json", "w") as f:
         json.dump(all_routing, f, indent=2)
 
@@ -447,10 +536,27 @@ def main():
     comp_lines.append(f"Topo beats length: {topo_wins_length}/{n_points} operating points")
     comp_lines.append("")
     if entropy_routing:
-        comp_lines.append("Output-entropy comparison: available")
+        comp_lines.append(f"Topo beats output-entropy: {topo_wins_entropy}/{n_points} operating points")
+        comp_lines.append(f"Topo beats max-token-prob: {topo_wins_maxprob}/{n_points} operating points")
+        comp_lines.append("")
+        comp_lines.append("Coverage-matched comparison (topo vs entropy trusted accuracy):")
+        for i, r in enumerate(topo_routing):
+            ta = r['trusted_acc']
+            ea = entropy_routing[i]['trusted_acc']
+            if ta is not None and ea is not None:
+                diff = ta - ea
+                winner = "TOPO" if diff > 0.001 else ("ENTROPY" if diff < -0.001 else "TIE")
+                comp_lines.append(f"  coverage={r['coverage']:.3f}: topo={ta:.4f} entropy={ea:.4f} diff={diff:+.4f} [{winner}]")
+        comp_lines.append("")
+        if topo_wins_entropy >= 1:
+            comp_lines.append(f"RESULT: Topo beats entropy at {topo_wins_entropy} operating point(s).")
+            comp_lines.append("Topology captures signal beyond output entropy → GO for Pathway 4.")
+        else:
+            comp_lines.append("RESULT: Topo does NOT beat entropy at any operating point.")
+            comp_lines.append("Topology may be a proxy for forward-pass uncertainty → CONDITIONAL GO.")
     else:
         comp_lines.append("Output-entropy comparison: NOT available (no logits cached)")
-        comp_lines.append("Re-extract with collect_logits=True on GPU to enable this comparison.")
+        comp_lines.append("Run: python scripts/extract_logits.py")
     with open(PHASE4_DIR / "baseline_comparison.txt", "w") as f:
         f.write("\n".join(comp_lines) + "\n")
 
@@ -500,6 +606,11 @@ def main():
                             if r["trusted_acc"] is not None and random_routing[i]["trusted_acc"] is not None]
 
         ax.plot(coverages, topo_accs, "bo-", label="Topo-confidence", markersize=6)
+        if entropy_routing:
+            entropy_accs_plot = [entropy_routing[i]["trusted_acc"] for i in range(len(topo_routing))
+                                if topo_routing[i]["trusted_acc"] is not None and entropy_routing[i]["trusted_acc"] is not None]
+            if len(entropy_accs_plot) == len(coverages_matched):
+                ax.plot(coverages_matched, entropy_accs_plot, "ms-", label="Output entropy", markersize=5, alpha=0.8)
         if len(random_accs_plot) == len(coverages_matched):
             ax.plot(coverages_matched, random_accs_plot, "g^--", label="Random", markersize=5, alpha=0.7)
         if len(length_accs_plot) == len(coverages_matched):
@@ -533,13 +644,23 @@ def main():
           f"{holdout_metrics['bootstrap_ci_95'][1]:.4f}]")
     print(f"  CI lower bound: {ci_lower:.4f}")
 
-    if ci_lower >= 0.78 and topo_wins_random >= n_points * 0.5:
-        if entropy_routing and topo_wins_random < n_points * 0.5:
-            decision = "CONDITIONAL GO"
-            reason = "CI >= 0.78 but topo ≈ entropy. Proceed but Pathway 4 may not add value."
+    if ci_lower >= 0.78:
+        if entropy_routing:
+            if topo_wins_entropy >= 1:
+                decision = "GO"
+                reason = (f"CI lower bound >= 0.78 AND topo beats entropy at "
+                          f"{topo_wins_entropy}/{n_points} operating point(s). "
+                          f"Topology captures signal beyond output entropy.")
+            else:
+                decision = "CONDITIONAL GO"
+                reason = ("CI lower bound >= 0.78 but topo does NOT beat entropy at any "
+                          "operating point. Topology may be a proxy for forward-pass uncertainty. "
+                          "Pathway 2 (steering) still valuable, Pathway 4 may not add value.")
         else:
-            decision = "GO"
-            reason = "CI lower bound >= 0.78 AND topo beats random at most operating points."
+            decision = "GO (pending entropy comparison)"
+            reason = ("CI lower bound >= 0.78 AND topo beats random at "
+                      f"{topo_wins_random}/{n_points} points. "
+                      "Full GO vs CONDITIONAL GO requires entropy baseline.")
     elif ci_lower >= 0.75:
         decision = "NARROW GO"
         reason = "CI lower bound in [0.75, 0.78). Use Tier A+B features only."
@@ -550,12 +671,10 @@ def main():
     print(f"\n  Decision: {decision}")
     print(f"  Reason: {reason}")
 
-    # Note about entropy baseline
     if not entropy_routing:
         print("\n  NOTE: Output-entropy baseline not computed (no logits available).")
-        print("  The full GO vs CONDITIONAL GO distinction requires entropy comparison.")
-        print(f"  Based on available evidence (CI lower={ci_lower:.4f}, topo beats random "
-              f"{topo_wins_random}/{n_points}): {decision}")
+        print("  Run: python scripts/extract_logits.py")
+        print("  Then re-run this script to finalize the decision.")
 
     print(f"\n  All Phase 4 artifacts saved to {PHASE4_DIR}/")
 

@@ -1,8 +1,26 @@
 Baseline Comparison (Phase 4)
 ==================================================
 
-Topo beats random: 6/17 operating points
-Topo beats length: 6/17 operating points
+Topo beats random:         6/17 operating points
+Topo beats prompt-length:  6/17 operating points
+Topo beats output-entropy: 6/17 operating points
+Topo beats max-token-prob: 6/17 operating points
 
-Output-entropy comparison: NOT available (no logits cached)
-Re-extract with collect_logits=True on GPU to enable this comparison.
+Coverage-matched comparison (topo vs entropy trusted accuracy):
+  coverage=0.390: topo=0.2821 entropy=0.1026 diff=+0.1795 [TOPO]
+  coverage=0.210: topo=0.4762 entropy=0.0952 diff=+0.3810 [TOPO]
+  coverage=0.100: topo=0.5000 entropy=0.0000 diff=+0.5000 [TOPO]
+  coverage=0.100: topo=0.5000 entropy=0.0000 diff=+0.5000 [TOPO]
+  coverage=0.100: topo=0.5000 entropy=0.0000 diff=+0.5000 [TOPO]
+  coverage=0.050: topo=0.2000 entropy=0.0000 diff=+0.2000 [TOPO]
+  coverage=0.030: topo=0.0000 entropy=0.0000 diff=+0.0000 [TIE]
+  coverage=0.020: topo=0.0000 entropy=0.0000 diff=+0.0000 [TIE]
+  coverage=0.010: topo=0.0000 entropy=0.0000 diff=+0.0000 [TIE]
+
+RESULT: Topo beats entropy at 6 operating point(s).
+Topology captures signal beyond output entropy -> GO for Pathway 4.
+
+Entropy summary: mean=0.6448, std=0.2499
+Holdout entropy: mean=0.6595
+Model: Qwen/Qwen2.5-1.5B-Instruct
+Extraction time: 3267.2s
