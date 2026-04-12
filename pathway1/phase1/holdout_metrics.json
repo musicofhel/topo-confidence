@@ -1,0 +1,25 @@
+{
+  "auroc": 0.947906,
+  "bootstrap_ci_95": [
+    0.8978,
+    0.9859
+  ],
+  "ci_lower_bound": 0.8978,
+  "at_threshold_0.5": {
+    "threshold": 0.5,
+    "accuracy": 0.9,
+    "precision": 0.5294,
+    "recall": 0.8182,
+    "f1": 0.6429
+  },
+  "at_youden_threshold": {
+    "threshold": 0.3203,
+    "accuracy": 0.85,
+    "precision": 0.4231,
+    "recall": 1.0,
+    "f1": 0.5946
+  },
+  "youden_threshold_from_train": 0.3203,
+  "n_holdout": 100,
+  "n_correct_holdout": 11
+}

@@ -1,0 +1,32 @@
+Three-Number Comparison (Phase 1)
+==================================================
+
+CV-500 AUROC:        0.976714
+CV-train-400 AUROC:  0.932326
+Holdout-100 AUROC:   0.947906  [0.8978, 0.9859]
+
+Gaps:
+  CV-500 - CV-train-400:   +0.044388  (effect of smaller train + PCA loss)
+  CV-train-400 - Holdout:  -0.015580  (evaluation overfitting)
+
+Classification at threshold 0.5:
+  Accuracy:  0.9
+  Precision: 0.5294
+  Recall:    0.8182
+  F1:        0.6429
+
+Classification at Youden threshold (0.3203, from train CV):
+  Accuracy:  0.85
+  Precision: 0.4231
+  Recall:    1.0
+  F1:        0.5946
+
+Diagnostic band: >=0.90: CORAL result is largely real. Proceed with high confidence.
+Preliminary go/no-go: GO (CI lower bound >= 0.78)
+
+Notes:
+- Holdout PCA: train-fitted (monkey-patched). Rank-binning: all-500 (leaky,
+  quantified in Phase 0). This is the best we can do without modifying
+  winning_features.py.
+- Train-400 features extracted independently with train-only PCA.
+- StandardScaler fit on train-400, applied to holdout.

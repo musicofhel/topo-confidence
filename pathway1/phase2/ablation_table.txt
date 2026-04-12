@@ -1,0 +1,15 @@
+Tier          N_feat  CV-train-400    Holdout
+------------ ------- ------------- ----------
+A                  9      0.789302   0.827375
+A+B               39      0.907517   0.931563
+A+B+C             44      0.921887   0.940756
+A+B+C+D           78      0.927291   0.949949
+
+Isolated tiers:
+A only             9      0.789302
+B only            30      0.775055
+C only             5      0.716347
+D only            34      0.766212
+
+Best surviving tier: A+B+C
+(Locked before holdout consultation)

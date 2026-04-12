@@ -1,0 +1,5 @@
+Best surviving tier: A+B+C
+Rationale: Smallest cumulative tier within 0.01 AUROC of full set on train-400 CV.
+Full (A+B+C+D) CV-train-400 AUROC: 0.927291
+A+B+C CV-train-400 AUROC: 0.921887
+Gap: 0.005404
