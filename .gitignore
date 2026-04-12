@@ -11,4 +11,7 @@ data/experiment*/*.pkl
 .venv/
 *.pt
 *.bin
+*.npy
+*.npz
+experiments*.log
 .env
