@@ -1,0 +1,30 @@
+{
+  "created": "2026-04-07T23:27:24.468914",
+  "git_hash": "c04c1d2",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "max_dim": 2,
+  "null_k": 100,
+  "n_features": 13,
+  "feature_names": [
+    "H0_persistence_entropy",
+    "H1_max_lifetime",
+    "H0_total_persistence",
+    "H0_n_features",
+    "H1_persistence_entropy",
+    "H1_n_features",
+    "H2_n_features",
+    "H2_total_persistence",
+    "H2_persistence_entropy",
+    "bridge_silhouette",
+    "H0_ph_significance",
+    "H1_ph_significance",
+    "topological_sensitivity"
+  ],
+  "n_problems": 500,
+  "files": {
+    "trajectories": "trajectories.npz",
+    "metadata": "trajectory_meta.json",
+    "results": "results.json",
+    "per_problem": "per_problem.jsonl"
+  }
+}

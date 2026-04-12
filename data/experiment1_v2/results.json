@@ -1,0 +1,92 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 500,
+  "correctness_rate": 0.114,
+  "from_cache": false,
+  "max_dim": 2,
+  "null_k": 100,
+  "feature_time_s": 87.37956294399919,
+  "feature_time_per_problem_s": 0.17475912588799838,
+  "feature_names": [
+    "H0_persistence_entropy",
+    "H1_max_lifetime",
+    "H0_total_persistence",
+    "H0_n_features",
+    "H1_persistence_entropy",
+    "H1_n_features",
+    "H2_n_features",
+    "H2_total_persistence",
+    "H2_persistence_entropy",
+    "bridge_silhouette",
+    "H0_ph_significance",
+    "H1_ph_significance",
+    "topological_sensitivity"
+  ],
+  "analysis_13_feature": {
+    "auroc": 0.6905469090333056,
+    "auroc_ci_95": [
+      0.6107031161716879,
+      0.7690121883859731
+    ],
+    "auroc_bootstrap_mean": 0.690160184091037,
+    "auroc_bootstrap_std": 0.0402819359171938,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.7176745475426716,
+      "H1_max_lifetime": 0.5959763969743773,
+      "H0_total_persistence": 0.699061423309968,
+      "H0_n_features": 0.721872401093026,
+      "H1_persistence_entropy": 0.6828244425963328,
+      "H1_n_features": 0.6842303275117817,
+      "H2_n_features": 0.6043919052710784,
+      "H2_total_persistence": 0.6087085659973862,
+      "H2_persistence_entropy": 0.5383351154409727,
+      "bridge_silhouette": 0.618351748445606,
+      "H0_ph_significance": NaN,
+      "H1_ph_significance": NaN,
+      "topological_sensitivity": 0.5111876757356144
+    },
+    "coefficients": {
+      "H0_persistence_entropy": -1.1206534713289018,
+      "H1_max_lifetime": 0.0384219522954469,
+      "H0_total_persistence": 0.8971901809394612,
+      "H0_n_features": -0.16804376104555757,
+      "H1_persistence_entropy": -0.6098594648796584,
+      "H1_n_features": 0.16360507532100163,
+      "H2_n_features": 0.0028545582861494944,
+      "H2_total_persistence": 0.21643595582142164,
+      "H2_persistence_entropy": -0.03692187285617577,
+      "bridge_silhouette": -0.3539608869725815,
+      "H0_ph_significance": 0.0,
+      "H1_ph_significance": 0.0,
+      "topological_sensitivity": 0.040558971645822006
+    }
+  },
+  "analysis_7_feature_baseline": {
+    "auroc": 0.712803453328581,
+    "auroc_ci_95": [
+      0.6354813517194416,
+      0.7910986480878504
+    ],
+    "auroc_bootstrap_mean": 0.7122478121474923,
+    "auroc_bootstrap_std": 0.03937142268510665,
+    "per_feature_auroc": {
+      "H0_persistence_entropy": 0.7176745475426716,
+      "H1_max_lifetime": 0.5959763969743773,
+      "H0_total_persistence": 0.699061423309968,
+      "H0_n_features": 0.721872401093026,
+      "H1_persistence_entropy": 0.6828244425963328,
+      "H1_n_features": 0.6842303275117817,
+      "bridge_silhouette": 0.618351748445606
+    },
+    "coefficients": {
+      "H0_persistence_entropy": -1.109789041201921,
+      "H1_max_lifetime": 0.03363432167577732,
+      "H0_total_persistence": 0.9082623176988158,
+      "H0_n_features": -0.22379789567400862,
+      "H1_persistence_entropy": -0.6483454164280849,
+      "H1_n_features": 0.3585755282121441,
+      "bridge_silhouette": -0.3365759094600949
+    }
+  },
+  "auroc_delta": -0.02225654429527535
+}
