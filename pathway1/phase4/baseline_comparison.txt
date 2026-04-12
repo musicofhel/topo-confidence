@@ -1,0 +1,8 @@
+Baseline Comparison (Phase 4)
+==================================================
+
+Topo beats random: 6/17 operating points
+Topo beats length: 6/17 operating points
+
+Output-entropy comparison: NOT available (no logits cached)
+Re-extract with collect_logits=True on GPU to enable this comparison.
