@@ -379,12 +379,22 @@ def make_steering_hook(
         Hook function compatible with register_forward_hook.
     """
     def hook(module, input, output):
-        h = output[0]  # (batch, seq_len, hidden_dim) or (1, 1, hidden_dim) during cached gen
+        if isinstance(output, tuple):
+            h = output[0]
+        else:
+            h = output
         norms = h.norm(dim=-1, keepdim=True)
-        sv = steering_vec_gpu.unsqueeze(0).unsqueeze(0).expand_as(h)
+        # Expand steering vector to match h's shape (handle 2D and 3D)
+        sv = steering_vec_gpu
+        for _ in range(h.dim() - sv.dim()):
+            sv = sv.unsqueeze(0)
+        sv = sv.expand_as(h)
         rotated = slerp(h, sv, t)
         modified = rotated * norms  # restore original magnitudes
-        return (modified,) + output[1:]
+        if isinstance(output, tuple):
+            return (modified,) + tuple(output[i] for i in range(1, len(output)))
+        else:
+            return modified
 
     return hook
 
