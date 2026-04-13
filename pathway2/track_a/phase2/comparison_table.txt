@@ -1,0 +1,41 @@
+Phase 2: Steering Calibration Results (Train-400)
+============================================================
+
+Uniform Sweep:
+     t      Acc   Gain   Lost  Recovered       KL
+--------------------------------------------------
+  0.00   0.1150     +0      0          0   0.0000
+  0.05   0.1225     +3     20         23  14.3988
+  0.10   0.1475    +13     22         35  16.2164
+  0.15   0.1600    +18     26         44  16.9079
+  0.20   0.1325     +7     26         33  16.9779
+  0.30   0.1425    +11     24         35  17.1430
+  0.50   0.0200    -38     43          5  18.1343
+
+Targeted Sweep (best_t=0.15):
+   tau    Cov      Acc   Gain  Steered  SteerAcc
+--------------------------------------------------
+  0.10   0.12   0.1325     +7       46    0.1522
+  0.15   0.18   0.1425    +11       72    0.1528
+  0.20   0.25   0.1475    +13      101    0.1287
+  0.25   0.29   0.1525    +15      117    0.1282
+  0.30   0.38   0.1600    +18      150    0.1267
+  0.35   0.45   0.1675    +21      181    0.1271
+  0.40   0.54   0.1800    +26      216    0.1389
+
+Best uniform: t=0.15, net_gain=18
+Best targeted: tau=0.40, net_gain=26
+Targeted > Uniform: True
+
+LOCKED CONFIG:
+{
+  "method": "spherical",
+  "layer": 24,
+  "layer_probe_auroc": 0.701548,
+  "best_t": 0.15,
+  "best_tau_steer": 0.4,
+  "vector_type": "averaged_5seeds",
+  "uniform_net_gain_train": 18,
+  "targeted_net_gain_train": 26,
+  "targeted_beats_uniform": true
+}

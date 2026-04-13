@@ -1,0 +1,11 @@
+{
+  "method": "spherical",
+  "layer": 24,
+  "layer_probe_auroc": 0.701548,
+  "best_t": 0.15,
+  "best_tau_steer": 0.4,
+  "vector_type": "averaged_5seeds",
+  "uniform_net_gain_train": 18,
+  "targeted_net_gain_train": 26,
+  "targeted_beats_uniform": true
+}
