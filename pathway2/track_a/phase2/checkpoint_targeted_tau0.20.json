@@ -1,0 +1,15 @@
+{
+  "tau_steer": 0.2,
+  "best_t": 0.15,
+  "n_steered": 101,
+  "n_total": 400,
+  "coverage": 0.2525,
+  "overall_accuracy": 0.1475,
+  "overall_correct": 59,
+  "newly_correct": 13,
+  "newly_wrong": 0,
+  "net_gain": 13,
+  "steered_subset_accuracy": 0.1287,
+  "steered_subset_baseline_accuracy": 0.0,
+  "elapsed_s": 572.0
+}
