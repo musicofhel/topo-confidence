@@ -1,0 +1,8 @@
+{
+  "spearman_r": 0.031167,
+  "p_value": 0.5342391915679463,
+  "interpretation": "orthogonal (|r| < 0.1) \u2014 ideal for targeted steering",
+  "n_train": 400,
+  "n_correct_train": 46,
+  "vector_type": "averaged_5seeds"
+}
