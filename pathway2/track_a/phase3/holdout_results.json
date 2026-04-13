@@ -1,0 +1,75 @@
+{
+  "config": {
+    "method": "spherical",
+    "layer": 24,
+    "layer_probe_auroc": 0.701548,
+    "best_t": 0.15,
+    "best_tau_steer": 0.4,
+    "vector_type": "averaged_5seeds",
+    "uniform_net_gain_train": 18,
+    "targeted_net_gain_train": 26,
+    "targeted_beats_uniform": true
+  },
+  "conditions": {
+    "baseline": {
+      "label": "baseline",
+      "accuracy": 0.11,
+      "n_correct": 11,
+      "n_total": 100,
+      "bootstrap_ci_95": [
+        0.05,
+        0.18
+      ],
+      "orig_correct_preserved": 11,
+      "orig_correct_total": 11,
+      "orig_correct_lost": 0,
+      "orig_incorrect_recovered": 0,
+      "orig_incorrect_total": 89,
+      "net_gain": 0
+    },
+    "uniform": {
+      "label": "uniform",
+      "accuracy": 0.12,
+      "n_correct": 12,
+      "n_total": 100,
+      "bootstrap_ci_95": [
+        0.06,
+        0.19
+      ],
+      "orig_correct_preserved": 4,
+      "orig_correct_total": 11,
+      "orig_correct_lost": 7,
+      "orig_incorrect_recovered": 8,
+      "orig_incorrect_total": 89,
+      "net_gain": 1
+    },
+    "targeted": {
+      "label": "targeted",
+      "accuracy": 0.14,
+      "n_correct": 14,
+      "n_total": 100,
+      "bootstrap_ci_95": [
+        0.08,
+        0.21
+      ],
+      "orig_correct_preserved": 8,
+      "orig_correct_total": 11,
+      "orig_correct_lost": 3,
+      "orig_incorrect_recovered": 6,
+      "orig_incorrect_total": 89,
+      "net_gain": 3,
+      "n_steered": 52,
+      "steered_wrong_to_right": 6,
+      "steered_right_to_wrong": 3,
+      "steered_stayed_wrong": 40
+    }
+  },
+  "decision": {
+    "decision": "SKIP_TRACK_B_PROCEED_PATHWAY3",
+    "reason": "Net gain >= 3 (3) AND targeted (3) > uniform (1). Strong evidence for topology-guided steering.",
+    "uniform_net_gain": 1,
+    "targeted_net_gain": 3,
+    "best_probe_auroc": 0.7015
+  },
+  "baseline_regeneration_diff": 0
+}

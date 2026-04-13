@@ -1,0 +1,16 @@
+Phase 3: Holdout-100 Evaluation Results
+============================================================
+
+Config: layer=24, t=0.15, tau=0.4, method=spherical
+
+   Condition      Acc   CI_low  CI_high   Gain   Lost  Recov
+------------------------------------------------------------
+    baseline   0.1100   0.0500   0.1800     +0      0      0
+     uniform   0.1200   0.0600   0.1900     +1      7      8
+    targeted   0.1400   0.0800   0.2100     +3      3      6
+
+McNemar (baseline vs uniform): chi2=0.0000, p=1.0000
+McNemar (baseline vs targeted): chi2=0.4444, p=0.5050
+
+DECISION: SKIP_TRACK_B_PROCEED_PATHWAY3
+  Net gain >= 3 (3) AND targeted (3) > uniform (1). Strong evidence for topology-guided steering.

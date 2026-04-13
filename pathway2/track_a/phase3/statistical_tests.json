@@ -1,0 +1,21 @@
+{
+  "mcnemar_baseline_vs_uniform": {
+    "both_correct": 4,
+    "baseline_only_correct": 7,
+    "steered_only_correct": 8,
+    "both_wrong": 81,
+    "chi2": 0.0,
+    "p_value": 1.0,
+    "n": 100
+  },
+  "mcnemar_baseline_vs_targeted": {
+    "both_correct": 8,
+    "baseline_only_correct": 3,
+    "steered_only_correct": 6,
+    "both_wrong": 83,
+    "chi2": 0.4444,
+    "p_value": 0.504985,
+    "n": 100
+  },
+  "note": "n=100 limits power. McNemar's with continuity correction."
+}
