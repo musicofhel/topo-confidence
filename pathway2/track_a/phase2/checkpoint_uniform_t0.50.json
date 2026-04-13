@@ -1,0 +1,15 @@
+{
+  "t": 0.5,
+  "overall_accuracy": 0.02,
+  "overall_correct": 8,
+  "orig_correct_preserved": 3,
+  "orig_correct_total": 46,
+  "orig_correct_lost": 43,
+  "orig_incorrect_recovered": 5,
+  "orig_incorrect_total": 354,
+  "newly_correct": 5,
+  "newly_wrong": 43,
+  "net_gain": -38,
+  "kl_divergence": 18.134348,
+  "elapsed_s": 2645.7
+}
