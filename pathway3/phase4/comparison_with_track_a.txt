@@ -1,0 +1,19 @@
+======================================================================
+Comparison: Track A vs Pathway 3 (Holdout-100)
+======================================================================
+
+Metric                                      Track A       Pathway 3
+-----------------------------------------------------------------
+Net gain                                          ?               3
+Accuracy                                          ?           0.173
+Wrong→right                                       ?               6
+Right→wrong                                       ?               3
+Problems steered                                  ?              52
+Steered subset accuracy                           ?           0.173
+McNemar mid-p                                     ?          0.3438
+Bayesian P(improvement)                           ?          0.8281
+Bootstrap 95% CI                                  ?     [-3.0, 9.0]
+
+Pathway 3 config: config_1_track_a_baseline
+Gating: hard
+Layers: [24]

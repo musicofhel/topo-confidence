@@ -1,0 +1,42 @@
+{
+  "selected_config": "config_1_track_a_baseline",
+  "mean_net_gain": 3.6,
+  "results": {
+    "per_fold_net_gain": [
+      6,
+      3,
+      2,
+      4,
+      3
+    ],
+    "mean_net_gain": 3.6,
+    "std_net_gain": 1.36,
+    "bca_ci_95": [
+      5.0,
+      31.0
+    ],
+    "bayesian_p_improvement": 0.996,
+    "total_wrong_to_right": 32,
+    "total_right_to_wrong": 14,
+    "total_net_gain": 18,
+    "per_fold_accuracy": [
+      0.1739,
+      0.1525,
+      0.1373,
+      0.1774,
+      0.1667
+    ],
+    "per_fold_mcnemar_p": [
+      0.0156,
+      0.2891,
+      0.5078,
+      0.3593,
+      0.2891
+    ]
+  },
+  "cv_n_splits": 5,
+  "cv_random_state": 42,
+  "timestamp": "2026-04-14 19:19:20",
+  "t_base": 0.15,
+  "tau": 0.4
+}

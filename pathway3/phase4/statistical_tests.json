@@ -1,0 +1,11 @@
+{
+  "mcnemar_mid_p": 0.34375,
+  "bayesian_p_improvement": 0.828125,
+  "bootstrap_ci_95": [
+    -3.0,
+    9.0
+  ],
+  "wrong_to_right": 6,
+  "right_to_wrong": 3,
+  "net_gain": 3
+}

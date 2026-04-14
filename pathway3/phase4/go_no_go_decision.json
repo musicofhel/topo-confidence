@@ -1,0 +1,7 @@
+{
+  "decision": "PIVOT",
+  "rationale": "CV mean (3.6), holdout (3). Consider: (a) PRA step-wise scoring, (b) Bias-Only Adaptation via RL, (c) Accept routing-only result from Pathway 1.",
+  "cv_mean_net_gain": 3.6,
+  "holdout_net_gain": 3,
+  "bayesian_p_improvement": 0.8281
+}

@@ -1,0 +1,31 @@
+======================================================================
+Comparison: Track A vs Pathway 3 (Holdout-100)
+======================================================================
+
+Metric                                      Track A       Pathway 3
+-----------------------------------------------------------------
+Net gain                                          ?               3
+Accuracy                                          ?           0.173
+Wrong→right                                       ?               6
+Right→wrong                                       ?               3
+Problems steered                                  ?              52
+Steered subset accuracy                           ?           0.173
+McNemar mid-p                                     ?          0.3438
+Bayesian P(improvement)                           ?          0.8281
+Bootstrap 95% CI                                  ?     [-3.0, 9.0]
+
+Pathway 3 config: config_1_track_a_baseline
+Gating: hard
+Layers: [24]
+
+
+Per-Problem Flip Comparison
+======================================================================
+
+Problems that flipped differently: 6
+  idx=55: baseline=0, Track A=0 (NC), P3=1 (W→R), steered=1, conf=0.0112
+  idx=107: baseline=1, Track A=0 (R→W), P3=1 (NC), steered=1, conf=0.1543
+  idx=265: baseline=1, Track A=1 (NC), P3=0 (R→W), steered=1, conf=0.3104
+  idx=332: baseline=0, Track A=1 (W→R), P3=0 (NC), steered=1, conf=0.3531
+  idx=410: baseline=0, Track A=0 (NC), P3=1 (W→R), steered=1, conf=0.2186
+  idx=468: baseline=0, Track A=1 (W→R), P3=0 (NC), steered=1, conf=0.1837
