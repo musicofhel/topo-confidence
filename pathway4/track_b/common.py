@@ -69,9 +69,21 @@ CONFIDENCE_SCORES_PATH = (
 )
 
 # ---- GRPO Hyperparameters ----
+# Auto-scale batch sizes based on available VRAM
+_vram_gb = 0
+if torch.cuda.is_available():
+    _vram_gb = torch.cuda.get_device_properties(0).total_mem / (1024**3)
 
-GRPO_BATCH_SIZE = 4          # Problems per step
-GRPO_GROUP_SIZE = 8          # Rollouts per problem
+if _vram_gb >= 40:       # H100/A100 — go big
+    GRPO_BATCH_SIZE = 16
+    GRPO_GROUP_SIZE = 16
+elif _vram_gb >= 20:     # 4090/A6000
+    GRPO_BATCH_SIZE = 8
+    GRPO_GROUP_SIZE = 12
+else:                    # 8GB cards
+    GRPO_BATCH_SIZE = 4
+    GRPO_GROUP_SIZE = 8
+
 GRPO_LR = 5e-4
 GRPO_BETA_KL = 0.01         # KL penalty weight
 GRPO_GRAD_CLIP = 1.0

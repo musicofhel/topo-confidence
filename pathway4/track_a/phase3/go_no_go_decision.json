@@ -1,0 +1,7 @@
+{
+  "decision": "PUBLICATION_READY",
+  "rationale": "Selection achieves +11 holdout net gain with P(improvement)=1.000 > 0.90. Full P1\u2192P4 arc is complete.",
+  "holdout_net_gain": 11,
+  "bayesian_p_improvement": 0.9998,
+  "cv_mean_net_gain": 9.2
+}

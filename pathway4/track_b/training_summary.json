@@ -1,0 +1,8 @@
+{
+  "n_steps": 200,
+  "final_bias_norm": 0.04158,
+  "final_reward_rate": 0.0594,
+  "final_loss": -0.001627,
+  "total_time_s": 18643.6,
+  "total_time_hours": 5.18
+}

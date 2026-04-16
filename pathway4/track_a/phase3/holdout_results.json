@@ -1,0 +1,19 @@
+{
+  "strategy": "majority_vote",
+  "n_holdout": 100,
+  "baseline_accuracy": 0.11,
+  "selected_accuracy": 0.22,
+  "baseline_correct": 11,
+  "selected_correct": 22,
+  "wrong_to_right": 11,
+  "right_to_wrong": 0,
+  "net_gain": 11,
+  "mcnemar_mid_p": 0.0005,
+  "bayesian_p_improvement": 0.9998,
+  "bootstrap_ci_95": [
+    5.0,
+    17.0
+  ],
+  "oracle_ceiling": 28,
+  "timestamp": "2026-04-16 07:34:52"
+}

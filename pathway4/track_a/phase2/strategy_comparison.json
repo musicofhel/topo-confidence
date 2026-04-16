@@ -1,0 +1,78 @@
+{
+  "ranking": [
+    [
+      "majority_vote",
+      {
+        "per_fold_net_gain": [
+          13,
+          5,
+          11,
+          7,
+          10
+        ],
+        "mean_net_gain": 9.2,
+        "std_net_gain": 2.86,
+        "total_wrong_to_right": 46,
+        "total_right_to_wrong": 0,
+        "total_net_gain": 46,
+        "bayesian_p_improvement": 1.0
+      }
+    ],
+    [
+      "confidence_weighted_vote",
+      {
+        "per_fold_net_gain": [
+          14,
+          6,
+          9,
+          7,
+          9
+        ],
+        "mean_net_gain": 9.0,
+        "std_net_gain": 2.76,
+        "total_wrong_to_right": 45,
+        "total_right_to_wrong": 0,
+        "total_net_gain": 45,
+        "bayesian_p_improvement": 1.0
+      }
+    ],
+    [
+      "max_confidence",
+      {
+        "per_fold_net_gain": [
+          4,
+          4,
+          9,
+          4,
+          8
+        ],
+        "mean_net_gain": 5.8,
+        "std_net_gain": 2.23,
+        "total_wrong_to_right": 29,
+        "total_right_to_wrong": 0,
+        "total_net_gain": 29,
+        "bayesian_p_improvement": 1.0
+      }
+    ],
+    [
+      "random",
+      {
+        "per_fold_net_gain": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean_net_gain": 0.4,
+        "std_net_gain": 0.8,
+        "total_wrong_to_right": 2,
+        "total_right_to_wrong": 0,
+        "total_net_gain": 2,
+        "bayesian_p_improvement": 0.875
+      }
+    ]
+  ],
+  "best_strategy": "majority_vote",
+  "oracle_mean": 30.6
+}

@@ -1,0 +1,46 @@
+{
+  "ungated": {
+    "n_problems": 400,
+    "baseline_accuracy": 0.115,
+    "steered_accuracy": 0.1125,
+    "baseline_correct": 46,
+    "steered_correct": 45,
+    "wrong_to_right": 1,
+    "right_to_wrong": 2,
+    "net_gain": -1,
+    "preserved": 44,
+    "both_wrong": 353,
+    "mcnemar_mid_p": 0.625,
+    "bayesian_p_improvement": 0.3125,
+    "bootstrap_ci_95": [
+      -5.0,
+      2.0
+    ],
+    "mode": "ungated",
+    "tau": null,
+    "eval_time_s": 1074.2
+  },
+  "gated": {
+    "n_problems": 400,
+    "baseline_accuracy": 0.115,
+    "steered_accuracy": 0.1125,
+    "baseline_correct": 46,
+    "steered_correct": 45,
+    "wrong_to_right": 2,
+    "right_to_wrong": 3,
+    "net_gain": -1,
+    "preserved": 43,
+    "both_wrong": 352,
+    "mcnemar_mid_p": 0.6875,
+    "bayesian_p_improvement": 0.34375,
+    "bootstrap_ci_95": [
+      -6.0,
+      3.0
+    ],
+    "mode": "gated_tau0.40",
+    "tau": 0.4,
+    "eval_time_s": 1057.5
+  },
+  "bias_norm": 0.04158,
+  "timestamp": "2026-04-16 16:54:16"
+}

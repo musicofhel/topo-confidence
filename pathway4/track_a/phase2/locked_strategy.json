@@ -1,0 +1,9 @@
+{
+  "selected_strategy": "majority_vote",
+  "mean_net_gain": 9.2,
+  "std_net_gain": 2.86,
+  "bayesian_p_improvement": 1.0,
+  "cv_n_splits": 5,
+  "cv_random_state": 42,
+  "timestamp": "2026-04-16 04:24:34"
+}

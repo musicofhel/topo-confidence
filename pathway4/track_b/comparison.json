@@ -1,0 +1,37 @@
+{
+  "holdout_comparison": {
+    "greedy_baseline": {
+      "accuracy": 0.11,
+      "correct": 11,
+      "net_gain": 0
+    },
+    "track_a_steering": {
+      "net_gain": 3,
+      "wrong_to_right": 6,
+      "right_to_wrong": 3
+    },
+    "track_a_selection": {
+      "net_gain": 11,
+      "wrong_to_right": 11,
+      "right_to_wrong": 0
+    },
+    "track_b_ungated": {
+      "accuracy": 0.11,
+      "correct": 11,
+      "net_gain": 0,
+      "wrong_to_right": 0,
+      "right_to_wrong": 0
+    },
+    "track_b_gated": {
+      "accuracy": 0.11,
+      "correct": 11,
+      "net_gain": 0,
+      "wrong_to_right": 0,
+      "right_to_wrong": 0
+    }
+  },
+  "best_track_b_mode": "ungated",
+  "best_track_b_holdout_net_gain": 0,
+  "best_track_b_p_improvement": 0.5,
+  "timestamp": "2026-04-16 17:02:42"
+}

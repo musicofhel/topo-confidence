@@ -1,0 +1,354 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+[2026-04-16 04:11:18] === Step 0: Setup ===
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+
+[notice] A new release of pip is available: 24.2 -> 26.0.1
+[notice] To update, run: python -m pip install --upgrade pip
+[2026-04-16 04:11:18] === Step 1: Unpacking data artifacts ===
+[2026-04-16 04:11:20] Data artifacts unpacked
+[2026-04-16 04:11:20] All data artifacts verified
+[2026-04-16 04:11:20] === Track A Phase A1: Scoring completions ===
+2026-04-16 04:11:23,268 pathway4_track_a INFO === Phase A1: Score Temperature Completions ===
+2026-04-16 04:11:23,268 pathway4_track_a INFO Loading temperature generations...
+2026-04-16 04:11:23,293 pathway4_track_a INFO   Loaded 400 problems × 32 completions
+2026-04-16 04:11:23,293 pathway4_track_a INFO Loading baseline correctness...
+2026-04-16 04:11:23,294 pathway4_track_a INFO   Wrong-greedy train problems: 354 / 400
+2026-04-16 04:11:23,294 pathway4_track_a INFO   Oracle ceiling (problems with ≥1 correct completion): +153
+2026-04-16 04:11:23,294 pathway4_track_a INFO Loading MATH-500 problems...
+2026-04-16 04:11:23,294 track_a INFO Loading MATH-500 from HuggingFace datasets...
+2026-04-16 04:11:23,575 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:11:23,580 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/HuggingFaceH4/MATH-500/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/README.md "HTTP/1.1 200 OK"
+2026-04-16 04:11:23,628 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:23,766 httpx INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/HuggingFaceH4/MATH-500/HuggingFaceH4/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:23,817 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/revision/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be "HTTP/1.1 200 OK"
+2026-04-16 04:11:23,874 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:24,023 httpx INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=HuggingFaceH4/MATH-500 "HTTP/1.1 200 OK"
+2026-04-16 04:11:24,075 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/data?recursive=true&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:24,126 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-04-16 04:11:24,236 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:24,387 pathway4_track_a INFO Loading greedy trajectories for PCA fitting...
+2026-04-16 04:11:33,290 pathway4_track_a INFO Fitted greedy PCA: 45 components, 69.1% variance explained
+2026-04-16 04:11:33,413 pathway4_track_a INFO Loading model for trajectory extraction...
+2026-04-16 04:11:33,413 track_a INFO Loading Qwen/Qwen2.5-1.5B-Instruct...
+2026-04-16 04:11:33,510 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:11:33,514 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+2026-04-16 04:11:33,566 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 04:11:33,567 huggingface_hub.utils._http WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 04:11:33,571 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-16 04:11:33,623 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:33,676 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-16 04:11:34,064 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct "HTTP/1.1 200 OK"
+2026-04-16 04:11:34,113 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:11:34,118 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<00:37,  8.98it/s]Loading weights:  16%|█▌        | 53/338 [00:00<00:00, 286.69it/s]Loading weights:  25%|██▌       | 85/338 [00:00<00:00, 298.24it/s]Loading weights:  34%|███▍      | 116/338 [00:00<00:00, 279.03it/s]Loading weights:  43%|████▎     | 147/338 [00:00<00:00, 279.56it/s]Loading weights:  54%|█████▍    | 182/338 [00:00<00:00, 267.31it/s]Loading weights:  62%|██████▏   | 210/338 [00:00<00:00, 255.72it/s]Loading weights:  70%|██████▉   | 236/338 [00:00<00:00, 243.48it/s]Loading weights:  77%|███████▋  | 261/338 [00:01<00:00, 235.21it/s]Loading weights:  84%|████████▍ | 285/338 [00:01<00:00, 202.35it/s]Loading weights:  94%|█████████▍| 319/338 [00:01<00:00, 236.70it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 252.14it/s]
+2026-04-16 04:11:36,766 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:11:36,770 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/generation_config.json "HTTP/1.1 200 OK"
+2026-04-16 04:11:36,829 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:11:36,831 track_a INFO Model loaded on cuda:0
+2026-04-16 04:11:36,831 pathway4_track_a INFO Extracting completion trajectories (354 problems)...
+2026-04-16 04:11:53,787 pathway4_track_a INFO   10/354 problems done (35.4 prob/min, ~10 min remaining)
+2026-04-16 04:12:09,678 pathway4_track_a INFO   20/354 problems done (36.5 prob/min, ~9 min remaining)
+2026-04-16 04:12:25,704 pathway4_track_a INFO   30/354 problems done (36.8 prob/min, ~9 min remaining)
+2026-04-16 04:12:41,688 pathway4_track_a INFO   40/354 problems done (37.0 prob/min, ~8 min remaining)
+2026-04-16 04:12:57,589 pathway4_track_a INFO   50/354 problems done (37.1 prob/min, ~8 min remaining)
+2026-04-16 04:13:13,412 pathway4_track_a INFO   60/354 problems done (37.3 prob/min, ~8 min remaining)
+2026-04-16 04:13:29,794 pathway4_track_a INFO   70/354 problems done (37.2 prob/min, ~8 min remaining)
+2026-04-16 04:13:46,078 pathway4_track_a INFO   80/354 problems done (37.1 prob/min, ~7 min remaining)
+2026-04-16 04:14:01,907 pathway4_track_a INFO   90/354 problems done (37.2 prob/min, ~7 min remaining)
+2026-04-16 04:14:17,606 pathway4_track_a INFO   100/354 problems done (37.3 prob/min, ~7 min remaining)
+2026-04-16 04:14:33,204 pathway4_track_a INFO   110/354 problems done (37.4 prob/min, ~7 min remaining)
+2026-04-16 04:14:49,191 pathway4_track_a INFO   120/354 problems done (37.4 prob/min, ~6 min remaining)
+2026-04-16 04:15:04,705 pathway4_track_a INFO   130/354 problems done (37.5 prob/min, ~6 min remaining)
+2026-04-16 04:15:20,293 pathway4_track_a INFO   140/354 problems done (37.6 prob/min, ~6 min remaining)
+2026-04-16 04:15:35,810 pathway4_track_a INFO   150/354 problems done (37.7 prob/min, ~5 min remaining)
+2026-04-16 04:15:51,489 pathway4_track_a INFO   160/354 problems done (37.7 prob/min, ~5 min remaining)
+2026-04-16 04:16:07,208 pathway4_track_a INFO   170/354 problems done (37.7 prob/min, ~5 min remaining)
+2026-04-16 04:16:22,785 pathway4_track_a INFO   180/354 problems done (37.8 prob/min, ~5 min remaining)
+2026-04-16 04:16:38,574 pathway4_track_a INFO   190/354 problems done (37.8 prob/min, ~4 min remaining)
+2026-04-16 04:16:54,274 pathway4_track_a INFO   200/354 problems done (37.8 prob/min, ~4 min remaining)
+2026-04-16 04:17:10,100 pathway4_track_a INFO   210/354 problems done (37.8 prob/min, ~4 min remaining)
+2026-04-16 04:17:25,894 pathway4_track_a INFO   220/354 problems done (37.8 prob/min, ~4 min remaining)
+2026-04-16 04:17:42,398 pathway4_track_a INFO   230/354 problems done (37.7 prob/min, ~3 min remaining)
+2026-04-16 04:17:58,789 pathway4_track_a INFO   240/354 problems done (37.7 prob/min, ~3 min remaining)
+2026-04-16 04:18:14,489 pathway4_track_a INFO   250/354 problems done (37.7 prob/min, ~3 min remaining)
+2026-04-16 04:18:30,493 pathway4_track_a INFO   260/354 problems done (37.7 prob/min, ~2 min remaining)
+2026-04-16 04:18:46,890 pathway4_track_a INFO   270/354 problems done (37.7 prob/min, ~2 min remaining)
+2026-04-16 04:19:03,097 pathway4_track_a INFO   280/354 problems done (37.6 prob/min, ~2 min remaining)
+2026-04-16 04:19:19,409 pathway4_track_a INFO   290/354 problems done (37.6 prob/min, ~2 min remaining)
+2026-04-16 04:19:35,086 pathway4_track_a INFO   300/354 problems done (37.6 prob/min, ~1 min remaining)
+2026-04-16 04:19:51,606 pathway4_track_a INFO   310/354 problems done (37.6 prob/min, ~1 min remaining)
+2026-04-16 04:20:07,189 pathway4_track_a INFO   320/354 problems done (37.6 prob/min, ~1 min remaining)
+2026-04-16 04:20:22,210 pathway4_track_a INFO   330/354 problems done (37.7 prob/min, ~1 min remaining)
+2026-04-16 04:20:37,974 pathway4_track_a INFO   340/354 problems done (37.7 prob/min, ~0 min remaining)
+2026-04-16 04:20:54,110 pathway4_track_a INFO   350/354 problems done (37.7 prob/min, ~0 min remaining)
+2026-04-16 04:21:00,819 pathway4_track_a INFO Trajectory extraction complete: 11328 completions in 564.0s (0.05s/completion)
+2026-04-16 04:21:01,110 pathway4_track_a INFO Computing topo features for 11328 completions...
+2026-04-16 04:24:27,283 pathway4_track_a INFO Feature extraction complete: shape (11328, 78) in 205.2s (0.02s/completion)
+2026-04-16 04:24:27,283 pathway4_track_a INFO Fitting completion scorer on all extracted features...
+2026-04-16 04:24:27,283 pathway4_track_a INFO   Label distribution: 667 correct (5.9%), 10661 wrong
+2026-04-16 04:24:27,373 pathway4_track_a INFO   Scores: mean=0.4579, std=0.1482, min=0.0461, max=0.9160
+2026-04-16 04:24:27,373 pathway4_track_a INFO Organizing results per problem...
+2026-04-16 04:24:27,391 pathway4_track_a INFO   Saved completion scores: /workspace/topo-confidence/pathway4/track_a/phase1/completion_scores.json
+2026-04-16 04:24:27,665 pathway4_track_a INFO   Saved features: /workspace/topo-confidence/pathway4/track_a/phase1/completion_features.npz (1.9 MB)
+2026-04-16 04:24:27,666 pathway4_track_a INFO   Saved summary: /workspace/topo-confidence/pathway4/track_a/phase1/phase1_summary.json
+2026-04-16 04:24:27,666 pathway4_track_a INFO 
+=== Phase A1 Summary ===
+2026-04-16 04:24:27,666 pathway4_track_a INFO Wrong-greedy problems: 354
+2026-04-16 04:24:27,666 pathway4_track_a INFO Oracle ceiling: +153 (43.2% of wrong problems solvable)
+2026-04-16 04:24:27,666 pathway4_track_a INFO Max-confidence selection correct: 33 / 354 (9.3%)
+2026-04-16 04:24:27,666 pathway4_track_a INFO Total time: 13.1 minutes
+2026-04-16 04:24:27,666 pathway4_track_a INFO Phase A1 complete.
+[2026-04-16 04:24:29] Phase A1 complete
+[2026-04-16 04:24:29] === Track A Phase A2: CV evaluation ===
+2026-04-16 04:24:32,028 pathway4_track_a INFO === Phase A2: 5-Fold CV Evaluation ===
+2026-04-16 04:24:32,028 pathway4_track_a INFO Loading Phase A1 artifacts...
+2026-04-16 04:24:32,031 pathway4_track_a INFO   Completion scores: 354 problems
+2026-04-16 04:24:32,054 pathway4_track_a INFO   Completion features: (11328, 78)
+2026-04-16 04:24:32,054 pathway4_track_a INFO Loading temperature generations...
+2026-04-16 04:24:32,080 track_a INFO Loading MATH-500 from HuggingFace datasets...
+2026-04-16 04:24:32,367 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 04:24:32,368 huggingface_hub.utils._http WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 04:24:32,372 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/HuggingFaceH4/MATH-500/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/README.md "HTTP/1.1 200 OK"
+2026-04-16 04:24:32,422 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:32,567 httpx INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/HuggingFaceH4/MATH-500/HuggingFaceH4/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:32,624 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/revision/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be "HTTP/1.1 200 OK"
+2026-04-16 04:24:32,674 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:32,770 httpx INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=HuggingFaceH4/MATH-500 "HTTP/1.1 200 OK"
+2026-04-16 04:24:32,826 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/data?recursive=true&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:32,877 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-04-16 04:24:32,982 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:33,133 pathway4_track_a INFO Creating 5-fold stratified splits over train-400...
+2026-04-16 04:24:33,135 pathway4_track_a INFO   Saved fold assignments: /workspace/topo-confidence/pathway4/track_a/phase2/fold_assignments_train400.json
+2026-04-16 04:24:33,136 pathway4_track_a INFO --- Fold 0 ---
+2026-04-16 04:24:33,147 pathway4_track_a INFO   Fold 0: train completions=9056 (5.2% correct), test problems=80
+2026-04-16 04:24:33,338 pathway4_track_a INFO --- Fold 1 ---
+2026-04-16 04:24:33,349 pathway4_track_a INFO   Fold 1: train completions=9056 (6.5% correct), test problems=80
+2026-04-16 04:24:33,546 pathway4_track_a INFO --- Fold 2 ---
+2026-04-16 04:24:33,558 pathway4_track_a INFO   Fold 2: train completions=9056 (5.7% correct), test problems=80
+2026-04-16 04:24:33,743 pathway4_track_a INFO --- Fold 3 ---
+2026-04-16 04:24:33,752 pathway4_track_a INFO   Fold 3: train completions=9056 (6.0% correct), test problems=80
+2026-04-16 04:24:33,944 pathway4_track_a INFO --- Fold 4 ---
+2026-04-16 04:24:33,953 pathway4_track_a INFO   Fold 4: train completions=9088 (6.0% correct), test problems=80
+2026-04-16 04:24:34,142 pathway4_track_a INFO 
+=== Aggregating results across folds ===
+2026-04-16 04:24:34,142 pathway4_track_a INFO   random                        : mean=0.4 ± 0.8, W→R=2, R→W=0, P(improve)=0.875
+2026-04-16 04:24:34,142 pathway4_track_a INFO   max_confidence                : mean=5.8 ± 2.2, W→R=29, R→W=0, P(improve)=1.000
+2026-04-16 04:24:34,142 pathway4_track_a INFO   majority_vote                 : mean=9.2 ± 2.9, W→R=46, R→W=0, P(improve)=1.000
+2026-04-16 04:24:34,143 pathway4_track_a INFO   confidence_weighted_vote      : mean=9.0 ± 2.8, W→R=45, R→W=0, P(improve)=1.000
+2026-04-16 04:24:34,143 pathway4_track_a INFO 
+Computing oracle ceiling...
+2026-04-16 04:24:34,143 pathway4_track_a INFO   Oracle ceiling: mean=30.6 per fold, total=153 across all folds
+2026-04-16 04:24:34,143 pathway4_track_a INFO   Saved CV results: /workspace/topo-confidence/pathway4/track_a/phase2/cv_results.json
+2026-04-16 04:24:34,143 pathway4_track_a INFO   Saved strategy comparison: /workspace/topo-confidence/pathway4/track_a/phase2/strategy_comparison.json
+2026-04-16 04:24:34,143 pathway4_track_a INFO   Locked strategy: majority_vote (mean gain=9.2)
+2026-04-16 04:24:34,143 pathway4_track_a INFO 
+=== Phase A2 Summary ===
+2026-04-16 04:24:34,143 pathway4_track_a INFO Strategies ranked by mean net gain:
+2026-04-16 04:24:34,144 pathway4_track_a INFO   1. majority_vote                 : 9.2 ± 2.9 (P=1.000)
+2026-04-16 04:24:34,144 pathway4_track_a INFO   2. confidence_weighted_vote      : 9.0 ± 2.8 (P=1.000)
+2026-04-16 04:24:34,144 pathway4_track_a INFO   3. max_confidence                : 5.8 ± 2.2 (P=1.000)
+2026-04-16 04:24:34,144 pathway4_track_a INFO   4. random                        : 0.4 ± 0.8 (P=0.875)
+2026-04-16 04:24:34,144 pathway4_track_a INFO Oracle ceiling: 30.6 per fold
+2026-04-16 04:24:34,144 pathway4_track_a INFO Locked: majority_vote
+2026-04-16 04:24:34,144 pathway4_track_a INFO Total time: 2.1 seconds
+2026-04-16 04:24:34,144 pathway4_track_a INFO Phase A2 complete.
+[2026-04-16 04:24:34] Phase A2 complete
+[2026-04-16 04:24:34] Phase A2 mean_net_gain: 9.2
+[2026-04-16 04:24:34] === Track A Phase A3: Holdout evaluation ===
+2026-04-16 04:24:37,194 pathway4_track_a INFO === Phase A3: Holdout Evaluation ===
+2026-04-16 04:24:37,194 pathway4_track_a INFO Loading locked strategy...
+2026-04-16 04:24:37,194 pathway4_track_a INFO   Strategy: majority_vote (CV mean gain=9.2)
+2026-04-16 04:24:37,194 track_a INFO Loading MATH-500 from HuggingFace datasets...
+2026-04-16 04:24:37,479 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 04:24:37,479 huggingface_hub.utils._http WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 04:24:37,484 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/HuggingFaceH4/MATH-500/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/README.md "HTTP/1.1 200 OK"
+2026-04-16 04:24:37,529 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:37,665 httpx INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/HuggingFaceH4/MATH-500/HuggingFaceH4/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:37,722 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/revision/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be "HTTP/1.1 200 OK"
+2026-04-16 04:24:37,783 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:37,872 httpx INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=HuggingFaceH4/MATH-500 "HTTP/1.1 200 OK"
+2026-04-16 04:24:37,927 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/data?recursive=true&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:37,977 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-04-16 04:24:38,084 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:38,253 pathway4_track_a INFO Step 1: Generating holdout temperature completions...
+2026-04-16 04:24:38,253 track_a INFO Loading Qwen/Qwen2.5-1.5B-Instruct...
+2026-04-16 04:24:38,306 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:24:38,311 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+2026-04-16 04:24:38,375 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:24:38,379 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-16 04:24:38,431 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:38,478 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-16 04:24:38,876 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct "HTTP/1.1 200 OK"
+2026-04-16 04:24:38,924 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:24:38,930 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   6%|▌         | 20/338 [00:00<00:01, 199.24it/s]Loading weights:  15%|█▌        | 52/338 [00:00<00:01, 267.46it/s]Loading weights:  26%|██▌       | 88/338 [00:00<00:00, 300.25it/s]Loading weights:  35%|███▍      | 118/338 [00:00<00:00, 294.10it/s]Loading weights:  44%|████▍     | 148/338 [00:00<00:00, 268.25it/s]Loading weights:  53%|█████▎    | 179/338 [00:00<00:00, 281.24it/s]Loading weights:  62%|██████▏   | 208/338 [00:00<00:00, 233.72it/s]Loading weights:  69%|██████▉   | 233/338 [00:00<00:00, 237.27it/s]Loading weights:  77%|███████▋  | 260/338 [00:01<00:00, 246.11it/s]Loading weights:  85%|████████▍ | 286/338 [00:01<00:00, 236.38it/s]Loading weights:  92%|█████████▏| 311/338 [00:01<00:00, 234.24it/s]Loading weights:  99%|█████████▉| 335/338 [00:01<00:00, 234.37it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 250.79it/s]
+2026-04-16 04:24:41,771 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 04:24:41,776 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/generation_config.json "HTTP/1.1 200 OK"
+2026-04-16 04:24:41,828 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+2026-04-16 04:24:41,830 track_a INFO Model loaded on cuda:0
+2026-04-16 04:31:55,684 pathway4_track_a INFO   Generated 5/100 holdout problems (0.7 prob/min, ~137 min remaining)
+2026-04-16 04:39:02,007 pathway4_track_a INFO   Generated 10/100 holdout problems (0.7 prob/min, ~129 min remaining)
+2026-04-16 04:39:02,008 pathway4_track_a INFO   Checkpoint saved: 10 problems
+2026-04-16 04:46:44,218 pathway4_track_a INFO   Generated 15/100 holdout problems (0.7 prob/min, ~125 min remaining)
+2026-04-16 04:53:31,787 pathway4_track_a INFO   Generated 20/100 holdout problems (0.7 prob/min, ~115 min remaining)
+2026-04-16 04:53:31,789 pathway4_track_a INFO   Checkpoint saved: 20 problems
+2026-04-16 05:00:25,532 pathway4_track_a INFO   Generated 25/100 holdout problems (0.7 prob/min, ~107 min remaining)
+2026-04-16 05:08:00,055 pathway4_track_a INFO   Generated 30/100 holdout problems (0.7 prob/min, ~101 min remaining)
+2026-04-16 05:08:00,060 pathway4_track_a INFO   Checkpoint saved: 30 problems
+2026-04-16 05:16:16,560 pathway4_track_a INFO   Generated 35/100 holdout problems (0.7 prob/min, ~96 min remaining)
+2026-04-16 05:24:30,448 pathway4_track_a INFO   Generated 40/100 holdout problems (0.7 prob/min, ~90 min remaining)
+2026-04-16 05:24:30,452 pathway4_track_a INFO   Checkpoint saved: 40 problems
+2026-04-16 05:32:26,818 pathway4_track_a INFO   Generated 45/100 holdout problems (0.7 prob/min, ~83 min remaining)
+2026-04-16 05:40:25,535 pathway4_track_a INFO   Generated 50/100 holdout problems (0.7 prob/min, ~76 min remaining)
+2026-04-16 05:40:25,540 pathway4_track_a INFO   Checkpoint saved: 50 problems
+2026-04-16 05:48:15,566 pathway4_track_a INFO   Generated 55/100 holdout problems (0.7 prob/min, ~68 min remaining)
+2026-04-16 05:56:40,380 pathway4_track_a INFO   Generated 60/100 holdout problems (0.7 prob/min, ~61 min remaining)
+2026-04-16 05:56:40,386 pathway4_track_a INFO   Checkpoint saved: 60 problems
+2026-04-16 06:03:41,168 pathway4_track_a INFO   Generated 65/100 holdout problems (0.7 prob/min, ~53 min remaining)
+2026-04-16 06:11:44,254 pathway4_track_a INFO   Generated 70/100 holdout problems (0.7 prob/min, ~46 min remaining)
+2026-04-16 06:11:44,261 pathway4_track_a INFO   Checkpoint saved: 70 problems
+2026-04-16 06:19:10,300 pathway4_track_a INFO   Generated 75/100 holdout problems (0.7 prob/min, ~38 min remaining)
+2026-04-16 06:26:09,764 pathway4_track_a INFO   Generated 80/100 holdout problems (0.7 prob/min, ~30 min remaining)
+2026-04-16 06:26:09,771 pathway4_track_a INFO   Checkpoint saved: 80 problems
+2026-04-16 06:34:11,554 pathway4_track_a INFO   Generated 85/100 holdout problems (0.7 prob/min, ~23 min remaining)
+2026-04-16 06:42:28,036 pathway4_track_a INFO   Generated 90/100 holdout problems (0.7 prob/min, ~15 min remaining)
+2026-04-16 06:42:28,044 pathway4_track_a INFO   Checkpoint saved: 90 problems
+2026-04-16 06:50:28,412 pathway4_track_a INFO   Generated 95/100 holdout problems (0.7 prob/min, ~8 min remaining)
+2026-04-16 06:57:45,445 pathway4_track_a INFO   Generated 100/100 holdout problems (0.7 prob/min, ~0 min remaining)
+2026-04-16 06:57:45,454 pathway4_track_a INFO   Checkpoint saved: 100 problems
+2026-04-16 06:57:45,463 pathway4_track_a INFO   Generation complete: 100 problems in 9183.6s
+2026-04-16 06:57:45,463 pathway4_track_a INFO   Holdout oracle ceiling: +28
+2026-04-16 06:57:45,463 pathway4_track_a INFO Step 2: Extracting holdout completion trajectories...
+2026-04-16 06:57:45,463 pathway4_track_a INFO   Wrong-greedy holdout problems: 89
+2026-04-16 06:58:01,009 pathway4_track_a INFO   10/89 holdout problems extracted (15.5s elapsed)
+2026-04-16 06:58:16,793 pathway4_track_a INFO   20/89 holdout problems extracted (31.3s elapsed)
+2026-04-16 07:01:21,577 pathway4_track_a INFO   Trajectory checkpoint saved: 20 problems
+2026-04-16 07:01:37,706 pathway4_track_a INFO   30/89 holdout problems extracted (232.2s elapsed)
+2026-04-16 07:01:53,687 pathway4_track_a INFO   40/89 holdout problems extracted (248.2s elapsed)
+2026-04-16 07:08:38,395 pathway4_track_a INFO   Trajectory checkpoint saved: 40 problems
+2026-04-16 07:08:54,389 pathway4_track_a INFO   50/89 holdout problems extracted (668.9s elapsed)
+2026-04-16 07:09:10,188 pathway4_track_a INFO   60/89 holdout problems extracted (684.7s elapsed)
+2026-04-16 07:19:22,135 pathway4_track_a INFO   Trajectory checkpoint saved: 60 problems
+2026-04-16 07:19:38,088 pathway4_track_a INFO   70/89 holdout problems extracted (1312.6s elapsed)
+2026-04-16 07:19:54,397 pathway4_track_a INFO   80/89 holdout problems extracted (1328.9s elapsed)
+2026-04-16 07:33:32,286 pathway4_track_a INFO   Trajectory checkpoint saved: 80 problems
+2026-04-16 07:33:46,687 pathway4_track_a INFO   Extraction complete: 2848 completions in 2161.2s
+2026-04-16 07:33:47,013 pathway4_track_a INFO Step 3: Computing topo features...
+2026-04-16 07:33:56,278 pathway4_track_a INFO Fitted greedy PCA: 45 components, 69.1% variance explained
+2026-04-16 07:34:52,454 pathway4_track_a INFO   Features computed: (2848, 78) in 55.8s
+2026-04-16 07:34:52,454 pathway4_track_a INFO Step 4: Fitting completion scorer on full train-400...
+2026-04-16 07:34:52,510 pathway4_track_a INFO   Scorer fitted on 11328 train completions
+2026-04-16 07:34:52,510 pathway4_track_a INFO Step 5: Scoring and selecting...
+2026-04-16 07:34:52,808 pathway4_track_a INFO   Saved holdout results: /workspace/topo-confidence/pathway4/track_a/phase3/holdout_results.json
+2026-04-16 07:34:52,809 pathway4_track_a INFO 
+=== Phase A3: Holdout Results ===
+2026-04-16 07:34:52,809 pathway4_track_a INFO Strategy: majority_vote
+2026-04-16 07:34:52,809 pathway4_track_a INFO Baseline accuracy: 11.0% (11/100)
+2026-04-16 07:34:52,809 pathway4_track_a INFO Selected accuracy: 22.0% (22/100)
+2026-04-16 07:34:52,809 pathway4_track_a INFO Net gain: +11 (W→R=11, R→W=0)
+2026-04-16 07:34:52,809 pathway4_track_a INFO Bayesian P(improvement): 0.9998
+2026-04-16 07:34:52,809 pathway4_track_a INFO Bootstrap 95% CI: [5, 17]
+2026-04-16 07:34:52,809 pathway4_track_a INFO Oracle ceiling: +28
+2026-04-16 07:34:52,809 pathway4_track_a INFO Decision: PUBLICATION_READY
+2026-04-16 07:34:52,809 pathway4_track_a INFO Total time: 190.3 minutes
+2026-04-16 07:34:52,809 pathway4_track_a INFO Phase A3 complete.
+[2026-04-16 07:34:54] Phase A3 complete
+[2026-04-16 07:34:54] === Track B Phase B0: Pilot validation ===
+2026-04-16 07:34:56,784 pathway4_track_b INFO === Phase B0: Pilot Validation ===
+2026-04-16 07:34:56,784 track_a INFO Loading Qwen/Qwen2.5-1.5B-Instruct...
+2026-04-16 07:34:56,900 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 07:34:56,905 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+2026-04-16 07:34:56,957 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 07:34:56,962 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-16 07:34:57,031 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 07:34:57,086 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-16 07:34:57,441 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct "HTTP/1.1 200 OK"
+2026-04-16 07:34:57,487 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 07:34:57,488 huggingface_hub.utils._http WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 07:34:57,491 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   5%|▌         | 17/338 [00:00<00:01, 167.74it/s]Loading weights:  15%|█▌        | 51/338 [00:00<00:01, 247.66it/s]Loading weights:  23%|██▎       | 78/338 [00:00<00:01, 256.74it/s]Loading weights:  32%|███▏      | 108/338 [00:00<00:00, 272.63it/s]Loading weights:  40%|████      | 136/338 [00:00<00:00, 267.22it/s]Loading weights:  48%|████▊     | 163/338 [00:00<00:00, 264.30it/s]Loading weights:  56%|█████▌    | 190/338 [00:00<00:00, 257.57it/s]Loading weights:  64%|██████▍   | 216/338 [00:00<00:00, 252.97it/s]Loading weights:  72%|███████▏  | 242/338 [00:00<00:00, 253.09it/s]Loading weights:  79%|███████▉  | 268/338 [00:01<00:00, 217.71it/s]Loading weights:  90%|█████████ | 305/338 [00:01<00:00, 256.02it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 269.64it/s]
+2026-04-16 07:35:00,163 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 07:35:00,168 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/generation_config.json "HTTP/1.1 200 OK"
+2026-04-16 07:35:00,211 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:00,213 track_a INFO Model loaded on cuda:0
+2026-04-16 07:35:00,214 track_a INFO Loading MATH-500 from HuggingFace datasets...
+2026-04-16 07:35:00,594 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 07:35:00,598 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/HuggingFaceH4/MATH-500/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/README.md "HTTP/1.1 200 OK"
+2026-04-16 07:35:00,657 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:00,805 httpx INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/HuggingFaceH4/MATH-500/HuggingFaceH4/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:00,856 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/revision/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be "HTTP/1.1 200 OK"
+2026-04-16 07:35:00,941 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:01,042 httpx INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=HuggingFaceH4/MATH-500 "HTTP/1.1 200 OK"
+2026-04-16 07:35:01,092 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/data?recursive=true&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:01,139 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-04-16 07:35:01,250 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:01,307 pathway4_track_b INFO Loaded 354 wrong-under-greedy train problems
+2026-04-16 07:35:01,307 pathway4_track_b INFO Validation 2: Output type check...
+2026-04-16 07:35:01,934 pathway4_track_b INFO   Layer 24 output type: Tensor
+2026-04-16 07:35:01,935 pathway4_track_b INFO   PASS: Output is plain tensor, shape=torch.Size([1, 67, 1536])
+2026-04-16 07:35:01,935 pathway4_track_b INFO Validation 1: Hook identity check...
+2026-04-16 07:35:01,981 pathway4_track_b INFO   Max logit difference with zero bias: 0.00e+00
+2026-04-16 07:35:01,982 pathway4_track_b INFO   PASS: Zero bias is identity
+2026-04-16 07:35:01,982 pathway4_track_b INFO Validation 3: Gradient flow check...
+2026-04-16 07:35:02,127 pathway4_track_b INFO   Bias gradient norm: 0.106375
+2026-04-16 07:35:02,127 pathway4_track_b INFO   Log prob: -3.3707, comp_len: 24
+2026-04-16 07:35:02,127 pathway4_track_b INFO   PASS: Gradient flows to bias
+2026-04-16 07:35:02,128 pathway4_track_b INFO 
+All validations passed. Starting pilot training...
+2026-04-16 07:35:02,128 pathway4_track_b INFO Running pilot training: 50 steps...
+2026-04-16 07:35:02,129 track_a INFO Loading MATH-500 from HuggingFace datasets...
+2026-04-16 07:35:02,177 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 07:35:02,182 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/HuggingFaceH4/MATH-500/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/README.md "HTTP/1.1 200 OK"
+2026-04-16 07:35:02,229 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:02,269 httpx INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/HuggingFaceH4/MATH-500/HuggingFaceH4/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:02,315 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:02,369 httpx INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=HuggingFaceH4/MATH-500 "HTTP/1.1 200 OK"
+2026-04-16 07:35:02,423 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/data?recursive=true&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:02,495 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-04-16 07:35:02,541 pathway4_track_b INFO Loaded 354 wrong-under-greedy train problems
+2026-04-16 07:36:37,910 pathway4_track_b INFO   Step   0: loss=-0.0323, reward=0.062, bias_norm=0.019571, grad=0.003136, valid=16, time=95.4s
+2026-04-16 07:44:25,422 pathway4_track_b INFO   Step   5: loss=-0.0813, reward=0.031, bias_norm=0.052285, grad=0.003861, valid=8, time=100.2s
+2026-04-16 07:52:20,613 pathway4_track_b INFO   Step  10: loss=0.0000, reward=0.000, bias_norm=0.062338, grad=0.000000, valid=0, time=85.9s
+2026-04-16 08:00:41,183 pathway4_track_b INFO   Step  15: loss=0.0000, reward=0.000, bias_norm=0.064551, grad=0.000000, valid=0, time=108.2s
+2026-04-16 08:08:48,872 pathway4_track_b INFO   Step  20: loss=-0.0674, reward=0.031, bias_norm=0.069274, grad=0.004279, valid=8, time=99.5s
+2026-04-16 08:16:58,907 pathway4_track_b INFO   Step  25: loss=-0.1211, reward=0.062, bias_norm=0.072063, grad=0.004730, valid=8, time=96.8s
+2026-04-16 08:25:25,554 pathway4_track_b INFO   Step  30: loss=-0.0876, reward=0.031, bias_norm=0.072324, grad=0.005115, valid=8, time=98.4s
+2026-04-16 08:33:46,384 pathway4_track_b INFO   Step  35: loss=-0.1079, reward=0.188, bias_norm=0.069553, grad=0.003744, valid=16, time=93.4s
+2026-04-16 08:41:49,693 pathway4_track_b INFO   Step  40: loss=-0.0305, reward=0.062, bias_norm=0.066835, grad=0.006662, valid=8, time=97.1s
+2026-04-16 08:49:37,089 pathway4_track_b INFO   Step  45: loss=-0.0371, reward=0.188, bias_norm=0.062576, grad=0.002595, valid=24, time=93.1s
+Traceback (most recent call last):
+  File "/workspace/topo-confidence/pathway4/track_b/phase0_pilot.py", line 358, in <module>
+    main()
+  File "/workspace/topo-confidence/pathway4/track_b/phase0_pilot.py", line 344, in main
+    json.dump(report, f, indent=2)
+  File "/usr/lib/python3.11/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/usr/lib/python3.11/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool is not JSON serializable
+b/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.11/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/usr/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool is not JSON serializable

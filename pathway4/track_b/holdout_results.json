@@ -1,0 +1,46 @@
+{
+  "ungated": {
+    "n_problems": 100,
+    "baseline_accuracy": 0.11,
+    "steered_accuracy": 0.11,
+    "baseline_correct": 11,
+    "steered_correct": 11,
+    "wrong_to_right": 0,
+    "right_to_wrong": 0,
+    "net_gain": 0,
+    "preserved": 11,
+    "both_wrong": 89,
+    "mcnemar_mid_p": 1.0,
+    "bayesian_p_improvement": 0.5,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "mode": "ungated",
+    "tau": null,
+    "eval_time_s": 252.9
+  },
+  "gated": {
+    "n_problems": 100,
+    "baseline_accuracy": 0.11,
+    "steered_accuracy": 0.11,
+    "baseline_correct": 11,
+    "steered_correct": 11,
+    "wrong_to_right": 0,
+    "right_to_wrong": 0,
+    "net_gain": 0,
+    "preserved": 11,
+    "both_wrong": 89,
+    "mcnemar_mid_p": 1.0,
+    "bayesian_p_improvement": 0.5,
+    "bootstrap_ci_95": [
+      0.0,
+      0.0
+    ],
+    "mode": "gated_tau0.40",
+    "tau": 0.4,
+    "eval_time_s": 253.0
+  },
+  "bias_norm": 0.04158,
+  "timestamp": "2026-04-16 17:02:42"
+}

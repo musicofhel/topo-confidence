@@ -1,0 +1,7 @@
+{
+  "decision": "NO_IMPROVEMENT",
+  "rationale": "GRPO bias (ungated) achieves +0, not better than contrastive steering (+3).",
+  "best_holdout_net_gain": 0,
+  "best_mode": "ungated",
+  "bayesian_p_improvement": 0.5
+}

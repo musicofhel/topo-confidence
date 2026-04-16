@@ -1,0 +1,14 @@
+{
+  "validations": {
+    "output_type_ok": true,
+    "identity_ok": true,
+    "gradient_flow_ok": true
+  },
+  "all_passed": true,
+  "pilot_training": {
+    "n_steps": 50,
+    "initial_reward_rate": 0.0625,
+    "final_reward_rate": 0.0719,
+    "reward_improved": true
+  }
+}

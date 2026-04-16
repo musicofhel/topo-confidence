@@ -1,0 +1,22 @@
+{
+  "greedy_baseline": {
+    "accuracy": 0.11,
+    "correct": 11,
+    "net_gain": 0
+  },
+  "track_a_steering": {
+    "accuracy": 0.14,
+    "correct": 14,
+    "net_gain": 3,
+    "wrong_to_right": 6,
+    "right_to_wrong": 3
+  },
+  "track_a_selection": {
+    "accuracy": 0.22,
+    "correct": 22,
+    "net_gain": 11,
+    "wrong_to_right": 11,
+    "right_to_wrong": 0,
+    "strategy": "majority_vote"
+  }
+}

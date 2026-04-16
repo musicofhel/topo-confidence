@@ -1,0 +1,31 @@
+{
+  "n_wrong_greedy": 354,
+  "n_completions_scored": 11328,
+  "n_solvable_problems": 153,
+  "oracle_ceiling": "+153",
+  "max_confidence_correct": 33,
+  "max_confidence_accuracy": 0.0932,
+  "feature_shape": [
+    11328,
+    78
+  ],
+  "n_features": 78,
+  "n_abc_features": 44,
+  "label_balance": {
+    "n_correct": 667,
+    "n_wrong": 10661,
+    "correct_rate": 0.0589
+  },
+  "score_stats": {
+    "mean": 0.4579,
+    "std": 0.1482,
+    "min": 0.0461,
+    "max": 0.916
+  },
+  "timing": {
+    "extraction_seconds": 564.0,
+    "feature_seconds": 205.2,
+    "total_seconds": 784.4
+  },
+  "timestamp": "2026-04-16 04:24:27"
+}

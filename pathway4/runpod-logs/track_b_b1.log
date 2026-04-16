@@ -1,0 +1,102 @@
+2026-04-16 11:03:56,089 pathway4_track_b INFO === Phase B1: Full GRPO Training ===
+2026-04-16 11:03:56,089 pathway4_track_b WARNING Pilot training had issues. Proceeding with caution.
+2026-04-16 11:03:56,089 pathway4_track_b INFO Pilot report: validations passed, pilot OK
+2026-04-16 11:03:56,090 track_a INFO Loading MATH-500 from HuggingFace datasets...
+2026-04-16 11:03:56,381 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/main/README.md "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 11:03:56,386 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/datasets/HuggingFaceH4/MATH-500/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/README.md "HTTP/1.1 200 OK"
+2026-04-16 11:03:56,433 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/MATH-500.py "HTTP/1.1 404 Not Found"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 11:03:56,433 huggingface_hub.utils._http WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-16 11:03:56,565 httpx INFO HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/HuggingFaceH4/MATH-500/HuggingFaceH4/MATH-500.py "HTTP/1.1 404 Not Found"
+2026-04-16 11:03:56,671 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/revision/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be "HTTP/1.1 200 OK"
+2026-04-16 11:03:56,722 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-04-16 11:03:56,860 httpx INFO HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=HuggingFaceH4/MATH-500 "HTTP/1.1 200 OK"
+2026-04-16 11:03:56,911 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/data?recursive=true&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 11:03:56,962 httpx INFO HTTP Request: GET https://huggingface.co/api/datasets/HuggingFaceH4/MATH-500/tree/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-04-16 11:03:57,067 httpx INFO HTTP Request: HEAD https://huggingface.co/datasets/HuggingFaceH4/MATH-500/resolve/6e4ed1a2a79af7d8630a6b768ec859cb5af4d3be/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-04-16 11:03:57,203 pathway4_track_b INFO Loaded 354 wrong-under-greedy train problems
+2026-04-16 11:03:57,204 track_a INFO Loading Qwen/Qwen2.5-1.5B-Instruct...
+2026-04-16 11:03:57,248 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 11:03:57,252 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+2026-04-16 11:03:57,300 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 11:03:57,306 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-16 11:03:57,355 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-16 11:03:57,406 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-16 11:03:57,792 httpx INFO HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-1.5B-Instruct "HTTP/1.1 200 OK"
+2026-04-16 11:03:57,841 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 11:03:57,846 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/config.json "HTTP/1.1 200 OK"
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<00:38,  8.68it/s]Loading weights:  15%|█▌        | 51/338 [00:00<00:01, 278.58it/s]Loading weights:  24%|██▍       | 81/338 [00:00<00:00, 274.19it/s]Loading weights:  33%|███▎      | 110/338 [00:00<00:00, 276.65it/s]Loading weights:  41%|████      | 139/338 [00:00<00:00, 261.41it/s]Loading weights:  51%|█████     | 171/338 [00:00<00:00, 278.04it/s]Loading weights:  59%|█████▉    | 200/338 [00:00<00:00, 231.37it/s]Loading weights:  67%|██████▋   | 225/338 [00:00<00:00, 233.50it/s]Loading weights:  75%|███████▌  | 255/338 [00:01<00:00, 242.22it/s]Loading weights:  86%|████████▌ | 291/338 [00:01<00:00, 271.19it/s]Loading weights:  94%|█████████▍| 319/338 [00:01<00:00, 269.38it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 254.24it/s]
+2026-04-16 11:04:00,629 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-04-16 11:04:00,634 httpx INFO HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-1.5B-Instruct/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/generation_config.json "HTTP/1.1 200 OK"
+2026-04-16 11:04:00,685 httpx INFO HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+2026-04-16 11:04:00,687 track_a INFO Model loaded on cuda:0
+2026-04-16 11:04:00,688 pathway4_track_b INFO Baseline evaluation (before training)...
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+2026-04-16 11:06:15,307 pathway4_track_b INFO   Baseline: 5/50 correct, net_gain=0
+2026-04-16 11:06:15,307 pathway4_track_b INFO Starting GRPO training: steps 0 to 199...
+2026-04-16 11:07:56,984 pathway4_track_b INFO   Step   0: loss=0.0313, reward=0.062, bias=0.019578, grad=0.002625, kl=0.00000000, time=101.7s
+2026-04-16 11:15:20,088 pathway4_track_b INFO   Step   5: loss=-0.0365, reward=0.062, bias=0.040385, grad=0.002916, kl=0.00129030, time=98.8s
+2026-04-16 11:23:01,159 pathway4_track_b INFO   Step  10: loss=-0.0847, reward=0.094, bias=0.048881, grad=0.003805, kl=0.00224602, time=83.4s
+2026-04-16 11:30:28,012 pathway4_track_b INFO   Step  15: loss=-0.0394, reward=0.125, bias=0.052091, grad=0.002662, kl=0.00266448, time=92.2s
+2026-04-16 11:38:02,592 pathway4_track_b INFO   Step  20: loss=0.0000, reward=0.000, bias=0.052144, grad=0.000000, kl=0.00000000, time=96.1s
+2026-04-16 11:43:58,558 pathway4_track_b INFO   Checkpoint saved: step_0024.pt
+2026-04-16 11:45:36,843 pathway4_track_b INFO   Step  25: loss=0.0000, reward=0.000, bias=0.052206, grad=0.000000, kl=0.00000000, time=98.3s
+2026-04-16 11:53:24,658 pathway4_track_b INFO   Step  30: loss=0.0000, reward=0.000, bias=0.051952, grad=0.000000, kl=0.00000000, time=96.8s
+2026-04-16 12:01:04,390 pathway4_track_b INFO   Step  35: loss=-0.0259, reward=0.062, bias=0.051154, grad=0.003180, kl=0.00265272, time=95.2s
+2026-04-16 12:08:32,980 pathway4_track_b INFO   Step  40: loss=0.0000, reward=0.000, bias=0.049482, grad=0.000000, kl=0.00000000, time=99.8s
+2026-04-16 12:15:59,997 pathway4_track_b INFO   Step  45: loss=-0.0852, reward=0.062, bias=0.046542, grad=0.003194, kl=0.00220733, time=94.7s
+2026-04-16 12:21:27,574 pathway4_track_b INFO   Checkpoint saved: step_0049.pt
+2026-04-16 12:21:27,576 pathway4_track_b INFO   Quick eval at step 49...
+2026-04-16 12:23:45,452 pathway4_track_b INFO   Eval: 5/50 correct, net_gain=0 (W→R=0, R→W=0)
+2026-04-16 12:25:23,326 pathway4_track_b INFO   Step  50: loss=0.0000, reward=0.000, bias=0.045928, grad=0.000000, kl=0.00000000, time=97.9s
+2026-04-16 12:32:43,350 pathway4_track_b INFO   Step  55: loss=0.1014, reward=0.125, bias=0.046348, grad=0.004832, kl=0.00214335, time=85.5s
+2026-04-16 12:40:18,666 pathway4_track_b INFO   Step  60: loss=0.0812, reward=0.062, bias=0.047107, grad=0.005456, kl=0.00220499, time=88.5s
+2026-04-16 12:48:04,526 pathway4_track_b INFO   Step  65: loss=0.0000, reward=0.000, bias=0.048092, grad=0.000000, kl=0.00000000, time=85.0s
+2026-04-16 12:55:03,137 pathway4_track_b INFO   Step  70: loss=-0.0807, reward=0.062, bias=0.049770, grad=0.006475, kl=0.00243784, time=79.8s
+2026-04-16 13:00:51,780 pathway4_track_b INFO   Checkpoint saved: step_0074.pt
+2026-04-16 13:02:26,299 pathway4_track_b INFO   Step  75: loss=0.0000, reward=0.000, bias=0.050666, grad=0.000000, kl=0.00000000, time=94.5s
+2026-04-16 13:09:58,984 pathway4_track_b INFO   Step  80: loss=0.0148, reward=0.062, bias=0.051066, grad=0.004343, kl=0.00260694, time=99.6s
+2026-04-16 13:17:43,277 pathway4_track_b INFO   Step  85: loss=-0.1766, reward=0.031, bias=0.050903, grad=0.003330, kl=0.00260483, time=98.5s
+2026-04-16 13:25:01,804 pathway4_track_b INFO   Step  90: loss=0.0000, reward=0.000, bias=0.050168, grad=0.000000, kl=0.00000000, time=85.0s
+2026-04-16 13:32:30,984 pathway4_track_b INFO   Step  95: loss=0.0025, reward=0.062, bias=0.048133, grad=0.003847, kl=0.00237434, time=88.7s
+2026-04-16 13:38:26,383 pathway4_track_b INFO   Checkpoint saved: step_0099.pt
+2026-04-16 13:38:26,385 pathway4_track_b INFO   Quick eval at step 99...
+2026-04-16 13:40:41,089 pathway4_track_b INFO   Eval: 5/50 correct, net_gain=0 (W→R=0, R→W=0)
+2026-04-16 13:42:04,406 pathway4_track_b INFO   Step 100: loss=-0.1285, reward=0.156, bias=0.047093, grad=0.006656, kl=0.00221411, time=83.3s
+2026-04-16 13:49:28,243 pathway4_track_b INFO   Step 105: loss=0.0000, reward=0.000, bias=0.047627, grad=0.000000, kl=0.00000000, time=99.5s
+2026-04-16 13:57:04,689 pathway4_track_b INFO   Step 110: loss=-0.0594, reward=0.094, bias=0.050968, grad=0.003414, kl=0.00252047, time=88.2s
+2026-04-16 14:04:41,382 pathway4_track_b INFO   Step 115: loss=0.0000, reward=0.000, bias=0.052582, grad=0.000000, kl=0.00000000, time=95.6s
+2026-04-16 14:12:04,288 pathway4_track_b INFO   Step 120: loss=0.0000, reward=0.000, bias=0.054074, grad=0.000000, kl=0.00000000, time=89.9s
+2026-04-16 14:18:10,252 pathway4_track_b INFO   Checkpoint saved: step_0124.pt
+2026-04-16 14:19:40,745 pathway4_track_b INFO   Step 125: loss=0.0066, reward=0.094, bias=0.052954, grad=0.004743, kl=0.00287260, time=90.5s
+2026-04-16 14:26:54,517 pathway4_track_b INFO   Step 130: loss=0.0000, reward=0.000, bias=0.050847, grad=0.000000, kl=0.00000000, time=80.7s
+2026-04-16 14:34:31,123 pathway4_track_b INFO   Step 135: loss=-0.0899, reward=0.031, bias=0.049758, grad=0.003748, kl=0.00250036, time=89.1s
+2026-04-16 14:42:11,398 pathway4_track_b INFO   Step 140: loss=-0.0262, reward=0.031, bias=0.049603, grad=0.004187, kl=0.00246181, time=98.3s
+2026-04-16 14:49:40,911 pathway4_track_b INFO   Step 145: loss=0.0257, reward=0.031, bias=0.050268, grad=0.006802, kl=0.00251885, time=95.5s
+2026-04-16 14:55:38,874 pathway4_track_b INFO   Checkpoint saved: step_0149.pt
+2026-04-16 14:55:38,876 pathway4_track_b INFO   Quick eval at step 149...
+2026-04-16 14:57:51,898 pathway4_track_b INFO   Eval: 5/50 correct, net_gain=0 (W→R=0, R→W=0)
+2026-04-16 14:59:30,361 pathway4_track_b INFO   Step 150: loss=0.0000, reward=0.000, bias=0.050307, grad=0.000000, kl=0.00000000, time=98.5s
+2026-04-16 15:07:00,235 pathway4_track_b INFO   Step 155: loss=-0.0442, reward=0.156, bias=0.050027, grad=0.004159, kl=0.00251345, time=91.3s
+2026-04-16 15:14:22,962 pathway4_track_b INFO   Step 160: loss=-0.1349, reward=0.062, bias=0.049741, grad=0.006245, kl=0.00246454, time=84.7s
+2026-04-16 15:21:40,465 pathway4_track_b INFO   Step 165: loss=-0.1469, reward=0.125, bias=0.050120, grad=0.006892, kl=0.00250753, time=76.6s
+2026-04-16 15:28:57,379 pathway4_track_b INFO   Step 170: loss=-0.0348, reward=0.031, bias=0.049896, grad=0.005182, kl=0.00248248, time=87.3s
+2026-04-16 15:35:05,208 pathway4_track_b INFO   Checkpoint saved: step_0174.pt
+2026-04-16 15:36:37,540 pathway4_track_b INFO   Step 175: loss=-0.0634, reward=0.094, bias=0.050051, grad=0.005130, kl=0.00249032, time=92.3s
+2026-04-16 15:44:05,318 pathway4_track_b INFO   Step 180: loss=-0.0880, reward=0.094, bias=0.049045, grad=0.002973, kl=0.00244334, time=77.2s
+2026-04-16 15:51:25,826 pathway4_track_b INFO   Step 185: loss=-0.0271, reward=0.094, bias=0.046325, grad=0.005422, kl=0.00223704, time=93.4s
+2026-04-16 15:58:48,495 pathway4_track_b INFO   Step 190: loss=-0.0273, reward=0.062, bias=0.044331, grad=0.004128, kl=0.00204843, time=88.9s
+2026-04-16 16:06:22,075 pathway4_track_b INFO   Step 195: loss=0.0277, reward=0.125, bias=0.042352, grad=0.004759, kl=0.00183232, time=88.1s
+2026-04-16 16:12:22,970 pathway4_track_b INFO   Checkpoint saved: step_0199.pt
+2026-04-16 16:12:22,972 pathway4_track_b INFO   Quick eval at step 199...
+2026-04-16 16:14:39,703 pathway4_track_b INFO   Eval: 5/50 correct, net_gain=0 (W→R=0, R→W=0)
+2026-04-16 16:14:39,704 pathway4_track_b INFO Saved trained bias: /workspace/topo-confidence/pathway4/track_b/trained_bias.pt
+2026-04-16 16:14:39,706 pathway4_track_b INFO Saved training log: /workspace/topo-confidence/pathway4/track_b/training_log.json
+2026-04-16 16:14:39,707 pathway4_track_b INFO 
+=== Phase B1 Summary ===
+2026-04-16 16:14:39,707 pathway4_track_b INFO Steps completed: 200
+2026-04-16 16:14:39,707 pathway4_track_b INFO Final bias norm: 0.041580
+2026-04-16 16:14:39,707 pathway4_track_b INFO Final reward rate: 0.059
+2026-04-16 16:14:39,707 pathway4_track_b INFO Total time: 5.2 hours
+2026-04-16 16:14:39,707 pathway4_track_b INFO Phase B1 complete.
