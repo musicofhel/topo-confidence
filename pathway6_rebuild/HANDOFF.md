@@ -77,8 +77,21 @@ Full pipeline rebuild fixing two critical bugs found in the topo-confidence audi
 - Final comparison table: 1.5B×MATH vs 1.5B×GSM8K vs 7B×MATH
 - Output: `phase3_cross_benchmark/cross_analysis.json`
 
-## RunPod Execution Order
+## RunPod Execution
 
+### Quick start (automated)
+```bash
+# 1. Setup environment (install deps, cache models, verify data)
+bash pathway6_rebuild/runpod_setup.sh
+
+# 2. Run all 6 steps sequentially (~5-7 hours total)
+bash pathway6_rebuild/runpod_run_all.sh
+
+# Resume from a specific step if interrupted:
+bash pathway6_rebuild/runpod_run_all.sh --from 3   # restart from GSM8K
+```
+
+### Manual execution order
 ```
 1. cd ~/topo-confidence/pathway6_rebuild
 

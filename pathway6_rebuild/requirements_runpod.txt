@@ -1,0 +1,8 @@
+# Pathway 6 Rebuild — RunPod H100 dependencies
+# Base image (runpod/pytorch:2.x) already has: torch, transformers, numpy, scipy
+ripser
+persim
+sympy
+scikit-learn
+datasets
+joblib
