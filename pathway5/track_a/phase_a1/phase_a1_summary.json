@@ -1,0 +1,18 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "dataset": "GSM8K",
+  "n_problems": 1319,
+  "n_correct": 538,
+  "accuracy": 0.4079,
+  "trajectory_shape_example": [
+    83,
+    1536
+  ],
+  "layer_states_shape": [
+    1319,
+    29,
+    1536
+  ],
+  "elapsed_seconds": 4169.1,
+  "elapsed_minutes": 69.5
+}

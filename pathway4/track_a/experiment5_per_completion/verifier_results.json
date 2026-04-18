@@ -1,0 +1,386 @@
+{
+  "experiment": "per_completion_verifier_analysis",
+  "global_auroc": {
+    "train_cv": {
+      "auroc": 0.6078,
+      "ci_95": [
+        0.5861,
+        0.6292
+      ],
+      "n_completions": 11328,
+      "n_correct": 667
+    },
+    "holdout": {
+      "auroc": 0.6711,
+      "ci_95": [
+        0.6228,
+        0.713
+      ],
+      "n_completions": 2848,
+      "n_correct": 149
+    },
+    "prompt_level_auroc_reference": 0.935
+  },
+  "within_problem_auroc": {
+    "train_cv": {
+      "mean": 0.5511,
+      "median": 0.5407,
+      "std": 0.2049,
+      "n_eligible": 153,
+      "n_total_problems": 354,
+      "fraction_above_050": 0.5752,
+      "fraction_above_060": 0.3856,
+      "quartiles": {
+        "q25": 0.4194,
+        "q50": 0.5407,
+        "q75": 0.6987
+      }
+    },
+    "holdout": {
+      "mean": 0.5863,
+      "median": 0.6,
+      "std": 0.2255,
+      "n_eligible": 28,
+      "n_total_problems": 89,
+      "fraction_above_050": 0.6071,
+      "fraction_above_060": 0.4643,
+      "quartiles": {
+        "q25": 0.4394,
+        "q50": 0.6,
+        "q75": 0.7546
+      }
+    }
+  },
+  "score_distributions": {
+    "train_cv": {
+      "correct_mean": 0.5146,
+      "correct_std": 0.1626,
+      "correct_n": 667,
+      "incorrect_mean": 0.4511,
+      "incorrect_std": 0.1522,
+      "incorrect_n": 10661,
+      "cohens_d": 0.4157,
+      "ks_statistic": 0.1491,
+      "ks_p_value": 0.0
+    },
+    "holdout": {
+      "correct_mean": 0.5248,
+      "correct_std": 0.1657,
+      "correct_n": 149,
+      "incorrect_mean": 0.4243,
+      "incorrect_std": 0.1599,
+      "incorrect_n": 2699,
+      "cohens_d": 0.6272,
+      "ks_statistic": 0.2989,
+      "ks_p_value": 0.0
+    }
+  },
+  "variance_decomposition": {
+    "train_cv": {
+      "eta_squared": 0.367,
+      "between_pct": 36.7,
+      "within_pct": 63.3,
+      "ssb": 98.0146,
+      "ssw": 169.0747,
+      "n_groups": 354
+    },
+    "holdout": {
+      "eta_squared": 0.405,
+      "between_pct": 40.5,
+      "within_pct": 59.5,
+      "ssb": 30.1701,
+      "ssw": 44.3238,
+      "n_groups": 89
+    }
+  },
+  "rank_analysis": {
+    "train_cv": {
+      "mrr": 0.3421,
+      "mean_rank": 7.82,
+      "median_rank": 6.0,
+      "n_eligible": 153,
+      "top1_pct": 18.3,
+      "top3_pct": 37.3,
+      "top5_pct": 49.7,
+      "top10_pct": 73.9,
+      "random_baseline_mrr": 0.305
+    },
+    "holdout": {
+      "mrr": 0.3686,
+      "mean_rank": 7.11,
+      "median_rank": 5.0,
+      "n_eligible": 28,
+      "top1_pct": 21.4,
+      "top3_pct": 39.3,
+      "top5_pct": 53.6,
+      "top10_pct": 78.6,
+      "random_baseline_mrr": 0.3978
+    }
+  },
+  "bon_k_hybrid": {
+    "score_guided": {
+      "K1": {
+        "k": 1,
+        "n_correct": 17,
+        "net_gain": 6,
+        "w2r": 6,
+        "r2w": 0
+      },
+      "K3": {
+        "k": 3,
+        "n_correct": 18,
+        "net_gain": 7,
+        "w2r": 7,
+        "r2w": 0
+      },
+      "K5": {
+        "k": 5,
+        "n_correct": 19,
+        "net_gain": 8,
+        "w2r": 8,
+        "r2w": 0
+      },
+      "K10": {
+        "k": 10,
+        "n_correct": 22,
+        "net_gain": 11,
+        "w2r": 11,
+        "r2w": 0
+      },
+      "K32": {
+        "k": 32,
+        "n_correct": 22,
+        "net_gain": 11,
+        "w2r": 11,
+        "r2w": 0
+      }
+    },
+    "random_baseline": {
+      "K1": {
+        "k": 1,
+        "mean_correct": 15.61,
+        "std": 1.58
+      },
+      "K3": {
+        "k": 3,
+        "mean_correct": 16.46,
+        "std": 1.88
+      },
+      "K5": {
+        "k": 5,
+        "mean_correct": 17.66,
+        "std": 1.6
+      },
+      "K10": {
+        "k": 10,
+        "mean_correct": 19.74,
+        "std": 1.76
+      }
+    }
+  },
+  "holdout_all_strategies": {
+    "random": {
+      "n_correct": 15.6,
+      "net_gain": 4.6,
+      "note": "averaged over 200 trials"
+    },
+    "max_confidence": {
+      "n_correct": 17,
+      "net_gain": 6,
+      "w2r": 6,
+      "r2w": 0
+    },
+    "majority_vote": {
+      "n_correct": 22,
+      "net_gain": 11,
+      "w2r": 11,
+      "r2w": 0
+    },
+    "confidence_weighted_vote": {
+      "n_correct": 25,
+      "net_gain": 14,
+      "w2r": 14,
+      "r2w": 0
+    }
+  },
+  "prompt_completion_correlation": {
+    "holdout": {
+      "pearson_r": 0.0796,
+      "pearson_p": 0.458422,
+      "spearman_r": 0.3129,
+      "spearman_p": 0.002835,
+      "n_problems": 89
+    },
+    "train_cv": {
+      "pearson_r": 0.1382,
+      "pearson_p": 0.009225,
+      "spearman_r": 0.2146,
+      "spearman_p": 4.7e-05,
+      "n_problems": 354
+    }
+  },
+  "combined_gate_verifier": [
+    {
+      "tau": 0.3,
+      "selection": "majority_vote",
+      "n_gated": 28,
+      "n_correct": 21,
+      "net_gain": 10,
+      "w2r": 10,
+      "r2w": 0
+    },
+    {
+      "tau": 0.3,
+      "selection": "max_confidence",
+      "n_gated": 28,
+      "n_correct": 16,
+      "net_gain": 5,
+      "w2r": 5,
+      "r2w": 0
+    },
+    {
+      "tau": 0.3,
+      "selection": "bon_k5_mv",
+      "n_gated": 28,
+      "n_correct": 18,
+      "net_gain": 7,
+      "w2r": 7,
+      "r2w": 0
+    },
+    {
+      "tau": 0.5,
+      "selection": "majority_vote",
+      "n_gated": 19,
+      "n_correct": 20,
+      "net_gain": 9,
+      "w2r": 10,
+      "r2w": 1
+    },
+    {
+      "tau": 0.5,
+      "selection": "max_confidence",
+      "n_gated": 19,
+      "n_correct": 15,
+      "net_gain": 4,
+      "w2r": 5,
+      "r2w": 1
+    },
+    {
+      "tau": 0.5,
+      "selection": "bon_k5_mv",
+      "n_gated": 19,
+      "n_correct": 17,
+      "net_gain": 6,
+      "w2r": 7,
+      "r2w": 1
+    }
+  ],
+  "feature_importance_comparison": {
+    "spearman_rank_corr": -0.1254,
+    "spearman_p": 0.417173,
+    "n_abc_features": 44,
+    "prompt_top10": [
+      {
+        "feature": "accel_l4_x_h0ent35_bin",
+        "abs_coef": 2.0163
+      },
+      {
+        "feature": "cos_l9_l28",
+        "abs_coef": 1.7717
+      },
+      {
+        "feature": "cos_l7_l11",
+        "abs_coef": 1.5026
+      },
+      {
+        "feature": "jerk_l7_x_h0tot_sq",
+        "abs_coef": 1.373
+      },
+      {
+        "feature": "nr28_15_x_h0ent35",
+        "abs_coef": 1.3424
+      },
+      {
+        "feature": "cos_l23_l26",
+        "abs_coef": 1.295
+      },
+      {
+        "feature": "cos_l16_l28_bin",
+        "abs_coef": 1.287
+      },
+      {
+        "feature": "c27_28_x_h0tot",
+        "abs_coef": 1.2494
+      },
+      {
+        "feature": "layer_pc2_early_ratio",
+        "abs_coef": 1.2368
+      },
+      {
+        "feature": "tok_layer_min_dist",
+        "abs_coef": 1.2186
+      }
+    ],
+    "completion_top10": [
+      {
+        "feature": "crossmodal_sq",
+        "abs_coef": 0.7315
+      },
+      {
+        "feature": "nr28_14_x_h0ent35",
+        "abs_coef": 0.6053
+      },
+      {
+        "feature": "nr28_15_x_h0ent35",
+        "abs_coef": 0.5767
+      },
+      {
+        "feature": "tok_layer_min_dist",
+        "abs_coef": 0.5674
+      },
+      {
+        "feature": "cos_l4_l10",
+        "abs_coef": 0.4513
+      },
+      {
+        "feature": "cos_l4_l11",
+        "abs_coef": 0.4163
+      },
+      {
+        "feature": "interact_tk_x_s21_rb",
+        "abs_coef": 0.4023
+      },
+      {
+        "feature": "sv3_x_h0max_sq",
+        "abs_coef": 0.357
+      },
+      {
+        "feature": "interact_tk_x_j15_rb",
+        "abs_coef": 0.2881
+      },
+      {
+        "feature": "cos_l13_l15",
+        "abs_coef": 0.2751
+      }
+    ]
+  },
+  "existing_phase2_cv_reference": {
+    "max_confidence_net_gain": 29,
+    "majority_vote_net_gain": 46,
+    "confidence_weighted_vote_net_gain": 45,
+    "random_net_gain": 2,
+    "oracle_net_gain": 153
+  },
+  "paper_narrative": {
+    "conclusion": "Moderate within-problem discrimination (AUROC=0.586), suggesting some completion-level signal exists.",
+    "key_evidence": [
+      "Global per-completion AUROC: 0.608 (train-CV), 0.671 (holdout)",
+      "Within-problem AUROC: 0.551 (train, N=153), 0.586 (holdout, N=28)",
+      "Variance: 37% between-problem (train), 40% (holdout)",
+      "MRR: 0.342 (train, random=0.305)",
+      "BoN@1 holdout: 17 correct vs MV@32: 22 correct",
+      "Prompt vs completion correlation: r=0.0796 (holdout)"
+    ]
+  },
+  "timestamp": "2026-04-17 04:27:35"
+}

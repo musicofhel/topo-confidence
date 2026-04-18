@@ -1,0 +1,131 @@
+{
+  "experiment": "pure_majority_vote_ablation",
+  "description": "Apply majority vote to ALL 100 holdout problems (no greedy gating). Compare to the gated result which skips MV for correct-greedy problems.",
+  "n_holdout": 100,
+  "ungated_majority_vote": {
+    "baseline_accuracy": 0.11,
+    "selected_accuracy": 0.19,
+    "baseline_correct": 11,
+    "selected_correct": 19,
+    "wrong_to_right": 11,
+    "right_to_wrong": 3,
+    "right_to_right": 8,
+    "wrong_to_wrong": 78,
+    "net_gain": 8,
+    "mcnemar_mid_p": 0.035156,
+    "bayesian_p_improvement": 0.9824,
+    "bootstrap_ci_95": [
+      1.0,
+      15.0
+    ]
+  },
+  "gated_majority_vote": {
+    "baseline_correct": 11,
+    "selected_correct": 22,
+    "wrong_to_right": 11,
+    "right_to_wrong": 0,
+    "net_gain": 11,
+    "note": "R\u2192W=0 by construction (greedy-correct problems never touched)"
+  },
+  "comparison": {
+    "gating_prevents_regressions": 3,
+    "gating_effect_on_net_gain": 3,
+    "conclusion": "Majority vote gets +8 net (W\u2192R=11, R\u2192W=3), below gated +11. Gating prevents 3 regressions, adding +3 net. TOPOLOGY GATING PROVIDES REAL VALUE for selection."
+  },
+  "vote_margin_analysis": {
+    "R\u2192R": {
+      "count": 8,
+      "mean_vote_margin": 0.309
+    },
+    "R\u2192W": {
+      "count": 3,
+      "mean_vote_margin": 0.156
+    },
+    "W\u2192R": {
+      "count": 11,
+      "mean_vote_margin": 0.321
+    },
+    "W\u2192W": {
+      "count": 78,
+      "mean_vote_margin": 0.175
+    }
+  },
+  "timestamp": "2026-04-16 20:42:25",
+  "topo_confidence_gating": {
+    "description": "Use P1 topo-confidence model to decide per-problem: if P(correct) >= tau, trust greedy; else use majority vote.",
+    "threshold_sweep": [
+      {
+        "threshold": 0.3,
+        "n_trust_greedy": 28,
+        "n_use_mv": 72,
+        "correct": 21,
+        "wrong_to_right": 10,
+        "right_to_wrong": 0,
+        "net_gain": 10
+      },
+      {
+        "threshold": 0.4,
+        "n_trust_greedy": 19,
+        "n_use_mv": 81,
+        "correct": 21,
+        "wrong_to_right": 10,
+        "right_to_wrong": 0,
+        "net_gain": 10
+      },
+      {
+        "threshold": 0.5,
+        "n_trust_greedy": 19,
+        "n_use_mv": 81,
+        "correct": 21,
+        "wrong_to_right": 10,
+        "right_to_wrong": 0,
+        "net_gain": 10
+      },
+      {
+        "threshold": 0.6,
+        "n_trust_greedy": 12,
+        "n_use_mv": 88,
+        "correct": 20,
+        "wrong_to_right": 10,
+        "right_to_wrong": 1,
+        "net_gain": 9
+      },
+      {
+        "threshold": 0.7,
+        "n_trust_greedy": 11,
+        "n_use_mv": 89,
+        "correct": 20,
+        "wrong_to_right": 10,
+        "right_to_wrong": 1,
+        "net_gain": 9
+      },
+      {
+        "threshold": 0.8,
+        "n_trust_greedy": 8,
+        "n_use_mv": 92,
+        "correct": 21,
+        "wrong_to_right": 11,
+        "right_to_wrong": 1,
+        "net_gain": 10
+      },
+      {
+        "threshold": 0.9,
+        "n_trust_greedy": 4,
+        "n_use_mv": 96,
+        "correct": 20,
+        "wrong_to_right": 11,
+        "right_to_wrong": 2,
+        "net_gain": 9
+      }
+    ],
+    "best_threshold": {
+      "threshold": 0.3,
+      "n_trust_greedy": 28,
+      "n_use_mv": 72,
+      "correct": 21,
+      "wrong_to_right": 10,
+      "right_to_wrong": 0,
+      "net_gain": 10
+    }
+  }
+}

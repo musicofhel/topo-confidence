@@ -1,0 +1,857 @@
+{
+  "experiment": "output_probability_baselines",
+  "description": "Head-to-head comparison of topo-confidence vs cheap output-probability baselines for predicting greedy correctness on MATH-500 holdout-100. Greedy-pass baselines use 1 forward pass (same as topo). Sampling-based baselines use 32 forward passes (existing data).",
+  "n_holdout": 100,
+  "n_greedy_correct": 11,
+  "reference": {
+    "ungated_mv": {
+      "correct": 19,
+      "wrong_to_right": 11,
+      "right_to_wrong": 3,
+      "net_gain": 8
+    },
+    "oracle_gated_mv": {
+      "correct": 22,
+      "wrong_to_right": 11,
+      "right_to_wrong": 0,
+      "net_gain": 11,
+      "note": "R\u2192W=0 by construction"
+    }
+  },
+  "baselines": {
+    "topo_confidence": {
+      "type": "supervised",
+      "compute": "1 fwd + PH",
+      "auroc": 0.9346,
+      "auroc_ci_95": [
+        0.8769,
+        0.9752
+      ],
+      "auroc_perm_p_vs_topo": null,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 0.3,
+          "n_trust_greedy": 28,
+          "n_use_mv": 72,
+          "correct": 21,
+          "wrong_to_right": 10,
+          "right_to_wrong": 0,
+          "net_gain": 10
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 0.4,
+          "n_trust_greedy": 19,
+          "n_use_mv": 81,
+          "correct": 21,
+          "wrong_to_right": 10,
+          "right_to_wrong": 0,
+          "net_gain": 10
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 0.5,
+          "n_trust_greedy": 19,
+          "n_use_mv": 81,
+          "correct": 21,
+          "wrong_to_right": 10,
+          "right_to_wrong": 0,
+          "net_gain": 10
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 0.6,
+          "n_trust_greedy": 12,
+          "n_use_mv": 88,
+          "correct": 20,
+          "wrong_to_right": 10,
+          "right_to_wrong": 1,
+          "net_gain": 9
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 0.7,
+          "n_trust_greedy": 11,
+          "n_use_mv": 89,
+          "correct": 20,
+          "wrong_to_right": 10,
+          "right_to_wrong": 1,
+          "net_gain": 9
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 0.8,
+          "n_trust_greedy": 8,
+          "n_use_mv": 92,
+          "correct": 21,
+          "wrong_to_right": 11,
+          "right_to_wrong": 1,
+          "net_gain": 10
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 0.9,
+          "n_trust_greedy": 4,
+          "n_use_mv": 96,
+          "correct": 20,
+          "wrong_to_right": 11,
+          "right_to_wrong": 2,
+          "net_gain": 9
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.3,
+        "threshold_actual": 0.3,
+        "n_trust_greedy": 28,
+        "n_use_mv": 72,
+        "correct": 21,
+        "wrong_to_right": 10,
+        "right_to_wrong": 0,
+        "net_gain": 10
+      }
+    },
+    "neg_mean_entropy": {
+      "type": "unsupervised",
+      "compute": "1 fwd",
+      "auroc": 0.4566,
+      "auroc_ci_95": [
+        0.2996,
+        0.6088
+      ],
+      "auroc_perm_p_vs_topo": 0.0337,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": -0.7722,
+          "n_trust_greedy": 70,
+          "n_use_mv": 30,
+          "correct": 14,
+          "wrong_to_right": 4,
+          "right_to_wrong": 1,
+          "net_gain": 3
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": -0.6968,
+          "n_trust_greedy": 60,
+          "n_use_mv": 40,
+          "correct": 13,
+          "wrong_to_right": 4,
+          "right_to_wrong": 2,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": -0.6574,
+          "n_trust_greedy": 50,
+          "n_use_mv": 50,
+          "correct": 15,
+          "wrong_to_right": 6,
+          "right_to_wrong": 2,
+          "net_gain": 4
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": -0.5425,
+          "n_trust_greedy": 40,
+          "n_use_mv": 60,
+          "correct": 17,
+          "wrong_to_right": 8,
+          "right_to_wrong": 2,
+          "net_gain": 6
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": -0.4929,
+          "n_trust_greedy": 30,
+          "n_use_mv": 70,
+          "correct": 18,
+          "wrong_to_right": 9,
+          "right_to_wrong": 2,
+          "net_gain": 7
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": -0.4228,
+          "n_trust_greedy": 20,
+          "n_use_mv": 80,
+          "correct": 18,
+          "wrong_to_right": 9,
+          "right_to_wrong": 2,
+          "net_gain": 7
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": -0.3805,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 18,
+          "wrong_to_right": 10,
+          "right_to_wrong": 3,
+          "net_gain": 7
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.7,
+        "threshold_actual": -0.4929,
+        "n_trust_greedy": 30,
+        "n_use_mv": 70,
+        "correct": 18,
+        "wrong_to_right": 9,
+        "right_to_wrong": 2,
+        "net_gain": 7
+      }
+    },
+    "mean_max_token_prob": {
+      "type": "unsupervised",
+      "compute": "1 fwd",
+      "auroc": 0.4729,
+      "auroc_ci_95": [
+        0.3122,
+        0.6139
+      ],
+      "auroc_perm_p_vs_topo": 0.0,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 0.7754,
+          "n_trust_greedy": 70,
+          "n_use_mv": 30,
+          "correct": 13,
+          "wrong_to_right": 3,
+          "right_to_wrong": 1,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 0.7988,
+          "n_trust_greedy": 60,
+          "n_use_mv": 40,
+          "correct": 14,
+          "wrong_to_right": 5,
+          "right_to_wrong": 2,
+          "net_gain": 3
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 0.8128,
+          "n_trust_greedy": 50,
+          "n_use_mv": 50,
+          "correct": 16,
+          "wrong_to_right": 7,
+          "right_to_wrong": 2,
+          "net_gain": 5
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 0.8355,
+          "n_trust_greedy": 40,
+          "n_use_mv": 60,
+          "correct": 17,
+          "wrong_to_right": 8,
+          "right_to_wrong": 2,
+          "net_gain": 6
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 0.8576,
+          "n_trust_greedy": 30,
+          "n_use_mv": 70,
+          "correct": 18,
+          "wrong_to_right": 9,
+          "right_to_wrong": 2,
+          "net_gain": 7
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 0.87,
+          "n_trust_greedy": 20,
+          "n_use_mv": 80,
+          "correct": 19,
+          "wrong_to_right": 10,
+          "right_to_wrong": 2,
+          "net_gain": 8
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 0.8852,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 18,
+          "wrong_to_right": 10,
+          "right_to_wrong": 3,
+          "net_gain": 7
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.8,
+        "threshold_actual": 0.87,
+        "n_trust_greedy": 20,
+        "n_use_mv": 80,
+        "correct": 19,
+        "wrong_to_right": 10,
+        "right_to_wrong": 2,
+        "net_gain": 8
+      }
+    },
+    "first_token_prob": {
+      "type": "unsupervised",
+      "compute": "1 fwd",
+      "auroc": 0.4627,
+      "auroc_ci_95": [
+        0.3032,
+        0.6455
+      ],
+      "auroc_perm_p_vs_topo": 0.0,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 0.2978,
+          "n_trust_greedy": 70,
+          "n_use_mv": 30,
+          "correct": 14,
+          "wrong_to_right": 4,
+          "right_to_wrong": 1,
+          "net_gain": 3
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 0.3377,
+          "n_trust_greedy": 60,
+          "n_use_mv": 40,
+          "correct": 15,
+          "wrong_to_right": 6,
+          "right_to_wrong": 2,
+          "net_gain": 4
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 0.392,
+          "n_trust_greedy": 50,
+          "n_use_mv": 50,
+          "correct": 15,
+          "wrong_to_right": 6,
+          "right_to_wrong": 2,
+          "net_gain": 4
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 0.4378,
+          "n_trust_greedy": 40,
+          "n_use_mv": 60,
+          "correct": 15,
+          "wrong_to_right": 6,
+          "right_to_wrong": 2,
+          "net_gain": 4
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 0.4854,
+          "n_trust_greedy": 30,
+          "n_use_mv": 70,
+          "correct": 16,
+          "wrong_to_right": 8,
+          "right_to_wrong": 3,
+          "net_gain": 5
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 0.5415,
+          "n_trust_greedy": 20,
+          "n_use_mv": 80,
+          "correct": 18,
+          "wrong_to_right": 10,
+          "right_to_wrong": 3,
+          "net_gain": 7
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 0.5895,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 18,
+          "wrong_to_right": 10,
+          "right_to_wrong": 3,
+          "net_gain": 7
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.8,
+        "threshold_actual": 0.5415,
+        "n_trust_greedy": 20,
+        "n_use_mv": 80,
+        "correct": 18,
+        "wrong_to_right": 10,
+        "right_to_wrong": 3,
+        "net_gain": 7
+      }
+    },
+    "self_certainty": {
+      "type": "unsupervised",
+      "compute": "1 fwd",
+      "auroc": 0.4566,
+      "auroc_ci_95": [
+        0.2996,
+        0.6088
+      ],
+      "auroc_perm_p_vs_topo": 0.0,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 11.159,
+          "n_trust_greedy": 70,
+          "n_use_mv": 30,
+          "correct": 14,
+          "wrong_to_right": 4,
+          "right_to_wrong": 1,
+          "net_gain": 3
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 11.2344,
+          "n_trust_greedy": 60,
+          "n_use_mv": 40,
+          "correct": 13,
+          "wrong_to_right": 4,
+          "right_to_wrong": 2,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 11.2738,
+          "n_trust_greedy": 50,
+          "n_use_mv": 50,
+          "correct": 15,
+          "wrong_to_right": 6,
+          "right_to_wrong": 2,
+          "net_gain": 4
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 11.3887,
+          "n_trust_greedy": 40,
+          "n_use_mv": 60,
+          "correct": 17,
+          "wrong_to_right": 8,
+          "right_to_wrong": 2,
+          "net_gain": 6
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 11.4383,
+          "n_trust_greedy": 30,
+          "n_use_mv": 70,
+          "correct": 18,
+          "wrong_to_right": 9,
+          "right_to_wrong": 2,
+          "net_gain": 7
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 11.5084,
+          "n_trust_greedy": 20,
+          "n_use_mv": 80,
+          "correct": 18,
+          "wrong_to_right": 9,
+          "right_to_wrong": 2,
+          "net_gain": 7
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 11.5507,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 18,
+          "wrong_to_right": 10,
+          "right_to_wrong": 3,
+          "net_gain": 7
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.7,
+        "threshold_actual": 11.4383,
+        "n_trust_greedy": 30,
+        "n_use_mv": 70,
+        "correct": 18,
+        "wrong_to_right": 9,
+        "right_to_wrong": 2,
+        "net_gain": 7
+      }
+    },
+    "p_majority": {
+      "type": "unsupervised",
+      "compute": "32 fwd",
+      "auroc": 0.6798,
+      "auroc_ci_95": [
+        0.5347,
+        0.8194
+      ],
+      "auroc_perm_p_vs_topo": 0.0045,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 0.125,
+          "n_trust_greedy": 77,
+          "n_use_mv": 23,
+          "correct": 11,
+          "wrong_to_right": 0,
+          "right_to_wrong": 0,
+          "net_gain": 0
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 0.1562,
+          "n_trust_greedy": 66,
+          "n_use_mv": 34,
+          "correct": 13,
+          "wrong_to_right": 2,
+          "right_to_wrong": 0,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 0.1719,
+          "n_trust_greedy": 50,
+          "n_use_mv": 50,
+          "correct": 12,
+          "wrong_to_right": 4,
+          "right_to_wrong": 3,
+          "net_gain": 1
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 0.2,
+          "n_trust_greedy": 40,
+          "n_use_mv": 60,
+          "correct": 12,
+          "wrong_to_right": 4,
+          "right_to_wrong": 3,
+          "net_gain": 1
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 0.25,
+          "n_trust_greedy": 31,
+          "n_use_mv": 69,
+          "correct": 12,
+          "wrong_to_right": 4,
+          "right_to_wrong": 3,
+          "net_gain": 1
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 0.25,
+          "n_trust_greedy": 31,
+          "n_use_mv": 69,
+          "correct": 12,
+          "wrong_to_right": 4,
+          "right_to_wrong": 3,
+          "net_gain": 1
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 0.3156,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 16,
+          "wrong_to_right": 8,
+          "right_to_wrong": 3,
+          "net_gain": 5
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.9,
+        "threshold_actual": 0.3156,
+        "n_trust_greedy": 10,
+        "n_use_mv": 90,
+        "correct": 16,
+        "wrong_to_right": 8,
+        "right_to_wrong": 3,
+        "net_gain": 5
+      }
+    },
+    "vote_margin": {
+      "type": "unsupervised",
+      "compute": "32 fwd",
+      "auroc": 0.7273,
+      "auroc_ci_95": [
+        0.5591,
+        0.8633
+      ],
+      "auroc_perm_p_vs_topo": 0.0774,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 0.0312,
+          "n_trust_greedy": 74,
+          "n_use_mv": 26,
+          "correct": 11,
+          "wrong_to_right": 1,
+          "right_to_wrong": 1,
+          "net_gain": 0
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 0.0312,
+          "n_trust_greedy": 74,
+          "n_use_mv": 26,
+          "correct": 11,
+          "wrong_to_right": 1,
+          "right_to_wrong": 1,
+          "net_gain": 0
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 0.0625,
+          "n_trust_greedy": 52,
+          "n_use_mv": 48,
+          "correct": 13,
+          "wrong_to_right": 3,
+          "right_to_wrong": 1,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 0.0938,
+          "n_trust_greedy": 42,
+          "n_use_mv": 58,
+          "correct": 13,
+          "wrong_to_right": 4,
+          "right_to_wrong": 2,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 0.0938,
+          "n_trust_greedy": 42,
+          "n_use_mv": 58,
+          "correct": 13,
+          "wrong_to_right": 4,
+          "right_to_wrong": 2,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 0.125,
+          "n_trust_greedy": 27,
+          "n_use_mv": 73,
+          "correct": 14,
+          "wrong_to_right": 6,
+          "right_to_wrong": 3,
+          "net_gain": 3
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 0.1906,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 15,
+          "wrong_to_right": 7,
+          "right_to_wrong": 3,
+          "net_gain": 4
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.9,
+        "threshold_actual": 0.1906,
+        "n_trust_greedy": 10,
+        "n_use_mv": 90,
+        "correct": 15,
+        "wrong_to_right": 7,
+        "right_to_wrong": 3,
+        "net_gain": 4
+      }
+    },
+    "inv_answer_diversity": {
+      "type": "unsupervised",
+      "compute": "32 fwd",
+      "auroc": 0.5526,
+      "auroc_ci_95": [
+        0.3945,
+        0.7053
+      ],
+      "auroc_perm_p_vs_topo": 0.0,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": 0.25,
+          "n_trust_greedy": 72,
+          "n_use_mv": 28,
+          "correct": 10,
+          "wrong_to_right": 0,
+          "right_to_wrong": 1,
+          "net_gain": -1
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": 0.3,
+          "n_trust_greedy": 60,
+          "n_use_mv": 40,
+          "correct": 12,
+          "wrong_to_right": 3,
+          "right_to_wrong": 2,
+          "net_gain": 1
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": 0.3438,
+          "n_trust_greedy": 53,
+          "n_use_mv": 47,
+          "correct": 13,
+          "wrong_to_right": 4,
+          "right_to_wrong": 2,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": 0.375,
+          "n_trust_greedy": 45,
+          "n_use_mv": 55,
+          "correct": 13,
+          "wrong_to_right": 5,
+          "right_to_wrong": 3,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": 0.4375,
+          "n_trust_greedy": 33,
+          "n_use_mv": 67,
+          "correct": 13,
+          "wrong_to_right": 5,
+          "right_to_wrong": 3,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": 0.5,
+          "n_trust_greedy": 23,
+          "n_use_mv": 77,
+          "correct": 13,
+          "wrong_to_right": 5,
+          "right_to_wrong": 3,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": 0.625,
+          "n_trust_greedy": 11,
+          "n_use_mv": 89,
+          "correct": 16,
+          "wrong_to_right": 8,
+          "right_to_wrong": 3,
+          "net_gain": 5
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.9,
+        "threshold_actual": 0.625,
+        "n_trust_greedy": 11,
+        "n_use_mv": 89,
+        "correct": 16,
+        "wrong_to_right": 8,
+        "right_to_wrong": 3,
+        "net_gain": 5
+      }
+    },
+    "neg_agreement_entropy": {
+      "type": "unsupervised",
+      "compute": "32 fwd",
+      "auroc": 0.5817,
+      "auroc_ci_95": [
+        0.4203,
+        0.7382
+      ],
+      "auroc_perm_p_vs_topo": 0.0904,
+      "gating_sweep": [
+        {
+          "threshold_label": 0.3,
+          "threshold_actual": -3.0246,
+          "n_trust_greedy": 71,
+          "n_use_mv": 29,
+          "correct": 11,
+          "wrong_to_right": 1,
+          "right_to_wrong": 1,
+          "net_gain": 0
+        },
+        {
+          "threshold_label": 0.4,
+          "threshold_actual": -2.9565,
+          "n_trust_greedy": 61,
+          "n_use_mv": 39,
+          "correct": 11,
+          "wrong_to_right": 2,
+          "right_to_wrong": 2,
+          "net_gain": 0
+        },
+        {
+          "threshold_label": 0.5,
+          "threshold_actual": -2.8371,
+          "n_trust_greedy": 51,
+          "n_use_mv": 49,
+          "correct": 13,
+          "wrong_to_right": 4,
+          "right_to_wrong": 2,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.6,
+          "threshold_actual": -2.7424,
+          "n_trust_greedy": 40,
+          "n_use_mv": 60,
+          "correct": 12,
+          "wrong_to_right": 4,
+          "right_to_wrong": 3,
+          "net_gain": 1
+        },
+        {
+          "threshold_label": 0.7,
+          "threshold_actual": -2.5865,
+          "n_trust_greedy": 30,
+          "n_use_mv": 70,
+          "correct": 13,
+          "wrong_to_right": 5,
+          "right_to_wrong": 3,
+          "net_gain": 2
+        },
+        {
+          "threshold_label": 0.8,
+          "threshold_actual": -2.3866,
+          "n_trust_greedy": 20,
+          "n_use_mv": 80,
+          "correct": 15,
+          "wrong_to_right": 7,
+          "right_to_wrong": 3,
+          "net_gain": 4
+        },
+        {
+          "threshold_label": 0.9,
+          "threshold_actual": -2.0336,
+          "n_trust_greedy": 10,
+          "n_use_mv": 90,
+          "correct": 16,
+          "wrong_to_right": 8,
+          "right_to_wrong": 3,
+          "net_gain": 5
+        }
+      ],
+      "best_gate": {
+        "threshold_label": 0.9,
+        "threshold_actual": -2.0336,
+        "n_trust_greedy": 10,
+        "n_use_mv": 90,
+        "correct": 16,
+        "wrong_to_right": 8,
+        "right_to_wrong": 3,
+        "net_gain": 5
+      }
+    }
+  },
+  "notes": {
+    "self_certainty_equivalence": "self_certainty = log(151936) - entropy = KL(P||Uniform). Monotonic transform of neg_mean_entropy \u2192 identical AUROC and ranking. Included per Kang et al. 2025 terminology.",
+    "entropy_source": "Precomputed in data/experiment1_v2/output_entropy_scores.json. Greedy-pass mean per-token H(softmax(logits)), NOT cross-entropy. Perplexity (exp of cross-entropy) is a different signal requiring Phase B.",
+    "gating_thresholds": "Topo-confidence uses raw P(correct) thresholds [0.3\u20130.9]. Other baselines use percentile-based thresholds at matching coverage levels."
+  },
+  "timestamp": "2026-04-16 20:34:01"
+}

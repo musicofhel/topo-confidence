@@ -1,0 +1,22 @@
+{
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "dataset": "MATH-500",
+  "n_problems": 500,
+  "n_correct": 103,
+  "accuracy": 0.206,
+  "train_accuracy": 0.2175,
+  "holdout_accuracy": 0.16,
+  "hidden_dim": 3584,
+  "n_layers": 29,
+  "trajectory_shape_example": [
+    67,
+    3584
+  ],
+  "layer_states_shape": [
+    500,
+    29,
+    3584
+  ],
+  "elapsed_seconds": 2363.2,
+  "elapsed_minutes": 39.4
+}

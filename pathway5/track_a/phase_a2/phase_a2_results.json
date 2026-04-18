@@ -1,0 +1,60 @@
+{
+  "dataset": "GSM8K",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 1319,
+  "n_train": 1055,
+  "n_test": 264,
+  "greedy_accuracy": {
+    "total": 0.4079,
+    "train": 0.4076,
+    "test": 0.4091
+  },
+  "topo_confidence": {
+    "fresh_pca": {
+      "test_auroc": 0.652124881291548,
+      "test_ci": [
+        0.5811193667443669,
+        0.7154329735271062
+      ],
+      "train_cv_auroc": 0.6396130232558139
+    },
+    "transfer_pca": {
+      "auroc": 0.6470204178537512,
+      "ci_lo": 0.5773355227413106,
+      "ci_hi": 0.7125930761858553
+    }
+  },
+  "baselines": {
+    "neg_mean_entropy": {
+      "auroc": 0.5690289648622983,
+      "ci_lo": 0.4963075633306978,
+      "ci_hi": 0.6403227012189107
+    },
+    "mean_max_token_prob": {
+      "auroc": 0.5547245963912631,
+      "ci_lo": 0.48381735586075103,
+      "ci_hi": 0.6275176033459683
+    },
+    "first_token_prob": {
+      "auroc": 0.47518993352326677,
+      "ci_lo": 0.4037303058387396,
+      "ci_hi": 0.5478153939638533
+    },
+    "self_certainty": {
+      "auroc": 0.5690289648622983,
+      "ci_lo": 0.4963075633306978,
+      "ci_hi": 0.6403227012189107
+    }
+  },
+  "best_baseline": "neg_mean_entropy",
+  "topo_vs_best_baseline_p": 0.2214,
+  "n_features": 78,
+  "n_abc_features": 44,
+  "elapsed_minutes": 1.4,
+  "comparison_with_math500": {
+    "math500_topo_auroc": 0.935,
+    "math500_best_logprob_auroc": 0.473,
+    "gsm8k_topo_auroc": 0.652124881291548,
+    "gsm8k_best_logprob_auroc": 0.5690289648622983
+  }
+}

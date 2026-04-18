@@ -1,0 +1,263 @@
+{
+  "comparison_table": [
+    [
+      "1.5B MATH greedy accuracy",
+      "57/500",
+      "104/500",
+      "+47"
+    ],
+    [
+      "  Train correct",
+      "46/400",
+      "89/400",
+      "+43"
+    ],
+    [
+      "  Holdout correct",
+      "11/100",
+      "15/100",
+      "+4"
+    ],
+    [
+      "Topo AUROC (holdout)",
+      "0.935",
+      "0.7961",
+      "-0.1389"
+    ],
+    [
+      "Topo AUROC (train CV-50)",
+      "~0.93",
+      "0.6950",
+      "-0.235"
+    ],
+    [
+      "Best 1-pass baseline (neg_entropy)",
+      "0.457",
+      "0.5075",
+      "+0.0505"
+    ],
+    [
+      "Best 32-pass baseline (vote_margin)",
+      "0.727",
+      "0.7667",
+      "+0.0397"
+    ],
+    [
+      "Topo - best baseline gap",
+      "+0.208",
+      "+0.0569",
+      "-0.1511"
+    ],
+    [
+      "Oracle ceiling (holdout)",
+      "+28",
+      "+30",
+      "+2"
+    ],
+    [
+      "Solvable under temperature (train)",
+      "153",
+      "137",
+      "-16"
+    ],
+    [
+      "Ungated MV net gain (holdout)",
+      "+8",
+      "+12",
+      "+4"
+    ],
+    [
+      "Ungated MV R->W",
+      "3",
+      "2",
+      "-1"
+    ],
+    [
+      "Gated MV net gain (tau=0.3)",
+      "+10",
+      "+4",
+      "-6"
+    ],
+    [
+      "Gated MV R->W (tau=0.3)",
+      "0",
+      "0",
+      "+0"
+    ],
+    [
+      "Weighted vote net gain",
+      "+14",
+      "DEFERRED",
+      "(needs RunPod)"
+    ],
+    [
+      "ECE (equal-width)",
+      "0.118",
+      "0.2565",
+      "+0.1385"
+    ],
+    [
+      "Brier score",
+      "0.087",
+      "0.1847",
+      "+0.0977"
+    ]
+  ],
+  "adaptive_sampling": [
+    {
+      "tau_e": 0.3,
+      "tau_h": 0.05,
+      "n_med": 8,
+      "n_correct": 18,
+      "net_gain": 3,
+      "W_to_R": 3,
+      "R_to_W": 0,
+      "total_samples": 344,
+      "uniform_samples": 3200,
+      "savings_pct": 89.25,
+      "n_easy": 63,
+      "n_medium": 35,
+      "n_hard": 2
+    },
+    {
+      "tau_e": 0.3,
+      "tau_h": 0.05,
+      "n_med": 16,
+      "n_correct": 17,
+      "net_gain": 2,
+      "W_to_R": 2,
+      "R_to_W": 0,
+      "total_samples": 624,
+      "uniform_samples": 3200,
+      "savings_pct": 80.5,
+      "n_easy": 63,
+      "n_medium": 35,
+      "n_hard": 2
+    },
+    {
+      "tau_e": 0.5,
+      "tau_h": 0.1,
+      "n_med": 8,
+      "n_correct": 20,
+      "net_gain": 5,
+      "W_to_R": 7,
+      "R_to_W": 2,
+      "total_samples": 736,
+      "uniform_samples": 3200,
+      "savings_pct": 77.0,
+      "n_easy": 32,
+      "n_medium": 60,
+      "n_hard": 8
+    }
+  ],
+  "tau_sweep": [
+    {
+      "tau": 0.1,
+      "n_correct": 15,
+      "net_gain": 0,
+      "W_to_R": 0,
+      "R_to_W": 0,
+      "gated_count": 92
+    },
+    {
+      "tau": 0.2,
+      "n_correct": 16,
+      "net_gain": 1,
+      "W_to_R": 1,
+      "R_to_W": 0,
+      "gated_count": 76
+    },
+    {
+      "tau": 0.3,
+      "n_correct": 19,
+      "net_gain": 4,
+      "W_to_R": 4,
+      "R_to_W": 0,
+      "gated_count": 63
+    },
+    {
+      "tau": 0.4,
+      "n_correct": 21,
+      "net_gain": 6,
+      "W_to_R": 7,
+      "R_to_W": 1,
+      "gated_count": 48
+    },
+    {
+      "tau": 0.5,
+      "n_correct": 23,
+      "net_gain": 8,
+      "W_to_R": 9,
+      "R_to_W": 1,
+      "gated_count": 32
+    },
+    {
+      "tau": 0.6,
+      "n_correct": 27,
+      "net_gain": 12,
+      "W_to_R": 13,
+      "R_to_W": 1,
+      "gated_count": 23
+    },
+    {
+      "tau": 0.7,
+      "n_correct": 26,
+      "net_gain": 11,
+      "W_to_R": 13,
+      "R_to_W": 2,
+      "gated_count": 12
+    }
+  ],
+  "claims": [
+    {
+      "claim": "Topo AUROC > 0.90 on MATH-500",
+      "status": "INVALIDATED",
+      "evidence": "AUROC = 0.796"
+    },
+    {
+      "claim": "Topo crushes all logprob baselines",
+      "status": "WEAKENED",
+      "evidence": "Gap = +0.057 vs vote_margin"
+    },
+    {
+      "claim": "Topo detects 'confidently wrong' (logprob anti-correlated)",
+      "status": "WEAKENED",
+      "evidence": "neg_entropy AUROC = 0.507 (was 0.457, now ~0.5)"
+    },
+    {
+      "claim": "Gated MV achieves 0 R->W",
+      "status": "SURVIVES",
+      "evidence": "R->W = 0 at tau=0.3"
+    },
+    {
+      "claim": "Gating is strictly better than ungated MV",
+      "status": "WEAKENED",
+      "evidence": "Gated +4 vs ungated +12"
+    },
+    {
+      "claim": "Adaptive sampling: 45% token savings at matched accuracy",
+      "status": "SURVIVES",
+      "evidence": "89% savings at +3 or 77% savings at +5"
+    },
+    {
+      "claim": "Feature ablation: Tier A is irreplaceable anchor",
+      "status": "SURVIVES",
+      "evidence": "Tier A AUROC = 0.7035294117647058"
+    },
+    {
+      "claim": "Per-completion weighted vote +14 (0 R->W)",
+      "status": "UNKNOWN",
+      "evidence": "Needs RunPod for per-completion features"
+    },
+    {
+      "claim": "GSM8K generalization (AUROC=0.652)",
+      "status": "UNKNOWN",
+      "evidence": "Needs RunPod with chat template"
+    },
+    {
+      "claim": "7B generalization (AUROC=0.657)",
+      "status": "UNKNOWN",
+      "evidence": "Needs RunPod with chat template"
+    }
+  ]
+}

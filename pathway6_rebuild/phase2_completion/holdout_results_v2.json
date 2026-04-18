@@ -1,0 +1,39 @@
+{
+  "baseline": {
+    "n_correct": 15,
+    "n_wrong": 85
+  },
+  "ungated_mv": {
+    "n_correct": 27,
+    "net_gain": 12,
+    "W_to_R": 14,
+    "R_to_W": 2
+  },
+  "gated_mv": {
+    "n_correct": 19,
+    "net_gain": 4,
+    "W_to_R": 4,
+    "R_to_W": 0,
+    "gated_count": 63,
+    "tau": 0.3
+  },
+  "ungated_weighted": {
+    "n_correct": 27,
+    "net_gain": 12,
+    "W_to_R": 14,
+    "R_to_W": 2
+  },
+  "gated_weighted": {
+    "n_correct": 19,
+    "net_gain": 4,
+    "W_to_R": 4,
+    "R_to_W": 0,
+    "gated_count": 63,
+    "tau": 0.3
+  },
+  "random": {
+    "mean_correct": 11.21,
+    "std_correct": 2.4343171527144936,
+    "net_gain": -3.789999999999999
+  }
+}

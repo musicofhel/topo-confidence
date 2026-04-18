@@ -1,0 +1,55 @@
+{
+  "dataset": "MATH-500",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "n_problems": 500,
+  "n_train": 400,
+  "n_holdout": 100,
+  "greedy_accuracy": {
+    "total": 0.206,
+    "train": 0.2175,
+    "holdout": 0.16
+  },
+  "topo_confidence": {
+    "holdout_auroc": 0.6569940476190477,
+    "holdout_ci": [
+      0.5074122745537801,
+      0.7865696868456862
+    ],
+    "train_cv_auroc": 0.6949065403400536
+  },
+  "baselines": {
+    "neg_mean_entropy": {
+      "auroc": 0.34151785714285715,
+      "ci_lo": 0.20452760741057704,
+      "ci_hi": 0.48449703087101786
+    },
+    "mean_max_token_prob": {
+      "auroc": 0.36309523809523814,
+      "ci_lo": 0.21615790037241267,
+      "ci_hi": 0.5107270326355119
+    },
+    "first_token_prob": {
+      "auroc": 0.6026785714285714,
+      "ci_lo": 0.46330149051490516,
+      "ci_hi": 0.7385216514631989
+    },
+    "self_certainty": {
+      "auroc": 0.34151785714285715,
+      "ci_lo": 0.20452760741057704,
+      "ci_hi": 0.48449703087101786
+    }
+  },
+  "best_baseline": "first_token_prob",
+  "topo_vs_best_baseline_p": 0.5358,
+  "n_features": 78,
+  "n_abc_features": 44,
+  "elapsed_minutes": 2.1,
+  "comparison_with_1_5b": {
+    "1_5b_topo_auroc": 0.935,
+    "1_5b_best_logprob": 0.473,
+    "1_5b_greedy_acc": 0.114,
+    "7b_topo_auroc": 0.6569940476190477,
+    "7b_best_logprob": 0.6026785714285714,
+    "7b_greedy_acc": 0.206
+  }
+}

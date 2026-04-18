@@ -1,0 +1,151 @@
+{
+  "dataset": "GSM8K",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_test": 264,
+  "n_greedy_correct_test": 108,
+  "greedy_accuracy_test": 0.4091,
+  "oracle_ceiling": 128,
+  "oracle_correct": 236,
+  "per_completion": {
+    "global_auroc": 0.6188559266911282,
+    "global_ci": [
+      0.6054695026463229,
+      0.6330843199356054
+    ],
+    "within_problem_auroc_mean": 0.572,
+    "within_problem_auroc_median": 0.587,
+    "n_mixed_problems": 233,
+    "frac_above_50": 0.734
+  },
+  "selection_strategies": {
+    "random": {
+      "correct": 125.5,
+      "net_gain": 17.5,
+      "w_to_r": 0,
+      "r_to_w": 0
+    },
+    "max_confidence": {
+      "correct": 140,
+      "net_gain": 32,
+      "w_to_r": 32,
+      "r_to_w": 0
+    },
+    "majority_vote": {
+      "correct": 147,
+      "net_gain": 39,
+      "w_to_r": 39,
+      "r_to_w": 0
+    },
+    "confidence_weighted_vote": {
+      "correct": 158,
+      "net_gain": 50,
+      "w_to_r": 50,
+      "r_to_w": 0
+    }
+  },
+  "gating_strategies": [
+    {
+      "tau": 0.1,
+      "trust_greedy": 263,
+      "use_mv": 1,
+      "correct": 109,
+      "net_gain": 1,
+      "w_to_r": 1,
+      "r_to_w": 0,
+      "savings_pct": 99.6
+    },
+    {
+      "tau": 0.2,
+      "trust_greedy": 247,
+      "use_mv": 17,
+      "correct": 110,
+      "net_gain": 2,
+      "w_to_r": 2,
+      "r_to_w": 0,
+      "savings_pct": 93.6
+    },
+    {
+      "tau": 0.3,
+      "trust_greedy": 224,
+      "use_mv": 40,
+      "correct": 111,
+      "net_gain": 3,
+      "w_to_r": 3,
+      "r_to_w": 0,
+      "savings_pct": 84.8
+    },
+    {
+      "tau": 0.4,
+      "trust_greedy": 162,
+      "use_mv": 102,
+      "correct": 119,
+      "net_gain": 11,
+      "w_to_r": 11,
+      "r_to_w": 0,
+      "savings_pct": 61.4
+    },
+    {
+      "tau": 0.5,
+      "trust_greedy": 108,
+      "use_mv": 156,
+      "correct": 130,
+      "net_gain": 22,
+      "w_to_r": 22,
+      "r_to_w": 0,
+      "savings_pct": 40.9
+    },
+    {
+      "tau": 0.6,
+      "trust_greedy": 63,
+      "use_mv": 201,
+      "correct": 137,
+      "net_gain": 29,
+      "w_to_r": 29,
+      "r_to_w": 0,
+      "savings_pct": 23.9
+    },
+    {
+      "tau": 0.7,
+      "trust_greedy": 23,
+      "use_mv": 241,
+      "correct": 144,
+      "net_gain": 36,
+      "w_to_r": 36,
+      "r_to_w": 0,
+      "savings_pct": 8.7
+    }
+  ],
+  "sampling_baselines_auroc": {
+    "p_majority": {
+      "auroc": 0.7259912155745489,
+      "ci_lo": 0.6642915380229195,
+      "ci_hi": 0.7888407387872628
+    },
+    "vote_margin": {
+      "auroc": 0.7155448717948718,
+      "ci_lo": 0.6557532341909561,
+      "ci_hi": 0.7763732022396794
+    },
+    "inv_answer_diversity": {
+      "auroc": 0.6104582146248813,
+      "ci_lo": 0.5368267236851638,
+      "ci_hi": 0.67595655014562
+    },
+    "neg_agreement_entropy": {
+      "auroc": 0.6634318613485279,
+      "ci_lo": 0.5925616429838915,
+      "ci_hi": 0.725631665467633
+    }
+  },
+  "topo_auroc_prompt_level": 0.652124881291548,
+  "elapsed_minutes": 4.2,
+  "comparison_table": {
+    "greedy_acc": 0.409,
+    "topo_auroc": 0.652124881291548,
+    "best_logprob_auroc": 0.5690289648622983,
+    "mv_net_gain": 39,
+    "weighted_vote_net_gain": 50,
+    "weighted_vote_r_to_w": 0,
+    "oracle_ceiling": 128
+  }
+}

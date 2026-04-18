@@ -1,0 +1,450 @@
+{
+  "greedy": {
+    "old_correct": 57,
+    "new_correct": 104,
+    "false_negatives_fixed": 47,
+    "false_positives_found": 0,
+    "old_train": 46,
+    "new_train": 89,
+    "old_holdout": 11,
+    "new_holdout": 15,
+    "diff_details": [
+      {
+        "index": 3,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "9",
+        "old_predicted": "The final answer is: $\\boxed{9}$",
+        "ground_truth": "9",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 8,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "3\\sqrt{13}",
+        "old_predicted": "3\\sqrt{13",
+        "ground_truth": "3\\sqrt{13}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 13,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "5",
+        "old_predicted": "The final answer is: $\\boxed{5}$",
+        "ground_truth": "5",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 20,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "6 + 9i",
+        "old_predicted": "The final answer is $6 + 9i$.",
+        "ground_truth": "6+9i",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 28,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "-2 + 7i",
+        "old_predicted": "To solve the problem, we need to understand how a $90^\\circ$ counter-clockwise rotation affects a complex number. When a complex number \\( z = a + bi \\) is rotated by \\( 90^\\circ \\) counterclockwise around the origin, it transforms into \\( -b + ai \\). This is because rotating a point \\((a, b)\\) by \\(90^\\circ\\) counterclockwise results in the new coordinates \\((-b, a)\\).",
+        "ground_truth": "-2 + 7i",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 52,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "12",
+        "old_predicted": "To solve this problem, we first simplify the expression inside the square root in the numerator using the difference of squares formula, which states that $a^2 - b^2 = (a + b)(a - b)$. In this case, $a = 2.5$ and $b",
+        "ground_truth": "12",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 53,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "-\\frac{\\pi}{6}",
+        "old_predicted": "To solve this problem, we need to find the angle whose sine is $-\\frac{1}{2}$ and lies within the range of the arcsine function, which is $[-\\frac{\\pi}{2}, \\frac{\\pi}{2}]$. The sine of an angle is negative in the fourth quadrant, where angles are between $-\\frac{\\pi}{2}$ and $0$, but since our target angle must be positive (as indicated by the negative sign), we look at the equivalent positive angle in the first quadrant, which is $\\frac{\\pi}{6}$. Therefore, the solution is:",
+        "ground_truth": "-\\frac{\\pi}{6}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 57,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "16",
+        "old_predicted": "To solve the problem, we first calculated",
+        "ground_truth": "16",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 65,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "1",
+        "old_predicted": "To solve this problem, let's break it down step by step:",
+        "ground_truth": "1",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 73,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\frac{3\\sqrt{3}}{4}",
+        "old_predicted": "To solve this problem, let's follow the steps outlined in the solution:",
+        "ground_truth": "\\frac{3\\sqrt{3}}{4}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 76,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "0",
+        "old_predicted": "The solution provided above is incorrect. Let's solve this step by step:",
+        "ground_truth": "0",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 77,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "4",
+        "old_predicted": "To solve the given problem, we need to express both sides of the equation \\(2^8 = 4^x\\) using the same base. Here's the step-by-step solution:",
+        "ground_truth": "4",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 87,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "1",
+        "old_predicted": "To solve the equation \\( |5x-1| =",
+        "ground_truth": "1",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 102,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "(a + 5)(b + 2)",
+        "old_predicted": "To solve the problem, we first grouped the terms and found a common factor for each group. Then, we factored out the common factor from each group, which allowed us to see that it was also a common factor between the two groups. Finally, we factored out the common binomial factor to get the final factored form of the expression. The solution can be verified by expanding the factored form back into its original form.",
+        "ground_truth": "(a+5)(b+2)",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 113,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "8000",
+        "old_predicted": "Therefore, the answer is 8000.",
+        "ground_truth": "8000",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 116,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "2",
+        "old_predicted": "Therefore, the solution to the given equation is $x = 2$.",
+        "ground_truth": "2",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 124,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\frac{11}{2}",
+        "old_predicted": "\\frac{11",
+        "ground_truth": "\\frac{11}{2}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 146,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\frac{\\sqrt{3}}{3}",
+        "old_predicted": "\\frac{\\sqrt{3",
+        "ground_truth": "\\frac{\\sqrt{3}}{3}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 148,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "11",
+        "old_predicted": "To solve this equation, we first multiply both sides by $(x-5)$ and then simplify to get rid of the fraction. Afterward, we add 10 to both sides to isolate the variable $x$, resulting in $x=11$. This means that when $x=11$, the original equation holds true. Therefore, the correct answer is (D): $x=11$.",
+        "ground_truth": "11",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 150,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "1",
+        "old_predicted": "To solve for \\( f(2015,2) \\), we need to understand the recursive definition of the function \\( f \\). The function \\( f \\) is defined in such a way that it depends on previous values of itself. Let's break down the steps:",
+        "ground_truth": "1",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 155,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\frac{1}{4}",
+        "old_predicted": "The final answer is $\\boxed{\\frac{1}{4}}$.",
+        "ground_truth": "\\frac{1}{4}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 171,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\frac{13}{15}",
+        "old_predicted": "\\frac{13",
+        "ground_truth": "\\frac{13}{15}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 174,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "2",
+        "old_predicted": "To find the number of \\( y \\)-intercepts, we need to determine how many times the line \\( x = 0 \\) intersects the parabola defined by \\( x = y^2 - 4y - 1 \\). This involves solving the equation obtained by setting \\( x = 0 \\):",
+        "ground_truth": "2",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 178,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "60",
+        "old_predicted": "To solve this problem, we first calculate the product of the three numbers given (which is $3600$). Then, we take the square root of this product to find the final answer. The square root of $3600$ is $60$, so the positive square root of the product $10 \\times 15 \\times 24$ is $\\boxed{60}$.",
+        "ground_truth": "60",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 185,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "1",
+        "old_predicted": "Therefore, the solution to the problem is $k = 1$.",
+        "ground_truth": "1",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 191,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "0",
+        "old_predicted": "The value of $b$ when $a = 4$ is $\\boxed{0}$.",
+        "ground_truth": "0",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 211,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "5",
+        "old_predicted": "Therefore, the answer is $\\boxed{5}$.",
+        "ground_truth": "5",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 218,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "( -1,6 )",
+        "old_predicted": "##",
+        "ground_truth": "(-1,6)",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 253,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\frac{1}{8}",
+        "old_predicted": "The final answer is $\\boxed{\\frac{1}{8}}$.",
+        "ground_truth": "\\frac{1}{8}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 263,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "15",
+        "old_predicted": "To solve this problem, we first set up an equation based on the relationship between",
+        "ground_truth": "15",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 270,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "10",
+        "old_predicted": "To solve this problem, we first calculated the discounted prices for both Susan and Pam based on their respective discounts. For Susan, with a 25% discount, each ticket cost $20 \\times 0.75 = \\$15$, and since she bought 4 tickets, the total cost was $15 \\times 4 = \\$60$.",
+        "ground_truth": "10",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 275,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "7",
+        "old_predicted": "To solve this problem, we first find the value of $f(5)$ by substituting $x=5$ into the function $f(x)$. Then, we subtract $1$ from the result to get $f(5)-1$. Finally, we substitute this new value into the function $g(x)$ to find the final answer. This problem tests our understanding of function evaluation and composition. It's important to carefully read the question and pay attention to the order of operations when solving it.",
+        "ground_truth": "7",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 293,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "\\left(\\frac{3}{5}, \\frac{8}{3}\\right]",
+        "old_predicted": "\\left(\\frac{3",
+        "ground_truth": "\\left(\\frac{3}{5},\\frac{8}{3}\\right]",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 319,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "-128",
+        "old_predicted": "To solve the given equation \\( |x-4| - 10 = 2 \\), we first isolate the absolute value term:",
+        "ground_truth": "-128",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 345,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "1",
+        "old_predicted": "The",
+        "ground_truth": "1",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 367,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "1",
+        "old_predicted": "To solve this problem, let's break down the steps:",
+        "ground_truth": "1",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 374,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "4",
+        "old_predicted": "The final answer is: $\\boxed{4}$",
+        "ground_truth": "4",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 383,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "0",
+        "old_predicted": "0",
+        "ground_truth": "x \\in [-2,7]",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 398,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "Navin",
+        "old_predicted": "Navin",
+        "ground_truth": "\\text{Navin}",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 406,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "0",
+        "old_predicted": "The remainder when 2004 is divided by 12 is \\(0\\).",
+        "ground_truth": "0",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 424,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "600",
+        "old_predicted": "The value of $x$ when $y=3$ is $600$.",
+        "ground_truth": "600",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 457,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "0",
+        "old_predicted": "To determine the remainder of \\(54\\) when divided by \\(6\\), we perform the division:",
+        "ground_truth": "0",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 458,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "41",
+        "old_predicted": "To solve this problem, we need to find a number \\( x \\) such that",
+        "ground_truth": "41",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 468,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "8",
+        "old_predicted": "Therefore, the number of integer values of $t$ that satisfy the given conditions is **8**.",
+        "ground_truth": "8",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 469,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "25",
+        "old_predicted": "The solution involves finding the ceiling of the square root of 20, which is 5, and then squaring it to get the final result of 25. This problem tests understanding of the ceiling function and its application in evaluating expressions involving square roots. The key is to correctly apply the definition of the ceiling function and perform the necessary calculations.",
+        "ground_truth": "25",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 471,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "84",
+        "old_predicted": "---",
+        "ground_truth": "84",
+        "flip_type": "false_negative_fixed"
+      },
+      {
+        "index": 492,
+        "old_correct": false,
+        "new_correct": true,
+        "predicted_v2": "y=-2x",
+        "old_predicted": "To solve the given problem, let's break it down step by step:",
+        "ground_truth": "y = -2x",
+        "flip_type": "false_negative_fixed"
+      }
+    ]
+  },
+  "train_temperature": {
+    "total_completions": 12800,
+    "flipped_to_correct": 634,
+    "flipped_to_wrong": 348,
+    "unchanged": 11818
+  },
+  "holdout_temperature": {
+    "total_completions": 3200,
+    "flipped_to_correct": 135,
+    "flipped_to_wrong": 6,
+    "unchanged": 3059
+  },
+  "elapsed_seconds": 14.162644624710083
+}

@@ -1,0 +1,9 @@
+{
+  "n_test_problems": 264,
+  "completions_per_problem": 32,
+  "total_completions": 8448,
+  "n_with_correct_completion": 233,
+  "total_correct_completions": 2291,
+  "correct_rate": 0.2712,
+  "elapsed_minutes": 647.2
+}

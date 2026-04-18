@@ -1,0 +1,35 @@
+{
+  "greedy_baseline": {
+    "old_total": 57,
+    "new_total": 104,
+    "old_train": 46,
+    "new_train": 89,
+    "old_holdout": 11,
+    "new_holdout": 15
+  },
+  "wrong_greedy": {
+    "old_train_wrong": 354,
+    "new_train_wrong": 311,
+    "old_holdout_wrong": 89,
+    "new_holdout_wrong": 85
+  },
+  "oracle_ceiling": {
+    "train_solvable": 137,
+    "holdout_solvable": 30
+  },
+  "temperature_completions": {
+    "train_correct_rate": 0.10625,
+    "train_correct": 1360,
+    "train_total": 12800,
+    "holdout_correct_rate": 0.114375,
+    "holdout_correct": 366,
+    "holdout_total": 3200
+  },
+  "holdout_temp_coverage": {
+    "has_temp_gens": 100,
+    "now_correct_with_temp": 15,
+    "still_wrong_with_temp": 85,
+    "wrong_without_temp": 0
+  },
+  "elapsed_seconds": 0.02816939353942871
+}

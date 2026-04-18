@@ -1,0 +1,177 @@
+{
+  "experiment": "calibration_analysis",
+  "description": "Calibration analysis for topo-confidence logistic regression (44 ABC features). ECE, Brier, NLL, reliability data, and post-hoc recalibration (temperature, Platt, isotonic).",
+  "n_holdout": 100,
+  "n_correct_holdout": 11,
+  "n_train": 400,
+  "n_correct_train": 46,
+  "naive_brier_baseline": 0.0979,
+  "uncalibrated": {
+    "label": "uncalibrated",
+    "ece_equal_width_15": 0.1176,
+    "ece_adaptive_15": 0.1132,
+    "brier": 0.0865,
+    "nll": 0.3121,
+    "auroc": 0.9346,
+    "n_nonempty_bins_ew": 13,
+    "ece_equal_width_15_ci": [
+      0.1004,
+      0.1866
+    ],
+    "ece_adaptive_15_ci": [
+      0.0834,
+      0.179
+    ],
+    "brier_ci": [
+      0.0538,
+      0.1271
+    ],
+    "auroc_ci": [
+      0.8769,
+      0.9752
+    ]
+  },
+  "cv_train400": {
+    "label": "cv_train400",
+    "ece_equal_width_15": 0.1286,
+    "ece_adaptive_15": 0.1278,
+    "brier": 0.1134,
+    "nll": 0.405,
+    "auroc": 0.8753,
+    "n_nonempty_bins_ew": 15
+  },
+  "temperature_scaled": {
+    "label": "temperature_scaled",
+    "ece_equal_width_15": 0.1471,
+    "ece_adaptive_15": 0.1394,
+    "brier": 0.0936,
+    "nll": 0.3218,
+    "auroc": 0.9346,
+    "n_nonempty_bins_ew": 13,
+    "ece_equal_width_15_ci": [
+      0.1281,
+      0.2142
+    ],
+    "ece_adaptive_15_ci": [
+      0.1143,
+      0.2073
+    ],
+    "brier_ci": [
+      0.0637,
+      0.131
+    ],
+    "auroc_ci": [
+      0.8769,
+      0.9752
+    ],
+    "optimal_T": 1.3939
+  },
+  "platt": {
+    "label": "platt",
+    "ece_equal_width_15": 0.1058,
+    "ece_adaptive_15": 0.1117,
+    "brier": 0.0806,
+    "nll": 0.259,
+    "auroc": 0.9183,
+    "n_nonempty_bins_ew": 8,
+    "ece_equal_width_15_ci": [
+      0.0697,
+      0.1621
+    ],
+    "ece_adaptive_15_ci": [
+      0.0678,
+      0.1681
+    ],
+    "brier_ci": [
+      0.045,
+      0.119
+    ],
+    "auroc_ci": [
+      0.8533,
+      0.9667
+    ]
+  },
+  "isotonic": {
+    "label": "isotonic",
+    "ece_equal_width_15": 0.0637,
+    "ece_adaptive_15": 0.0587,
+    "brier": 0.0657,
+    "nll": 0.1981,
+    "auroc": 0.9362,
+    "n_nonempty_bins_ew": 8,
+    "ece_equal_width_15_ci": [
+      0.0426,
+      0.121
+    ],
+    "ece_adaptive_15_ci": [
+      0.0317,
+      0.1141
+    ],
+    "brier_ci": [
+      0.0375,
+      0.0988
+    ],
+    "auroc_ci": [
+      0.8789,
+      0.9756
+    ],
+    "warning": "Isotonic may overfit with n=100 (11 positive)"
+  },
+  "comparison_table": [
+    {
+      "method": "uncalibrated",
+      "ece_ew_15": 0.1176,
+      "ece_adapt_15": 0.1132,
+      "brier": 0.0865,
+      "nll": 0.3121,
+      "auroc": 0.9346
+    },
+    {
+      "method": "temperature_scaled",
+      "ece_ew_15": 0.1471,
+      "ece_adapt_15": 0.1394,
+      "brier": 0.0936,
+      "nll": 0.3218,
+      "auroc": 0.9346
+    },
+    {
+      "method": "platt",
+      "ece_ew_15": 0.1058,
+      "ece_adapt_15": 0.1117,
+      "brier": 0.0806,
+      "nll": 0.259,
+      "auroc": 0.9183
+    },
+    {
+      "method": "isotonic",
+      "ece_ew_15": 0.0637,
+      "ece_adapt_15": 0.0587,
+      "brier": 0.0657,
+      "nll": 0.1981,
+      "auroc": 0.9362
+    }
+  ],
+  "experiment8_feed": {
+    "calibration_quality": "marginal",
+    "best_ece_adaptive": 0.0587,
+    "recommended_method": "isotonic",
+    "threshold_reliability": {
+      "tau_0.3": {
+        "n_trusted": 11,
+        "mean_calibrated_prob": 0.5133,
+        "observed_accuracy": 0.5455
+      },
+      "tau_0.5": {
+        "n_trusted": 8,
+        "mean_calibrated_prob": 0.5583,
+        "observed_accuracy": 0.5
+      },
+      "tau_0.7": {
+        "n_trusted": 0,
+        "mean_calibrated_prob": null,
+        "observed_accuracy": null
+      }
+    }
+  },
+  "timestamp": "2026-04-16 21:34:59"
+}
