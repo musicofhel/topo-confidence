@@ -69,48 +69,17 @@ def extract_trajectories_for_split(
         completion_map: list of (global_idx, completion_idx) tuples
         all_correct: list of bool correctness labels
     """
-    checkpoint_path = OUTPUT_DIR / f"{checkpoint_prefix}_checkpoint.json"
-    traj_checkpoint_path = OUTPUT_DIR / f"{checkpoint_prefix}_trajectories_partial.npz"
-    ls_checkpoint_path = OUTPUT_DIR / f"{checkpoint_prefix}_layer_states_partial.npz"
-
     all_trajectories = []
     all_layer_states = []
     completion_map = []
     all_correct = []
-    processed_globals = set()
-
-    # Resume from checkpoint
-    if checkpoint_path.exists():
-        with open(checkpoint_path) as f:
-            ckpt = json.load(f)
-        processed_globals = set(ckpt["processed_indices"])
-        logger.info("  Resuming from checkpoint: %d problems done", len(processed_globals))
-
-        if traj_checkpoint_path.exists():
-            traj_data = np.load(traj_checkpoint_path, allow_pickle=True)
-            all_trajectories = [
-                traj_data[k] for k in sorted(traj_data.files, key=lambda x: int(x.split("_")[1]))
-            ]
-        if ls_checkpoint_path.exists():
-            ls_data = np.load(ls_checkpoint_path, allow_pickle=True)
-            all_layer_states = [
-                ls_data[k] for k in sorted(ls_data.files, key=lambda x: int(x.split("_")[1]))
-            ]
-
-        completion_map = ckpt.get("completion_map", [])
-        completion_map = [tuple(x) for x in completion_map]
-        all_correct = ckpt.get("all_correct", [])
 
     # Find wrong-greedy problems
     wrong_global = [gi for gi in problem_indices if not new_correct[gi]]
-    remaining = [gi for gi in wrong_global if gi not in processed_globals]
-    logger.info(
-        "  Wrong-greedy: %d total, %d remaining, %d already done",
-        len(wrong_global), len(remaining), len(processed_globals),
-    )
+    logger.info("  Wrong-greedy: %d problems × 32 completions", len(wrong_global))
 
-    for batch_start in range(0, len(remaining), CHECKPOINT_INTERVAL):
-        batch = remaining[batch_start : batch_start + CHECKPOINT_INTERVAL]
+    for batch_start in range(0, len(wrong_global), CHECKPOINT_INTERVAL):
+        batch = wrong_global[batch_start : batch_start + CHECKPOINT_INTERVAL]
         batch_t0 = time.time()
 
         for gi in batch:
@@ -142,33 +111,12 @@ def extract_trajectories_for_split(
                     completion_map.append((gi, ci))
                     all_correct.append(False)
 
-            processed_globals.add(gi)
-
-        # Checkpoint
+        # Progress log
+        done = min(batch_start + CHECKPOINT_INTERVAL, len(wrong_global))
         logger.info(
-            "  Checkpoint: %d/%d problems done (batch took %.1fs)",
-            len(processed_globals), len(wrong_global), time.time() - batch_t0,
+            "  Progress: %d/%d problems done (batch took %.1fs)",
+            done, len(wrong_global), time.time() - batch_t0,
         )
-
-        # Save checkpoint
-        ckpt_data = {
-            "processed_indices": [int(x) for x in processed_globals],
-            "completion_map": [[int(a), int(b)] for a, b in completion_map],
-            "all_correct": [bool(x) for x in all_correct],
-        }
-        with open(checkpoint_path, "w") as f:
-            json.dump(ckpt_data, f)
-
-        # Save trajectories (as dict to support variable-length)
-        traj_dict = {f"traj_{i}": t for i, t in enumerate(all_trajectories)}
-        np.savez_compressed(traj_checkpoint_path, **traj_dict)
-
-        ls_dict = {f"ls_{i}": ls for i, ls in enumerate(all_layer_states)}
-        np.savez_compressed(ls_checkpoint_path, **ls_dict)
-
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
 
     return all_trajectories, all_layer_states, completion_map, all_correct
 
