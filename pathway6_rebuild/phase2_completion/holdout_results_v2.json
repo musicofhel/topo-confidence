@@ -18,9 +18,9 @@
     "tau": 0.3
   },
   "ungated_weighted": {
-    "n_correct": 27,
-    "net_gain": 12,
-    "W_to_R": 14,
+    "n_correct": 28,
+    "net_gain": 13,
+    "W_to_R": 15,
     "R_to_W": 2
   },
   "gated_weighted": {

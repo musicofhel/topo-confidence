@@ -1,0 +1,18 @@
+{
+  "dataset": "GSM8K",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 1319,
+  "greedy_accuracy": 0.36694465504169826,
+  "greedy_correct": 484,
+  "topo_auroc": 0.7310945120069139,
+  "topo_auroc_ci": [
+    0.6697309214436699,
+    0.7865905120464045
+  ],
+  "best_baseline": "neg_mean_entropy",
+  "best_baseline_auroc": 0.6225075621951972,
+  "mv_net_gain": 4,
+  "weighted_vote_net_gain": 5,
+  "oracle_ceiling": 133,
+  "elapsed_minutes": 509.2214743892352
+}

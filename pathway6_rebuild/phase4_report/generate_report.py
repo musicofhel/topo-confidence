@@ -15,9 +15,56 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 PHASE0_DIR = Path(__file__).parent.parent / "phase0_relabel"
 PHASE1_DIR = Path(__file__).parent.parent / "phase1_prompt_model"
 PHASE2_DIR = Path(__file__).parent.parent / "phase2_completion"
+PHASE3_DIR = Path(__file__).parent.parent / "phase3_cross_benchmark"
+
+_gsm8k_summary = None
+_math7b_summary = None
+
+
+def _load_phase3():
+    global _gsm8k_summary, _math7b_summary
+    gsm_path = PHASE3_DIR / "gsm8k" / "summary.json"
+    if gsm_path.exists():
+        with open(gsm_path) as f:
+            _gsm8k_summary = json.load(f)
+    m7b_path = PHASE3_DIR / "math7b" / "summary.json"
+    if m7b_path.exists():
+        with open(m7b_path) as f:
+            _math7b_summary = json.load(f)
+
+
+def _gsm8k_status():
+    if _gsm8k_summary is None:
+        return "UNKNOWN"
+    auroc = _gsm8k_summary.get("topo_auroc", 0)
+    return "SURVIVES" if auroc > 0.65 else "WEAKENED"
+
+
+def _gsm8k_evidence():
+    if _gsm8k_summary is None:
+        return "Needs RunPod with chat template"
+    s = _gsm8k_summary
+    return (f"AUROC={s['topo_auroc']:.3f}, acc={s['greedy_correct']}/{s['n_problems']} "
+            f"({s['greedy_accuracy']:.1%}), gap=+{s['topo_auroc'] - s['best_baseline_auroc']:.3f}")
+
+
+def _math7b_status():
+    if _math7b_summary is None:
+        return "UNKNOWN"
+    auroc = _math7b_summary.get("topo_auroc", 0)
+    return "SURVIVES" if auroc > 0.65 else "WEAKENED"
+
+
+def _math7b_evidence():
+    if _math7b_summary is None:
+        return "Needs RunPod with chat template"
+    s = _math7b_summary
+    return (f"AUROC={s['topo_auroc']:.3f}, acc={s['greedy_correct']}/{s['n_problems']} "
+            f"({s['greedy_accuracy']:.1%}), gap=+{s['topo_auroc'] - s['best_baseline_auroc']:.3f}")
 
 
 def main():
+    _load_phase3()
     # Load all results
     with open(PHASE0_DIR / "foundational_counts.json") as f:
         counts = json.load(f)
@@ -184,16 +231,16 @@ def main():
          f"Tier A AUROC = {metrics.get('experiment6_tier_a_auroc', 'N/A')}"),
 
         ("Per-completion weighted vote +14 (0 R->W)",
-         "UNKNOWN",
-         "Needs RunPod for per-completion features"),
+         "WEAKENED" if selection.get("weighted_vote", {}).get("net_gain", 0) < 14 else "SURVIVES",
+         f"Weighted vote net gain = {selection.get('weighted_vote', {}).get('net_gain', 'N/A')}"),
 
         ("GSM8K generalization (AUROC=0.652)",
-         "UNKNOWN",
-         "Needs RunPod with chat template"),
+         _gsm8k_status(),
+         _gsm8k_evidence()),
 
         ("7B generalization (AUROC=0.657)",
-         "UNKNOWN",
-         "Needs RunPod with chat template"),
+         _math7b_status(),
+         _math7b_evidence()),
     ]
 
     for claim, status, evidence in claims:

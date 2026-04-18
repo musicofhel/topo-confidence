@@ -246,18 +246,18 @@
     },
     {
       "claim": "Per-completion weighted vote +14 (0 R->W)",
-      "status": "UNKNOWN",
-      "evidence": "Needs RunPod for per-completion features"
+      "status": "WEAKENED",
+      "evidence": "Weighted vote net gain = N/A"
     },
     {
       "claim": "GSM8K generalization (AUROC=0.652)",
-      "status": "UNKNOWN",
-      "evidence": "Needs RunPod with chat template"
+      "status": "SURVIVES",
+      "evidence": "AUROC=0.731, acc=484/1319 (36.7%), gap=+0.109"
     },
     {
       "claim": "7B generalization (AUROC=0.657)",
-      "status": "UNKNOWN",
-      "evidence": "Needs RunPod with chat template"
+      "status": "SURVIVES",
+      "evidence": "AUROC=0.682, acc=81/500 (16.2%), gap=+0.163"
     }
   ]
 }

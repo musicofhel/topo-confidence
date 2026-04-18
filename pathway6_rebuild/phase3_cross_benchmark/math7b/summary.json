@@ -1,0 +1,18 @@
+{
+  "dataset": "MATH-500",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "n_problems": 500,
+  "greedy_accuracy": 0.162,
+  "greedy_correct": 81,
+  "topo_auroc": 0.6816976127320955,
+  "topo_auroc_ci": [
+    0.5030044732485647,
+    0.8409181096681096
+  ],
+  "best_baseline": "first_token_prob",
+  "best_baseline_auroc": 0.5185676392572944,
+  "mv_net_gain": 1,
+  "weighted_vote_net_gain": 1,
+  "oracle_ceiling": 20,
+  "elapsed_minutes": 367.4641183257103
+}
