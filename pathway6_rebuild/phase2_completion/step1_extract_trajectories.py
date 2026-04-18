@@ -152,9 +152,9 @@ def extract_trajectories_for_split(
 
         # Save checkpoint
         ckpt_data = {
-            "processed_indices": list(processed_globals),
-            "completion_map": completion_map,
-            "all_correct": all_correct,
+            "processed_indices": [int(x) for x in processed_globals],
+            "completion_map": [[int(a), int(b)] for a, b in completion_map],
+            "all_correct": [bool(x) for x in all_correct],
         }
         with open(checkpoint_path, "w") as f:
             json.dump(ckpt_data, f)
