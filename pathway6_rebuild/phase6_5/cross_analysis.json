@@ -1,0 +1,153 @@
+{
+  "comparison_table": [
+    {
+      "config": "1.5B \u00d7 MATH-500",
+      "max_new_tokens": 256,
+      "greedy_acc": "104/500 (20.8%)",
+      "topo_auroc": "0.7961",
+      "best_baseline": "\u2014",
+      "gap": "\u2014",
+      "mv_net_gain": "+12",
+      "oracle": "+?"
+    },
+    {
+      "config": "1.5B \u00d7 GSM8K (256)",
+      "max_new_tokens": 256,
+      "greedy_acc": "484/1319 (36.7%)",
+      "topo_auroc": "0.7311",
+      "best_baseline": "neg_mean_entropy (0.6225)",
+      "gap": "+0.1086",
+      "mv_net_gain": "+4",
+      "oracle": "+133"
+    },
+    {
+      "config": "1.5B \u00d7 GSM8K (1024)",
+      "max_new_tokens": 1024,
+      "greedy_acc": "871/1319 (66.0%)",
+      "topo_auroc": "0.6147",
+      "best_baseline": "neg_mean_entropy (0.7409)",
+      "gap": "-0.1262",
+      "mv_net_gain": "+47",
+      "oracle": "+77"
+    },
+    {
+      "config": "7B \u00d7 MATH (256)",
+      "max_new_tokens": 256,
+      "greedy_acc": "81/500 (16.2%)",
+      "topo_auroc": "0.6817",
+      "best_baseline": "first_token_prob (0.5186)",
+      "gap": "+0.1631",
+      "mv_net_gain": "+1",
+      "oracle": "+20"
+    },
+    {
+      "config": "7B \u00d7 MATH (1024)",
+      "max_new_tokens": 1024,
+      "greedy_acc": "348/500 (69.6%)",
+      "topo_auroc": "0.7387",
+      "best_baseline": "first_token_prob (0.6370)",
+      "gap": "+0.1017",
+      "mv_net_gain": "+3",
+      "oracle": "+11"
+    }
+  ],
+  "transfer": {
+    "1.5B \u00d7 MATH-500_to_1.5B \u00d7 GSM8K (1024)": {
+      "auroc": 0.5037675606641123,
+      "ci": [
+        0.4311084541058759,
+        0.5789377004338804
+      ]
+    },
+    "1.5B \u00d7 MATH-500_to_7B \u00d7 MATH (1024)": {
+      "auroc": 0.610857432775241,
+      "ci": [
+        0.4747258771929825,
+        0.7308114035087719
+      ]
+    },
+    "1.5B \u00d7 GSM8K (1024)_to_1.5B \u00d7 MATH-500": {
+      "auroc": 0.27450980392156865,
+      "ci": [
+        0.15024568019117268,
+        0.42526624143633357
+      ]
+    },
+    "1.5B \u00d7 GSM8K (1024)_to_7B \u00d7 MATH (1024)": {
+      "auroc": 0.6078132927447996,
+      "ci": [
+        0.474358382936508,
+        0.7297956262183236
+      ]
+    },
+    "7B \u00d7 MATH (1024)_to_1.5B \u00d7 MATH-500": {
+      "auroc": 0.32156862745098036,
+      "ci": [
+        0.1997789566755084,
+        0.4719740580143538
+      ]
+    },
+    "7B \u00d7 MATH (1024)_to_1.5B \u00d7 GSM8K (1024)": {
+      "auroc": 0.5118773946360153,
+      "ci": [
+        0.44697786717607024,
+        0.5881974118654807
+      ]
+    }
+  },
+  "feature_rank_correlations": {
+    "1.5B \u00d7 MATH-500_vs_1.5B \u00d7 GSM8K (1024)": {
+      "rho": 0.45027124773960214,
+      "p": 3.5289459272460476e-05
+    },
+    "1.5B \u00d7 MATH-500_vs_7B \u00d7 MATH (1024)": {
+      "rho": 0.25889300572844876,
+      "p": 0.022094639115119184
+    },
+    "1.5B \u00d7 GSM8K (1024)_vs_7B \u00d7 MATH (1024)": {
+      "rho": 0.6317353532543405,
+      "p": 5.575932573189726e-10
+    }
+  },
+  "claims": [
+    {
+      "claim": "1.5B MATH topo AUROC = 0.796",
+      "status": "ESTABLISHED",
+      "evidence": "Unchanged from Phase 1 rebuild. No truncation confound (20.8% correct)."
+    },
+    {
+      "claim": "GSM8K cross-benchmark generalization",
+      "status": "SURVIVES",
+      "evidence": "Deconfounded AUROC: 0.615 (was 0.731 with truncation confound). Accuracy: 66.0% (was 36.7% truncated)."
+    },
+    {
+      "claim": "7B cross-model generalization",
+      "status": "SURVIVES",
+      "evidence": "Deconfounded AUROC: 0.739 (was 0.682 with truncation confound). Accuracy: 69.6% (was 16.2% truncated)."
+    },
+    {
+      "claim": "max_new_tokens=256 truncation was sole cause of low accuracy",
+      "status": "REFUTED",
+      "evidence": "Neither config reached expected accuracy \u2014 truncation was not the sole cause."
+    },
+    {
+      "claim": "Topo features add value beyond logprob baselines (deconfounded)",
+      "status": "REFUTED",
+      "evidence": "GSM8K gap: -0.126. With truncation removed, baselines may improve too."
+    }
+  ],
+  "phase3_vs_phase65": {
+    "gsm8k": {
+      "p3_auroc": 0.7310945120069139,
+      "p3_acc": 0.36694465504169826,
+      "p65_auroc": 0.6146871008939975,
+      "p65_acc": 0.6603487490523123
+    },
+    "math7b": {
+      "p3_auroc": 0.6816976127320955,
+      "p3_acc": 0.162,
+      "p65_auroc": 0.7387113140537799,
+      "p65_acc": 0.696
+    }
+  }
+}

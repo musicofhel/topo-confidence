@@ -1,0 +1,21 @@
+{
+  "topo_auroc": 0.6146871008939975,
+  "topo_auroc_ci": [
+    0.5448653977157423,
+    0.6861841156684766
+  ],
+  "train_auroc": 0.7040829412566225,
+  "baselines": {
+    "neg_mean_entropy": 0.7409323116219668,
+    "mean_max_token_prob": 0.7152618135376757,
+    "first_token_prob": 0.4973818646232439
+  },
+  "best_baseline": "neg_mean_entropy",
+  "best_baseline_auroc": 0.7409323116219668,
+  "topo_vs_best_gap": -0.12624521072796935,
+  "n_train": 1055,
+  "n_test": 264,
+  "train_correct": 697,
+  "test_correct": 174,
+  "lr_iterations": 58
+}

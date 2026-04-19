@@ -1,0 +1,84 @@
+{
+  "baseline": {
+    "n_correct": 174,
+    "n_test": 264
+  },
+  "per_completion_auroc": 0.7271389767099846,
+  "within_problem_auroc_mean": 0.5860675029640809,
+  "within_problem_auroc_n": 77,
+  "ungated_mv": {
+    "n_correct": 221,
+    "net_gain": 47,
+    "W_to_R": 47,
+    "R_to_W": 0
+  },
+  "ungated_weighted": {
+    "n_correct": 223,
+    "net_gain": 49,
+    "W_to_R": 49,
+    "R_to_W": 0
+  },
+  "random": {
+    "mean_correct": 199.25,
+    "net_gain": 25.25
+  },
+  "gating": [
+    {
+      "tau": 0.1,
+      "n_correct": 174,
+      "net_gain": 0,
+      "W_to_R": 0,
+      "R_to_W": 0,
+      "gated": 262
+    },
+    {
+      "tau": 0.2,
+      "n_correct": 174,
+      "net_gain": 0,
+      "W_to_R": 0,
+      "R_to_W": 0,
+      "gated": 257
+    },
+    {
+      "tau": 0.3,
+      "n_correct": 179,
+      "net_gain": 5,
+      "W_to_R": 5,
+      "R_to_W": 0,
+      "gated": 229
+    },
+    {
+      "tau": 0.4,
+      "n_correct": 184,
+      "net_gain": 10,
+      "W_to_R": 10,
+      "R_to_W": 0,
+      "gated": 198
+    },
+    {
+      "tau": 0.5,
+      "n_correct": 194,
+      "net_gain": 20,
+      "W_to_R": 20,
+      "R_to_W": 0,
+      "gated": 145
+    },
+    {
+      "tau": 0.6,
+      "n_correct": 204,
+      "net_gain": 30,
+      "W_to_R": 30,
+      "R_to_W": 0,
+      "gated": 97
+    },
+    {
+      "tau": 0.7,
+      "n_correct": 211,
+      "net_gain": 37,
+      "W_to_R": 37,
+      "R_to_W": 0,
+      "gated": 48
+    }
+  ],
+  "oracle_ceiling": 77
+}

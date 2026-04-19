@@ -1,0 +1,23 @@
+{
+  "dataset": "MATH-500",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "max_new_tokens": 1024,
+  "n_problems": 500,
+  "greedy_accuracy": 0.696,
+  "greedy_correct": 348,
+  "n_truncated": 47,
+  "truncation_pct": 9.4,
+  "topo_auroc": 0.7387113140537799,
+  "topo_auroc_ci": [
+    0.6148896393461611,
+    0.8478039947218029
+  ],
+  "train_auroc": 0.8569890909090909,
+  "best_baseline": "first_token_prob",
+  "best_baseline_auroc": 0.636986301369863,
+  "topo_vs_best_gap": 0.10172501268391687,
+  "mv_net_gain": 3,
+  "weighted_vote_net_gain": 4,
+  "oracle_ceiling": 11,
+  "elapsed_minutes": 154.6031439503034
+}

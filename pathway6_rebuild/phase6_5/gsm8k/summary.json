@@ -1,0 +1,23 @@
+{
+  "dataset": "GSM8K",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "max_new_tokens": 1024,
+  "n_problems": 1319,
+  "greedy_accuracy": 0.6603487490523123,
+  "greedy_correct": 871,
+  "n_truncated": 0,
+  "truncation_pct": 0.0,
+  "topo_auroc": 0.6146871008939975,
+  "topo_auroc_ci": [
+    0.5448653977157423,
+    0.6861841156684766
+  ],
+  "train_auroc": 0.7040829412566225,
+  "best_baseline": "neg_mean_entropy",
+  "best_baseline_auroc": 0.7409323116219668,
+  "topo_vs_best_gap": -0.12624521072796935,
+  "mv_net_gain": 47,
+  "weighted_vote_net_gain": 49,
+  "oracle_ceiling": 77,
+  "elapsed_minutes": 323.2813032110532
+}
