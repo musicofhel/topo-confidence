@@ -87,20 +87,47 @@ def _load_benchmark_dir(d, label, idx_key="test_idx"):
     """Generic loader for GSM8K or 7B MATH directories."""
     if not d.exists():
         return None
-    with open(d / "summary.json") as f:
+    summary_path = d / "summary.json"
+    if not summary_path.exists():
+        return None
+    with open(summary_path) as f:
         summary = json.load(f)
-    with open(d / "model_results.json") as f:
-        model_results = json.load(f)
+    model_results_path = d / "model_results.json"
+    model_results = {}
+    if model_results_path.exists():
+        with open(model_results_path) as f:
+            model_results = json.load(f)
     sel_path = d / "selection_results.json"
     selection = {}
     if sel_path.exists():
         with open(sel_path) as f:
             selection = json.load(f)
 
-    features = np.load(d / "features.npy")
-    correct = np.load(d / "baseline_correct.npy")
-    train_idx = np.load(d / "train_idx.npy")
-    eval_idx = np.load(d / f"{idx_key}.npy")
+    # Binary files may not exist (gitignored) — handle gracefully
+    features_path = d / "features.npy"
+    correct_path = d / "baseline_correct.npy"
+    train_path = d / "train_idx.npy"
+    eval_path = d / f"{idx_key}.npy"
+    if not all(p.exists() for p in [features_path, correct_path, train_path, eval_path]):
+        logger.warning("  %s: binary files missing (gitignored), skipping transfer experiments", label)
+        return {
+            "label": label,
+            "max_new_tokens": summary.get("max_new_tokens", 256),
+            "greedy_acc": summary["greedy_accuracy"],
+            "greedy_correct": summary["greedy_correct"],
+            "n_problems": summary["n_problems"],
+            "topo_auroc": summary["topo_auroc"],
+            "topo_auroc_ci": summary.get("topo_auroc_ci", [0, 1]),
+            "best_baseline": model_results.get("best_baseline"),
+            "best_baseline_auroc": model_results.get("best_baseline_auroc"),
+            "topo_vs_best_gap": model_results.get("topo_vs_best_gap"),
+            "selection": selection,
+        }
+
+    features = np.load(features_path)
+    correct = np.load(correct_path)
+    train_idx = np.load(train_path)
+    eval_idx = np.load(eval_path)
 
     return {
         "label": label,
@@ -126,6 +153,12 @@ def transfer_experiment(configs, feature_names):
     results = {}
     abc_idx = get_abc_column_indices(feature_names)
 
+    # Filter to configs that have features (binary files present)
+    configs_with_features = [c for c in configs if "features" in c or "features_train" in c]
+    if len(configs_with_features) < 2:
+        logger.warning("  Not enough configs with features for transfer experiments")
+        return results
+
     def get_train_eval(c):
         """Get train/eval features and labels."""
         if "features_train" in c:  # 1.5B MATH (pre-split)
@@ -135,7 +168,7 @@ def transfer_experiment(configs, feature_names):
             return c["features"][c["train_idx"]][:, abc_idx], c["correct"][c["train_idx"]], \
                    c["features"][c["eval_idx"]][:, abc_idx], c["correct"][c["eval_idx"]]
 
-    for i, src in enumerate(configs):
+    for i, src in enumerate(configs_with_features):
         X_tr, y_tr, _, _ = get_train_eval(src)
 
         scaler = StandardScaler()
@@ -143,7 +176,7 @@ def transfer_experiment(configs, feature_names):
         clf = LogisticRegression(**LR_PARAMS)
         clf.fit(X_tr_s, y_tr.astype(int))
 
-        for j, tgt in enumerate(configs):
+        for j, tgt in enumerate(configs_with_features):
             if i == j:
                 continue
             _, _, X_te, y_te = get_train_eval(tgt)
@@ -193,9 +226,11 @@ def feature_rank_correlation(configs, feature_names):
         if "features_train" in c:
             feats = c["features_train"]
             correct = c["correct"][c["train_idx"]]
-        else:
+        elif "features" in c:
             feats = c["features"][c["train_idx"]]
             correct = c["correct"][c["train_idx"]]
+        else:
+            continue  # No features for this config
         ds_per_config[c["label"]] = cohens_d(feats, correct)
 
     labels = list(ds_per_config.keys())
