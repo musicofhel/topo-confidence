@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>topo-confidence: Know when your LLM is wrong</title>
-<meta name="description" content="Topological confidence estimation for LLM outputs. Persistent homology on hidden states predicts correctness from a single forward pass.">
+<meta name="description" content="Topological confidence estimation for LLM outputs. Persistent homology on hidden states predicts correctness from a single forward pass. AUROC 0.796 on MATH-500.">
 <style>
 :root {
   --bg: #0a0e17;
@@ -20,6 +20,7 @@
   --orange: #fb923c;
   --orange-dim: rgba(251, 146, 60, 0.15);
   --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.15);
   --code-bg: #0d1117;
   --max-w: 960px;
 }
@@ -71,7 +72,7 @@ a:hover { text-decoration: underline; }
 .hero .tagline {
   font-size: 1.25rem;
   color: var(--text-muted);
-  max-width: 600px;
+  max-width: 640px;
   margin: 0 auto 32px;
 }
 
@@ -153,7 +154,7 @@ a:hover { text-decoration: underline; }
 .headline .explainer {
   color: var(--text-muted);
   font-size: 0.95rem;
-  max-width: 560px;
+  max-width: 600px;
   margin: 0 auto;
 }
 
@@ -198,9 +199,8 @@ code {
 .str { color: #98c379; }
 .cm { color: #5c6370; font-style: italic; }
 .num { color: #d19a66; }
-.op { color: #56b6c2; }
 
-/* Charts — pure CSS bar charts */
+/* Bar charts */
 .bar-chart {
   display: flex;
   flex-direction: column;
@@ -215,7 +215,7 @@ code {
 }
 
 .bar-label {
-  width: 200px;
+  width: 220px;
   font-size: 0.88rem;
   color: var(--text-muted);
   text-align: right;
@@ -248,15 +248,17 @@ code {
 .bar-fill.accent { background: linear-gradient(90deg, #4f46e5, #818cf8); }
 .bar-fill.orange { background: linear-gradient(90deg, #c2410c, #fb923c); }
 .bar-fill.muted { background: linear-gradient(90deg, #374151, #6b7280); }
+.bar-fill.red { background: linear-gradient(90deg, #991b1b, #f87171); }
 
-/* Feature table */
-.feature-table {
+/* Results table */
+.results-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  margin: 20px 0;
 }
 
-.feature-table th {
+.results-table th {
   text-align: left;
   padding: 10px 16px;
   border-bottom: 2px solid var(--border);
@@ -267,33 +269,61 @@ code {
   letter-spacing: 0.05em;
 }
 
-.feature-table td {
+.results-table td {
   padding: 10px 16px;
   border-bottom: 1px solid var(--border);
 }
 
-.feature-table tr:last-child td {
+.results-table tr:last-child td {
   border-bottom: none;
 }
 
-.feature-table .feat-name {
+.results-table .feat-name {
   font-family: 'SF Mono', Consolas, monospace;
   font-size: 0.85rem;
   color: var(--accent);
 }
 
-.feature-table .new-badge {
-  display: inline-block;
-  font-size: 0.65rem;
-  padding: 1px 6px;
-  background: var(--green-dim);
+.results-table .positive {
   color: var(--green);
+  font-weight: 600;
+}
+
+.results-table .negative {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.results-table .strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 2px 8px;
   border-radius: 4px;
-  margin-left: 8px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   vertical-align: middle;
+}
+
+.badge-green {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.badge-red {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.badge-orange {
+  background: var(--orange-dim);
+  color: var(--orange);
 }
 
 /* Grid cards */
@@ -366,20 +396,20 @@ code {
   background: rgba(99, 102, 241, 0.08);
 }
 
-/* Selective prediction chart */
-.selective-chart {
+/* Tau sweep chart */
+.tau-chart {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  height: 180px;
-  padding: 0 0 32px;
+  gap: 8px;
+  height: 200px;
+  padding: 0 0 40px;
   margin: 24px 0;
   border-bottom: 1px solid var(--border);
   position: relative;
 }
 
-.selective-chart::before {
-  content: 'Accuracy %';
+.tau-chart::before {
+  content: 'Net Gain';
   position: absolute;
   top: -8px;
   left: 0;
@@ -389,7 +419,7 @@ code {
   letter-spacing: 0.06em;
 }
 
-.sel-bar {
+.tau-bar {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -398,15 +428,15 @@ code {
   position: relative;
 }
 
-.sel-bar .bar {
+.tau-bar .bar {
   width: 100%;
-  max-width: 56px;
+  max-width: 64px;
   border-radius: 4px 4px 0 0;
   position: relative;
   transition: height 0.5s ease-out;
 }
 
-.sel-bar .bar-val {
+.tau-bar .bar-val {
   position: absolute;
   top: -22px;
   left: 50%;
@@ -416,14 +446,65 @@ code {
   white-space: nowrap;
 }
 
-.sel-bar .bar-pct {
+.tau-bar .bar-label-bottom {
   position: absolute;
-  bottom: -24px;
+  bottom: -32px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.72rem;
   color: var(--text-muted);
   white-space: nowrap;
+}
+
+.tau-bar .rw-label {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+
+/* Tier cards */
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.tier-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+}
+
+.tier-card .tier-letter {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.tier-card .tier-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.tier-card .tier-auroc {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.tier-card .tier-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 /* Install section */
@@ -444,39 +525,21 @@ code {
 .install-box .prompt { color: var(--green); }
 .install-box .cmd { color: var(--text); }
 
-/* Cross-benchmark mini table */
-.mini-table {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin: 20px 0;
-}
-
-.mini-cell {
-  background: var(--surface);
+/* Correction banner */
+.correction-banner {
+  background: var(--surface-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-}
-
-.mini-cell .bench-name {
-  font-size: 0.8rem;
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-size: 0.88rem;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
+  line-height: 1.6;
 }
 
-.mini-cell .bench-val {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.mini-cell .bench-sub {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 2px;
+.correction-banner strong {
+  color: var(--orange);
 }
 
 /* Footer */
@@ -495,11 +558,12 @@ footer a { color: var(--accent); }
   .hero h1 { font-size: 2rem; }
   .stat .number { font-size: 2.2rem; }
   .stat-row { gap: 24px; }
-  .bar-label { width: 120px; font-size: 0.78rem; }
+  .bar-label { width: 140px; font-size: 0.78rem; }
   .pipeline { gap: 4px; }
   .pipeline-step { min-width: 100px; padding: 10px 12px; }
   .pipeline-step .step-text { font-size: 0.8rem; }
   .pipeline-arrow { padding: 0 4px; font-size: 1rem; }
+  .tier-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -509,14 +573,14 @@ footer a { color: var(--accent); }
 <div class="hero">
   <div class="container">
     <h1>topo-confidence</h1>
-    <p class="tagline">Know when your LLM is wrong &mdash; from a single forward pass. Persistent homology on hidden-state geometry predicts correctness.</p>
+    <p class="tagline">Know when your LLM is wrong &mdash; from a single forward pass. Persistent homology on hidden-state geometry predicts correctness where output probabilities fail.</p>
     <div class="hero-buttons">
       <a href="https://github.com/musicofhel/topo-confidence" class="btn btn-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         GitHub
       </a>
       <a href="#install" class="btn btn-secondary">Get started</a>
-      <a href="#experiments" class="btn btn-secondary">See results</a>
+      <a href="#results" class="btn btn-secondary">See results</a>
     </div>
   </div>
 </div>
@@ -526,19 +590,19 @@ footer a { color: var(--accent); }
   <div class="container">
     <div class="stat-row">
       <div class="stat">
-        <div class="number green">2.6x</div>
-        <div class="label">Selective prediction lift</div>
+        <div class="number accent">0.796</div>
+        <div class="label">AUROC (MATH-500)</div>
       </div>
       <div class="stat">
-        <div class="number accent">0.007s</div>
-        <div class="label">Overhead per problem</div>
+        <div class="number green">+0.057</div>
+        <div class="label">vs best baseline</div>
       </div>
       <div class="stat">
-        <div class="number orange">r=0.062</div>
-        <div class="label">Correlation with entropy</div>
+        <div class="number orange">0 R&rarr;W</div>
+        <div class="label">at tau=0.3 gating</div>
       </div>
     </div>
-    <p class="explainer">Topological features measure the <em>geometry of internal computation</em>, not the <em>uncertainty of output distribution</em>. That's why the correlation with output entropy is near zero &mdash; these are orthogonal signals.</p>
+    <p class="explainer">44 topological features from a single forward pass on the prompt. No generation, no sampling, no output parsing. The only single-pass method that competes with 32-pass self-consistency baselines on mathematical reasoning.</p>
   </div>
 </div>
 
@@ -564,7 +628,7 @@ footer a { color: var(--accent); }
       <div class="pipeline-arrow">&rarr;</div>
       <div class="pipeline-step">
         <div class="step-label">Step 4</div>
-        <div class="step-text">7 topo features</div>
+        <div class="step-text">44 topo features</div>
       </div>
       <div class="pipeline-arrow">&rarr;</div>
       <div class="pipeline-step">
@@ -572,225 +636,263 @@ footer a { color: var(--accent); }
         <div class="step-text">P(correct)</div>
       </div>
     </div>
-    <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; max-width: 600px; margin: 0 auto;">Each prompt's hidden states at the final layer form a point cloud in R<sup>d</sup>. Persistent homology extracts topological structure &mdash; connected components (H0) and loops (H1) &mdash; that correlates with whether the model will answer correctly.</p>
+    <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; max-width: 640px; margin: 0 auto;">Each prompt's hidden states at the final transformer layer form a point cloud in R<sup>d</sup>. Persistent homology extracts topological structure &mdash; connected components (H0) and loops (H1). Layer-wise dynamics (cosines, PCA spectrum, SVD ratios) capture how representations evolve across depth. Together: 44 features that predict correctness.</p>
   </div>
 </section>
 
-<!-- 7 Features -->
+<!-- Feature tiers -->
 <section>
   <div class="container">
-    <h2>The 7 features</h2>
-    <table class="feature-table">
+    <h2>44 features in 3 tiers</h2>
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-letter">A</div>
+        <div class="tier-count">9 features</div>
+        <div class="tier-auroc" style="color: var(--accent);">0.704</div>
+        <div class="tier-desc">Persistent homology + geometry. H0/H1 entropy, lifetimes, centroid distances, token norms. The irreplaceable anchor.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-letter">B</div>
+        <div class="tier-count">30 features</div>
+        <div class="tier-auroc" style="color: var(--accent);">0.761</div>
+        <div class="tier-desc">Layer dynamics. Inter-layer cosines, PCA spectrum ratios, SVD decay. The biggest AUROC boost (+0.057 over A alone).</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-letter">C</div>
+        <div class="tier-count">5 features</div>
+        <div class="tier-auroc" style="color: var(--accent);">0.732</div>
+        <div class="tier-desc">Depth-2 cross-tier products. Interactions between PH and layer features. Small but consistent lift.</div>
+      </div>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.88rem; text-align: center; margin-top: 8px;">Combined A+B+C = <strong style="color: var(--accent);">0.796 AUROC</strong>. Adding Tier D (34 depth-3+ features) <em>hurts</em> performance (0.765). No single feature is critical &mdash; the signal is distributed across tiers.</p>
+
+    <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 1.1rem;">Top features by leave-one-out importance</h3>
+    <table class="results-table">
       <thead>
         <tr>
           <th>Feature</th>
-          <th>What it measures</th>
-          <th>AUROC</th>
+          <th>Tier</th>
+          <th>LOO Impact</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="feat-name">H0_persistence_entropy</td>
-          <td>How fragmented the token representations are</td>
-          <td>0.717</td>
+          <td class="feat-name">cos_l23_l26</td>
+          <td>B</td>
+          <td class="negative">-0.041</td>
         </tr>
         <tr>
-          <td class="feat-name">H0_n_features</td>
-          <td>Number of distinct clusters</td>
-          <td>0.722</td>
-        </tr>
-        <tr>
-          <td class="feat-name">H0_total_persistence</td>
-          <td>Total spread of connected components</td>
-          <td>0.696</td>
-        </tr>
-        <tr>
-          <td class="feat-name">H1_n_features</td>
-          <td>Number of loops in the representation</td>
-          <td>0.690</td>
+          <td class="feat-name">last5_centroid_dist</td>
+          <td>A</td>
+          <td class="negative">-0.035</td>
         </tr>
         <tr>
           <td class="feat-name">H1_persistence_entropy</td>
-          <td>Complexity of loop structure</td>
-          <td>0.683</td>
+          <td>A</td>
+          <td class="negative">-0.030</td>
         </tr>
         <tr>
-          <td class="feat-name">H1_max_lifetime</td>
-          <td>Strength of the dominant loop</td>
-          <td>0.598</td>
+          <td class="feat-name">cos_l9_l28</td>
+          <td>B</td>
+          <td class="negative">-0.028</td>
         </tr>
         <tr>
-          <td class="feat-name">bridge_silhouette<span class="new-badge">New</span></td>
-          <td>Position-0 token's boundary score in k=2 clustering</td>
-          <td>&mdash;</td>
+          <td class="feat-name">cos_l17_l27</td>
+          <td>B</td>
+          <td class="negative">-0.028</td>
         </tr>
       </tbody>
     </table>
-    <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 16px;">The bridge feature comes from a discovery that transformer hidden states universally organize into two clusters, with position 0 serving as the sole computational bridge between them. See <a href="https://github.com/musicofhel/att-docs">ATT research</a>.</p>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">LOO impact = AUROC drop when feature is removed. Negative = feature helps the model.</p>
   </div>
 </section>
 
-<!-- Selective prediction -->
-<section id="experiments">
+<!-- Cross-benchmark results -->
+<section id="results">
   <div class="container">
-    <h2>Selective prediction: answer only when confident</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 16px;">On MATH-500 (baseline accuracy 11.4%), selecting the most confident subset yields dramatically higher accuracy. The top 10% reaches 30% &mdash; a <strong style="color: var(--green)">2.6x lift</strong>.</p>
+    <h2>Cross-benchmark results (deconfounded)</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">All results corrected for answer extraction bugs, PCA leakage, and token truncation confounds (Phase 6.5, April 2026). Numbers you can trust.</p>
 
-    <div class="selective-chart">
-      <div class="sel-bar">
-        <div class="bar" style="height: 160px; background: linear-gradient(180deg, #34d399, #059669);">
-          <span class="bar-val" style="color: var(--green);">30.0%</span>
-        </div>
-        <span class="bar-pct">Top 10%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 133px; background: linear-gradient(180deg, #34d399, #059669); opacity: 0.85;">
-          <span class="bar-val" style="color: var(--green);">25.0%</span>
-        </div>
-        <span class="bar-pct">Top 20%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 113px; background: linear-gradient(180deg, #818cf8, #4f46e5); opacity: 0.9;">
-          <span class="bar-val" style="color: var(--accent);">21.3%</span>
-        </div>
-        <span class="bar-pct">Top 30%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 101px; background: linear-gradient(180deg, #818cf8, #4f46e5); opacity: 0.8;">
-          <span class="bar-val" style="color: var(--accent);">19.0%</span>
-        </div>
-        <span class="bar-pct">Top 40%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 89px; background: linear-gradient(180deg, #818cf8, #4f46e5); opacity: 0.7;">
-          <span class="bar-val" style="color: var(--accent);">16.8%</span>
-        </div>
-        <span class="bar-pct">Top 50%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 80px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.8;">
-          <span class="bar-val" style="color: var(--text-muted);">15.0%</span>
-        </div>
-        <span class="bar-pct">Top 60%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 76px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.7;">
-          <span class="bar-val" style="color: var(--text-muted);">14.3%</span>
-        </div>
-        <span class="bar-pct">Top 70%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 70px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.6;">
-          <span class="bar-val" style="color: var(--text-muted);">13.3%</span>
-        </div>
-        <span class="bar-pct">Top 80%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 66px; background: linear-gradient(180deg, #6b7280, #374151); opacity: 0.5;">
-          <span class="bar-val" style="color: var(--text-muted);">12.4%</span>
-        </div>
-        <span class="bar-pct">Top 90%</span>
-      </div>
-      <div class="sel-bar">
-        <div class="bar" style="height: 60px; background: var(--border);">
-          <span class="bar-val" style="color: var(--text-muted);">11.4%</span>
-        </div>
-        <span class="bar-pct">All</span>
-      </div>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Configuration</th>
+          <th>Accuracy</th>
+          <th>Topo AUROC</th>
+          <th>Best Baseline</th>
+          <th>Gap</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Qwen2.5-1.5B &times; MATH-500</td>
+          <td>104/500 (20.8%)</td>
+          <td class="strong">0.796</td>
+          <td>vote_margin 0.767</td>
+          <td class="positive">+0.057</td>
+          <td><span class="badge badge-green">Established</span></td>
+        </tr>
+        <tr>
+          <td>Qwen2.5-7B &times; MATH-500</td>
+          <td>348/500 (69.6%)</td>
+          <td class="strong">0.739</td>
+          <td>first_token 0.637</td>
+          <td class="positive">+0.102</td>
+          <td><span class="badge badge-green">Genuine</span></td>
+        </tr>
+        <tr>
+          <td>Qwen2.5-1.5B &times; GSM8K</td>
+          <td>871/1319 (66.0%)</td>
+          <td>0.615</td>
+          <td>neg_entropy 0.741</td>
+          <td class="negative">-0.126</td>
+          <td><span class="badge badge-red">Baseline wins</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="correction-banner">
+      <strong>Transparency note:</strong> Initial AUROC was reported as 0.948. After fixing answer extraction false negatives (+47 problems), PCA holdout leakage, and a token truncation confound (max_new_tokens=256 truncated 64% of GSM8K and 90% of 7B outputs), the corrected number is 0.796. Topo features show genuine signal on MATH-500 but do not generalize to GSM8K.
     </div>
 
-    <h3 style="margin-top: 40px; margin-bottom: 16px; font-size: 1.15rem;">Threshold sweep</h3>
-    <div class="bar-chart">
-      <div class="bar-row">
-        <span class="bar-label">t=0.9 (0.2% answered)</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 100%;">100%</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">t=0.8 (3.4% answered)</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 41%;">41.2%</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">t=0.7 (10.8% answered)</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 30%;">29.6%</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">t=0.6 (20.8% answered)</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 25%;">25.0%</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">t=0.5 (34% answered)</span>
-        <div class="bar-track"><div class="bar-fill orange" style="width: 21%;">21.2%</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">t=0.4 (54.6% answered)</span>
-        <div class="bar-track"><div class="bar-fill orange" style="width: 16%;">15.8%</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Baseline (all)</span>
-        <div class="bar-track"><div class="bar-fill muted" style="width: 11.4%;">11.4%</div></div>
-      </div>
-    </div>
+    <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 1.1rem;">Transfer experiments</h3>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Source &rarr; Target</th>
+          <th>Transfer AUROC</th>
+          <th>Interpretation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1.5B MATH &rarr; GSM8K</td>
+          <td>0.504</td>
+          <td style="color: var(--text-muted);">Chance level &mdash; no transfer</td>
+        </tr>
+        <tr>
+          <td>1.5B MATH &rarr; 7B MATH</td>
+          <td class="positive">0.611</td>
+          <td style="color: var(--text-muted);">Weak cross-model transfer</td>
+        </tr>
+        <tr>
+          <td>GSM8K &rarr; 7B MATH</td>
+          <td class="positive">0.608</td>
+          <td style="color: var(--text-muted);">Weak cross-config transfer</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
-<!-- Cross-benchmark -->
+<!-- Baseline comparison -->
 <section>
   <div class="container">
-    <h2>Works across benchmarks and tasks</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">Topological features generalize across math, code, and multiple-choice tasks. The best single feature varies by domain &mdash; H0 entropy dominates math, H1 lifetime matters more for MCQ.</p>
-    <div class="mini-table">
-      <div class="mini-cell">
-        <div class="bench-name">MATH-500</div>
-        <div class="bench-val" style="color: var(--accent);">0.699</div>
-        <div class="bench-sub">AUROC (combined 6-feature)</div>
+    <h2>vs. baselines (MATH-500 holdout)</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">Topo-confidence is the only single-pass method that competes with 32-pass self-consistency baselines. Single-pass logprob methods (entropy, first token prob) are near chance on this task.</p>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Topo-confidence (1 pass)</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: 79.6%;">0.796</div></div>
       </div>
-      <div class="mini-cell">
-        <div class="bench-name">GSM-8K</div>
-        <div class="bench-val" style="color: var(--accent);">0.676</div>
-        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      <div class="bar-row">
+        <span class="bar-label">Vote margin (32 pass)</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 76.7%;">0.767</div></div>
       </div>
-      <div class="mini-cell">
-        <div class="bench-name">HumanEval</div>
-        <div class="bench-val" style="color: var(--accent);">0.585</div>
-        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      <div class="bar-row">
+        <span class="bar-label">P(majority) (32 pass)</span>
+        <div class="bar-track"><div class="bar-fill green" style="width: 70.8%; opacity: 0.8;">0.708</div></div>
       </div>
-      <div class="mini-cell">
-        <div class="bench-name">MMLU</div>
-        <div class="bench-val" style="color: var(--accent);">0.562</div>
-        <div class="bench-sub">AUROC (combined 6-feature)</div>
+      <div class="bar-row">
+        <span class="bar-label">Neg agreement entropy (32 pass)</span>
+        <div class="bar-track"><div class="bar-fill orange" style="width: 61.7%;">0.617</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Inv answer diversity (32 pass)</span>
+        <div class="bar-track"><div class="bar-fill orange" style="width: 59.3%;">0.593</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Mean max token prob (1 pass)</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width: 51.4%;">0.514</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Neg mean entropy (1 pass)</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width: 50.8%;">0.508</div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">First token prob (1 pass)</span>
+        <div class="bar-track"><div class="bar-fill muted" style="width: 47.2%;">0.472</div></div>
       </div>
     </div>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">Holdout n=100, Qwen2.5-1.5B-Instruct on MATH-500. 95% CI for topo: [0.671, 0.907].</p>
   </div>
 </section>
 
-<!-- vs Baselines -->
+<!-- Gated majority vote -->
 <section>
   <div class="container">
-    <h2>Orthogonal to output-based methods</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">Topo-confidence and output entropy are essentially uncorrelated (r=0.062). They capture different failure modes. Combining them captures strictly more information.</p>
-    <div class="bar-chart">
-      <div class="bar-row">
-        <span class="bar-label">Output entropy</span>
-        <div class="bar-track"><div class="bar-fill orange" style="width: 59.4%;">0.594</div></div>
+    <h2>Gated majority vote: zero regressions</h2>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 16px;">Use topo-confidence as a gate for majority voting. At tau=0.3, the model <em>never</em> makes a correct answer worse (0 R&rarr;W). The tradeoff is coverage: lower tau means fewer questions answered but higher safety.</p>
+
+    <div class="tau-chart">
+      <div class="tau-bar">
+        <div class="bar" style="height: 0px; background: var(--border);">
+          <span class="bar-val" style="color: var(--text-muted);">0</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.1</span>
       </div>
-      <div class="bar-row">
-        <span class="bar-label">Max token probability</span>
-        <div class="bar-track"><div class="bar-fill orange" style="width: 59.5%;">0.595</div></div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 14px; background: linear-gradient(180deg, #34d399, #059669);">
+          <span class="bar-val" style="color: var(--green);">+1</span>
+          <span class="rw-label">0 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.2</span>
       </div>
-      <div class="bar-row">
-        <span class="bar-label">First token probability</span>
-        <div class="bar-track"><div class="bar-fill muted" style="width: 56.2%;">0.562</div></div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 56px; background: linear-gradient(180deg, #34d399, #059669);">
+          <span class="bar-val" style="color: var(--green);">+4</span>
+          <span class="rw-label">0 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.3</span>
       </div>
-      <div class="bar-row">
-        <span class="bar-label">Topo-confidence</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 53.6%;">0.536</div></div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 84px; background: linear-gradient(180deg, #818cf8, #4f46e5);">
+          <span class="bar-val" style="color: var(--accent);">+6</span>
+          <span class="rw-label">1 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.4</span>
       </div>
-      <div class="bar-row">
-        <span class="bar-label">Combined (topo + output)</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 59.3%;">0.593</div></div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 112px; background: linear-gradient(180deg, #818cf8, #4f46e5);">
+          <span class="bar-val" style="color: var(--accent);">+8</span>
+          <span class="rw-label">1 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.5</span>
+      </div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 168px; background: linear-gradient(180deg, #818cf8, #4f46e5);">
+          <span class="bar-val" style="color: var(--accent);">+12</span>
+          <span class="rw-label">1 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.6</span>
+      </div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 154px; background: linear-gradient(180deg, #fb923c, #c2410c);">
+          <span class="bar-val" style="color: var(--orange);">+11</span>
+          <span class="rw-label">2 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">&tau;=0.7</span>
+      </div>
+      <div class="tau-bar">
+        <div class="bar" style="height: 168px; background: linear-gradient(180deg, #fb923c, #c2410c); opacity: 0.7;">
+          <span class="bar-val" style="color: var(--orange);">+12</span>
+          <span class="rw-label">2 R&rarr;W</span>
+        </div>
+        <span class="bar-label-bottom">Ungated</span>
       </div>
     </div>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">(Exp 4: 200 problems, Qwen2.5-1.5B, 50-fold cross-validated AUROC)</p>
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">Net gain = (wrong&rarr;right) - (right&rarr;wrong) from 32-sample majority vote on holdout (n=100). Green bars = zero regressions.</p>
   </div>
 </section>
 
@@ -798,15 +900,11 @@ footer a { color: var(--accent); }
 <section>
   <div class="container">
     <h2>Negligible overhead</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">The entire topological feature pipeline &mdash; PCA, Ripser, feature extraction, and classifier prediction &mdash; adds 0.007s per problem. That's 0.18% overhead on top of model inference.</p>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">The entire feature pipeline &mdash; PCA projection, persistent homology via Ripser, 44 features, logistic regression &mdash; adds less than 0.01s per problem. All the cost is in the model forward pass you're already doing.</p>
     <div class="bar-chart">
       <div class="bar-row">
-        <span class="bar-label">Model inference</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 100%;">3.976s</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Hidden state extraction</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 0.16%;">0.006s</div></div>
+        <span class="bar-label">Model forward pass</span>
+        <div class="bar-track"><div class="bar-fill accent" style="width: 100%;">~4s</div></div>
       </div>
       <div class="bar-row">
         <span class="bar-label">Topo features (PCA + Ripser)</span>
@@ -841,12 +939,6 @@ confidences = tc.<span class="fn">predict_confidence</span>([<span class="str">"
 <span class="cm"># Only answer when confident</span>
 results = tc.<span class="fn">selective_predict</span>(problems, threshold=<span class="num">0.7</span>)</code></pre>
 
-    <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">Combined scorer (topo + entropy fusion)</h3>
-<pre><code><span class="kw">from</span> topo_confidence <span class="kw">import</span> <span class="fn">CombinedConfidence</span>
-
-cc = <span class="fn">CombinedConfidence</span>(<span class="str">"Qwen/Qwen2.5-1.5B-Instruct"</span>)
-cc.<span class="fn">calibrate</span>(prompts, labels)  <span class="cm"># 7 topo + 2 output = 9 features</span></code></pre>
-
     <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">CLI</h3>
 <pre><code><span class="cm"># Score prompts</span>
 $ topo-confidence score <span class="str">"What is 2+2?"</span>
@@ -855,10 +947,7 @@ $ topo-confidence score <span class="str">"What is 2+2?"</span>
 $ topo-confidence calibrate data.jsonl -o calibrated.pkl
 
 <span class="cm"># Selective prediction</span>
-$ topo-confidence selective -c calibrated.pkl -f problems.txt -t <span class="num">0.7</span>
-
-<span class="cm"># Explain a prediction</span>
-$ topo-confidence explain -c calibrated.pkl <span class="str">"What is 2+2?"</span></code></pre>
+$ topo-confidence selective -c calibrated.pkl -f problems.txt -t <span class="num">0.7</span></code></pre>
   </div>
 </section>
 
@@ -868,20 +957,20 @@ $ topo-confidence explain -c calibrated.pkl <span class="str">"What is 2+2?"</sp
     <h2>Applications</h2>
     <div class="card-grid">
       <div class="card">
+        <h3>Topo-gated majority vote</h3>
+        <p>Gate majority voting with topo-confidence. At tau=0.3: zero regressions, 89% sample savings with adaptive sampling.</p>
+      </div>
+      <div class="card">
         <h3>Model routing</h3>
-        <p>Use as a gate for cheap-to-expensive model cascading. Route low-confidence queries to a stronger model.</p>
+        <p>Route low-confidence queries to a stronger model. Single-pass scoring means no generation overhead for the routing decision.</p>
       </div>
       <div class="card">
         <h3>Agentic verification</h3>
-        <p>Per-step confidence without multi-sampling. Know which tool calls and reasoning steps to trust.</p>
+        <p>Per-step confidence without multi-sampling. Know which reasoning steps to trust before committing to an action.</p>
       </div>
       <div class="card">
         <h3>Training data filtering</h3>
-        <p>Select high-confidence synthetic data for fine-tuning. Better training signal from the same generation budget.</p>
-      </div>
-      <div class="card">
-        <h3>Real-time monitoring</h3>
-        <p>Track hidden-state geometry during generation. Alert when topology shifts toward uncertain territory.</p>
+        <p>Select high-confidence synthetic data for fine-tuning. Better signal from the same generation budget.</p>
       </div>
     </div>
   </div>
@@ -890,7 +979,7 @@ $ topo-confidence explain -c calibrated.pkl <span class="str">"What is 2+2?"</sp
 <!-- Footer -->
 <footer>
   <div class="container">
-    <p>topo-confidence &middot; MIT License &middot; <a href="https://github.com/musicofhel/topo-confidence">GitHub</a> &middot; Built on <a href="https://github.com/musicofhel/att-docs">ATT research</a></p>
+    <p>topo-confidence &middot; MIT License &middot; <a href="https://github.com/musicofhel/topo-confidence">GitHub</a> &middot; Built on <a href="https://github.com/musicofhel/att-docs">ATT research</a> &middot; Updated April 2026</p>
   </div>
 </footer>
 

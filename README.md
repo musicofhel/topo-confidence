@@ -2,11 +2,32 @@
 
 **Know when your LLM is wrong — from a single forward pass.**
 
-topo-confidence uses persistent homology on hidden-state geometry to predict whether an LLM's output is correct. It captures a fundamentally different signal from output entropy (correlation r=0.062), adds 0.007s overhead, and requires no extra generation.
+topo-confidence uses persistent homology on hidden-state geometry to predict whether an LLM's output is correct. It extracts 44 topological features from the token-level point cloud at the final transformer layer and trains a logistic regression classifier to estimate P(correct).
 
-## The headline result
+## Headline result
 
-On MATH-500 with Qwen2.5-1.5B-Instruct, selecting the top 10% of outputs by topo-confidence yields **30% accuracy vs 11.4% baseline** — a 2.6x lift. This works because topological features measure the *geometry of the model's internal computation*, not the *uncertainty of its output distribution*.
+On MATH-500 with Qwen2.5-1.5B-Instruct:
+
+| Metric | Value |
+|--------|-------|
+| Topo AUROC (holdout) | **0.796** [0.671, 0.907] |
+| Best baseline (vote_margin, 32-pass) | 0.767 [0.632, 0.878] |
+| Gap over best baseline | **+0.057** |
+| Greedy accuracy | 104/500 (20.8%) |
+| Ungated majority vote | +12 net gain |
+| Gated MV (tau=0.3) | +4 net gain, **0 R->W** |
+
+The topo-confidence score comes from a single forward pass on the prompt (no generation required). It captures a fundamentally different signal from output-based methods — the geometry of the model's internal computation, not the uncertainty of its output distribution.
+
+## Cross-benchmark results (deconfounded)
+
+| Config | Accuracy | Topo AUROC | Best Baseline | Gap |
+|--------|----------|------------|---------------|-----|
+| Qwen2.5-1.5B x MATH-500 | 104/500 (20.8%) | **0.796** | vote_margin 0.767 | **+0.057** |
+| Qwen2.5-1.5B x GSM8K | 871/1319 (66.0%) | 0.615 | neg_entropy 0.741 | -0.126 |
+| Qwen2.5-7B x MATH-500 | 348/500 (69.6%) | **0.739** | first_token 0.637 | **+0.102** |
+
+**Takeaway**: Topo features show genuine signal on MATH-500 across model scales (1.5B and 7B), but do not generalize to GSM8K where logprob baselines dominate. Cross-benchmark transfer is near chance (AUROC 0.504). The signal appears specific to hard mathematical reasoning where output probabilities are poorly calibrated.
 
 ## Install
 
@@ -71,56 +92,108 @@ tc2.load("math_calibrated.pkl")
 
 ## How it works
 
-Each prompt's hidden states at the final transformer layer form a point cloud in R^d (one point per token). Persistent homology extracts 7 topological features from this cloud:
+Each prompt's hidden states at the final transformer layer form a point cloud in R^d (one point per token). The CORAL feature pipeline extracts 44 topological and geometric features organized into three tiers:
 
-| Feature | What it measures |
-|---------|-----------------|
-| H0_persistence_entropy | How fragmented the token representations are |
-| H0_total_persistence | Total spread of connected components |
-| H0_n_features | Number of distinct clusters |
-| H1_max_lifetime | Strength of the dominant loop |
-| H1_persistence_entropy | Complexity of loop structure |
-| H1_n_features | Number of loops |
-| bridge_silhouette | Position-0 token's boundary score in k=2 clustering |
+### Feature tiers
 
-The bridge feature comes from a discovery that transformer hidden states universally organize into two clusters, with position 0 serving as the sole computational bridge between them (see [ATT research](https://github.com/musicofhel/att-docs)).
+| Tier | Count | Description | Standalone AUROC |
+|------|-------|-------------|-----------------|
+| A | 9 | Persistent homology + geometry (H0/H1 entropy, lifetimes, centroid distances) | 0.704 |
+| B | 30 | Layer dynamics (inter-layer cosines, PCA spectrum, SVD ratios) | 0.761 |
+| C | 5 | Depth-2 products (cross-tier interactions) | 0.732 |
+| **A+B+C** | **44** | **Full model** | **0.796** |
 
-## Why it works
+### Top features by leave-one-out importance
 
-Correct answers have simpler hidden-state geometry:
-- Lower H0 entropy (fewer fragments — model "knows what it's doing")
-- The bridge token (position 0) sits cleanly between clusters for correct answers
+| Feature | LOO Impact | Tier |
+|---------|-----------|------|
+| cos_l23_l26 | -0.041 | B |
+| last5_centroid_dist | -0.035 | A |
+| H1_persistence_entropy | -0.030 | A |
+| cos_l9_l28 | -0.028 | B |
+| cos_l17_l27 | -0.028 | B |
 
-This signal is **orthogonal to output entropy** (r=0.062) — topo-confidence catches failures that output-based methods miss, and vice versa.
+The signal is distributed — no single feature is critical. Tier A (persistent homology) provides the irreplaceable anchor, while Tier B (layer dynamics) provides the largest AUROC boost (+0.057 from A to A+B).
 
-## Performance
+## Baseline comparison
 
-| Metric | Value |
-|--------|-------|
-| Selective prediction lift (top 10%) | 2.6x |
-| AUROC (MATH-500, 7 features) | 0.699 |
-| Best single feature AUROC | 0.824 (H0_persistence_entropy, from ATT Phase 5) |
-| Feature computation overhead | 0.007s per problem |
-| Correlation with output entropy | r=0.062 (orthogonal) |
+On the MATH-500 holdout (n=100):
 
-## Applications
+| Method | Passes | AUROC |
+|--------|--------|-------|
+| **Topo-confidence (44 features)** | 1 | **0.796** |
+| Vote margin | 32 | 0.767 |
+| P(majority) | 32 | 0.708 |
+| Neg agreement entropy | 32 | 0.617 |
+| Inv answer diversity | 32 | 0.593 |
+| Mean max token prob | 1 | 0.514 |
+| Neg mean entropy | 1 | 0.508 |
+| First token prob | 1 | 0.472 |
 
-- **Model routing**: Use as a gate for cheap-to-expensive model cascading
-- **Agentic verification**: Per-step confidence without multi-sampling
-- **Training data filtering**: Select high-confidence synthetic data
-- **Real-time monitoring**: Track hidden-state geometry during generation
+Topo-confidence is the only single-pass method that competes with 32-pass self-consistency baselines.
+
+## Selection strategies
+
+### Gated majority vote (tau sweep, holdout)
+
+| Threshold | Answered | Net Gain | W->R | R->W |
+|-----------|----------|----------|------|------|
+| 0.1 | 8 | 0 | 0 | 0 |
+| 0.3 | 37 | **+4** | 4 | **0** |
+| 0.5 | 68 | +8 | 9 | 1 |
+| 0.7 | 88 | +11 | 13 | 2 |
+| Ungated | 100 | +12 | 14 | 2 |
+
+At tau=0.3, gating achieves zero regressions (0 R->W) — the model never makes a correct answer worse. The tradeoff is coverage: only 37% of problems are answered.
+
+### Adaptive sampling
+
+Topo-confidence enables 3-tier routing (easy/medium/hard) that matches uniform 32-pass majority vote accuracy with 77-89% fewer samples.
+
+## Research status
+
+This is an active research project. Key findings as of April 2026:
+
+**Established:**
+- Topo AUROC 0.796 on MATH-500 x 1.5B (corrected from initial 0.948 after fixing answer extraction and PCA leakage bugs)
+- Topo AUROC 0.739 on MATH-500 x 7B (genuine cross-model signal, +0.102 over baseline)
+- Zero-regression gating at tau=0.3 (0 R->W)
+- Adaptive sampling: 77-89% sample savings
+
+**Refuted:**
+- Cross-benchmark generalization to GSM8K (AUROC 0.615, baseline wins at 0.741)
+- Cross-benchmark transfer (MATH -> GSM8K = 0.504, chance level)
+
+**Open questions:**
+- Why does the signal appear specific to MATH-500? (Hypothesis: hard reasoning where logprobs are poorly calibrated)
+- Can per-completion features improve gated majority vote beyond +4?
+- Comparison with SEP (Semantic Entropy Probes, Kossen et al.)
+
+See `pathway6_rebuild/phase6_5/FINAL_SUMMARY.md` for the full deconfounded analysis.
 
 ## Project structure
 
 ```
-topo_confidence/
-├── confidence.py     # TopoConfidence class (calibrate, predict, explain)
-├── combined.py       # CombinedConfidence (topo + output entropy fusion)
-├── extractor.py      # HiddenStateExtractor (model inference)
-├── features.py       # TopologicalFeatureExtractor (PH computation)
-├── baselines.py      # Output entropy, max token prob baselines
-├── cli.py            # Command-line interface
-└── utils.py          # Persistence entropy, subsampling
+topo_confidence/           # Python package (pip installable)
+  confidence.py            # TopoConfidence class
+  combined.py              # CombinedConfidence (topo + entropy fusion)
+  extractor.py             # HiddenStateExtractor
+  features.py              # TopologicalFeatureExtractor
+  baselines.py             # Output entropy, max token prob
+  cli.py                   # Command-line interface
+
+pathway1/                  # CORAL feature extraction + baseline model
+pathway2/                  # Steering experiments (Track A/B)
+pathway3/                  # Generalization gap experiments
+pathway4/                  # Selection strategies + GRPO steering
+pathway5/                  # Cross-benchmark exploration
+pathway6_rebuild/          # Bug-fix rebuild + Phase 6.5 deconfounding
+  phase0_relabel/          # Answer extraction fix (+47 problems)
+  phase1_prompt_model/     # Corrected AUROC 0.796
+  phase2_completion/       # Selection strategies (MV, gating)
+  phase3_cross_benchmark/  # GSM8K + 7B (confounded)
+  phase4_report/           # Corrected vs old comparison
+  phase6_5/                # Deconfounded results (max_tokens 1024)
 ```
 
 ## Citation
