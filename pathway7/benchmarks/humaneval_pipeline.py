@@ -300,12 +300,12 @@ def main():
         "models": results_models,
         "best_topo": best_topo["name"],
         "best_topo_auroc": best_topo["auroc_holdout"],
-        "logprob_auroc": round(lp_auroc_hold, 4),
-        "topo_beats_logprob": best_topo["auroc_holdout"] > lp_auroc_hold,
+        "logprob_auroc": round(float(lp_auroc_hold), 4),
+        "topo_beats_logprob": bool(best_topo["auroc_holdout"] > lp_auroc_hold),
         "feature_names": all_names,
         "n_features_total": X_all.shape[1],
     }
-    (OUTPUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
+    (OUTPUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2, default=float))
     np.save(OUTPUT_DIR / "features_all.npy", X_all)
     np.save(OUTPUT_DIR / "labels.npy", labels)
     np.save(OUTPUT_DIR / "logprobs.npy", lp_arr)
