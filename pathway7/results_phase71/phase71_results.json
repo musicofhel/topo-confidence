@@ -1,0 +1,106 @@
+{
+  "baseline_auroc": 0.7961,
+  "best_combined_auroc": 0.7741,
+  "best_combined_name": "Combined (C=1.0)",
+  "auroc_improvement": -0.022,
+  "delong": {
+    "baseline_name": "ABC-44",
+    "new_name": "Combined (C=1.0)",
+    "auroc_baseline": 0.7961,
+    "auroc_new": 0.7741,
+    "auroc_diff": -0.022,
+    "z_statistic": -0.5668,
+    "p_value": 0.570828,
+    "significance": "ns",
+    "method": "bootstrap"
+  },
+  "all_results": [
+    {
+      "name": "ABC-44 (baseline)",
+      "C": 1.0,
+      "n_features": 44,
+      "auroc_holdout": 0.7961,
+      "auroc_cv": 0.695
+    },
+    {
+      "name": "NonEuclid-only",
+      "C": 1.0,
+      "n_features": 18,
+      "auroc_holdout": 0.7161,
+      "auroc_cv": 0.7369
+    },
+    {
+      "name": "Combined (C=1.0)",
+      "C": 1.0,
+      "n_features": 62,
+      "auroc_holdout": 0.7741,
+      "auroc_cv": 0.6914
+    },
+    {
+      "name": "Combined (C=0.1)",
+      "C": 0.1,
+      "n_features": 62,
+      "auroc_holdout": 0.7569,
+      "auroc_cv": 0.7112
+    },
+    {
+      "name": "Combined (C=0.5)",
+      "C": 0.5,
+      "n_features": 62,
+      "auroc_holdout": 0.7741,
+      "auroc_cv": 0.6985
+    },
+    {
+      "name": "Combined (C=2.0)",
+      "C": 2.0,
+      "n_features": 62,
+      "auroc_holdout": 0.7718,
+      "auroc_cv": 0.6856
+    },
+    {
+      "name": "Combined (C=5.0)",
+      "C": 5.0,
+      "n_features": 62,
+      "auroc_holdout": 0.7678,
+      "auroc_cv": 0.6819
+    },
+    {
+      "name": "EffRes-only",
+      "C": 1.0,
+      "n_features": 8,
+      "auroc_holdout": 0.7184,
+      "auroc_cv": 0.7414
+    },
+    {
+      "name": "Cosine-only",
+      "C": 1.0,
+      "n_features": 8,
+      "auroc_holdout": 0.7161,
+      "auroc_cv": 0.7456
+    }
+  ],
+  "noneuclid_feature_names": [
+    "effres_H0_total_persistence",
+    "effres_H0_max_lifetime",
+    "effres_H0_entropy",
+    "effres_H0_n_features",
+    "effres_H1_total_persistence",
+    "effres_H1_max_lifetime",
+    "effres_H1_entropy",
+    "effres_H1_n_features",
+    "cosine_H0_total_persistence",
+    "cosine_H0_max_lifetime",
+    "cosine_H0_entropy",
+    "cosine_H0_n_features",
+    "cosine_H1_total_persistence",
+    "cosine_H1_max_lifetime",
+    "cosine_H1_entropy",
+    "cosine_H1_n_features",
+    "spectral_gap",
+    "algebraic_connectivity"
+  ],
+  "n_train": 400,
+  "n_holdout": 100,
+  "n_correct_train": 89,
+  "n_correct_holdout": 15
+}

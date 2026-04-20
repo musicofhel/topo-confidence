@@ -1,0 +1,20 @@
+[
+  "effres_H0_total_persistence",
+  "effres_H0_max_lifetime",
+  "effres_H0_entropy",
+  "effres_H0_n_features",
+  "effres_H1_total_persistence",
+  "effres_H1_max_lifetime",
+  "effres_H1_entropy",
+  "effres_H1_n_features",
+  "cosine_H0_total_persistence",
+  "cosine_H0_max_lifetime",
+  "cosine_H0_entropy",
+  "cosine_H0_n_features",
+  "cosine_H1_total_persistence",
+  "cosine_H1_max_lifetime",
+  "cosine_H1_entropy",
+  "cosine_H1_n_features",
+  "spectral_gap",
+  "algebraic_connectivity"
+]

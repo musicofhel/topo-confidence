@@ -4,7 +4,7 @@ Topological uncertainty estimation for LLMs. Uses persistent homology on hidden-
 
 ## Current state (April 2026)
 
-All experiments complete through Pathway 6 rebuild + Phase 6.5 deconfounding.
+Pathway 6 rebuild + Phase 6.5 deconfounding complete. **Pathway 7 (non-Euclidean PH) in progress.**
 
 ### Key results
 
@@ -38,6 +38,16 @@ pathway6_rebuild/          # Corrected pipeline (use this, not pathway1-5)
   phase3_cross_benchmark/  # GSM8K + 7B (confounded by truncation)
   phase6_5/                # Deconfounded results (max_tokens=1024)
     FINAL_SUMMARY.md       # Complete deconfounded analysis
+pathway7/                  # Non-Euclidean PH upgrade (IN PROGRESS)
+  distance_metrics.py      # Eff-res, cosine, diffusion, DTM PH
+  feature_extractor_v2.py  # Original 44 + 18 non-Euclidean features
+  phase71_noneuclid_math500.py  # CPU: AUROC comparison vs 0.796 baseline
+  zigzag_features.py       # Zigzag persistence across layers (needs Dionysus2)
+  Dockerfile               # Pinned reproducible RunPod environment
+  runpod_pathway7.sh       # Master orchestrator (6 steps)
+  PLAYBOOK.md              # Full research playbook reference
+  validation/              # Synthetic shapes, metric divergence, DeLong tests
+  benchmarks/              # HumanEval + BBH pipelines
 ```
 
 ## Running experiments
@@ -45,6 +55,9 @@ pathway6_rebuild/          # Corrected pipeline (use this, not pathway1-5)
 - **Local (CPU-only analysis):** `python pathway6_rebuild/audit_e2e.py`
 - **GPU (RunPod H100):** `bash pathway6_rebuild/phase6_5/runpod_phase6_5.sh`
 - **Setup on RunPod:** `bash pathway6_rebuild/runpod_setup.sh`
+- **Pathway 7 (CPU Phase 7.1):** `python pathway7/phase71_noneuclid_math500.py`
+- **Pathway 7 (full, RunPod):** `bash pathway7/runpod_pathway7.sh`
+- **Pathway 7 validation:** `python pathway7/validation/synthetic_shapes.py`
 
 ## Binary data policy
 

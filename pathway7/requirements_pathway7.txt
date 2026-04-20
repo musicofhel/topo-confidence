@@ -1,0 +1,27 @@
+# Pathway 7: Non-Euclidean PH Pipeline — Pinned Dependencies
+# Base image (runpod/pytorch:2.4.0) already has: torch, numpy, scipy
+
+# Transformers stack
+transformers>=4.45.0,<5.0.0
+accelerate>=0.33.0
+datasets>=2.19.0
+tokenizers>=0.19
+
+# Persistent homology
+ripser==0.6.14
+gudhi==3.12.0
+persim==0.3.8
+giotto-tda==0.6.2
+tadasets==0.2.2
+
+# Zigzag persistence (dionysus source-built in Dockerfile)
+pyfzz
+
+# ML & statistics
+scikit-learn>=1.5
+sympy>=1.12
+joblib>=1.4
+MLstatkit
+
+# Evaluation
+evalplus
