@@ -271,7 +271,26 @@ def dtm_ph(
 
 
 # ---------------------------------------------------------------------------
-# Feature extraction from non-Euclidean diagrams
+# Standard Euclidean PH (for benchmark comparisons)
+# ---------------------------------------------------------------------------
+
+def euclidean_ph(
+    points: np.ndarray,
+    maxdim: int = 1,
+) -> dict[int, np.ndarray]:
+    """Standard Euclidean Vietoris-Rips persistent homology.
+
+    This is the same computation as winning_features.py:compute_ph() but
+    returns the same dict interface as the non-Euclidean backends.
+    """
+    if len(points) < 3:
+        return {d: np.empty((0, 2)) for d in range(maxdim + 1)}
+    result = ripser(points, maxdim=maxdim)
+    return {d: result["dgms"][d] for d in range(maxdim + 1)}
+
+
+# ---------------------------------------------------------------------------
+# Feature extraction from persistence diagrams
 # ---------------------------------------------------------------------------
 
 def persistence_entropy(lifetimes: np.ndarray) -> float:
@@ -422,5 +441,47 @@ def compute_all_noneuclid_features(
     spec_feats, spec_names = graph_spectral_features(points, k=k_effres)
     all_feats.append(spec_feats)
     all_names.extend(spec_names)
+
+    return np.concatenate(all_feats), all_names
+
+
+def compute_all_ph_features(
+    points: np.ndarray,
+    k_effres: int = 30,
+    maxdim: int = 1,
+) -> tuple[np.ndarray, list[str]]:
+    """Compute Euclidean + non-Euclidean PH + spectral features (26 total).
+
+    Returns features in order:
+    - [0:8]   Euclidean PH (H0+H1 × 4 stats)
+    - [8:16]  Effective-resistance PH
+    - [16:24] Cosine PH
+    - [24:26] Graph spectral (spectral_gap, algebraic_connectivity)
+
+    Parameters
+    ----------
+    points : (n, d) array — PCA-reduced, subsampled token hidden states
+    k_effres : kNN for effective resistance and spectral features
+    maxdim : max homology dimension
+
+    Returns
+    -------
+    (26,) feature array and list of 26 feature names
+    """
+    all_feats = []
+    all_names = []
+
+    # Euclidean PH (8 features)
+    euc_dgms = euclidean_ph(points, maxdim=maxdim)
+    euc_feats, euc_names = features_from_diagrams(euc_dgms, prefix="euclid_")
+    all_feats.append(euc_feats)
+    all_names.extend(euc_names)
+
+    # Non-Euclidean (18 features)
+    ne_feats, ne_names = compute_all_noneuclid_features(
+        points, k_effres=k_effres, maxdim=maxdim
+    )
+    all_feats.append(ne_feats)
+    all_names.extend(ne_names)
 
     return np.concatenate(all_feats), all_names

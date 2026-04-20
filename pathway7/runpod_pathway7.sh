@@ -103,33 +103,19 @@ run_step 2 "HumanEval benchmark (GPU)" \
 run_step 3 "BBH benchmark: 3 subsets × 250 (GPU)" \
     "pathway7/benchmarks/bbh_pipeline.py"
 
-# Step 4: All-layer extraction for zigzag (GPU, ~2 hr)
-run_step 4 "All-layer hidden state extraction for zigzag (GPU)" \
-    "pathway7/extract_all_layers.py"
+# Steps 4-6: Zigzag + combined analysis (SKIPPED by default)
+# Zigzag ($8, 5hrs) deferred unless HumanEval/BBH results justify it.
+# Uncomment to re-enable:
+#
+# run_step 4 "All-layer hidden state extraction for zigzag (GPU)" \
+#     "pathway7/extract_all_layers.py"
+# run_step 5 "Zigzag features (CPU)" \
+#     "pathway7/zigzag_features.py"
+# run_step 6 "Combined analysis (CPU)" \
+#     "pathway7/combined_analysis.py"
 
-# Step 5: Zigzag features (CPU, ~3 hr)
-# Note: requires dionysus + Step 4 output
-if [ "$START_STEP" -le 5 ]; then
-    echo ""
-    echo "================================================================"
-    echo "Step 5/6: Zigzag features (CPU)"
-    echo "================================================================"
-    echo "  NOTE: Zigzag requires dionysus (pre-built in Docker image)"
-    echo "  and all-layer data from Step 4."
-    if [ -d "pathway7/data_all_layers" ]; then
-        n_files=$(ls pathway7/data_all_layers/all_layers_*.npz 2>/dev/null | wc -l)
-        echo "  Found $n_files all-layer files"
-        if [ "$n_files" -gt 0 ]; then
-            echo "  TODO: Run zigzag feature extraction (not yet automated)"
-            echo "  python -c 'from pathway7.zigzag_features import zigzag_features; ...'"
-        fi
-    else
-        echo "  [SKIP] No all-layer data found. Run Step 4 first."
-    fi
-fi
-
-# Step 6: Combined analysis (CPU, ~30 min)
-# TODO: Implement combined analysis script once Phase 7.1-7.4 results exist
+echo ""
+echo "Steps 4-6 (zigzag) skipped. Re-enable in runpod_pathway7.sh if needed."
 
 TOTAL_END=$(date +%s)
 TOTAL_ELAPSED=$(( TOTAL_END - TOTAL_START ))
