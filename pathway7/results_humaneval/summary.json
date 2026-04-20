@@ -1,0 +1,68 @@
+{
+  "benchmark": "humaneval",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 164,
+  "accuracy": 0.0671,
+  "n_correct": 11,
+  "n_train": 131,
+  "n_holdout": 33,
+  "models": [
+    {
+      "name": "Euclidean PH (8)",
+      "auroc_holdout": 0.9355,
+      "auroc_cv": 0.9381,
+      "n_features": 8
+    },
+    {
+      "name": "Non-Euclidean PH (18)",
+      "auroc_holdout": 0.8065,
+      "auroc_cv": 0.6457,
+      "n_features": 18
+    },
+    {
+      "name": "Combined PH (26)",
+      "auroc_holdout": 0.9677,
+      "auroc_cv": 0.8725,
+      "n_features": 26
+    },
+    {
+      "name": "mean_logprob baseline",
+      "auroc_holdout": 0.7097,
+      "auroc_cv": 0.6011,
+      "n_features": 1
+    }
+  ],
+  "best_topo": "Combined PH (26)",
+  "best_topo_auroc": 0.9677,
+  "logprob_auroc": 0.7097,
+  "topo_beats_logprob": true,
+  "feature_names": [
+    "euclid_H0_total_persistence",
+    "euclid_H0_max_lifetime",
+    "euclid_H0_entropy",
+    "euclid_H0_n_features",
+    "euclid_H1_total_persistence",
+    "euclid_H1_max_lifetime",
+    "euclid_H1_entropy",
+    "euclid_H1_n_features",
+    "effres_H0_total_persistence",
+    "effres_H0_max_lifetime",
+    "effres_H0_entropy",
+    "effres_H0_n_features",
+    "effres_H1_total_persistence",
+    "effres_H1_max_lifetime",
+    "effres_H1_entropy",
+    "effres_H1_n_features",
+    "cosine_H0_total_persistence",
+    "cosine_H0_max_lifetime",
+    "cosine_H0_entropy",
+    "cosine_H0_n_features",
+    "cosine_H1_total_persistence",
+    "cosine_H1_max_lifetime",
+    "cosine_H1_entropy",
+    "cosine_H1_n_features",
+    "spectral_gap",
+    "algebraic_connectivity"
+  ],
+  "n_features_total": 26
+}

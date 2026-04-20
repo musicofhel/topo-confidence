@@ -1,0 +1,92 @@
+{
+  "benchmark": "bbh",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "subsets": [
+    "tracking_shuffled_objects_seven_objects",
+    "logical_deduction_seven_objects",
+    "web_of_lies"
+  ],
+  "n_problems_total": 750,
+  "accuracy_total": 0.172,
+  "n_train": 600,
+  "n_holdout": 150,
+  "models": [
+    {
+      "name": "Euclidean PH (8)",
+      "auroc_holdout": 0.8514,
+      "auroc_cv": 0.8964,
+      "n_features": 8
+    },
+    {
+      "name": "Non-Euclidean PH (18)",
+      "auroc_holdout": 0.8772,
+      "auroc_cv": 0.9043,
+      "n_features": 18
+    },
+    {
+      "name": "Combined PH (26)",
+      "auroc_holdout": 0.8837,
+      "auroc_cv": 0.9047,
+      "n_features": 26
+    },
+    {
+      "name": "mean_logprob baseline",
+      "auroc_holdout": 0.9203,
+      "auroc_cv": 0.9004,
+      "n_features": 1
+    }
+  ],
+  "best_topo": "Combined PH (26)",
+  "best_topo_auroc": 0.8837,
+  "logprob_auroc": 0.9203,
+  "topo_beats_logprob": false,
+  "per_subset": [
+    {
+      "subset": "tracking_shuffled_objects_seven_objects",
+      "n_problems": 250,
+      "accuracy": 0.0,
+      "n_correct": 0
+    },
+    {
+      "subset": "logical_deduction_seven_objects",
+      "n_problems": 250,
+      "accuracy": 0.004,
+      "n_correct": 1
+    },
+    {
+      "subset": "web_of_lies",
+      "n_problems": 250,
+      "accuracy": 0.512,
+      "n_correct": 128
+    }
+  ],
+  "feature_names": [
+    "euclid_H0_total_persistence",
+    "euclid_H0_max_lifetime",
+    "euclid_H0_entropy",
+    "euclid_H0_n_features",
+    "euclid_H1_total_persistence",
+    "euclid_H1_max_lifetime",
+    "euclid_H1_entropy",
+    "euclid_H1_n_features",
+    "effres_H0_total_persistence",
+    "effres_H0_max_lifetime",
+    "effres_H0_entropy",
+    "effres_H0_n_features",
+    "effres_H1_total_persistence",
+    "effres_H1_max_lifetime",
+    "effres_H1_entropy",
+    "effres_H1_n_features",
+    "cosine_H0_total_persistence",
+    "cosine_H0_max_lifetime",
+    "cosine_H0_entropy",
+    "cosine_H0_n_features",
+    "cosine_H1_total_persistence",
+    "cosine_H1_max_lifetime",
+    "cosine_H1_entropy",
+    "cosine_H1_n_features",
+    "spectral_gap",
+    "algebraic_connectivity"
+  ],
+  "n_features_total": 26
+}
