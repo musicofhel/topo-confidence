@@ -1,0 +1,20 @@
+# Pathway 8: Layer-wise PH experiments
+# Extends pathway7 requirements with additional packages
+
+# Core (already in pathway7 Dockerfile)
+torch>=2.4.0
+transformers>=4.45.0
+ripser==0.6.14
+persim>=0.3.8
+scikit-learn>=1.5.0
+scipy>=1.14.0
+numpy>=1.26.0,<2.0  # ripser 0.6.14 breaks on numpy 2.0
+datasets>=3.0
+safetensors>=0.4
+
+# New for pathway8
+scikit-dimension>=0.3.3   # TwoNN intrinsic dimension
+MLstatkit                  # DeLong test
+math-verify                # MATH-500 answer equivalence checking
+evalplus>=0.3.1            # HumanEval sandboxed evaluation
+joblib                     # Parallel PH computation

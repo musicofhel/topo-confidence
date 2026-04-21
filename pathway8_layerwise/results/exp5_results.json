@@ -1,0 +1,34 @@
+{
+  "experiment": "exp5_crosslayer_trajectory",
+  "models": [
+    {
+      "name": "CrossLayer (6)",
+      "auroc_holdout": 0.6824,
+      "auroc_cv": 0.529,
+      "n_features": 6
+    },
+    {
+      "name": "PH+CrossLayer (174)",
+      "auroc_holdout": 0.6369,
+      "auroc_cv": 0.6222,
+      "n_features": 174
+    }
+  ],
+  "delong": {
+    "error": "too many values to unpack (expected 2)",
+    "models": [
+      "CrossLayer",
+      "PH+CrossLayer"
+    ]
+  },
+  "feature_names": [
+    "xlayer_H0_total_mean",
+    "xlayer_H0_n_feat_mean",
+    "xlayer_H0_entropy_mean",
+    "xlayer_H0_total_std",
+    "xlayer_H0_n_feat_std",
+    "xlayer_H0_entropy_std"
+  ],
+  "n_bootstrap": 50,
+  "m_tokens": 20
+}

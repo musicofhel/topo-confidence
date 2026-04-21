@@ -1,0 +1,91 @@
+{
+  "experiment": "exp4_twonn_id",
+  "models": [
+    {
+      "name": "PH only (168)",
+      "auroc_holdout": 0.6463,
+      "auroc_cv": 0.6294,
+      "n_features": 168
+    },
+    {
+      "name": "TwoNN only (28)",
+      "auroc_holdout": 0.4071,
+      "auroc_cv": 0.4833,
+      "n_features": 28
+    },
+    {
+      "name": "PH+TwoNN (196)",
+      "auroc_holdout": 0.6667,
+      "auroc_cv": 0.6364,
+      "n_features": 196
+    }
+  ],
+  "marginal_lift": 0.0204,
+  "delong_combined_vs_ph": {
+    "error": "too many values to unpack (expected 2)",
+    "models": [
+      "PH-only",
+      "PH+TwoNN"
+    ]
+  },
+  "twonn_feature_names": [
+    "TwoNN_ID_L01",
+    "TwoNN_ID_L02",
+    "TwoNN_ID_L03",
+    "TwoNN_ID_L04",
+    "TwoNN_ID_L05",
+    "TwoNN_ID_L06",
+    "TwoNN_ID_L07",
+    "TwoNN_ID_L08",
+    "TwoNN_ID_L09",
+    "TwoNN_ID_L10",
+    "TwoNN_ID_L11",
+    "TwoNN_ID_L12",
+    "TwoNN_ID_L13",
+    "TwoNN_ID_L14",
+    "TwoNN_ID_L15",
+    "TwoNN_ID_L16",
+    "TwoNN_ID_L17",
+    "TwoNN_ID_L18",
+    "TwoNN_ID_L19",
+    "TwoNN_ID_L20",
+    "TwoNN_ID_L21",
+    "TwoNN_ID_L22",
+    "TwoNN_ID_L23",
+    "TwoNN_ID_L24",
+    "TwoNN_ID_L25",
+    "TwoNN_ID_L26",
+    "TwoNN_ID_L27",
+    "TwoNN_ID_L28"
+  ],
+  "mean_id_per_layer": [
+    1.657887331596515,
+    2.2044262517967783,
+    2.4401635010105185,
+    2.516438974919923,
+    2.6833595845994,
+    2.763051436673801,
+    2.8065797885085564,
+    3.1505863437978445,
+    3.324343328325665,
+    3.781122289508228,
+    3.960620258834112,
+    4.193762657281257,
+    4.304402320544856,
+    4.835934479649678,
+    4.999060173082311,
+    5.302153029228252,
+    5.560036697825862,
+    5.770838413912835,
+    6.132257657804708,
+    5.90707536973514,
+    5.944265891978096,
+    5.750320982728137,
+    5.621238986992114,
+    5.498487870477814,
+    5.4433950287794515,
+    5.34607133693698,
+    5.401309779201045,
+    5.343036938130945
+  ]
+}

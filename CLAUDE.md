@@ -4,7 +4,7 @@ Topological uncertainty estimation for LLMs. Uses persistent homology on hidden-
 
 ## Current state (April 2026)
 
-Pathway 6 rebuild + Phase 6.5 deconfounding complete. **Pathway 7 (non-Euclidean PH) in progress.**
+Pathway 6 rebuild + Phase 6.5 deconfounding complete. Pathway 7 (non-Euclidean PH) NO-GO (0.774 < 0.796). **Pathway 8 (layer-wise PH) coded, ready for RunPod H100.**
 
 ### Key results
 
@@ -38,7 +38,7 @@ pathway6_rebuild/          # Corrected pipeline (use this, not pathway1-5)
   phase3_cross_benchmark/  # GSM8K + 7B (confounded by truncation)
   phase6_5/                # Deconfounded results (max_tokens=1024)
     FINAL_SUMMARY.md       # Complete deconfounded analysis
-pathway7/                  # Non-Euclidean PH upgrade (IN PROGRESS)
+pathway7/                  # Non-Euclidean PH upgrade (NO-GO: 0.774 < 0.796 baseline)
   distance_metrics.py      # Eff-res, cosine, diffusion, DTM PH
   feature_extractor_v2.py  # Original 44 + 18 non-Euclidean features
   phase71_noneuclid_math500.py  # CPU: AUROC comparison vs 0.796 baseline
@@ -48,6 +48,20 @@ pathway7/                  # Non-Euclidean PH upgrade (IN PROGRESS)
   PLAYBOOK.md              # Full research playbook reference
   validation/              # Synthetic shapes, metric divergence, DeLong tests
   benchmarks/              # HumanEval + BBH pipelines
+pathway8_layerwise/        # Layer-wise PH across all 28 layers (READY FOR RUNPOD)
+  config.py                # Constants, paths, SSS split, data loading
+  extraction_utils.py      # All-layer + D2H attention extraction
+  extract_math500.py       # GPU: MATH-500 all-layer extraction
+  extract_humaneval.py     # GPU: HumanEval + evalplus evaluation
+  extract_bbh.py           # GPU: BBH 3×250 extraction
+  layerwise_features.py    # Per-layer PCA(20) + 6 PH features × 28 layers
+  coe_features.py          # Chain-of-Embedding (Wang ICLR 2025)
+  d2hscore_features.py     # D2HScore dispersion + drift
+  twonn_features.py        # TwoNN intrinsic dimension
+  crosslayer_features.py   # Cross-layer token trajectory PH
+  diagnostics.py           # Pre/in/post-flight validation
+  exp1-5                   # 5 experiments: layer-wise PH, comparison, cross-domain, TwoNN, trajectory
+  runpod_pathway8.sh       # Master orchestrator (10 steps, --from STEP resume)
 ```
 
 ## Running experiments
@@ -58,6 +72,8 @@ pathway7/                  # Non-Euclidean PH upgrade (IN PROGRESS)
 - **Pathway 7 (CPU Phase 7.1):** `python pathway7/phase71_noneuclid_math500.py`
 - **Pathway 7 (full, RunPod):** `bash pathway7/runpod_pathway7.sh`
 - **Pathway 7 validation:** `python pathway7/validation/synthetic_shapes.py`
+- **Pathway 8 (full, RunPod):** `bash pathway8_layerwise/runpod_pathway8.sh`
+- **Pathway 8 (resume):** `bash pathway8_layerwise/runpod_pathway8.sh --from STEP`
 
 ## Binary data policy
 
