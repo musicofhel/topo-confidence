@@ -1,0 +1,34 @@
+{
+  "experiment": "exp2_orthogonality",
+  "ph_auroc_holdout": 0.6462745098039215,
+  "coe_auroc_holdout": 0.8109803921568627,
+  "prediction_correlation": 0.38808660847913734,
+  "disagreement_sets": {
+    "ph_high_coe_low": {
+      "n": 7,
+      "frac_correct": 0.14285714285714285
+    },
+    "coe_high_ph_low": {
+      "n": 4,
+      "frac_correct": 0.75
+    },
+    "both_high": {
+      "n": 11,
+      "frac_correct": 0.2727272727272727
+    },
+    "both_low": {
+      "n": 31,
+      "frac_correct": 0.03225806451612903
+    }
+  },
+  "simple_ensemble_auroc": 0.7733333333333333,
+  "stacked_ensemble_auroc": 0.8117647058823529,
+  "stacked_coefs": {
+    "ph": 0.23783263222351225,
+    "coe": 1.0435578093685296
+  },
+  "best_single_auroc": 0.8109803921568627,
+  "best_ensemble_auroc": 0.8117647058823529,
+  "ensemble_lift": 0.0007843137254902599,
+  "verdict": "REDUNDANT (weak) \u2014 ensemble lift +0.001 within noise. CoE alone is sufficient."
+}

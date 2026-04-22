@@ -1,0 +1,63 @@
+{
+  "experiment": "exp3a_full_cov_null_v2",
+  "n_problems": 500,
+  "n_features": 5,
+  "n_nulls_per_problem": 5,
+  "null_type": "full_covariance_via_SVD_of_centered_cloud",
+  "dropped_feature": "H0_n_features",
+  "classifiers": {
+    "real_ph": {
+      "auroc_holdout": 0.6901960784313725,
+      "auroc_cv5": 0.7447396162766181,
+      "cv_std": 0.043385953758343844
+    },
+    "null_ph": {
+      "auroc_holdout": 0.6925490196078431,
+      "auroc_cv5": 0.7439113279720491,
+      "cv_std": 0.03312804312549527
+    },
+    "diff_ph": {
+      "auroc_holdout": 0.7066666666666667,
+      "auroc_cv5": 0.7072467696756122,
+      "cv_std": 0.03677087294564146
+    }
+  },
+  "feature_comparison": {
+    "H0_max_lifetime": {
+      "real_mean": 154.6073981933594,
+      "real_std": 7.097131266570489,
+      "null_mean": 143.26578865966798,
+      "null_std": 9.847136732508197,
+      "diff_mean": 11.341609533691411
+    },
+    "H0_entropy": {
+      "real_mean": 4.129855177713432,
+      "real_std": 0.31781243967193457,
+      "null_mean": 4.18901496863179,
+      "null_std": 0.3453812440642131,
+      "diff_mean": -0.059159790918358546
+    },
+    "H1_pers_entropy": {
+      "real_mean": 2.3991223218329796,
+      "real_std": 0.5573766169168083,
+      "null_mean": 3.3932270103255964,
+      "null_std": 0.5396356009455328,
+      "diff_mean": -0.9941046884926168
+    },
+    "H1_n_features": {
+      "real_mean": 18.072,
+      "real_std": 9.03674808766959,
+      "null_mean": 46.373599999999996,
+      "null_std": 21.673746862044876,
+      "diff_mean": -28.301599999999997
+    },
+    "H1_max_lifetime": {
+      "real_mean": 13.274092903137207,
+      "real_std": 5.48968873035578,
+      "null_mean": 13.926084085083009,
+      "null_std": 1.40609170371532,
+      "diff_mean": -0.6519911819458013
+    }
+  },
+  "verdict": "These 5 raw PH features (H0_n_features dropped) do NOT outperform a full-covariance Gaussian null (real=0.690, null=0.693). The predictive content in these summary statistics is explained by matched covariance structure. Narrow claim: these 5 features do not carry topology-specific signal. The ABC-44 production features include geometric terms (cosines, norms, velocities) NOT tested here."
+}

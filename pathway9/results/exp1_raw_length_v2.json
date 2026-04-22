@@ -1,0 +1,22 @@
+{
+  "experiment": "exp1_raw_length_cross_check",
+  "traj_rows_vs_raw_tokenizer_r": 0.09610302177265966,
+  "traj_rows_stats": {
+    "mean": 88.74,
+    "median": 70.0,
+    "max": 512
+  },
+  "raw_token_count_stats": {
+    "mean": 169.496,
+    "median": 171.5,
+    "max": 256
+  },
+  "raw_length_only_auroc": 0.7054901960784314,
+  "raw_length_sign": "shorter=correct",
+  "baseline_auroc": 0.7960784313725491,
+  "baseline_cv5": 0.7012032770097285,
+  "deconfounded_auroc": 0.7458823529411764,
+  "deconfounded_cv5": 0.6886720279509654,
+  "drop_from_deconfounding": 0.05019607843137264,
+  "verdict": "SIGNIFICANT \u2014 raw-length inflates AUROC by 0.050. Exp 1 underestimated the confound."
+}

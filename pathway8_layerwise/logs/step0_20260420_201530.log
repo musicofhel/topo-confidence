@@ -1,0 +1,9 @@
+/home/musicofhel/miniforge3/lib/python3.12/site-packages/ripser/ripser.py:257: UserWarning: The input point cloud has more columns than rows; did you mean to transpose?
+  warnings.warn(
+  Validating PH pipeline on synthetic shapes ...
+    [OK] Circle: H1_n_features=1, H1_max_lifetime=1.690
+    [OK] Blobs: H0_n_features=6
+    [OK] Tiny cloud: no crash, all finite
+    [OK] Degenerate cloud: all zeros
+  [PASS] All PH validation tests passed
+[PASS] Step 0 complete

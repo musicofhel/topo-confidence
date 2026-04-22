@@ -1,0 +1,175 @@
+{
+  "experiment": "exp1_length_deconfound",
+  "length_only_auroc": 0.7043137254901961,
+  "length_sign": "shorter=correct",
+  "length_only_lr_auroc": 0.7043137254901961,
+  "baseline_auroc": 0.7960784313725491,
+  "baseline_cv": 0.7047619047619048,
+  "deconfounded_auroc": 0.8031372549019608,
+  "deconfounded_cv": 0.6552380952380952,
+  "drop_from_deconfounding": -0.007058823529411673,
+  "abc44_plus_length_auroc": 0.7764705882352941,
+  "n_features_corr_above_03": 13,
+  "n_features_corr_above_01": 28,
+  "feature_length_correlations": {
+    "H0_max_lifetime": -0.2987322383827013,
+    "H1_persistence_entropy": -0.2838345089040339,
+    "first_token_norm": -0.2062930498307969,
+    "H1_total_persistence": 0.3744377802495898,
+    "pairwise_dist_mean": -0.4789055586416267,
+    "norm_mean": -0.15134103317629588,
+    "last_token_centroid_dist": 0.4884350709947707,
+    "last5_centroid_dist": -0.14176212690908288,
+    "last_token_layer_alignment": -0.23382187565726728,
+    "layer_pca_var_ratio": -0.06479325443770247,
+    "layer_pc2_early_ratio": -0.054070602435321906,
+    "tok_layer_min_dist": -0.2309160121948068,
+    "layer_angle_min_plus_max": -0.11438744045522554,
+    "crossmodal_sq": -0.2350336200583159,
+    "cos_l9_l28": -0.027210578267117216,
+    "cos_l0_l5": 0.025859648648059598,
+    "cos_l11_l23": -0.1356248917179292,
+    "cos_l12_avg_l24_l28": -0.08614913289183837,
+    "cos_l23_l26": -0.1710173848167619,
+    "cos_l5_l13": 0.07076983357730987,
+    "cos_l27_l28": 0.17454074822115231,
+    "norm_ratio_l19_l18": 0.05951930957376956,
+    "vel_l26_l27": 0.184137838737233,
+    "bc25_27_x_h1ent": -0.4760951881012472,
+    "c27_28_x_h0tot": 0.5540227447311769,
+    "nr28_15_x_h0ent35": 0.639118194838873,
+    "bc7_26_x_h0tightfine": 0.6617911660203897,
+    "accel_l14": -0.0748530528559291,
+    "cos_l4_l10": 0.07796911920801396,
+    "cos_l13_l15": 0.04104368884029176,
+    "cos_l16_l28_bin": -0.035482532252092476,
+    "accel_l4_x_h0ent35_bin": 0.6463205052846857,
+    "accel_l15_x_h1tot_raw": 0.3686691385610598,
+    "cos_l4_l11": 0.06380939511804741,
+    "cos_l14_l28_bin": -0.02994819975006166,
+    "cos_l0_l13": 0.031017372276575077,
+    "cos_l17_l27": -0.04337934447824173,
+    "cos_l7_l11": 0.04540518705313216,
+    "nr28_14_x_h0ent35": 0.6349759558854966,
+    "jerk_l7_x_h0tot_sq": 0.5365499819556213,
+    "jerk_l8_x_h0maxl_sq": -0.2899284239903907,
+    "sv3_x_h0max_sq": -0.24196618710327297,
+    "interact_tk_x_s21_rb": 0.692388131716894,
+    "interact_tk_x_j15_rb": 0.5922845913874001
+  },
+  "high_corr_features": [
+    [
+      "H0_max_lifetime",
+      -0.2987322383827013
+    ],
+    [
+      "H1_persistence_entropy",
+      -0.2838345089040339
+    ],
+    [
+      "first_token_norm",
+      -0.2062930498307969
+    ],
+    [
+      "H1_total_persistence",
+      0.3744377802495898
+    ],
+    [
+      "pairwise_dist_mean",
+      -0.4789055586416267
+    ],
+    [
+      "norm_mean",
+      -0.15134103317629588
+    ],
+    [
+      "last_token_centroid_dist",
+      0.4884350709947707
+    ],
+    [
+      "last5_centroid_dist",
+      -0.14176212690908288
+    ],
+    [
+      "last_token_layer_alignment",
+      -0.23382187565726728
+    ],
+    [
+      "tok_layer_min_dist",
+      -0.2309160121948068
+    ],
+    [
+      "layer_angle_min_plus_max",
+      -0.11438744045522554
+    ],
+    [
+      "crossmodal_sq",
+      -0.2350336200583159
+    ],
+    [
+      "cos_l11_l23",
+      -0.1356248917179292
+    ],
+    [
+      "cos_l23_l26",
+      -0.1710173848167619
+    ],
+    [
+      "cos_l27_l28",
+      0.17454074822115231
+    ],
+    [
+      "vel_l26_l27",
+      0.184137838737233
+    ],
+    [
+      "bc25_27_x_h1ent",
+      -0.4760951881012472
+    ],
+    [
+      "c27_28_x_h0tot",
+      0.5540227447311769
+    ],
+    [
+      "nr28_15_x_h0ent35",
+      0.639118194838873
+    ],
+    [
+      "bc7_26_x_h0tightfine",
+      0.6617911660203897
+    ],
+    [
+      "accel_l4_x_h0ent35_bin",
+      0.6463205052846857
+    ],
+    [
+      "accel_l15_x_h1tot_raw",
+      0.3686691385610598
+    ],
+    [
+      "nr28_14_x_h0ent35",
+      0.6349759558854966
+    ],
+    [
+      "jerk_l7_x_h0tot_sq",
+      0.5365499819556213
+    ],
+    [
+      "jerk_l8_x_h0maxl_sq",
+      -0.2899284239903907
+    ],
+    [
+      "sv3_x_h0max_sq",
+      -0.24196618710327297
+    ],
+    [
+      "interact_tk_x_s21_rb",
+      0.692388131716894
+    ],
+    [
+      "interact_tk_x_j15_rb",
+      0.5922845913874001
+    ]
+  ],
+  "verdict": "CLEAN \u2014 length confound is minimal (<0.02 drop)"
+}

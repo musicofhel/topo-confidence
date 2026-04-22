@@ -1,0 +1,70 @@
+{
+  "experiment": "exp4_xgboost_oinfo",
+  "lr_auroc_holdout": 0.7960784313725491,
+  "lr_auroc_cv": 0.7047619047619048,
+  "xgboost_results": {
+    "xgb_default": {
+      "auroc_holdout": 0.7168627450980392,
+      "auroc_cv": 0.6880214451371947,
+      "cv_std": 0.029152904636045893
+    },
+    "xgb_shallow": {
+      "auroc_holdout": 0.6815686274509803,
+      "auroc_cv": 0.685494412818891,
+      "cv_std": 0.0503372829399418
+    },
+    "xgb_regularized": {
+      "auroc_holdout": 0.6949019607843137,
+      "auroc_cv": 0.695974518839794,
+      "cv_std": 0.032076996519344356
+    }
+  },
+  "best_xgboost": "xgb_regularized",
+  "xgboost_lift_cv": -0.008787385922110813,
+  "top_10_features": [
+    [
+      "interact_tk_x_s21_rb",
+      0.1496795266866684
+    ],
+    [
+      "c27_28_x_h0tot",
+      0.07073426246643066
+    ],
+    [
+      "jerk_l7_x_h0tot_sq",
+      0.045749418437480927
+    ],
+    [
+      "nr28_15_x_h0ent35",
+      0.031053517013788223
+    ],
+    [
+      "last_token_centroid_dist",
+      0.030870793387293816
+    ],
+    [
+      "cos_l9_l28",
+      0.030522188171744347
+    ],
+    [
+      "nr28_14_x_h0ent35",
+      0.029423469677567482
+    ],
+    [
+      "accel_l4_x_h0ent35_bin",
+      0.028655756264925003
+    ],
+    [
+      "H1_persistence_entropy",
+      0.02791837975382805
+    ],
+    [
+      "H0_max_lifetime",
+      0.025773990899324417
+    ]
+  ],
+  "o_information": {
+    "error": "data dtype should be float, not int64"
+  },
+  "verdict": "XGBoost \u2248 LR (diff=-0.009 CV) \u2014 LR is appropriate"
+}

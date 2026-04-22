@@ -1,0 +1,67 @@
+{
+  "experiment": "exp3a_gaussian_null",
+  "n_problems": 500,
+  "n_nulls_per_problem": 5,
+  "classifiers": {
+    "real_ph": {
+      "auroc_holdout": 0.6776470588235294,
+      "auroc_cv": 0.7347619047619048,
+      "cv_std": 0.2450188571575906
+    },
+    "null_ph": {
+      "auroc_holdout": 0.7003921568627451,
+      "auroc_cv": 0.7516666666666666,
+      "cv_std": 0.2518526591179095
+    },
+    "diff_ph": {
+      "auroc_holdout": 0.6949019607843138,
+      "auroc_cv": 0.7171428571428571,
+      "cv_std": 0.2616617920599725
+    }
+  },
+  "feature_comparison": {
+    "H0_max_lifetime": {
+      "real_mean": 154.5908233795166,
+      "real_std": 7.112001111668368,
+      "null_mean": 138.20550581359862,
+      "null_std": 15.16604552482898,
+      "diff_mean": 16.38531756591797
+    },
+    "H0_n_features": {
+      "real_mean": 70.09,
+      "real_std": 22.385752165160767,
+      "null_mean": 70.09,
+      "null_std": 22.385752165160767,
+      "diff_mean": 0.0
+    },
+    "H0_entropy": {
+      "real_mean": 4.1298518466086644,
+      "real_std": 0.3178033560113791,
+      "null_mean": 4.191571559452072,
+      "null_std": 0.3438020129481931,
+      "diff_mean": -0.06171971284340728
+    },
+    "H1_pers_entropy": {
+      "real_mean": 2.4020140291828174,
+      "real_std": 0.5580360701473349,
+      "null_mean": 3.5077385904344744,
+      "null_std": 0.5699158446765527,
+      "diff_mean": -1.1057245612516582
+    },
+    "H1_n_features": {
+      "real_mean": 18.16,
+      "real_std": 9.055738512125888,
+      "null_mean": 52.53639999999999,
+      "null_std": 24.222961731382068,
+      "diff_mean": -34.3764
+    },
+    "H1_max_lifetime": {
+      "real_mean": 13.259260932922363,
+      "real_std": 5.50355479749346,
+      "null_mean": 9.55475204772949,
+      "null_std": 2.0713366913376317,
+      "diff_mean": 3.704508885192871
+    }
+  },
+  "verdict": "PH measures COVARIANCE, not topology \u2014 Gaussian null matches real PH"
+}

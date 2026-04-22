@@ -1,0 +1,49 @@
+{
+  "experiment": "exp5_cross_domain_transfer",
+  "math_n": 500,
+  "math_n_correct": 231,
+  "bbh_n": 750,
+  "bbh_n_correct": 199,
+  "bbh_sizes": {
+    "tracking_shuffled_objects_seven_objects": 250,
+    "logical_deduction_seven_objects": 250,
+    "web_of_lies": 250
+  },
+  "transfer_matrix": {
+    "layerwise_ph": {
+      "MATH_to_BBH_auroc": 0.3539202363906647,
+      "BBH_to_MATH_auroc": 0.4967572699914708,
+      "n_features": 168,
+      "compute_time": 963.0
+    },
+    "coe": {
+      "MATH_to_BBH_auroc": 0.7204625669180751,
+      "BBH_to_MATH_auroc": 0.7122901881266194,
+      "n_features": 60,
+      "compute_time": 29.7
+    },
+    "d2h_lite": {
+      "MATH_to_BBH_auroc": 0.7403350691752775,
+      "BBH_to_MATH_auroc": 0.5287339673956775,
+      "n_features": 58,
+      "compute_time": 50.9
+    }
+  },
+  "within_domain": {
+    "layerwise_ph": {
+      "MATH_within": 0.7661030595813204,
+      "BBH_within": 0.7811363636363636
+    },
+    "coe": {
+      "MATH_within": 0.7745571658615138,
+      "BBH_within": 0.7829545454545455
+    },
+    "d2h_lite": {
+      "MATH_within": 0.7898550724637681,
+      "BBH_within": 0.7765909090909091
+    }
+  },
+  "best_method": "coe",
+  "best_avg_transfer": 0.7163763775223473,
+  "verdict": "Signal transfers: best method coe avg AUROC=0.716 across directions."
+}

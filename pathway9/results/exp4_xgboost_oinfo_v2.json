@@ -1,0 +1,30 @@
+{
+  "experiment": "exp4_xgboost_oinfo_v2",
+  "cv_scheme": "StratifiedKFold(n_splits=5) for both LR and XGBoost",
+  "lr_auroc_holdout": 0.7960784313725491,
+  "lr_auroc_cv5": 0.7012032770097285,
+  "lr_cv_std": 0.0294502759696418,
+  "xgboost_results": {
+    "xgb_default": {
+      "auroc_holdout": 0.7168627450980392,
+      "auroc_cv5": 0.6880214451371947,
+      "cv_std": 0.029152904636045893
+    },
+    "xgb_shallow": {
+      "auroc_holdout": 0.6815686274509803,
+      "auroc_cv5": 0.685494412818891,
+      "cv_std": 0.0503372829399418
+    },
+    "xgb_regularized": {
+      "auroc_holdout": 0.6949019607843137,
+      "auroc_cv5": 0.695974518839794,
+      "cv_std": 0.032076996519344356
+    }
+  },
+  "best_xgboost": "xgb_regularized",
+  "xgboost_lift_cv5": -0.005228758169934511,
+  "o_information": {
+    "error": "MemoryError: Unable to allocate 3.07 TiB for an array with shape (84279926780, 5) and data type int64"
+  },
+  "verdict": "XGBoost \u2248 LR (diff=-0.005 CV5) \u2014 LR is appropriate (matched CV)."
+}

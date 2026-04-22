@@ -1,0 +1,13 @@
+{
+  "experiment": "exp3c_count_control",
+  "count_features_in_abc44": [],
+  "count_features_in_78": [],
+  "full_78_auroc": 0.7647058823529412,
+  "full_78_cv": 0.6921428571428572,
+  "minus_counts_auroc": 0.7647058823529412,
+  "minus_counts_cv": 0.6921428571428572,
+  "counts_only_auroc": null,
+  "abc44_auroc": 0.7960784313725491,
+  "abc44_cv": 0.7047619047619048,
+  "verdict": "ABC-44 already EXCLUDES count features \u2014 the 0.796 AUROC is count-free"
+}

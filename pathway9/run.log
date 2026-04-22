@@ -1,0 +1,146 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+[SKIP] exp3a_v2 already done (pathway9/results/exp3a_v2.done exists)
+[SKIP] exp2 already done (pathway9/results/exp2.done exists)
+
+==========================================
+RUNNING exp5: pathway9/exp5_cross_domain_transfer.py
+==========================================
+============================================================
+EXP 5: Cross-Domain Transfer MATH-500 ↔ BBH pooled
+============================================================
+
+  Loading MATH-500 ...
+  Loaded 500/500 all-layer state files from /workspace/topo-confidence/pathway8_layerwise/data/math500
+  MATH-500: 500 valid problems, 231 correct
+
+  Loading BBH subsets ...
+  Loaded 250/250 all-layer state files from /workspace/topo-confidence/pathway8_layerwise/data/bbh/tracking_shuffled_objects_seven_objects
+    tracking_shuffled_objects_seven_objects: 250 valid, 31 correct
+  Loaded 250/250 all-layer state files from /workspace/topo-confidence/pathway8_layerwise/data/bbh/logical_deduction_seven_objects
+    logical_deduction_seven_objects: 250 valid, 28 correct
+  Loaded 250/250 all-layer state files from /workspace/topo-confidence/pathway8_layerwise/data/bbh/web_of_lies
+    web_of_lies: 250 valid, 140 correct
+  BBH pooled: 750 problems, 199 correct
+
+  ---- Method: layerwise_ph ----
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 23 concurrent workers.
+  Layer  1: PCA(20) explains 36.3% variance on 289234 tokens
+  Layer 28: PCA(20) explains 28.7% variance on 289234 tokens
+[Parallel(n_jobs=-1)]: Done  26 tasks      | elapsed:   18.5s
+[Parallel(n_jobs=-1)]: Done 116 tasks      | elapsed:   20.3s
+[Parallel(n_jobs=-1)]: Done 242 tasks      | elapsed:   22.9s
+[Parallel(n_jobs=-1)]: Done 404 tasks      | elapsed:   26.3s
+[Parallel(n_jobs=-1)]: Done 500 out of 500 | elapsed:   28.3s finished
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 23 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  26 tasks      | elapsed:   12.7s
+[Parallel(n_jobs=-1)]: Done 116 tasks      | elapsed:   14.8s
+[Parallel(n_jobs=-1)]: Done 242 tasks      | elapsed:   17.7s
+[Parallel(n_jobs=-1)]: Done 404 tasks      | elapsed:   21.8s
+[Parallel(n_jobs=-1)]: Done 602 tasks      | elapsed:   26.6s
+[Parallel(n_jobs=-1)]: Done 750 out of 750 | elapsed:   29.9s finished
+    [MATH-PCA] MATH: (500, 168)  BBH: (750, 168)
+  MATH→BBH (layerwise_ph): AUROC=0.354  (train n=500, test n=750)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 23 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  26 tasks      | elapsed:   14.0s
+[Parallel(n_jobs=-1)]: Done 116 tasks      | elapsed:   15.9s
+[Parallel(n_jobs=-1)]: Done 242 tasks      | elapsed:   18.6s
+[Parallel(n_jobs=-1)]: Done 404 tasks      | elapsed:   22.0s
+[Parallel(n_jobs=-1)]: Done 500 out of 500 | elapsed:   24.1s finished
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 23 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  26 tasks      | elapsed:   11.8s
+[Parallel(n_jobs=-1)]: Done 116 tasks      | elapsed:   13.9s
+[Parallel(n_jobs=-1)]: Done 242 tasks      | elapsed:   16.9s
+[Parallel(n_jobs=-1)]: Done 404 tasks      | elapsed:   20.8s
+[Parallel(n_jobs=-1)]: Done 602 tasks      | elapsed:   25.4s
+[Parallel(n_jobs=-1)]: Done 750 out of 750 | elapsed:   28.8s finished
+  Layer  1: PCA(20) explains 31.3% variance on 266614 tokens
+  Layer 28: PCA(20) explains 37.5% variance on 266614 tokens
+    [BBH-PCA]  MATH: (500, 168)  BBH: (750, 168)
+  BBH→MATH (layerwise_ph): AUROC=0.497  (train n=750, test n=500)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 23 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  26 tasks      | elapsed:   12.3s
+[Parallel(n_jobs=-1)]: Done 116 tasks      | elapsed:   14.2s
+[Parallel(n_jobs=-1)]: Done 242 tasks      | elapsed:   16.9s
+[Parallel(n_jobs=-1)]: Done 404 tasks      | elapsed:   20.3s
+[Parallel(n_jobs=-1)]: Done 500 out of 500 | elapsed:   22.4s finished
+  Layer  1: PCA(20) explains 36.2% variance on 229572 tokens
+  Layer 28: PCA(20) explains 28.6% variance on 229572 tokens
+  MATH within (layerwise_ph): AUROC=0.766  (train n=400, test n=100)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 23 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  26 tasks      | elapsed:   11.7s
+[Parallel(n_jobs=-1)]: Done 116 tasks      | elapsed:   13.9s
+[Parallel(n_jobs=-1)]: Done 242 tasks      | elapsed:   16.9s
+[Parallel(n_jobs=-1)]: Done 404 tasks      | elapsed:   20.7s
+[Parallel(n_jobs=-1)]: Done 602 tasks      | elapsed:   25.2s
+[Parallel(n_jobs=-1)]: Done 750 out of 750 | elapsed:   28.6s finished
+  Layer  1: PCA(20) explains 31.3% variance on 214024 tokens
+  Layer 28: PCA(20) explains 37.5% variance on 214024 tokens
+  BBH within (layerwise_ph): AUROC=0.781  (train n=600, test n=150)
+
+  ---- Method: coe ----
+    MATH feats: (500, 60)  BBH feats: (750, 60)
+  MATH→BBH (coe): AUROC=0.720  (train n=500, test n=750)
+  BBH→MATH (coe): AUROC=0.712  (train n=750, test n=500)
+  MATH within (coe): AUROC=0.775  (train n=400, test n=100)
+  BBH within (coe): AUROC=0.783  (train n=600, test n=150)
+
+  ---- Method: d2h_lite ----
+    MATH feats: (500, 58)  BBH feats: (750, 58)
+  MATH→BBH (d2h_lite): AUROC=0.740  (train n=500, test n=750)
+  BBH→MATH (d2h_lite): AUROC=0.529  (train n=750, test n=500)
+  MATH within (d2h_lite): AUROC=0.790  (train n=400, test n=100)
+  BBH within (d2h_lite): AUROC=0.777  (train n=600, test n=150)
+
+
+  TRANSFER MATRIX (AUROC):
+  method             MATH→BBH    BBH→MATH   MATH-within   BBH-within
+  layerwise_ph          0.354       0.497         0.766        0.781
+  coe                   0.720       0.712         0.775        0.783
+  d2h_lite              0.740       0.529         0.790        0.777
+
+  VERDICT: Signal transfers: best method coe avg AUROC=0.716 across directions.
+
+  Saved: pathway9/results/exp5_cross_domain.json
+
+==========================================
+RUNNING exp3b: pathway9/exp3b_token_shuffle.py
+==========================================
+============================================================
+EXP 3B: Token-Shuffle Null (GPU)
+============================================================
+  Sampled problems: [31 33 39 40 43]... (n=50)
+  Loading Qwen/Qwen2.5-1.5B-Instruct ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 6794.35it/s]
+  Model loaded: 1.54B params
+  5/50  elapsed=6s  eta=50s
+  10/50  elapsed=10s  eta=42s
+  15/50  elapsed=15s  eta=36s
+  20/50  elapsed=20s  eta=30s
+  25/50  elapsed=26s  eta=26s
+  30/50  elapsed=32s  eta=22s
+  35/50  elapsed=37s  eta=16s
+  40/50  elapsed=42s  eta=11s
+  45/50  elapsed=47s  eta=5s
+  50/50  elapsed=52s  eta=0s
+  Done in 52s
+
+  Per-feature comparison:
+    H0_max_lifetime       real=133.41±12.17  shuf=118.98±6.44  mae=15.77  mae/inter_std=1.30
+    H0_entropy            real=4.48±0.07  shuf=4.44±0.06  mae=0.05  mae/inter_std=0.78
+    H1_pers_entropy       real=2.94±0.27  shuf=2.98±0.14  mae=0.22  mae/inter_std=0.80
+    H1_n_features         real=28.00±6.85  shuf=29.13±3.77  mae=5.75  mae/inter_std=0.84
+    H1_max_lifetime       real=16.30±5.06  shuf=7.76±0.96  mae=8.63  mae/inter_std=1.71
+
+  VERDICT: MIXED — 60% of features indistinguishable. Some order-sensitivity.
+
+  Saved: pathway9/results/exp3b_token_shuffle.json
+
+==========================================
+ALL DONE
+==========================================
+-rw-rw-rw- 1 root root 0 Apr 22 00:37 pathway9/results/exp2.done
+-rw-rw-rw- 1 root root 0 Apr 22 00:37 pathway9/results/exp3a_v2.done
+-rw-rw-rw- 1 root root 0 Apr 22 01:25 pathway9/results/exp3b.done
+-rw-rw-rw- 1 root root 0 Apr 22 01:24 pathway9/results/exp5.done
