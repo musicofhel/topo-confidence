@@ -1,0 +1,69 @@
+{
+  "experiment": "prefill-gated compute allocation on MATH-500 \u00d7 Qwen-2.5-1.5B",
+  "n_problems": 500,
+  "data_sources": {
+    "K_greedy_labels": "pathway8_layerwise/data/math500/ (1024-token, T=0, Stage 2 of Pathway 11)",
+    "K_8_samples": "pathway11_h100/data/k8_selfconsistency/ (T=0.7, K=8, Stage 3 of Pathway 11)"
+  },
+  "accuracy_at_uniform_K": {
+    "K=1 (greedy T=0)": 0.486,
+    "K=2 majority (T=0.7)": 0.4132,
+    "K=4 majority (T=0.7)": 0.49496,
+    "K=8 majority (T=0.7)": 0.55
+  },
+  "prefill_DoM_auroc_oof": 0.7731,
+  "final_token_DoM_auroc_oof": 0.7186,
+  "bucket_sizes": {
+    "A_always_right": 207,
+    "B_recoverable": 68,
+    "C_never_right": 189,
+    "D_pathological": 36,
+    "K1_recovers_prob": 0.486,
+    "K8_recovers_prob": 0.55
+  },
+  "oracle_compute_per_problem": 1.01,
+  "oracle_overall_accuracy": 0.589,
+  "headline": {
+    "does_prefill_gating_beat_uniform_K8_at_lower_K": false,
+    "best_threshold_prefill_gate_at_avgK_~4": {
+      "tau_40pct": {
+        "avg_K": 3.8,
+        "overall_acc": 0.492
+      },
+      "tau_50pct": {
+        "avg_K": 4.5,
+        "overall_acc": 0.492
+      },
+      "uniform_K4_reference": {
+        "avg_K": 4.0,
+        "overall_acc": 0.495
+      }
+    },
+    "refuse_and_spend_coverage_0.5": {
+      "prefill": {
+        "acc_on_answered": 0.716,
+        "avg_K_on_answered": 2.5
+      },
+      "neg_seq_len": {
+        "acc_on_answered": 0.707,
+        "avg_K_on_answered": 2.5
+      },
+      "random": {
+        "acc_on_answered": 0.494,
+        "avg_K_on_answered": 2.5
+      }
+    },
+    "prefill_middle_heavy": {
+      "policy": "Q4,Q1 -> K=1; Q3,Q2 -> K=8",
+      "avg_K": 4.5,
+      "overall_accuracy": 0.526,
+      "note": "Non-monotonic gating that targets K=8 at the MID prefill-score band where B (recoverable) problems cluster. Beats prefill top-heavy (0.492) and balanced (0.463) at same compute; still underperforms neg_seq_len top-heavy (0.542) at same compute."
+    },
+    "finding_1": "Prefill L19 DoM is a strong correctness signal (AUROC 0.77 OOF for K=1 correctness, 0.82 for K=8-majority correctness). Sequence-length is a nearly-equal signal (AUROC 0.80 for K=1), but only available post-hoc.",
+    "finding_2": "Despite the strong signal, prefill gating does NOT Pareto-dominate uniform K. At compute ~4 per problem, uniform K=4 gives 0.495; prefill threshold gating gives 0.492. Quartile-balanced prefill gating gives 0.463 at compute 3.75 \u2014 worse than uniform K=4.",
+    "finding_3": "Root cause: K=8 majority vote only recovers 68/257 = 26.5% of K=1 failures on MATH-500 \u00d7 1.5B at T=0.7. 189/500 = 37.8% of problems are 'never-right' even at K=8, so routing K=8 to low-confidence problems mostly burns compute.",
+    "finding_4": "Prefill score separates (A\u222aB) 'ever-right' from C 'hopeless' well (AUROC 0.82), BUT its relationship with oracle-K is weak (Spearman 0.175). Recoverable problems (B) live at MID prefill score, not bottom \u2014 they're hard-to-tell-apart from C with a monotonic policy.",
+    "finding_5": "The one clean win for prefill gating: refuse-and-spend at coverage=0.5. Keep the top-half by prefill score, answer at K=1 (Q4) or K=4 (Q3) \u2192 accuracy on answered = 0.716 with avg K=2.5, versus random refuse-and-spend at 0.494. That's a 22pp lift in accuracy-on-answered for selective prediction.",
+    "finding_6": "Pathological bucket D (K=1 right, K=8 majority wrong) is 36/500 = 7.2% \u2014 non-trivial. Spending K=8 on these problems ACTIVELY HURTS accuracy. Any gating policy needs to route D-bucket problems to K=1, not K=8."
+  }
+}

@@ -1,0 +1,25 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Stage 3: K=8 self-consistency × 1.5B, T=0.7
+         Saving L19 final-token activations per sample (1536-d float16)
+======================================================================
+  [SMOKE] STAGE3_N_PROBLEMS=5 (override)
+  0 problems already sampled, continuing from remainder
+Traceback (most recent call last):
+  File "/workspace/topo-confidence/pathway11_h100/stage3_k8_selfconsistency.py", line 223, in <module>
+    main()
+  File "/workspace/topo-confidence/pathway11_h100/stage3_k8_selfconsistency.py", line 144, in main
+    model, tokenizer = load_model(MODEL_NAME)
+                       ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/topo-confidence/pathway8_layerwise/extraction_utils.py", line 35, in load_model
+    model = AutoModelForCausalLM.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/models/auto/auto_factory.py", line 394, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/modeling_utils.py", line 4059, in from_pretrained
+    device_map = check_and_set_device_map(device_map)  # warn, error and fix the device map
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/transformers/integrations/accelerate.py", line 134, in check_and_set_device_map
+    raise ValueError(
+ValueError: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`

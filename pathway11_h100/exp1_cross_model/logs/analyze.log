@@ -1,0 +1,136 @@
+======================================================================
+Exp 1 analysis: temporal + depth PR curves, cross-model
+======================================================================
+
+=== Phi-3-mini-4k-instruct (phi3mini) ===
+  n=500, correct=224 (44.8%)
+  2/3-depth layer idx: 21
+  temporal PR curve...
+  depth PR @ prefill...
+    [phi3mini prefill] layer 1/33: PR_all=nan PR_c=nan PR_i=nan | 14s elapsed, ETA 453s
+    [phi3mini prefill] layer 2/33: PR_all=7.88 PR_c=8.72 PR_i=6.98 | 54s elapsed, ETA 830s
+    [phi3mini prefill] layer 3/33: PR_all=6.77 PR_c=6.27 PR_i=6.68 | 98s elapsed, ETA 984s
+    [phi3mini prefill] layer 4/33: PR_all=7.92 PR_c=8.19 PR_i=7.49 | 150s elapsed, ETA 1089s
+    [phi3mini prefill] layer 5/33: PR_all=10.37 PR_c=9.95 PR_i=9.90 | 203s elapsed, ETA 1136s
+    [phi3mini prefill] layer 6/33: PR_all=10.53 PR_c=9.76 PR_i=9.95 | 221s elapsed, ETA 993s
+    [phi3mini prefill] layer 7/33: PR_all=11.52 PR_c=10.91 PR_i=10.47 | 264s elapsed, ETA 980s
+    [phi3mini prefill] layer 8/33: PR_all=12.05 PR_c=11.95 PR_i=10.53 | 302s elapsed, ETA 945s
+    [phi3mini prefill] layer 9/33: PR_all=11.99 PR_c=12.22 PR_i=10.66 | 325s elapsed, ETA 867s
+    [phi3mini prefill] layer 10/33: PR_all=11.39 PR_c=10.07 PR_i=10.91 | 370s elapsed, ETA 852s
+    [phi3mini prefill] layer 11/33: PR_all=11.03 PR_c=9.80 PR_i=10.57 | 416s elapsed, ETA 832s
+    [phi3mini prefill] layer 12/33: PR_all=10.48 PR_c=9.01 PR_i=10.34 | 432s elapsed, ETA 756s
+    [phi3mini prefill] layer 13/33: PR_all=10.48 PR_c=8.80 PR_i=10.77 | 470s elapsed, ETA 723s
+    [phi3mini prefill] layer 14/33: PR_all=10.96 PR_c=8.79 PR_i=11.85 | 499s elapsed, ETA 677s
+    [phi3mini prefill] layer 15/33: PR_all=12.75 PR_c=10.57 PR_i=14.14 | 536s elapsed, ETA 643s
+    [phi3mini prefill] layer 16/33: PR_all=13.39 PR_c=11.15 PR_i=15.03 | 578s elapsed, ETA 614s
+    [phi3mini prefill] layer 17/33: PR_all=16.06 PR_c=14.35 PR_i=17.01 | 601s elapsed, ETA 565s
+    [phi3mini prefill] layer 18/33: PR_all=18.64 PR_c=17.35 PR_i=19.41 | 642s elapsed, ETA 535s
+    [phi3mini prefill] layer 19/33: PR_all=25.81 PR_c=24.01 PR_i=25.70 | 682s elapsed, ETA 502s
+    [phi3mini prefill] layer 20/33: PR_all=28.81 PR_c=27.34 PR_i=27.55 | 697s elapsed, ETA 453s
+    [phi3mini prefill] layer 21/33: PR_all=29.88 PR_c=28.40 PR_i=28.26 | 734s elapsed, ETA 419s
+    [phi3mini prefill] layer 22/33: PR_all=30.21 PR_c=29.04 PR_i=28.14 | 750s elapsed, ETA 375s
+    [phi3mini prefill] layer 23/33: PR_all=29.42 PR_c=29.00 PR_i=26.62 | 772s elapsed, ETA 336s
+    [phi3mini prefill] layer 24/33: PR_all=29.24 PR_c=28.76 PR_i=26.03 | 801s elapsed, ETA 300s
+    [phi3mini prefill] layer 25/33: PR_all=30.47 PR_c=30.23 PR_i=26.51 | 816s elapsed, ETA 261s
+    [phi3mini prefill] layer 26/33: PR_all=30.44 PR_c=30.26 PR_i=26.22 | 851s elapsed, ETA 229s
+    [phi3mini prefill] layer 27/33: PR_all=31.33 PR_c=31.21 PR_i=26.79 | 867s elapsed, ETA 193s
+    [phi3mini prefill] layer 28/33: PR_all=31.60 PR_c=32.17 PR_i=26.42 | 902s elapsed, ETA 161s
+    [phi3mini prefill] layer 29/33: PR_all=33.04 PR_c=34.22 PR_i=27.04 | 918s elapsed, ETA 127s
+    [phi3mini prefill] layer 30/33: PR_all=35.85 PR_c=37.28 PR_i=29.13 | 954s elapsed, ETA 95s
+    [phi3mini prefill] layer 31/33: PR_all=37.71 PR_c=40.02 PR_i=30.27 | 968s elapsed, ETA 62s
+    [phi3mini prefill] layer 32/33: PR_all=38.82 PR_c=41.84 PR_i=30.91 | 999s elapsed, ETA 31s
+    [phi3mini prefill] layer 33/33: PR_all=43.83 PR_c=45.68 PR_i=36.17 | 1021s elapsed, ETA 0s
+  depth PR @ final...
+    [phi3mini final] layer 1/33: PR_all=10.19 PR_c=9.18 PR_i=10.55 | 16s elapsed, ETA 509s
+    [phi3mini final] layer 2/33: PR_all=8.97 PR_c=8.03 PR_i=9.36 | 52s elapsed, ETA 805s
+    [phi3mini final] layer 3/33: PR_all=9.51 PR_c=8.71 PR_i=9.53 | 66s elapsed, ETA 656s
+    [phi3mini final] layer 4/33: PR_all=1.14 PR_c=1.09 PR_i=1.20 | 112s elapsed, ETA 811s
+    [phi3mini final] layer 5/33: PR_all=1.25 PR_c=1.16 PR_i=1.36 | 141s elapsed, ETA 790s
+    [phi3mini final] layer 6/33: PR_all=1.26 PR_c=1.31 PR_i=1.16 | 165s elapsed, ETA 745s
+    [phi3mini final] layer 7/33: PR_all=1.36 PR_c=1.44 PR_i=1.24 | 180s elapsed, ETA 669s
+    [phi3mini final] layer 8/33: PR_all=1.51 PR_c=1.67 PR_i=1.35 | 216s elapsed, ETA 676s
+    [phi3mini final] layer 9/33: PR_all=1.22 PR_c=15.30 PR_i=1.13 | 230s elapsed, ETA 614s
+    [phi3mini final] layer 10/33: PR_all=1.32 PR_c=16.33 PR_i=1.19 | 266s elapsed, ETA 613s
+    [phi3mini final] layer 11/33: PR_all=1.38 PR_c=16.53 PR_i=1.23 | 282s elapsed, ETA 563s
+    [phi3mini final] layer 12/33: PR_all=1.48 PR_c=15.79 PR_i=1.29 | 318s elapsed, ETA 556s
+    [phi3mini final] layer 13/33: PR_all=1.58 PR_c=15.61 PR_i=1.35 | 333s elapsed, ETA 512s
+    [phi3mini final] layer 14/33: PR_all=1.71 PR_c=16.72 PR_i=1.43 | 369s elapsed, ETA 501s
+    [phi3mini final] layer 15/33: PR_all=17.82 PR_c=16.83 PR_i=12.93 | 383s elapsed, ETA 460s
+    [phi3mini final] layer 16/33: PR_all=20.98 PR_c=17.10 PR_i=18.78 | 397s elapsed, ETA 422s
+    [phi3mini final] layer 17/33: PR_all=16.90 PR_c=15.02 PR_i=14.77 | 436s elapsed, ETA 411s
+    [phi3mini final] layer 18/33: PR_all=17.78 PR_c=14.83 PR_i=15.74 | 452s elapsed, ETA 377s
+    [phi3mini final] layer 19/33: PR_all=18.53 PR_c=14.27 PR_i=16.73 | 488s elapsed, ETA 360s
+    [phi3mini final] layer 20/33: PR_all=17.26 PR_c=13.29 PR_i=15.75 | 503s elapsed, ETA 327s
+    [phi3mini final] layer 21/33: PR_all=17.30 PR_c=12.50 PR_i=16.10 | 539s elapsed, ETA 308s
+    [phi3mini final] layer 22/33: PR_all=17.63 PR_c=12.23 PR_i=16.78 | 554s elapsed, ETA 277s
+    [phi3mini final] layer 23/33: PR_all=13.62 PR_c=11.09 PR_i=12.11 | 592s elapsed, ETA 258s
+    [phi3mini final] layer 24/33: PR_all=13.88 PR_c=11.85 PR_i=11.98 | 607s elapsed, ETA 228s
+    [phi3mini final] layer 25/33: PR_all=14.11 PR_c=11.57 PR_i=12.36 | 644s elapsed, ETA 206s
+    [phi3mini final] layer 26/33: PR_all=14.45 PR_c=12.45 PR_i=12.44 | 659s elapsed, ETA 177s
+    [phi3mini final] layer 27/33: PR_all=14.42 PR_c=13.17 PR_i=12.13 | 682s elapsed, ETA 152s
+    [phi3mini final] layer 28/33: PR_all=15.73 PR_c=14.25 PR_i=13.18 | 709s elapsed, ETA 127s
+    [phi3mini final] layer 29/33: PR_all=16.69 PR_c=15.65 PR_i=13.94 | 725s elapsed, ETA 100s
+    [phi3mini final] layer 30/33: PR_all=18.73 PR_c=17.51 PR_i=15.42 | 760s elapsed, ETA 76s
+    [phi3mini final] layer 31/33: PR_all=18.94 PR_c=18.30 PR_i=15.37 | 774s elapsed, ETA 50s
+    [phi3mini final] layer 32/33: PR_all=18.99 PR_c=18.91 PR_i=15.26 | 811s elapsed, ETA 25s
+    [phi3mini final] layer 33/33: PR_all=11.61 PR_c=10.61 PR_i=11.37 | 832s elapsed, ETA 0s
+     pos                    all                correct              incorrect          n/nC/nI
+       1   19.35 [ 17.14, 20.05]   21.10 [ 16.62, 21.69]   15.64 [ 12.85, 16.18]      500/224/276
+      10  104.41 [ 78.72, 90.51]   84.65 [ 55.99, 64.43]   83.54 [ 57.13, 68.75]      500/224/276
+      25   98.41 [ 75.02, 86.14]   82.65 [ 53.92, 64.72]   77.83 [ 51.44, 66.23]      500/224/276
+      50  101.31 [ 76.66, 88.36]   79.94 [ 52.07, 62.51]   84.67 [ 60.02, 69.88]      500/224/276
+     100   95.14 [ 67.70, 83.36]   62.50 [ 20.13, 54.90]   83.28 [ 57.71, 67.28]      456/192/264
+     200   80.26 [ 58.06, 65.31]   39.00 [ 22.24, 29.86]   74.88 [ 50.72, 58.73]       282/82/200
+   final   17.63 [ 14.71, 17.35]   12.23 [  9.02, 13.42]   16.78 [ 13.31, 16.60]      500/224/276
+
+=== Llama-3.2-1B-Instruct (llama32_1b) ===
+  n=500, correct=126 (25.2%)
+  2/3-depth layer idx: 11
+  temporal PR curve...
+  depth PR @ prefill...
+    [llama32_1b prefill] layer 1/17: PR_all=nan PR_c=nan PR_i=nan | 4s elapsed, ETA 69s
+    [llama32_1b prefill] layer 2/17: PR_all=5.17 PR_c=5.19 PR_i=5.11 | 14s elapsed, ETA 106s
+    [llama32_1b prefill] layer 3/17: PR_all=6.60 PR_c=7.01 PR_i=6.41 | 46s elapsed, ETA 217s
+    [llama32_1b prefill] layer 4/17: PR_all=8.08 PR_c=8.69 PR_i=7.84 | 57s elapsed, ETA 185s
+    [llama32_1b prefill] layer 5/17: PR_all=8.25 PR_c=8.45 PR_i=8.07 | 69s elapsed, ETA 165s
+    [llama32_1b prefill] layer 6/17: PR_all=9.13 PR_c=8.42 PR_i=9.23 | 101s elapsed, ETA 186s
+    [llama32_1b prefill] layer 7/17: PR_all=10.42 PR_c=9.91 PR_i=10.49 | 112s elapsed, ETA 160s
+    [llama32_1b prefill] layer 8/17: PR_all=13.75 PR_c=13.06 PR_i=14.00 | 122s elapsed, ETA 137s
+    [llama32_1b prefill] layer 9/17: PR_all=12.20 PR_c=12.21 PR_i=12.38 | 155s elapsed, ETA 138s
+    [llama32_1b prefill] layer 10/17: PR_all=11.75 PR_c=12.45 PR_i=11.99 | 166s elapsed, ETA 116s
+    [llama32_1b prefill] layer 11/17: PR_all=14.14 PR_c=15.80 PR_i=14.04 | 180s elapsed, ETA 98s
+    [llama32_1b prefill] layer 12/17: PR_all=11.75 PR_c=14.34 PR_i=11.62 | 215s elapsed, ETA 89s
+    [llama32_1b prefill] layer 13/17: PR_all=11.86 PR_c=14.76 PR_i=11.73 | 229s elapsed, ETA 70s
+    [llama32_1b prefill] layer 14/17: PR_all=13.94 PR_c=17.30 PR_i=13.76 | 261s elapsed, ETA 56s
+    [llama32_1b prefill] layer 15/17: PR_all=16.50 PR_c=19.45 PR_i=16.35 | 278s elapsed, ETA 37s
+    [llama32_1b prefill] layer 16/17: PR_all=18.60 PR_c=21.34 PR_i=18.48 | 290s elapsed, ETA 18s
+    [llama32_1b prefill] layer 17/17: PR_all=20.63 PR_c=22.08 PR_i=20.36 | 323s elapsed, ETA 0s
+  depth PR @ final...
+    [llama32_1b final] layer 1/17: PR_all=3.89 PR_c=2.00 PR_i=4.50 | 9s elapsed, ETA 151s
+    [llama32_1b final] layer 2/17: PR_all=7.73 PR_c=3.44 PR_i=8.85 | 20s elapsed, ETA 149s
+    [llama32_1b final] layer 3/17: PR_all=9.59 PR_c=4.31 PR_i=10.80 | 52s elapsed, ETA 245s
+    [llama32_1b final] layer 4/17: PR_all=8.70 PR_c=4.05 PR_i=9.50 | 65s elapsed, ETA 212s
+    [llama32_1b final] layer 5/17: PR_all=10.32 PR_c=4.89 PR_i=11.07 | 79s elapsed, ETA 190s
+    [llama32_1b final] layer 6/17: PR_all=10.58 PR_c=7.69 PR_i=10.61 | 113s elapsed, ETA 206s
+    [llama32_1b final] layer 7/17: PR_all=9.92 PR_c=7.02 PR_i=9.80 | 122s elapsed, ETA 174s
+    [llama32_1b final] layer 8/17: PR_all=9.95 PR_c=7.44 PR_i=9.68 | 132s elapsed, ETA 149s
+    [llama32_1b final] layer 9/17: PR_all=9.87 PR_c=7.13 PR_i=9.71 | 165s elapsed, ETA 146s
+    [llama32_1b final] layer 10/17: PR_all=7.93 PR_c=6.09 PR_i=7.66 | 176s elapsed, ETA 123s
+    [llama32_1b final] layer 11/17: PR_all=7.91 PR_c=4.79 PR_i=7.92 | 188s elapsed, ETA 102s
+    [llama32_1b final] layer 12/17: PR_all=7.97 PR_c=4.38 PR_i=8.04 | 222s elapsed, ETA 92s
+    [llama32_1b final] layer 13/17: PR_all=8.67 PR_c=4.44 PR_i=8.64 | 233s elapsed, ETA 72s
+    [llama32_1b final] layer 14/17: PR_all=7.69 PR_c=4.11 PR_i=7.68 | 242s elapsed, ETA 52s
+    [llama32_1b final] layer 15/17: PR_all=6.97 PR_c=4.47 PR_i=6.88 | 275s elapsed, ETA 37s
+    [llama32_1b final] layer 16/17: PR_all=7.29 PR_c=5.00 PR_i=7.16 | 287s elapsed, ETA 18s
+    [llama32_1b final] layer 17/17: PR_all=7.13 PR_c=5.02 PR_i=6.90 | 298s elapsed, ETA 0s
+     pos                    all                correct              incorrect          n/nC/nI
+       1    2.83 [  2.50,  3.44]    2.22 [  1.87,  2.70]    3.07 [  2.57,  3.61]      500/126/374
+      10   38.09 [ 30.85, 40.92]   43.53 [ 28.37, 34.79]   31.01 [ 24.58, 33.74]      500/126/374
+      25  104.05 [ 80.94, 89.56]   63.62 [ 37.99, 45.11]   94.94 [ 71.32, 79.60]      500/126/374
+      50  115.52 [ 88.99, 99.14]   66.73 [ 37.34, 47.54]  104.48 [ 76.23, 86.27]      499/125/374
+     100  109.11 [ 83.99, 92.70]   63.04 [ 35.99, 45.38]  102.17 [ 75.77, 83.56]      488/120/368
+     200  100.57 [ 76.15, 85.63]   51.06 [ 28.42, 34.57]   94.27 [ 69.74, 77.25]       436/89/347
+   final    7.97 [  7.33,  8.03]    4.38 [  3.35,  5.77]    8.04 [  7.14,  8.37]      500/126/374
+  Saved: /home/musicofhel/topo-confidence/pathway11_h100/exp1_cross_model/temporal_pr_curve.png
+  Saved: /home/musicofhel/topo-confidence/pathway11_h100/exp1_cross_model/depth_pr_prefill_vs_final.png
+  Saved: /home/musicofhel/topo-confidence/pathway11_h100/exp1_cross_model/results.json

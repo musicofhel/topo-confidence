@@ -1,0 +1,11 @@
+======================================================================
+Experiment 2 / Phase 2: OOF prefill DoM score
+======================================================================
+  loaded 500 problems | K=1 greedy accuracy = 0.4860 (243/500)
+  prefill L19 DoM: OOF AUROC = 0.7731  (per-fold ['0.812', '0.666', '0.825', '0.828', '0.733'])
+  final-tok L19 DoM: OOF AUROC = 0.7186  (per-fold ['0.669', '0.723', '0.752', '0.805', '0.687'])
+  seq_len: min=123 median=521 max=1024
+  spearman(seq_len, correct) = -0.518 (p=1.25e-35)
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase2_prefill_dom.npz
+Summary: /home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase2_summary.json

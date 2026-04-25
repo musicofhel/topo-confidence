@@ -1,0 +1,30 @@
+======================================================================
+Exp 2b / Phase 1: build features + 3-class oracle target
+======================================================================
+
+Loading 7B prefill cache ...
+  prefill: (500, 3584), final_tok: (500, 3584), n=500
+Loading Phase 2 OOF DoM + seq_len ...
+  prefill_dom AUROC-ish mean=-0.068 std=4.802
+  seq_len mean=575 std=260
+Loading Phase 1 majority-vote outcomes ...
+  K=1 greedy acc = 0.486 (K=1 sample[0] sampled acc = 0.416)
+  K=8 majority acc = 0.550
+
+Bucket counts: {np.str_('A'): np.int64(207), np.str_('B'): np.int64(68), np.str_('C'): np.int64(189), np.str_('D'): np.int64(36)}
+3-class counts: K=1 (A+D)=243, K=8 (B)=68, refuse (C)=189
+
+Computing per-problem local PR (k=20 neighbors) ...
+  prefill activations ...
+    mean=12.81 std=1.08 range=[8.30, 14.85]
+  final-token activations ...
+    mean=11.22 std=1.77 range=[4.50, 16.31]
+
+Per-bucket feature means:
+  A (n=207): prefill_dom=+2.830 prefill_lpr=12.66 finaltok_dom=+6.484 finaltok_lpr=11.29 seq_len=422
+  B (n=68): prefill_dom=+0.789 prefill_lpr=12.80 finaltok_dom=+0.104 finaltok_lpr=10.92 seq_len=613
+  C (n=189): prefill_dom=-3.343 prefill_lpr=12.97 finaltok_dom=-7.900 finaltok_lpr=11.23 seq_len=739
+  D (n=36): prefill_dom=-1.156 prefill_lpr=12.84 finaltok_dom=+2.657 finaltok_lpr=11.28 seq_len=527
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/multi_signal_oracle/features.npz
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/multi_signal_oracle/phase1_features.json

@@ -1,0 +1,37 @@
+======================================================================
+Exp 2b / Phase 2: 5-fold CV classifier for 3-class oracle target
+======================================================================
+X=(500, 3), features=['prefill_dom', 'prefill_lpr', 'seq_len']
+y classes: {np.int64(0): np.int64(243), np.int64(1): np.int64(68), np.int64(2): np.int64(189)}
+
+--- logreg ---
+fold macro-F1s: [0.6241, 0.5127, 0.611, 0.4482, 0.5521] mean=0.5496 std=0.0648
+  K1_AD: P=0.738 R=0.671 F1=0.703 (n=243)
+  K8_B: P=0.227 R=0.324 F1=0.267 (n=68)
+  refuse_C: P=0.687 R=0.661 F1=0.674 (n=189)
+  overall acc: 0.620, macro-F1: 0.548
+  conf matrix (rows=true, cols=pred):
+                   K1_AD      K8_B  refuse_C
+         K1_AD       163        44        36
+          K8_B        25        22        21
+      refuse_C        33        31       125
+  D-bucket → K=1 routing recall: 0.417 (15/36 D-problems routed correctly)
+
+--- rf ---
+fold macro-F1s: [0.5491, 0.5202, 0.4553, 0.4346, 0.491] mean=0.4900 std=0.0417
+  K1_AD: P=0.663 R=0.737 F1=0.698 (n=243)
+  K8_B: P=0.312 R=0.074 F1=0.119 (n=68)
+  refuse_C: P=0.626 R=0.709 F1=0.665 (n=189)
+  overall acc: 0.636, macro-F1: 0.494
+  conf matrix (rows=true, cols=pred):
+                   K1_AD      K8_B  refuse_C
+         K1_AD       179         6        58
+          K8_B        41         5        22
+      refuse_C        50         5       134
+  D-bucket → K=1 routing recall: 0.444 (16/36 D-problems routed correctly)
+
+--- baseline (all K=1) ---
+  acc=0.486, macro-F1=0.218
+  D-bucket recall (trivially 1.0 because everything goes to K=1)
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/multi_signal_oracle/phase2_classifier.json

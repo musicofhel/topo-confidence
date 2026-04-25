@@ -1,0 +1,120 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+==============================================================
+Step 1/5: generate prompt JSONs
+==============================================================
+Wrote /workspace/topo-confidence/pathway11_h100/gibberish_control/prompts_random.json (20 prompts)
+Wrote /workspace/topo-confidence/pathway11_h100/gibberish_control/prompts_stream.json (20 prompts)
+
+==============================================================
+Step 2/5: extract random-token condition (n=20, no chat template)
+==============================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Exp 1 extraction: Qwen/Qwen2.5-1.5B-Instruct
+  Output: /workspace/topo-confidence/pathway11_h100/gibberish_control/data/random
+  n_problems=20, max_new_tokens=256
+======================================================================
+  2/3-depth layer index (into hidden_states): 19 of 29 total
+  0 problems already extracted, resuming
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:  12%|█▏        | 39/338 [00:00<00:00, 384.77it/s]Loading weights:  26%|██▌       | 87/338 [00:00<00:00, 426.20it/s]Loading weights:  40%|███▉      | 135/338 [00:00<00:00, 447.46it/s]Loading weights:  54%|█████▍    | 182/338 [00:00<00:00, 456.19it/s]Loading weights:  67%|██████▋   | 228/338 [00:00<00:00, 448.23it/s]Loading weights:  81%|████████  | 273/338 [00:00<00:00, 441.59it/s]Loading weights:  94%|█████████▍| 318/338 [00:00<00:00, 427.13it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 442.70it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa)
+  Device: cuda:0
+  Loaded 20 prompts from /workspace/topo-confidence/pathway11_h100/gibberish_control/prompts_random.json (skip_chat_template=True)
+  10/20: acc=0.0%, 30s elapsed, ETA 30s
+  20/20: acc=0.0%, 60s elapsed, ETA 0s
+
+Done: 60s total, accuracy=0.0% (0/20)
+Manifest: /workspace/topo-confidence/pathway11_h100/gibberish_control/data/random/manifest.json
+Output: 20/20 npz files
+
+==============================================================
+Step 3/5: extract stream-of-consciousness condition (n=20)
+==============================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Exp 1 extraction: Qwen/Qwen2.5-1.5B-Instruct
+  Output: /workspace/topo-confidence/pathway11_h100/gibberish_control/data/stream
+  n_problems=20, max_new_tokens=256
+======================================================================
+  2/3-depth layer index (into hidden_states): 19 of 29 total
+  0 problems already extracted, resuming
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:  11%|█         | 38/338 [00:00<00:00, 370.05it/s]Loading weights:  26%|██▌       | 88/338 [00:00<00:00, 444.18it/s]Loading weights:  40%|████      | 136/338 [00:00<00:00, 458.48it/s]Loading weights:  54%|█████▍    | 184/338 [00:00<00:00, 461.36it/s]Loading weights:  69%|██████▊   | 232/338 [00:00<00:00, 459.55it/s]Loading weights:  83%|████████▎ | 279/338 [00:00<00:00, 457.04it/s]Loading weights:  97%|█████████▋| 328/338 [00:00<00:00, 460.21it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 460.07it/s]
+[transformers] The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa)
+  Device: cuda:0
+  Loaded 20 prompts from /workspace/topo-confidence/pathway11_h100/gibberish_control/prompts_stream.json (skip_chat_template=False)
+  10/20: acc=0.0%, 18s elapsed, ETA 18s
+  20/20: acc=0.0%, 36s elapsed, ETA 0s
+
+Done: 36s total, accuracy=0.0% (0/20)
+Manifest: /workspace/topo-confidence/pathway11_h100/gibberish_control/data/stream/manifest.json
+Output: 20/20 npz files
+
+==============================================================
+Step 4/5: extract MATH-500 baseline (n=50, for methodology match)
+==============================================================
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Exp 1 extraction: Qwen/Qwen2.5-1.5B-Instruct
+  Output: /workspace/topo-confidence/pathway11_h100/gibberish_control/data/math500
+  n_problems=50, max_new_tokens=256
+======================================================================
+  2/3-depth layer index (into hidden_states): 19 of 29 total
+  0 problems already extracted, resuming
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:  11%|█         | 37/338 [00:00<00:00, 355.88it/s]Loading weights:  28%|██▊       | 95/338 [00:00<00:00, 484.74it/s]Loading weights:  43%|████▎     | 144/338 [00:00<00:00, 479.39it/s]Loading weights:  57%|█████▋    | 193/338 [00:00<00:00, 468.58it/s]Loading weights:  71%|███████   | 240/338 [00:00<00:00, 459.45it/s]Loading weights:  85%|████████▍ | 287/338 [00:00<00:00, 450.16it/s]Loading weights:  99%|█████████▊| 333/338 [00:00<00:00, 440.64it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 455.79it/s]
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa)
+  Device: cuda:0
+Generating test split:   0%|          | 0/500 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 500/500 [00:00<00:00, 40647.21 examples/s]
+[transformers] The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+Loaded 500 MATH-500 problems
+  10/50: acc=0.0%, 29s elapsed, ETA 118s
+  20/50: acc=10.0%, 57s elapsed, ETA 85s
+  30/50: acc=10.0%, 84s elapsed, ETA 56s
+  40/50: acc=12.5%, 112s elapsed, ETA 28s
+  50/50: acc=10.0%, 140s elapsed, ETA 0s
+
+Done: 140s total, accuracy=10.0% (5/50)
+Manifest: /workspace/topo-confidence/pathway11_h100/gibberish_control/data/math500/manifest.json
+Output: 50/50 npz files
+[DONE] exp1_qwen25_15b marker written
+
+==============================================================
+Step 5/5: CPU analysis + plot
+==============================================================
+[compute] random_tokens from /workspace/topo-confidence/pathway11_h100/gibberish_control/data/random
+[compute] stream_of_consciousness from /workspace/topo-confidence/pathway11_h100/gibberish_control/data/stream
+[compute] math500_baseline from /workspace/topo-confidence/pathway11_h100/gibberish_control/data/math500
+
+Wrote /workspace/topo-confidence/pathway11_h100/gibberish_control/pr_curves.json
+
+PR curve summary (position : PR [n=])
+  random_tokens (L19, n_problems=20):
+    pos     1:  11.32 [n=20]
+    pos    10:  10.57 [n=20]
+    pos    25:  11.72 [n=20]
+    pos    50:  10.13 [n=20]
+    pos   100:  10.36 [n=20]
+    pos   200:   9.44 [n=20]
+    pos final:   8.96 [n=20]
+  stream_of_consciousness (L19, n_problems=20):
+    pos     1:   4.60 [n=20]
+    pos    10:  15.66 [n=20]
+    pos    25:  13.59 [n=17]
+    pos    50:  11.35 [n=14]
+    pos   100:   9.93 [n=12]
+    pos   200:   7.41 [n=9]
+    pos final:   9.23 [n=20]
+  math500_baseline (L19, n_problems=50):
+    pos     1:  13.74 [n=50]
+    pos    10:  23.28 [n=50]
+    pos    25:  24.56 [n=50]
+    pos    50:  30.55 [n=50]
+    pos   100:  29.94 [n=50]
+    pos   200:  27.88 [n=47]
+    pos final:  22.19 [n=50]
+Wrote /workspace/topo-confidence/pathway11_h100/gibberish_control/gibberish_vs_math500.png
+
+Done. Results:
+  /workspace/topo-confidence/pathway11_h100/gibberish_control/pr_curves.json
+  /workspace/topo-confidence/pathway11_h100/gibberish_control/gibberish_vs_math500.png

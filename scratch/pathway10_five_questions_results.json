@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "seed": 9999,
+    "split_test_size": 0.2,
+    "labels": "NEW",
+    "n_problems": 500
+  },
+  "Q1_length_residualization": {
+    "L2": {
+      "raw_train_auroc": 0.7041161491391432,
+      "raw_holdout_auroc": 0.7872212176009643,
+      "resid_train_auroc": 0.7037740868838129,
+      "resid_holdout_auroc": 0.7854128993369499,
+      "cos_DoM_length": -0.0920209214091301,
+      "cos_DoM_raw_vs_resid": 0.9957570433616638,
+      "len_reg_r2_train": 1.0,
+      "len_reg_r2_holdout": 0.9406278133392334
+    },
+    "L10": {
+      "raw_train_auroc": 0.7149861274752005,
+      "raw_holdout_auroc": 0.810126582278481,
+      "resid_train_auroc": 0.7142639960472806,
+      "resid_holdout_auroc": 0.808921036769138,
+      "cos_DoM_length": -0.08967524766921997,
+      "cos_DoM_raw_vs_resid": 0.9959709048271179,
+      "len_reg_r2_train": 1.0,
+      "len_reg_r2_holdout": 0.9799768924713135
+    },
+    "L19": {
+      "raw_train_auroc": 0.7631408916422789,
+      "raw_holdout_auroc": 0.8282097649186257,
+      "resid_train_auroc": 0.7634829538976093,
+      "resid_holdout_auroc": 0.8282097649186257,
+      "cos_DoM_length": -0.08386681973934174,
+      "cos_DoM_raw_vs_resid": 0.9964770078659058,
+      "len_reg_r2_train": 1.0,
+      "len_reg_r2_holdout": 0.9343603849411011
+    },
+    "L25": {
+      "raw_train_auroc": 0.7790277830565162,
+      "raw_holdout_auroc": 0.7884267631103073,
+      "resid_train_auroc": 0.7784196723803731,
+      "resid_holdout_auroc": 0.7878239903556359,
+      "cos_DoM_length": -0.08133957535028458,
+      "cos_DoM_raw_vs_resid": 0.9966864585876465,
+      "len_reg_r2_train": 1.0,
+      "len_reg_r2_holdout": 0.8630762100219727
+    }
+  },
+  "Q2_prompt_vs_trajectory": {
+    "trajectory_layer_id_cos_by_layer": {
+      "0": 0.03886257857084274,
+      "1": 0.1058170348405838,
+      "2": 0.13019871711730957,
+      "3": 0.14696651697158813,
+      "4": 0.15910647809505463,
+      "5": 0.16034917533397675,
+      "6": 0.1542101949453354,
+      "7": 0.15118011832237244,
+      "8": 0.1557062417268753,
+      "9": 0.15886190533638,
+      "10": 0.14416398108005524,
+      "11": 0.1322549432516098,
+      "12": 0.1523067057132721,
+      "13": 0.13682514429092407,
+      "14": 0.1455012559890747,
+      "15": 0.14922094345092773,
+      "16": 0.15659146010875702,
+      "17": 0.16744884848594666,
+      "18": 0.16961315274238586,
+      "19": 0.1772764027118683,
+      "20": 0.22675442695617676,
+      "21": 0.2872915267944336,
+      "22": 0.3368120491504669,
+      "23": 0.3551626205444336,
+      "24": 0.3666611909866333,
+      "25": 0.4091026186943054,
+      "26": 0.39629778265953064,
+      "27": 0.3907277584075928,
+      "28": 0.9999967217445374
+    },
+    "best_match_layer": 28,
+    "first_token": {
+      "train_auroc": 0.582874083083121,
+      "holdout_auroc": 0.39210367691380343
+    },
+    "mid_token": {
+      "train_auroc": 0.6546501463266314,
+      "holdout_auroc": 0.5485232067510548
+    },
+    "last_token": {
+      "train_auroc": 0.7648131960016723,
+      "holdout_auroc": 0.7866184448462928
+    },
+    "cos_DoM_first_vs_last": 0.046196311712265015
+  },
+  "Q3_bootstrap_layer19": {
+    "full_sample_auroc": 0.7653943278943279,
+    "bootstrap_auroc_mean": 0.7753595385470317,
+    "bootstrap_auroc_95ci": [
+      0.731016595087402,
+      0.8208817873799987
+    ],
+    "bootstrap_cos_with_full_median": 0.9748397171497345,
+    "bootstrap_cos_with_full_5pct": 0.950418022274971,
+    "bootstrap_cos_with_full_mean": 0.972508099257946,
+    "n_valid_bootstraps": 1000
+  },
+  "Q4_multi_layer_concat": {
+    "layers_concat": [
+      10,
+      19,
+      25
+    ],
+    "feature_dim": 4608,
+    "train_auroc": 0.7700581505834062,
+    "holdout_auroc": 0.7986738999397227,
+    "single_L10_holdout": 0.812537673297167,
+    "single_L19_holdout": 0.8227848101265822,
+    "single_L25_holdout": 0.7902350813743219
+  },
+  "Q5_7B_verifier_disagg": {
+    "both_correct": 44,
+    "only_1_5B_correct": 60,
+    "only_7B_correct_verifier_winnable": 37,
+    "neither_correct": 359,
+    "agreement": 403,
+    "n_1_5B_correct_total": 104,
+    "n_7B_correct_total": 81,
+    "pct_1_5B_correct_that_7B_also": 0.4230769230769231,
+    "7B_labels_note": "7B run was truncated (max_tokens=256); phase6_5 had 348/500 at 1024 but no activations saved"
+  }
+}

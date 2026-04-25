@@ -1,0 +1,90 @@
+{
+  "conditions": {
+    "nocot": {
+      "data_dir": "/workspace/topo-confidence/pathway11_h100/no_cot_control/data/nocot",
+      "n_problems": 50,
+      "n_correct": 4,
+      "twothirds_layer_idx": 19,
+      "n_gen_tokens": {
+        "min": 1,
+        "median": 2.0,
+        "max": 10,
+        "p25": 1.0,
+        "p75": 3.0
+      },
+      "pr_by_position": {
+        "1": {
+          "n": 50,
+          "pr": 15.779430260891774
+        },
+        "10": {
+          "n": 2,
+          "pr": null
+        },
+        "25": {
+          "n": 0,
+          "pr": null
+        },
+        "50": {
+          "n": 0,
+          "pr": null
+        },
+        "100": {
+          "n": 0,
+          "pr": null
+        },
+        "200": {
+          "n": 0,
+          "pr": null
+        },
+        "final": {
+          "n": 50,
+          "pr": 19.802675985139643
+        }
+      }
+    },
+    "cot_baseline": {
+      "data_dir": "/workspace/topo-confidence/pathway11_h100/gibberish_control/data/math500",
+      "n_problems": 50,
+      "n_correct": 5,
+      "twothirds_layer_idx": 19,
+      "n_gen_tokens": {
+        "min": 154,
+        "median": 255.0,
+        "max": 255,
+        "p25": 255.0,
+        "p75": 255.0
+      },
+      "pr_by_position": {
+        "1": {
+          "n": 50,
+          "pr": 13.73524962240093
+        },
+        "10": {
+          "n": 50,
+          "pr": 23.280837262057542
+        },
+        "25": {
+          "n": 50,
+          "pr": 24.55573346827339
+        },
+        "50": {
+          "n": 50,
+          "pr": 30.554419380797377
+        },
+        "100": {
+          "n": 50,
+          "pr": 29.93887932470338
+        },
+        "200": {
+          "n": 47,
+          "pr": 27.875962739060107
+        },
+        "final": {
+          "n": 50,
+          "pr": 22.186663572792018
+        }
+      }
+    }
+  }
+}

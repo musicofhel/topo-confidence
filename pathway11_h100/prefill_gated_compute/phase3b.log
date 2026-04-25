@@ -1,0 +1,41 @@
+======================================================================
+Experiment 2 / Phase 3b: REALISTIC variant (confident → greedy K=1 @ T=0)
+======================================================================
+  greedy K=1 uniform = 0.4860
+  K=8 majority uniform = 0.5500
+  gap = +0.0640
+
+=== Policy comparison (REALISTIC: K=1 = greedy T=0) ===
+policy                                                cov   avgK  acc_ans  overall
+  uniform_K1                                          1.000   1.00   0.4860   0.4860
+  uniform_K2                                          1.000   2.00   0.4132   0.4132
+  uniform_K4                                          1.000   4.00   0.4950   0.4950
+  uniform_K8                                          1.000   8.00   0.5500   0.5500
+  quartile_prefill_balanced                           1.000   3.75   0.4631   0.4631
+  quartile_final_token_balanced                       1.000   3.75   0.4852   0.4852
+  quartile_neg_seq_len_balanced                       1.000   3.75   0.4987   0.4987
+  quartile_random_balanced                            1.000   3.75   0.4847   0.4847
+  quartile_prefill_refuse_and_spend                   0.500   2.50   0.7158   0.3579
+  quartile_final_token_refuse_and_spend               0.500   2.50   0.6238   0.3119
+  quartile_neg_seq_len_refuse_and_spend               0.500   2.50   0.7066   0.3533
+  quartile_random_refuse_and_spend                    0.500   2.50   0.4935   0.2467
+  quartile_prefill_top_heavy                          1.000   4.50   0.4920   0.4920
+  quartile_final_token_top_heavy                      1.000   4.50   0.5180   0.5180
+  quartile_neg_seq_len_top_heavy                      1.000   4.50   0.5420   0.5420
+  quartile_random_top_heavy                           1.000   4.50   0.5179   0.5179
+
+=== Threshold (prefill) Pareto ===
+ tau%   avg_K   overall
+     10    1.70    0.4840
+     20    2.40    0.4860
+     25    2.75    0.4900
+     30    3.10    0.4920
+     40    3.80    0.4920
+     50    4.50    0.4920
+     60    5.20    0.5160
+     70    5.90    0.5200
+     75    6.25    0.5300
+     80    6.60    0.5280
+     90    7.30    0.5380
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase3b_realistic_policies.json

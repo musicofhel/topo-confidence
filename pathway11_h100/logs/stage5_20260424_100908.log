@@ -1,0 +1,33 @@
+======================================================================
+Stage 5: L19 DoM cross-benchmark transfer (MATH ↔ BBH)
+======================================================================
+
+Loading MATH-500 L19 last-token states...
+  MATH-500: n=500, correct=243 (48.6%)
+
+Loading BBH per-subset L19 last-token states...
+  tracking_shuffled_objects_seven_objects: n=250, correct=31 (12.4%)
+  logical_deduction_seven_objects: n=250, correct=15 (6.0%)
+  web_of_lies: n=250, correct=135 (54.0%)
+  BBH pooled: n=750, correct=181 (24.1%)
+
+--- MATH → BBH ---
+     tracking_shuffled_objects_seven_objects: AUROC=0.669 95%CI=[0.598, 0.738]
+             logical_deduction_seven_objects: AUROC=0.730 95%CI=[0.596, 0.857]
+                                 web_of_lies: AUROC=0.669 95%CI=[0.599, 0.738]
+                                      POOLED: AUROC=0.747 95%CI=[0.711, 0.784]
+
+--- BBH → MATH ---
+  MATH-500: AUROC=0.693 95%CI=[0.647, 0.739]
+
+--- Within-benchmark (train/eval same set — overfit ceiling) ---
+  MATH (overfit): AUROC=0.731
+  BBH pooled (overfit): AUROC=0.832
+
+Symmetric avg (pooled MATH↔BBH): 0.720
+Pathway 9 CoE baseline (symmetric):  0.716
+Verdict: raw L19 DoM matches CoE (+0.004)
+
+Saved: /workspace/topo-confidence/pathway11_h100/results/stage5_bbh_dom_transfer.json
+[done in 385.6s]
+[DONE] stage5 marker written

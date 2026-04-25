@@ -1,0 +1,49 @@
+{
+  "n_problems": 500,
+  "k_local": 20,
+  "bucket_counts": {
+    "A": 207,
+    "B": 68,
+    "C": 189,
+    "D": 36
+  },
+  "y3_counts": {
+    "K1_AD": 243,
+    "K8_B": 68,
+    "refuse_C": 189
+  },
+  "per_bucket_feature_means": {
+    "A": {
+      "n": 207,
+      "prefill_dom_mean": 2.8302338123321533,
+      "prefill_lpr_mean": 12.662065317902602,
+      "finaltok_dom_mean": 6.483547687530518,
+      "finaltok_lpr_mean": 11.288548391007028,
+      "seq_len_mean": 422.32850241545896
+    },
+    "B": {
+      "n": 68,
+      "prefill_dom_mean": 0.7893303036689758,
+      "prefill_lpr_mean": 12.804208200128938,
+      "finaltok_dom_mean": 0.1038910448551178,
+      "finaltok_lpr_mean": 10.923387880650875,
+      "seq_len_mean": 612.6176470588235
+    },
+    "C": {
+      "n": 189,
+      "prefill_dom_mean": -3.343348979949951,
+      "prefill_lpr_mean": 12.971139695274816,
+      "finaltok_dom_mean": -7.900496006011963,
+      "finaltok_lpr_mean": 11.23376264407086,
+      "seq_len_mean": 738.6349206349206
+    },
+    "D": {
+      "n": 36,
+      "prefill_dom_mean": -1.155737280845642,
+      "prefill_lpr_mean": 12.843272637651026,
+      "finaltok_dom_mean": 2.657393217086792,
+      "finaltok_lpr_mean": 11.275252533001924,
+      "seq_len_mean": 526.7777777777778
+    }
+  }
+}

@@ -1,0 +1,40 @@
+======================================================================
+Stage 4b: BBH per-subset diagnostics
+======================================================================
+
+--- Subset: tracking_shuffled_objects_seven_objects ---
+  n=250, correct=31 (12.4%)
+  CoE:   AUROC=0.792 95%CI=[0.731, 0.850]
+  L19 DoM: AUROC=0.779 95%CI=[0.709, 0.845]
+  L19 DoM sign-flip sanity: mean|cos(real, shuffled)|=0.456 (lower=better)
+  Length×L19_score: rho=-0.715 (p=1.7e-40)
+  Length×correct:     rho=-0.276 (p=9.7e-06)
+  [done in 110.5s]
+
+--- Subset: logical_deduction_seven_objects ---
+  n=250, correct=15 (6.0%)
+  CoE:   AUROC=0.592 95%CI=[0.430, 0.751]
+  L19 DoM: AUROC=0.737 95%CI=[0.622, 0.839]
+  L19 DoM sign-flip sanity: mean|cos(real, shuffled)|=0.331 (lower=better)
+  Length×L19_score: rho=-0.769 (p=4.8e-50)
+  Length×correct:     rho=-0.105 (p=0.098)
+  [done in 95.1s]
+
+--- Subset: web_of_lies ---
+  n=250, correct=135 (54.0%)
+  CoE:   AUROC=0.682 95%CI=[0.618, 0.747]
+  L19 DoM: AUROC=0.710 95%CI=[0.646, 0.772]
+  L19 DoM sign-flip sanity: mean|cos(real, shuffled)|=0.482 (lower=better)
+  Length×L19_score: rho=+0.209 (p=0.00086)
+  Length×correct:     rho=+0.183 (p=0.0038)
+  [done in 44.8s]
+
+======================================================================
+Summary (AUROC [95% CI]):
+                                    subset            CoE        L19_DoM  sign_flip
+   tracking_shuffled_objects_seven_objects 0.792 [0.73, 0.85] 0.779 [0.71, 0.85]      0.456
+           logical_deduction_seven_objects 0.592 [0.43, 0.75] 0.737 [0.62, 0.84]      0.331
+                               web_of_lies 0.682 [0.62, 0.75] 0.710 [0.65, 0.77]      0.482
+
+Saved: /workspace/topo-confidence/pathway11_h100/results/stage4b_bbh_per_subset.json
+[DONE] stage4b marker written

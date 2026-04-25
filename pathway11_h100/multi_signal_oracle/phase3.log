@@ -1,0 +1,41 @@
+======================================================================
+Exp 2b / Phase 3: policy simulation
+======================================================================
+
+--- Policy simulation: logreg ---
+  routing: K=1:221, K=8:97, refuse:182
+  [refuse=no-answer] cov=0.636, K/prob=1.99, answ_acc=0.7044, overall=0.4480
+  [refuse→K=1 fb]    cov=1.000, K/prob=2.36, answ_acc=0.5200, overall=0.5200
+  A (always-right): 148/207 → K=1, 39 → K=8, 20 refused
+  B (recoverable):  22/68 → K=8 (recall=0.324)
+  C (never-right):  125/189 → refuse (recall=0.661)
+  D (pathological): 15/36 → K=1 (recall=0.417)
+
+--- Policy simulation: rf ---
+  routing: K=1:270, K=8:16, refuse:214
+  [refuse=no-answer] cov=0.572, K/prob=0.80, answ_acc=0.6573, overall=0.3760
+  [refuse→K=1 fb]    cov=1.000, K/prob=1.22, answ_acc=0.4920, overall=0.4920
+  A (always-right): 163/207 → K=1, 4 → K=8, 40 refused
+  B (recoverable):  5/68 → K=8 (recall=0.074)
+  C (never-right):  134/189 → refuse (recall=0.709)
+  D (pathological): 16/36 → K=1 (recall=0.444)
+
+--- Comparison vs Exp 2 policies ---
+  policy                                         cov      K   answ   over
+  uniform_K1                                    1.00   1.00  0.486  0.486
+  uniform_K2                                    1.00   2.00  0.413  0.413
+  uniform_K4                                    1.00   4.00  0.495  0.495
+  uniform_K8                                    1.00   8.00  0.550  0.550
+  quartile_prefill_balanced                     1.00   3.75  0.463  0.463
+  quartile_prefill_top_heavy                    1.00   4.50  0.492  0.492
+  quartile_prefill_refuse_and_spend             0.50   1.25  0.716  0.358
+  quartile_neg_seq_len_balanced                 1.00   3.75  0.499  0.499
+  quartile_neg_seq_len_top_heavy                1.00   4.50  0.542  0.542
+  quartile_neg_seq_len_refuse_and_spend         0.50   1.25  0.707  0.353
+  multi_signal_logreg_nofb                        0.64   1.99  0.704  0.448
+  multi_signal_logreg_k1fb                        1.00   2.36  0.520  0.520
+  multi_signal_rf_nofb                        0.57   0.80  0.657  0.376
+  multi_signal_rf_k1fb                        1.00   1.22  0.492  0.492
+  EXP2 oracle (upper bound)                     1.00  1.006      -  0.589
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/multi_signal_oracle/phase3_policy.json

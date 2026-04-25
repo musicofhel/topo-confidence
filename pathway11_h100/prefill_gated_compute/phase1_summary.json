@@ -1,0 +1,14 @@
+{
+  "n_problems": 500,
+  "missing": [],
+  "per_k_accuracy": {
+    "1": 0.41336,
+    "2": 0.4132,
+    "4": 0.49496,
+    "8": 0.55
+  },
+  "k1_sample0_accuracy": 0.416,
+  "k8_majority_accuracy": 0.55,
+  "seed": 9999,
+  "n_subsample_per_K": 50
+}

@@ -1,0 +1,66 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Stage 1: MATH-500 × Qwen2.5-7B-Instruct, 1024-token all-layer extraction
+======================================================================
+  0 problems already extracted, continuing from remainder
+Fetching 4 files:   0%|          | 0/4 [00:00<?, ?it/s]Fetching 4 files:  25%|██▌       | 1/4 [00:09<00:29,  9.89s/it]Fetching 4 files: 100%|██████████| 4/4 [00:09<00:00,  2.47s/it]
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<00:50,  6.64it/s]Loading weights:   1%|          | 2/339 [00:00<00:56,  5.96it/s]Loading weights:   5%|▍         | 16/339 [00:00<00:06, 48.33it/s]Loading weights:   9%|▊         | 29/339 [00:00<00:04, 67.48it/s]Loading weights:  12%|█▏        | 41/339 [00:00<00:03, 80.65it/s]Loading weights:  16%|█▌        | 53/339 [00:00<00:03, 86.22it/s]Loading weights:  19%|█▉        | 65/339 [00:00<00:03, 89.98it/s]Loading weights:  23%|██▎       | 77/339 [00:01<00:02, 92.06it/s]Loading weights:  26%|██▌       | 88/339 [00:01<00:02, 91.14it/s]Loading weights:  30%|██▉       | 101/339 [00:01<00:02, 95.58it/s]Loading weights:  33%|███▎      | 113/339 [00:01<00:02, 95.97it/s]Loading weights:  36%|███▋      | 123/339 [00:01<00:02, 91.42it/s]Loading weights:  40%|████      | 136/339 [00:01<00:02, 95.46it/s]Loading weights:  44%|████▍     | 149/339 [00:01<00:01, 99.84it/s]Loading weights:  47%|████▋     | 160/339 [00:01<00:01, 96.42it/s]Loading weights:  51%|█████     | 173/339 [00:02<00:01, 99.10it/s]Loading weights:  55%|█████▍    | 185/339 [00:02<00:01, 98.74it/s]Loading weights:  58%|█████▊    | 197/339 [00:02<00:01, 100.75it/s]Loading weights:  62%|██████▏   | 209/339 [00:02<00:01, 103.30it/s]Loading weights:  65%|██████▍   | 220/339 [00:02<00:01, 102.86it/s]Loading weights:  69%|██████▊   | 233/339 [00:02<00:00, 110.17it/s]Loading weights:  72%|███████▏  | 245/339 [00:02<00:00, 112.05it/s]Loading weights:  76%|███████▌  | 257/339 [00:02<00:00, 114.00it/s]Loading weights:  79%|███████▉  | 269/339 [00:02<00:00, 113.08it/s]Loading weights:  83%|████████▎ | 282/339 [00:03<00:00, 111.44it/s]Loading weights:  87%|████████▋ | 294/339 [00:03<00:00, 113.35it/s]Loading weights:  90%|█████████ | 306/339 [00:03<00:00, 112.93it/s]Loading weights:  94%|█████████▍| 318/339 [00:03<00:00, 114.39it/s]Loading weights:  97%|█████████▋| 330/339 [00:03<00:00, 113.75it/s]Loading weights: 100%|██████████| 339/339 [00:03<00:00, 98.23it/s] 
+[transformers] The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  Model loaded: Qwen/Qwen2.5-7B-Instruct (bf16, sdpa)
+  Device: cuda:0
+Loaded 500 MATH-500 problems
+  10/500: acc=90.0%, 214s elapsed, ETA 10500s
+  20/500: acc=70.0%, 459s elapsed, ETA 11018s
+  30/500: acc=73.3%, 699s elapsed, ETA 10955s
+  40/500: acc=77.5%, 921s elapsed, ETA 10587s
+  50/500: acc=80.0%, 1114s elapsed, ETA 10022s
+  60/500: acc=83.3%, 1293s elapsed, ETA 9484s
+  70/500: acc=78.6%, 1539s elapsed, ETA 9451s
+  80/500: acc=81.2%, 1710s elapsed, ETA 8976s
+  90/500: acc=80.0%, 1943s elapsed, ETA 8850s
+  100/500: acc=79.0%, 2179s elapsed, ETA 8716s
+  110/500: acc=76.4%, 2437s elapsed, ETA 8639s
+  120/500: acc=76.7%, 2671s elapsed, ETA 8459s
+  130/500: acc=75.4%, 2904s elapsed, ETA 8265s
+  140/500: acc=76.4%, 3148s elapsed, ETA 8095s
+  150/500: acc=76.7%, 3379s elapsed, ETA 7884s
+  160/500: acc=75.0%, 3645s elapsed, ETA 7745s
+  170/500: acc=74.1%, 3844s elapsed, ETA 7462s
+  180/500: acc=73.9%, 4101s elapsed, ETA 7290s
+  190/500: acc=73.2%, 4351s elapsed, ETA 7099s
+  200/500: acc=74.0%, 4533s elapsed, ETA 6799s
+  210/500: acc=74.3%, 4765s elapsed, ETA 6581s
+  220/500: acc=75.0%, 4956s elapsed, ETA 6308s
+  230/500: acc=73.9%, 5160s elapsed, ETA 6057s
+  240/500: acc=73.3%, 5456s elapsed, ETA 5911s
+  250/500: acc=73.2%, 5725s elapsed, ETA 5725s
+  260/500: acc=74.2%, 5896s elapsed, ETA 5442s
+  270/500: acc=74.8%, 6091s elapsed, ETA 5189s
+  280/500: acc=75.0%, 6259s elapsed, ETA 4918s
+  290/500: acc=73.8%, 6505s elapsed, ETA 4711s
+  300/500: acc=73.3%, 6810s elapsed, ETA 4540s
+  310/500: acc=72.9%, 7081s elapsed, ETA 4340s
+  320/500: acc=73.1%, 7290s elapsed, ETA 4101s
+  330/500: acc=72.7%, 7522s elapsed, ETA 3875s
+  340/500: acc=73.2%, 7767s elapsed, ETA 3655s
+  350/500: acc=73.1%, 7958s elapsed, ETA 3411s
+  360/500: acc=73.1%, 8226s elapsed, ETA 3199s
+  370/500: acc=73.5%, 8408s elapsed, ETA 2954s
+  380/500: acc=73.7%, 8665s elapsed, ETA 2736s
+  390/500: acc=74.1%, 8867s elapsed, ETA 2501s
+  400/500: acc=73.8%, 9122s elapsed, ETA 2281s
+  410/500: acc=73.2%, 9389s elapsed, ETA 2061s
+  420/500: acc=73.1%, 9613s elapsed, ETA 1831s
+  430/500: acc=73.0%, 9879s elapsed, ETA 1608s
+  440/500: acc=73.4%, 10134s elapsed, ETA 1382s
+  450/500: acc=73.6%, 10361s elapsed, ETA 1151s
+  460/500: acc=73.9%, 10592s elapsed, ETA 921s
+  470/500: acc=74.0%, 10794s elapsed, ETA 689s
+  480/500: acc=73.8%, 11037s elapsed, ETA 460s
+  490/500: acc=73.3%, 11313s elapsed, ETA 231s
+  500/500: acc=73.2%, 11558s elapsed, ETA 0s
+
+Done: 11558s total, accuracy=73.2% (366/500)
+Manifest saved to /workspace/topo-confidence/pathway11_h100/data/math500_7b/manifest.json
+Output: 500/500 npz files in /workspace/topo-confidence/pathway11_h100/data/math500_7b
+[DONE] stage1 marker written

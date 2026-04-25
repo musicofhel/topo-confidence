@@ -1,0 +1,371 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_transformer_layers": 28,
+  "twothirds_layer_idx": 19,
+  "benchmark": "math500_greedy_T0",
+  "max_new_tokens": 256,
+  "target_positions": [
+    1,
+    10,
+    25,
+    50,
+    100,
+    200,
+    "final"
+  ],
+  "n_problems": 50,
+  "n_correct": 4,
+  "accuracy": 0.08,
+  "problems": [
+    {
+      "idx": 0,
+      "unique_id": "test/precalculus/807.json",
+      "correct": false,
+      "mean_logprob": -0.12966052891922367,
+      "n_gen_tokens": 10
+    },
+    {
+      "idx": 1,
+      "unique_id": "test/intermediate_algebra/1994.json",
+      "correct": false,
+      "mean_logprob": -0.3019825002203496,
+      "n_gen_tokens": 6
+    },
+    {
+      "idx": 2,
+      "unique_id": "test/algebra/2584.json",
+      "correct": false,
+      "mean_logprob": -0.654724083840847,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 3,
+      "unique_id": "test/number_theory/572.json",
+      "correct": false,
+      "mean_logprob": -0.13666075901710428,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 4,
+      "unique_id": "test/algebra/1349.json",
+      "correct": false,
+      "mean_logprob": -0.4473330090404488,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 5,
+      "unique_id": "test/prealgebra/1622.json",
+      "correct": false,
+      "mean_logprob": -0.22929135810894272,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 6,
+      "unique_id": "test/number_theory/515.json",
+      "correct": true,
+      "mean_logprob": -0.08774514123797417,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 7,
+      "unique_id": "test/precalculus/927.json",
+      "correct": false,
+      "mean_logprob": -0.34428125433259993,
+      "n_gen_tokens": 3
+    },
+    {
+      "idx": 8,
+      "unique_id": "test/algebra/2036.json",
+      "correct": false,
+      "mean_logprob": -0.0573128517717123,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 9,
+      "unique_id": "test/prealgebra/1139.json",
+      "correct": false,
+      "mean_logprob": -0.5081411094288342,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 10,
+      "unique_id": "test/number_theory/1032.json",
+      "correct": false,
+      "mean_logprob": -0.15886824950575829,
+      "n_gen_tokens": 3
+    },
+    {
+      "idx": 11,
+      "unique_id": "test/intermediate_algebra/1197.json",
+      "correct": false,
+      "mean_logprob": -1.1907426714897156,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 12,
+      "unique_id": "test/number_theory/737.json",
+      "correct": false,
+      "mean_logprob": -0.5251896778742472,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 13,
+      "unique_id": "test/geometry/248.json",
+      "correct": false,
+      "mean_logprob": -0.18149157031439245,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 14,
+      "unique_id": "test/precalculus/1303.json",
+      "correct": false,
+      "mean_logprob": -0.40890312008559704,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 15,
+      "unique_id": "test/precalculus/990.json",
+      "correct": false,
+      "mean_logprob": -0.6311736765677448,
+      "n_gen_tokens": 10
+    },
+    {
+      "idx": 16,
+      "unique_id": "test/intermediate_algebra/134.json",
+      "correct": false,
+      "mean_logprob": -0.41705797516624443,
+      "n_gen_tokens": 3
+    },
+    {
+      "idx": 17,
+      "unique_id": "test/precalculus/1199.json",
+      "correct": false,
+      "mean_logprob": -0.22375098522752523,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 18,
+      "unique_id": "test/geometry/434.json",
+      "correct": false,
+      "mean_logprob": -0.3924097353204464,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 19,
+      "unique_id": "test/intermediate_algebra/1000.json",
+      "correct": false,
+      "mean_logprob": -0.4859555587172508,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 20,
+      "unique_id": "test/algebra/1098.json",
+      "correct": false,
+      "mean_logprob": -0.526988941205976,
+      "n_gen_tokens": 5
+    },
+    {
+      "idx": 21,
+      "unique_id": "test/intermediate_algebra/607.json",
+      "correct": false,
+      "mean_logprob": -1.0186799690127373,
+      "n_gen_tokens": 3
+    },
+    {
+      "idx": 22,
+      "unique_id": "test/algebra/1837.json",
+      "correct": false,
+      "mean_logprob": -1.1617490351200104,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 23,
+      "unique_id": "test/algebra/2193.json",
+      "correct": true,
+      "mean_logprob": -0.5209972565062344,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 24,
+      "unique_id": "test/algebra/2427.json",
+      "correct": false,
+      "mean_logprob": -0.6459391839802265,
+      "n_gen_tokens": 4
+    },
+    {
+      "idx": 25,
+      "unique_id": "test/intermediate_algebra/1388.json",
+      "correct": false,
+      "mean_logprob": -0.3364540673792362,
+      "n_gen_tokens": 3
+    },
+    {
+      "idx": 26,
+      "unique_id": "test/counting_and_probability/525.json",
+      "correct": false,
+      "mean_logprob": -0.14209872912615537,
+      "n_gen_tokens": 4
+    },
+    {
+      "idx": 27,
+      "unique_id": "test/prealgebra/1840.json",
+      "correct": false,
+      "mean_logprob": -0.3170295030189057,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 28,
+      "unique_id": "test/precalculus/779.json",
+      "correct": false,
+      "mean_logprob": -0.1392204013619838,
+      "n_gen_tokens": 6
+    },
+    {
+      "idx": 29,
+      "unique_id": "test/counting_and_probability/666.json",
+      "correct": false,
+      "mean_logprob": -0.4925893619656563,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 30,
+      "unique_id": "test/number_theory/864.json",
+      "correct": true,
+      "mean_logprob": -0.647901518891255,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 31,
+      "unique_id": "test/prealgebra/1302.json",
+      "correct": false,
+      "mean_logprob": -0.2095245463072312,
+      "n_gen_tokens": 5
+    },
+    {
+      "idx": 32,
+      "unique_id": "test/counting_and_probability/134.json",
+      "correct": false,
+      "mean_logprob": -0.2340809876797721,
+      "n_gen_tokens": 4
+    },
+    {
+      "idx": 33,
+      "unique_id": "test/algebra/1072.json",
+      "correct": false,
+      "mean_logprob": -0.23836382631341418,
+      "n_gen_tokens": 8
+    },
+    {
+      "idx": 34,
+      "unique_id": "test/counting_and_probability/119.json",
+      "correct": false,
+      "mean_logprob": -0.8478843296567599,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 35,
+      "unique_id": "test/number_theory/627.json",
+      "correct": false,
+      "mean_logprob": -0.5651664212346077,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 36,
+      "unique_id": "test/intermediate_algebra/428.json",
+      "correct": false,
+      "mean_logprob": -0.4193253368139267,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 37,
+      "unique_id": "test/geometry/967.json",
+      "correct": false,
+      "mean_logprob": -0.003006827808349044,
+      "n_gen_tokens": 3
+    },
+    {
+      "idx": 38,
+      "unique_id": "test/algebra/24.json",
+      "correct": true,
+      "mean_logprob": -0.012293854725066921,
+      "n_gen_tokens": 4
+    },
+    {
+      "idx": 39,
+      "unique_id": "test/number_theory/45.json",
+      "correct": false,
+      "mean_logprob": -0.4305302898089091,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 40,
+      "unique_id": "test/prealgebra/930.json",
+      "correct": false,
+      "mean_logprob": -0.2647264723976453,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 41,
+      "unique_id": "test/geometry/627.json",
+      "correct": false,
+      "mean_logprob": -0.3010750056710094,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 42,
+      "unique_id": "test/algebra/2214.json",
+      "correct": false,
+      "mean_logprob": -0.11125742364674807,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 43,
+      "unique_id": "test/intermediate_algebra/1454.json",
+      "correct": false,
+      "mean_logprob": -0.7760591705640157,
+      "n_gen_tokens": 2
+    },
+    {
+      "idx": 44,
+      "unique_id": "test/prealgebra/1558.json",
+      "correct": false,
+      "mean_logprob": -0.10152592450613156,
+      "n_gen_tokens": 4
+    },
+    {
+      "idx": 45,
+      "unique_id": "test/geometry/178.json",
+      "correct": false,
+      "mean_logprob": -0.32964789122343063,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 46,
+      "unique_id": "test/precalculus/285.json",
+      "correct": false,
+      "mean_logprob": -0.5362731994246133,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 47,
+      "unique_id": "test/algebra/305.json",
+      "correct": false,
+      "mean_logprob": -0.01943986478727311,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 48,
+      "unique_id": "test/algebra/1265.json",
+      "correct": false,
+      "mean_logprob": -0.060208755428902805,
+      "n_gen_tokens": 1
+    },
+    {
+      "idx": 49,
+      "unique_id": "test/prealgebra/1388.json",
+      "correct": false,
+      "mean_logprob": -0.6104733414637545,
+      "n_gen_tokens": 2
+    }
+  ]
+}

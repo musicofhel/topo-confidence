@@ -1,0 +1,35 @@
+Loading data...
+  1.5B states (500, 29, 1536) labels 104/500
+  7B   states (500, 29, 3584) labels 81/500
+  Trajectory seq_lens mean=88.7, range=(28,512)
+
+=== Q1: Length residualization ===
+L 2: raw_ho=0.787  resid_ho=0.785  drop=+0.002  cos(DoM,len)=-0.092  cos(raw,resid)=0.996  len_r2_ho=0.94
+L10: raw_ho=0.810  resid_ho=0.809  drop=+0.001  cos(DoM,len)=-0.090  cos(raw,resid)=0.996  len_r2_ho=0.98
+L19: raw_ho=0.828  resid_ho=0.828  drop=+0.000  cos(DoM,len)=-0.084  cos(raw,resid)=0.996  len_r2_ho=0.93
+L25: raw_ho=0.788  resid_ho=0.788  drop=+0.001  cos(DoM,len)=-0.081  cos(raw,resid)=0.997  len_r2_ho=0.86
+
+=== Q2: Prompt encoding vs reasoning trajectory (trajectories.npz) ===
+Trajectory layer best matches pathway2 layer 28 (mean cos=1.000)
+  first_token: train=0.583  holdout=0.392
+    mid_token: train=0.655  holdout=0.549
+   last_token: train=0.765  holdout=0.787
+  cos(DoM_first, DoM_last) = +0.046
+
+=== Q3: Bootstrap layer-19 DoM (1000 resamples) ===
+  full auroc = 0.765
+  bootstrap AUROC 95% CI = [0.731, 0.821]
+  direction cos vs full: median=0.975, 5th pct=0.950, mean=0.973
+
+=== Q4: Multi-layer DoM (L10+L19+L25 concat) ===
+  concat 4608d: train=0.770  holdout=0.799
+  single L10 holdout = 0.813
+  single L19 holdout = 0.823
+  single L25 holdout = 0.790
+
+=== Q5: 7B vs 1.5B 2x2 disaggregation ===
+  both=44  only_1.5B=60  only_7B=37  neither=359
+  of 104 1.5B-correct, 7B also correct on 44 (42.3%)
+  verifier-winnable bucket (7B_right & 1.5B_wrong): 37 problems
+
+Saved: /home/musicofhel/topo-confidence/scratch/pathway10_five_questions_results.json

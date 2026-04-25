@@ -1,0 +1,11 @@
+Saved plot: /home/musicofhel/topo-confidence/pathway11_h100/multi_signal_oracle/pareto_comparison.png
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/multi_signal_oracle/results.json
+
+======================================================================
+HEADLINE
+======================================================================
+  Best single-signal at K≈2.74: neg_seq_len threshold → overall 0.516
+  Multi-signal logreg (+K=1 fallback) at K=2.36: overall 0.520
+  Gain: +0.40pp  (user's ≥2pp bar: NOT MET)
+  D-bucket recall to K=1: 0.417 (vs class-0 prior 0.486 — at chance)
+  prefill_lpr contribution (drop-one-out): macro-F1 +0.000, overall +0.000 — DEAD WEIGHT

@@ -1,0 +1,6 @@
+[OK] imports
+[OK] math_verify importable
+Free disk at pathway11_h100/: 198.8 GB
+[OK] disk >=30 GB
+[OK] GPU: 1 device(s), free=84.5 GB, total=85.0 GB
+[PASS] preflight

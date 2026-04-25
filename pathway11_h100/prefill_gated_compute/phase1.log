@@ -1,0 +1,22 @@
+======================================================================
+Experiment 2 / Phase 1: Majority-vote accuracy at K=1,2,4,8
+======================================================================
+  clustered 50/500
+  clustered 100/500
+  clustered 150/500
+  clustered 200/500
+  clustered 250/500
+  clustered 300/500
+  clustered 350/500
+  clustered 400/500
+  clustered 450/500
+  clustered 500/500
+  loaded 500/500 problems (missing: [])
+  K=1: overall acc = 0.4134  (averaged over 50 draws)
+  K=2: overall acc = 0.4132  (averaged over 50 draws)
+  K=4: overall acc = 0.4950  (averaged over 50 draws)
+  K=8: overall acc = 0.5500  (averaged over 1 draw)
+  sample-0 correct (one-of-eight K=1 realization): 0.4160
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase1_majority_vote.npz
+Summary: /home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase1_summary.json

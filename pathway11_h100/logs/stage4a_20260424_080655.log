@@ -1,0 +1,38 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Pathway 8: BBH All-Layer Hidden State Extraction
+======================================================================
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   8%|▊         | 28/338 [00:00<00:01, 278.53it/s]Loading weights:  26%|██▌       | 87/338 [00:00<00:00, 455.53it/s]Loading weights:  40%|███▉      | 135/338 [00:00<00:00, 454.13it/s]Loading weights:  54%|█████▎    | 181/338 [00:00<00:00, 456.04it/s]Loading weights:  67%|██████▋   | 227/338 [00:00<00:00, 456.70it/s]Loading weights:  81%|████████  | 273/338 [00:00<00:00, 454.51it/s]Loading weights:  94%|█████████▍| 319/338 [00:00<00:00, 449.22it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 453.38it/s]
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa)
+  Device: cuda:0
+Generating test split:   0%|          | 0/250 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 250/250 [00:00<00:00, 54818.90 examples/s]
+[transformers] The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+
+  tracking_shuffled_objects_seven_objects: 250 problems (0 already done)
+    50/250: acc=12.0%, 571s
+    100/250: acc=15.0%, 1118s
+    150/250: acc=11.3%, 1686s
+    200/250: acc=13.0%, 2211s
+    250/250: acc=12.4%, 2753s
+    Done: 12.4% (31/250), 2753s
+Generating test split:   0%|          | 0/250 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 250/250 [00:00<00:00, 43128.20 examples/s]
+
+  logical_deduction_seven_objects: 250 problems (0 already done)
+    50/250: acc=0.0%, 600s
+    100/250: acc=3.0%, 1189s
+    150/250: acc=4.7%, 1784s
+    200/250: acc=4.0%, 2375s
+    250/250: acc=6.0%, 2975s
+    Done: 6.0% (15/250), 2975s
+Generating test split:   0%|          | 0/250 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 250/250 [00:00<00:00, 50228.78 examples/s]
+
+  web_of_lies: 250 problems (0 already done)
+    50/250: acc=56.0%, 263s
+    100/250: acc=61.0%, 529s
+    150/250: acc=60.0%, 801s
+    200/250: acc=55.5%, 1068s
+    250/250: acc=54.0%, 1328s
+    Done: 54.0% (135/250), 1328s
+
+All BBH done: 7071s total
+Manifest saved to /workspace/topo-confidence/pathway8_layerwise/data/bbh/manifest.json

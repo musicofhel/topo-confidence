@@ -1,0 +1,208 @@
+{
+  "n_problems": 500,
+  "baseline_metrics": {
+    "k1_acc": 0.486,
+    "k8_acc": 0.55
+  },
+  "logreg": {
+    "simulation_no_fallback": {
+      "n": 500,
+      "n_answered": 318,
+      "coverage": 0.636,
+      "avg_K_on_answered": 3.1352201257861636,
+      "compute_per_problem": 1.994,
+      "accuracy_on_answered": 0.7044025157232704,
+      "overall_accuracy": 0.448,
+      "total_compute": 997,
+      "fallback": "none",
+      "n_routed_K1": 221,
+      "n_routed_K8": 97,
+      "n_refused": 182,
+      "correct_on_K1_route": 163,
+      "correct_on_K8_route": 61
+    },
+    "simulation_k1_fallback": {
+      "n": 500,
+      "n_answered": 500,
+      "coverage": 1.0,
+      "avg_K_on_answered": 2.358,
+      "compute_per_problem": 2.358,
+      "accuracy_on_answered": 0.52,
+      "overall_accuracy": 0.52,
+      "total_compute": 1179,
+      "fallback": "k1",
+      "n_routed_K1": 221,
+      "n_routed_K8": 97,
+      "n_refused": 182,
+      "correct_on_K1_route": 163,
+      "correct_on_K8_route": 61
+    },
+    "bucket_routing": {
+      "A": {
+        "n_A": 207,
+        "routed_to_K1": 148,
+        "routed_to_K8": 39,
+        "refused": 20
+      },
+      "B": {
+        "n_B": 68,
+        "routed_to_K1": 25,
+        "routed_to_K8": 22,
+        "refused": 21,
+        "B_recall_to_K8": 0.3235294117647059
+      },
+      "C": {
+        "n_C": 189,
+        "routed_to_K1": 33,
+        "routed_to_K8": 31,
+        "refused": 125,
+        "C_recall_to_refuse": 0.6613756613756614
+      },
+      "D": {
+        "n_D": 36,
+        "routed_to_K1": 15,
+        "routed_to_K8": 5,
+        "refused": 16,
+        "D_recall_to_K1": 0.4166666666666667,
+        "correct_after_routing": 15
+      }
+    }
+  },
+  "rf": {
+    "simulation_no_fallback": {
+      "n": 500,
+      "n_answered": 286,
+      "coverage": 0.572,
+      "avg_K_on_answered": 1.3916083916083917,
+      "compute_per_problem": 0.796,
+      "accuracy_on_answered": 0.6573426573426573,
+      "overall_accuracy": 0.376,
+      "total_compute": 398,
+      "fallback": "none",
+      "n_routed_K1": 270,
+      "n_routed_K8": 16,
+      "n_refused": 214,
+      "correct_on_K1_route": 179,
+      "correct_on_K8_route": 9
+    },
+    "simulation_k1_fallback": {
+      "n": 500,
+      "n_answered": 500,
+      "coverage": 1.0,
+      "avg_K_on_answered": 1.224,
+      "compute_per_problem": 1.224,
+      "accuracy_on_answered": 0.492,
+      "overall_accuracy": 0.492,
+      "total_compute": 612,
+      "fallback": "k1",
+      "n_routed_K1": 270,
+      "n_routed_K8": 16,
+      "n_refused": 214,
+      "correct_on_K1_route": 179,
+      "correct_on_K8_route": 9
+    },
+    "bucket_routing": {
+      "A": {
+        "n_A": 207,
+        "routed_to_K1": 163,
+        "routed_to_K8": 4,
+        "refused": 40
+      },
+      "B": {
+        "n_B": 68,
+        "routed_to_K1": 41,
+        "routed_to_K8": 5,
+        "refused": 22,
+        "B_recall_to_K8": 0.07352941176470588
+      },
+      "C": {
+        "n_C": 189,
+        "routed_to_K1": 50,
+        "routed_to_K8": 5,
+        "refused": 134,
+        "C_recall_to_refuse": 0.708994708994709
+      },
+      "D": {
+        "n_D": 36,
+        "routed_to_K1": 16,
+        "routed_to_K8": 2,
+        "refused": 18,
+        "D_recall_to_K1": 0.4444444444444444,
+        "correct_after_routing": 16
+      }
+    }
+  },
+  "exp2_policies": {
+    "uniform_K1": {
+      "coverage": 1.0,
+      "compute_per_problem": 1.0,
+      "accuracy_on_answered": 0.486,
+      "overall_accuracy": 0.486
+    },
+    "uniform_K2": {
+      "coverage": 1.0,
+      "compute_per_problem": 2.0,
+      "accuracy_on_answered": 0.4132,
+      "overall_accuracy": 0.4132
+    },
+    "uniform_K4": {
+      "coverage": 1.0,
+      "compute_per_problem": 4.0,
+      "accuracy_on_answered": 0.49496,
+      "overall_accuracy": 0.49496
+    },
+    "uniform_K8": {
+      "coverage": 1.0,
+      "compute_per_problem": 8.0,
+      "accuracy_on_answered": 0.55,
+      "overall_accuracy": 0.55
+    },
+    "quartile_prefill_balanced": {
+      "coverage": 1.0,
+      "compute_per_problem": 3.75,
+      "accuracy_on_answered": 0.46312000000000003,
+      "overall_accuracy": 0.46312000000000003
+    },
+    "quartile_prefill_top_heavy": {
+      "coverage": 1.0,
+      "compute_per_problem": 4.5,
+      "accuracy_on_answered": 0.492,
+      "overall_accuracy": 0.492
+    },
+    "quartile_prefill_refuse_and_spend": {
+      "coverage": 0.5,
+      "compute_per_problem": 1.25,
+      "accuracy_on_answered": 0.7158399999999999,
+      "overall_accuracy": 0.35791999999999996
+    },
+    "quartile_neg_seq_len_balanced": {
+      "coverage": 1.0,
+      "compute_per_problem": 3.75,
+      "accuracy_on_answered": 0.49872,
+      "overall_accuracy": 0.49872
+    },
+    "quartile_neg_seq_len_top_heavy": {
+      "coverage": 1.0,
+      "compute_per_problem": 4.5,
+      "accuracy_on_answered": 0.542,
+      "overall_accuracy": 0.542
+    },
+    "quartile_neg_seq_len_refuse_and_spend": {
+      "coverage": 0.5,
+      "compute_per_problem": 1.25,
+      "accuracy_on_answered": 0.70664,
+      "overall_accuracy": 0.35331999999999997
+    }
+  },
+  "exp2_oracle": {
+    "compute_per_problem": 1.006,
+    "overall_accuracy": 0.58896,
+    "K_distribution": {
+      "-1": 186,
+      "1": 243,
+      "2": 34,
+      "4": 26,
+      "8": 11
+    }
+  }
+}

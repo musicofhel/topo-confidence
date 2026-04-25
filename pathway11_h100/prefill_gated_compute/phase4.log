@@ -1,0 +1,36 @@
+======================================================================
+Experiment 2 / Phase 4: Oracle bucket analysis
+======================================================================
+  n = 500
+  A always-right (K=1 ✓, K=8 ✓): 207  (0.414)
+  B recoverable  (K=1 ✗, K=8 ✓): 68  (0.136)
+  C never-right  (K=1 ✗, K=8 ✗): 189  (0.378)
+  D pathological (K=1 ✓, K=8 ✗): 36  (0.072)
+
+  K=1 right:   243 (0.486)
+  K=8 maj right: 275 (0.550)
+  K=8 recovers K=1 failures: B / (B+C) = 68/257 = 0.265
+
+=== AUROC: does score separate buckets? ===
+score                    A vs B       B vs C     (A∪B) vs C    K=1 right    K=8 right
+  prefill                  0.6428       0.7698         0.8228       0.7731       0.8228
+  final_token              0.6696       0.6133         0.7073       0.7186       0.7073
+  neg_seq_len              0.7355       0.6418         0.7607       0.7986       0.7607
+  mean_logprob             0.6670       0.5295         0.6536       0.6721       0.6536
+
+=== Oracle-optimal K distribution (smallest K with acc ≥ 0.5) ===
+     never:  186 (0.372)
+       K=1:  243 (0.486)
+       K=2:   34 (0.068)
+       K=4:   26 (0.052)
+       K=8:   11 (0.022)
+
+  Oracle compute-per-problem: 1.01
+  Oracle overall accuracy:    0.5890
+
+=== Does prefill score predict oracle K? ===
+  Spearman(prefill_score, -oracle_K | answerable) = 0.175 (p=1.86e-03)
+  Spearman(final_token_score, -oracle_K | answerable) = 0.233 (p=3.11e-05)
+  Spearman(-seq_len, -oracle_K | answerable) = 0.327 (p=3.04e-09)
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase4_oracle.json

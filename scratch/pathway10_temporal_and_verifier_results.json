@@ -1,0 +1,205 @@
+{
+  "T1_temporal_dom": {
+    "trajectory_layer_empirical": 28,
+    "median_seq_len": 70,
+    "positions": [
+      {
+        "token_pos": 0,
+        "n_problems": 500,
+        "n_pos": 104,
+        "dom_train_auroc": 0.5876059442818593,
+        "dom_holdout_auroc": 0.39210367691380343,
+        "cos_with_final_token_dom": 0.046196311712265015
+      },
+      {
+        "token_pos": 9,
+        "n_problems": 500,
+        "n_pos": 104,
+        "dom_train_auroc": 0.6224772908669377,
+        "dom_holdout_auroc": 0.4267631103074141,
+        "cos_with_final_token_dom": 0.06087340787053108
+      },
+      {
+        "token_pos": 19,
+        "n_problems": 500,
+        "n_pos": 104,
+        "dom_train_auroc": 0.5970696666793356,
+        "dom_holdout_auroc": 0.48282097649186256,
+        "cos_with_final_token_dom": 0.015111065469682217
+      },
+      {
+        "token_pos": 29,
+        "n_problems": 498,
+        "n_pos": 103,
+        "dom_train_auroc": 0.6607170422970052,
+        "dom_holdout_auroc": 0.4786015672091622,
+        "cos_with_final_token_dom": 0.18599648773670197
+      },
+      {
+        "token_pos": 39,
+        "n_problems": 464,
+        "n_pos": 83,
+        "dom_train_auroc": 0.6599667379425043,
+        "dom_holdout_auroc": 0.724624060150376,
+        "cos_with_final_token_dom": 0.0704912468791008
+      },
+      {
+        "token_pos": 49,
+        "n_problems": 390,
+        "n_pos": 55,
+        "dom_train_auroc": 0.7020843510828857,
+        "dom_holdout_auroc": 0.5424836601307189,
+        "cos_with_final_token_dom": 0.14126263558864594
+      },
+      {
+        "token_pos": 59,
+        "n_problems": 308,
+        "n_pos": 30,
+        "dom_train_auroc": 0.7048788265306122,
+        "dom_holdout_auroc": 0.8055555555555556,
+        "cos_with_final_token_dom": 0.0011896133655682206
+      },
+      {
+        "token_pos": 69,
+        "n_problems": 251,
+        "n_pos": 24,
+        "dom_train_auroc": 0.9400599400599401,
+        "dom_holdout_auroc": 0.5222222222222223,
+        "cos_with_final_token_dom": 0.06806045025587082
+      }
+    ]
+  },
+  "T2_divergence": {
+    "samples_every_5th": [
+      {
+        "token_pos": 0,
+        "n_c": 104,
+        "n_i": 396,
+        "cos": 0.9999998211860657
+      },
+      {
+        "token_pos": 5,
+        "n_c": 104,
+        "n_i": 396,
+        "cos": 1.0
+      },
+      {
+        "token_pos": 10,
+        "n_c": 104,
+        "n_i": 396,
+        "cos": 0.9999998211860657
+      },
+      {
+        "token_pos": 15,
+        "n_c": 104,
+        "n_i": 396,
+        "cos": 0.9999998807907104
+      },
+      {
+        "token_pos": 20,
+        "n_c": 104,
+        "n_i": 396,
+        "cos": 0.9956304430961609
+      },
+      {
+        "token_pos": 25,
+        "n_c": 104,
+        "n_i": 396,
+        "cos": 0.9907880425453186
+      },
+      {
+        "token_pos": 30,
+        "n_c": 103,
+        "n_i": 395,
+        "cos": 0.9862120151519775
+      },
+      {
+        "token_pos": 35,
+        "n_c": 95,
+        "n_i": 388,
+        "cos": 0.9879660606384277
+      },
+      {
+        "token_pos": 40,
+        "n_c": 80,
+        "n_i": 380,
+        "cos": 0.9885197281837463
+      },
+      {
+        "token_pos": 45,
+        "n_c": 65,
+        "n_i": 354,
+        "cos": 0.989645779132843
+      },
+      {
+        "token_pos": 50,
+        "n_c": 54,
+        "n_i": 335,
+        "cos": 0.9856414198875427
+      },
+      {
+        "token_pos": 55,
+        "n_c": 40,
+        "n_i": 302,
+        "cos": 0.9836714267730713
+      },
+      {
+        "token_pos": 60,
+        "n_c": 30,
+        "n_i": 270,
+        "cos": 0.9728992581367493
+      },
+      {
+        "token_pos": 65,
+        "n_c": 29,
+        "n_i": 246,
+        "cos": 0.9692383408546448
+      },
+      {
+        "token_pos": 70,
+        "n_c": 24,
+        "n_i": 219,
+        "cos": 0.9745061993598938
+      }
+    ],
+    "first_below_0_95": null,
+    "last_point": {
+      "token_pos": 72,
+      "n_c": 22,
+      "n_i": 209,
+      "cos": 0.9760175347328186
+    }
+  },
+  "T3_feasibility": {
+    "gpu_info": "NVIDIA GeForce RTX 2060 SUPER, 8192 MiB, 6639 MiB",
+    "qwen_1_5b_cache_size": "2.9G",
+    "qwen_7b_cache_size": "11M",
+    "vram_fp16_gb_1_5b": 2.868473529815674,
+    "vram_fp16_gb_7b": 14.193356037139893,
+    "fits_on_local_2060": true,
+    "sweep_alpha_count": 7,
+    "sweep_problems": 100,
+    "sweep_tokens_per_problem": 200,
+    "sweep_estimate_rtx2060_hours": 0.9722222222222222,
+    "sweep_estimate_h100_minutes": 11.666666666666666
+  },
+  "T4_rank_corr": {
+    "layers": {
+      "1.5B": 19,
+      "7B": 15
+    },
+    "n_all": 500,
+    "spearman_rho_all": 0.8638679034716139,
+    "spearman_p_all": 2.0225777104823468e-150,
+    "n_both_correct": 44,
+    "spearman_rho_both_correct": 0.8014094432699084,
+    "spearman_p_both_correct": 6.361010231894746e-11,
+    "n_verifier_winnable": 37,
+    "spearman_rho_verifier_bucket": 0.79208155523945,
+    "spearman_p_verifier_bucket": 5.2263424137099445e-09,
+    "n_1_5B_wrong": 396,
+    "spearman_rho_1_5B_wrong": 0.8302388744119445,
+    "spearman_p_1_5B_wrong": 4.746643742904835e-102,
+    "truncation_caveat": "7B scores use max_tokens=256 activations (81/500 labels). phase6_5 has 348/500 at max_tokens=1024 but no activations cached."
+  }
+}

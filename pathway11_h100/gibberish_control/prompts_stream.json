@@ -1,0 +1,27 @@
+{
+  "prompts": [
+    "Write a stream of consciousness about nothing.",
+    "Ramble for a while about whatever crosses your mind.",
+    "Describe nothing, in detail.",
+    "Free-associate without any particular goal.",
+    "Let your thoughts drift and write them down as they come.",
+    "Say whatever comes to mind, with no structure.",
+    "Write an unedited inner monologue about the color blue.",
+    "Produce a meandering reflection with no point.",
+    "Pretend you are daydreaming and transcribe it.",
+    "Describe the feeling of waiting for something with no subject.",
+    "Write a passage with no beginning, middle, or end.",
+    "Let words flow without censoring them. Start anywhere.",
+    "Describe an empty room without using concrete details.",
+    "Write whatever text feels right next, sentence by sentence.",
+    "Free-write about the concept of free-writing.",
+    "Produce a disorganized essay about a non-topic.",
+    "Talk to yourself in prose.",
+    "Generate filler text that has no purpose.",
+    "Narrate the passage of a minute in which nothing happens.",
+    "Write a loose, unfocused paragraph about whatever."
+  ],
+  "meta": {
+    "mode": "stream_of_consciousness"
+  }
+}

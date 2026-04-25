@@ -1,0 +1,124 @@
+{
+  "conditions": {
+    "random_tokens": {
+      "data_dir": "/workspace/topo-confidence/pathway11_h100/gibberish_control/data/random",
+      "n_problems": 20,
+      "twothirds_layer_idx": 19,
+      "n_gen_tokens": {
+        "min": 237,
+        "median": 255.0,
+        "max": 255
+      },
+      "pr_by_position": {
+        "1": {
+          "n": 20,
+          "pr": 11.315935166610068
+        },
+        "10": {
+          "n": 20,
+          "pr": 10.568101417434693
+        },
+        "25": {
+          "n": 20,
+          "pr": 11.72242871895225
+        },
+        "50": {
+          "n": 20,
+          "pr": 10.134965327870868
+        },
+        "100": {
+          "n": 20,
+          "pr": 10.357225096069985
+        },
+        "200": {
+          "n": 20,
+          "pr": 9.439237848577795
+        },
+        "final": {
+          "n": 20,
+          "pr": 8.963097360506318
+        }
+      }
+    },
+    "stream_of_consciousness": {
+      "data_dir": "/workspace/topo-confidence/pathway11_h100/gibberish_control/data/stream",
+      "n_problems": 20,
+      "twothirds_layer_idx": 19,
+      "n_gen_tokens": {
+        "min": 10,
+        "median": 141.5,
+        "max": 255
+      },
+      "pr_by_position": {
+        "1": {
+          "n": 20,
+          "pr": 4.5966970751104155
+        },
+        "10": {
+          "n": 20,
+          "pr": 15.662493885959867
+        },
+        "25": {
+          "n": 17,
+          "pr": 13.588903523126472
+        },
+        "50": {
+          "n": 14,
+          "pr": 11.347496763995657
+        },
+        "100": {
+          "n": 12,
+          "pr": 9.930377757674423
+        },
+        "200": {
+          "n": 9,
+          "pr": 7.409434680958436
+        },
+        "final": {
+          "n": 20,
+          "pr": 9.234315481078413
+        }
+      }
+    },
+    "math500_baseline": {
+      "data_dir": "/workspace/topo-confidence/pathway11_h100/gibberish_control/data/math500",
+      "n_problems": 50,
+      "twothirds_layer_idx": 19,
+      "n_gen_tokens": {
+        "min": 154,
+        "median": 255.0,
+        "max": 255
+      },
+      "pr_by_position": {
+        "1": {
+          "n": 50,
+          "pr": 13.73524962240093
+        },
+        "10": {
+          "n": 50,
+          "pr": 23.280837262057542
+        },
+        "25": {
+          "n": 50,
+          "pr": 24.55573346827339
+        },
+        "50": {
+          "n": 50,
+          "pr": 30.554419380797377
+        },
+        "100": {
+          "n": 50,
+          "pr": 29.93887932470338
+        },
+        "200": {
+          "n": 47,
+          "pr": 27.875962739060107
+        },
+        "final": {
+          "n": 50,
+          "pr": 22.186663572792018
+        }
+      }
+    }
+  }
+}

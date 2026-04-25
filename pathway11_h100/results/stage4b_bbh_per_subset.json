@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "n_boot": 2000,
+    "seed": 9999,
+    "cv": "StratifiedKFold(5, shuffle=True, random_state=9999)",
+    "steering_layer": 19
+  },
+  "subsets": {
+    "tracking_shuffled_objects_seven_objects": {
+      "subset": "tracking_shuffled_objects_seven_objects",
+      "n": 250,
+      "n_correct": 31,
+      "acc": 0.124,
+      "coe": {
+        "auroc": 0.7915746059802622,
+        "ci95": [
+          0.7306555780933063,
+          0.8504804348178792
+        ],
+        "median_boot": 0.7929059185531846
+      },
+      "l19_dom": {
+        "auroc": 0.7790543526292533,
+        "ci95": [
+          0.7089385838669894,
+          0.8450059523809524
+        ],
+        "median_boot": 0.7806565126065063,
+        "sign_flip_mean_abs_cos": 0.4559961249679327
+      },
+      "length_corr": {
+        "rho_l19_dom_score_vs_seqlen": -0.7154243177505365,
+        "p": 1.7008671425594958e-40
+      },
+      "length_vs_correct": {
+        "rho": -0.275672977733116,
+        "p": 9.737113587056682e-06
+      }
+    },
+    "logical_deduction_seven_objects": {
+      "subset": "logical_deduction_seven_objects",
+      "n": 250,
+      "n_correct": 15,
+      "acc": 0.06,
+      "coe": {
+        "auroc": 0.5917730496453901,
+        "ci95": [
+          0.43027593085106386,
+          0.7510842664719246
+        ],
+        "median_boot": 0.5923402874170447
+      },
+      "l19_dom": {
+        "auroc": 0.7373049645390071,
+        "ci95": [
+          0.6221349313223808,
+          0.8393278216458997
+        ],
+        "median_boot": 0.7376278900954456,
+        "sign_flip_mean_abs_cos": 0.3305713640153408
+      },
+      "length_corr": {
+        "rho_l19_dom_score_vs_seqlen": -0.7687193683563314,
+        "p": 4.78950382491154e-50
+      },
+      "length_vs_correct": {
+        "rho": -0.10503041336319378,
+        "p": 0.09753160451100117
+      }
+    },
+    "web_of_lies": {
+      "subset": "web_of_lies",
+      "n": 250,
+      "n_correct": 135,
+      "acc": 0.54,
+      "coe": {
+        "auroc": 0.6823188405797102,
+        "ci95": [
+          0.617624038146491,
+          0.7468305222068781
+        ],
+        "median_boot": 0.6829981742305686
+      },
+      "l19_dom": {
+        "auroc": 0.7101449275362317,
+        "ci95": [
+          0.6458967168653238,
+          0.771596228572139
+        ],
+        "median_boot": 0.7106622265946092,
+        "sign_flip_mean_abs_cos": 0.4821400868333876
+      },
+      "length_corr": {
+        "rho_l19_dom_score_vs_seqlen": 0.20947993284471841,
+        "p": 0.0008603187514385877
+      },
+      "length_vs_correct": {
+        "rho": 0.18250857500417353,
+        "p": 0.0037842052800365223
+      }
+    }
+  }
+}

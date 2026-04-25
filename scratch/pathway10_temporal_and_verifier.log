@@ -1,0 +1,47 @@
+Split: train=400 (pos=83), hold=100 (pos=21)
+Trajectory layer identified: L=28 (mean cos=1.000). User said L15.
+
+seq_len: median=70, mean=88.7, p25=52, p75=97
+  t=  0  n=500  pos=104  DoM_ho=0.392  cos(final)=+0.046
+  t=  9  n=500  pos=104  DoM_ho=0.427  cos(final)=+0.061
+  t= 19  n=500  pos=104  DoM_ho=0.483  cos(final)=+0.015
+  t= 29  n=498  pos=103  DoM_ho=0.479  cos(final)=+0.186
+  t= 39  n=464  pos= 83  DoM_ho=0.725  cos(final)=+0.070
+  t= 49  n=390  pos= 55  DoM_ho=0.542  cos(final)=+0.141
+  t= 59  n=308  pos= 30  DoM_ho=0.806  cos(final)=+0.001
+  t= 69  n=251  pos= 24  DoM_ho=0.522  cos(final)=+0.068
+
+Divergence curve (every 5th token):
+  t=  0  cos(correct,incorrect)=1.0000  n_c=104  n_i=396
+  t=  5  cos(correct,incorrect)=1.0000  n_c=104  n_i=396
+  t= 10  cos(correct,incorrect)=1.0000  n_c=104  n_i=396
+  t= 15  cos(correct,incorrect)=1.0000  n_c=104  n_i=396
+  t= 20  cos(correct,incorrect)=0.9956  n_c=104  n_i=396
+  t= 25  cos(correct,incorrect)=0.9908  n_c=104  n_i=396
+  t= 30  cos(correct,incorrect)=0.9862  n_c=103  n_i=395
+  t= 35  cos(correct,incorrect)=0.9880  n_c=95  n_i=388
+  t= 40  cos(correct,incorrect)=0.9885  n_c=80  n_i=380
+  t= 45  cos(correct,incorrect)=0.9896  n_c=65  n_i=354
+  t= 50  cos(correct,incorrect)=0.9856  n_c=54  n_i=335
+  t= 55  cos(correct,incorrect)=0.9837  n_c=40  n_i=302
+  t= 60  cos(correct,incorrect)=0.9729  n_c=30  n_i=270
+  t= 65  cos(correct,incorrect)=0.9692  n_c=29  n_i=246
+  t= 70  cos(correct,incorrect)=0.9745  n_c=24  n_i=219
+First token where cos < 0.95: None
+
+T3 feasibility:
+  GPU: NVIDIA GeForce RTX 2060 SUPER, 8192 MiB, 6639 MiB
+  1.5B cache: 2.9G  |  7B cache: 11M
+  1.5B fp16 VRAM: 2.87 GB (fits on 2060)
+  7B fp16 VRAM:   14.19 GB (pod only)
+  α-sweep: 7×100×200 tok  →  ~58 min on 2060  |  ~12 min on H100
+
+  both-correct (44): expected ~44, got 44
+
+T4 Spearman (1.5B L19 DoM score  vs  7B L15 DoM score):
+  all 500:                 rho=+0.864  p=2.02e-150
+  both-right (44):          rho=+0.801  p=6.36e-11
+  verifier-winnable (37):    rho=+0.792  p=5.23e-09
+  1.5B-wrong (396):         rho=+0.830  p=4.75e-102
+
+Wrote /home/musicofhel/topo-confidence/scratch/pathway10_temporal_and_verifier_results.json

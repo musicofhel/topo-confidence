@@ -1,0 +1,43 @@
+======================================================================
+Exp 3 / Phase 3: mechanistic analysis
+======================================================================
+
+Loading MATH-500 difficulty levels...
+  have levels: True; dist = {np.int64(1): np.int64(43), np.int64(2): np.int64(90), np.int64(3): np.int64(105), np.int64(4): np.int64(128), np.int64(5): np.int64(134)}
+
+(a) PR per (level, correctness) — 7B ...
+  level_1: n=43 (too few in one group)
+  level_2: n=90 (c=81, i=9) PR_c=22.058 PR_i=5.543 ratio=3.979
+  level_3: n=105 (c=88, i=17) PR_c=22.349 PR_i=9.371 ratio=2.385
+  level_4: n=128 (c=92, i=36) PR_c=23.093 PR_i=13.227 ratio=1.746
+  level_5: n=134 (c=64, i=70) PR_c=21.716 PR_i=19.605 ratio=1.108
+
+(a') PR per (level, correctness) — 1.5B ...
+  level_1: n=43 (c=36, i=7) PR_c=13.173 PR_i=4.413 ratio=2.985
+  level_2: n=90 (c=65, i=25) PR_c=16.070 PR_i=11.525 ratio=1.394
+  level_3: n=105 (c=64, i=41) PR_c=15.495 PR_i=13.809 ratio=1.122
+  level_4: n=128 (c=51, i=77) PR_c=15.078 PR_i=17.639 ratio=0.855
+  level_5: n=134 (c=27, i=107) PR_c=12.273 PR_i=19.306 ratio=0.636
+
+(b) K-means clustering on 7B prefill ...
+  PCA: 64 components, 0.798 var
+  k=5: ARI(correct)=0.0866 ARI(level)=0.06670855859046543 acc_var_across_clusters=0.0608
+    top-acc clusters: [(93, 0.978, 2.25), (99, 0.909, 3.2), (143, 0.832, 3.63)]
+    bot-acc clusters: [(120, 0.383, 4.25), (45, 0.444, 3.67), (143, 0.832, 3.63)]
+  k=6: ARI(correct)=0.0633 ARI(level)=0.065976072420488 acc_var_across_clusters=0.0537
+    top-acc clusters: [(91, 0.978, 2.24), (63, 0.921, 3.02), (39, 0.897, 3.56)]
+    bot-acc clusters: [(124, 0.403, 4.23), (45, 0.444, 3.67), (138, 0.826, 3.61)]
+  k=8: ARI(correct)=0.0453 ARI(level)=0.051828826773703526 acc_var_across_clusters=0.0539
+    top-acc clusters: [(63, 1.0, 2.48), (46, 0.957, 2.15), (59, 0.915, 3.02)]
+    bot-acc clusters: [(44, 0.432, 3.64), (88, 0.432, 4.31), (64, 0.484, 3.92)]
+  k=10: ARI(correct)=0.0354 ARI(level)=0.04739264258440739 acc_var_across_clusters=0.0541
+    top-acc clusters: [(57, 1.0, 2.47), (42, 0.952, 3.12), (60, 0.933, 3.12)]
+    bot-acc clusters: [(81, 0.395, 4.32), (43, 0.419, 3.67), (53, 0.434, 3.79)]
+
+(b') K-means on 1.5B prefill ...
+  k=5: ARI(correct)=0.0568 ARI(level)=0.048213144354819486
+  k=6: ARI(correct)=0.0554 ARI(level)=0.05096661816548902
+  k=8: ARI(correct)=0.0479 ARI(level)=0.042256460443926544
+  k=10: ARI(correct)=0.0316 ARI(level)=0.026839686825350238
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/phase3_mechanistic.json

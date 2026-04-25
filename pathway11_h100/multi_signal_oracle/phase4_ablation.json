@@ -1,0 +1,288 @@
+{
+  "runs": [
+    {
+      "features": [
+        "prefill_dom",
+        "prefill_lpr",
+        "seq_len"
+      ],
+      "macro_f1": 0.5496144712099204,
+      "compute_per_problem": 2.358,
+      "overall_accuracy": 0.52,
+      "D_recall_to_K1": 0.4166666666666667,
+      "C_recall_to_refuse": 0.6613756613756614,
+      "B_recall_to_K8": 0.3235294117647059,
+      "label": "full (prefill_dom + prefill_lpr + seq_len)",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_lpr",
+        "seq_len"
+      ],
+      "macro_f1": 0.5059826826634515,
+      "compute_per_problem": 2.162,
+      "overall_accuracy": 0.506,
+      "D_recall_to_K1": 0.6111111111111112,
+      "C_recall_to_refuse": 0.5608465608465608,
+      "B_recall_to_K8": 0.23529411764705882,
+      "label": "drop prefill_dom",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "seq_len"
+      ],
+      "macro_f1": 0.5497949386944232,
+      "compute_per_problem": 2.372,
+      "overall_accuracy": 0.52,
+      "D_recall_to_K1": 0.4166666666666667,
+      "C_recall_to_refuse": 0.656084656084656,
+      "B_recall_to_K8": 0.3382352941176471,
+      "label": "drop prefill_lpr",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "prefill_lpr"
+      ],
+      "macro_f1": 0.5170484387960645,
+      "compute_per_problem": 2.442,
+      "overall_accuracy": 0.51,
+      "D_recall_to_K1": 0.3055555555555556,
+      "C_recall_to_refuse": 0.7142857142857143,
+      "B_recall_to_K8": 0.2647058823529412,
+      "label": "drop seq_len",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_dom"
+      ],
+      "macro_f1": 0.5246406502944125,
+      "compute_per_problem": 2.344,
+      "overall_accuracy": 0.512,
+      "D_recall_to_K1": 0.3055555555555556,
+      "C_recall_to_refuse": 0.708994708994709,
+      "B_recall_to_K8": 0.27941176470588236,
+      "label": "only prefill_dom",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_lpr"
+      ],
+      "macro_f1": 0.3628181160648577,
+      "compute_per_problem": 2.176,
+      "overall_accuracy": 0.494,
+      "D_recall_to_K1": 0.3888888888888889,
+      "C_recall_to_refuse": 0.49206349206349204,
+      "B_recall_to_K8": 0.16176470588235295,
+      "label": "only prefill_lpr",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "seq_len"
+      ],
+      "macro_f1": 0.5135631502007583,
+      "compute_per_problem": 2.204,
+      "overall_accuracy": 0.508,
+      "D_recall_to_K1": 0.6111111111111112,
+      "C_recall_to_refuse": 0.5661375661375662,
+      "B_recall_to_K8": 0.25,
+      "label": "only seq_len",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "prefill_lpr",
+        "seq_len",
+        "finaltok_dom",
+        "finaltok_lpr",
+        "mean_logprob"
+      ],
+      "macro_f1": 0.576835114713801,
+      "compute_per_problem": 2.652,
+      "overall_accuracy": 0.528,
+      "D_recall_to_K1": 0.4444444444444444,
+      "C_recall_to_refuse": 0.6455026455026455,
+      "B_recall_to_K8": 0.4117647058823529,
+      "label": "extended (+ finaltok_dom + finaltok_lpr + mean_logprob)",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "seq_len"
+      ],
+      "macro_f1": 0.5497949386944232,
+      "compute_per_problem": 2.372,
+      "overall_accuracy": 0.52,
+      "D_recall_to_K1": 0.4166666666666667,
+      "C_recall_to_refuse": 0.656084656084656,
+      "B_recall_to_K8": 0.3382352941176471,
+      "label": "prefill_dom + seq_len (no PR)",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "finaltok_dom",
+        "seq_len"
+      ],
+      "macro_f1": 0.5084108494562205,
+      "compute_per_problem": 2.61,
+      "overall_accuracy": 0.51,
+      "D_recall_to_K1": 0.6111111111111112,
+      "C_recall_to_refuse": 0.5026455026455027,
+      "B_recall_to_K8": 0.29411764705882354,
+      "label": "finaltok_dom + seq_len",
+      "clf": "logreg"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "prefill_lpr",
+        "seq_len"
+      ],
+      "macro_f1": 0.49003031355252863,
+      "compute_per_problem": 1.224,
+      "overall_accuracy": 0.492,
+      "D_recall_to_K1": 0.4444444444444444,
+      "C_recall_to_refuse": 0.708994708994709,
+      "B_recall_to_K8": 0.07352941176470588,
+      "label": "full (prefill_dom + prefill_lpr + seq_len)",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_lpr",
+        "seq_len"
+      ],
+      "macro_f1": 0.4264356430078212,
+      "compute_per_problem": 1.588,
+      "overall_accuracy": 0.486,
+      "D_recall_to_K1": 0.5,
+      "C_recall_to_refuse": 0.5555555555555556,
+      "B_recall_to_K8": 0.058823529411764705,
+      "label": "drop prefill_dom",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "seq_len"
+      ],
+      "macro_f1": 0.45801528332291863,
+      "compute_per_problem": 1.476,
+      "overall_accuracy": 0.49,
+      "D_recall_to_K1": 0.4166666666666667,
+      "C_recall_to_refuse": 0.6507936507936508,
+      "B_recall_to_K8": 0.07352941176470588,
+      "label": "drop prefill_lpr",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "prefill_lpr"
+      ],
+      "macro_f1": 0.4284620208200499,
+      "compute_per_problem": 1.546,
+      "overall_accuracy": 0.48,
+      "D_recall_to_K1": 0.3888888888888889,
+      "C_recall_to_refuse": 0.6084656084656085,
+      "B_recall_to_K8": 0.029411764705882353,
+      "label": "drop seq_len",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_dom"
+      ],
+      "macro_f1": 0.4276150468770613,
+      "compute_per_problem": 2.19,
+      "overall_accuracy": 0.494,
+      "D_recall_to_K1": 0.3888888888888889,
+      "C_recall_to_refuse": 0.544973544973545,
+      "B_recall_to_K8": 0.14705882352941177,
+      "label": "only prefill_dom",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_lpr"
+      ],
+      "macro_f1": 0.2777785941201306,
+      "compute_per_problem": 1.812,
+      "overall_accuracy": 0.474,
+      "D_recall_to_K1": 0.4722222222222222,
+      "C_recall_to_refuse": 0.37037037037037035,
+      "B_recall_to_K8": 0.029411764705882353,
+      "label": "only prefill_lpr",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "seq_len"
+      ],
+      "macro_f1": 0.45048117496792595,
+      "compute_per_problem": 2.092,
+      "overall_accuracy": 0.484,
+      "D_recall_to_K1": 0.4166666666666667,
+      "C_recall_to_refuse": 0.6031746031746031,
+      "B_recall_to_K8": 0.11764705882352941,
+      "label": "only seq_len",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "prefill_lpr",
+        "seq_len",
+        "finaltok_dom",
+        "finaltok_lpr",
+        "mean_logprob"
+      ],
+      "macro_f1": 0.5181516643307923,
+      "compute_per_problem": 1.224,
+      "overall_accuracy": 0.492,
+      "D_recall_to_K1": 0.5277777777777778,
+      "C_recall_to_refuse": 0.7248677248677249,
+      "B_recall_to_K8": 0.058823529411764705,
+      "label": "extended (+ finaltok_dom + finaltok_lpr + mean_logprob)",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "prefill_dom",
+        "seq_len"
+      ],
+      "macro_f1": 0.45801528332291863,
+      "compute_per_problem": 1.476,
+      "overall_accuracy": 0.49,
+      "D_recall_to_K1": 0.4166666666666667,
+      "C_recall_to_refuse": 0.6507936507936508,
+      "B_recall_to_K8": 0.07352941176470588,
+      "label": "prefill_dom + seq_len (no PR)",
+      "clf": "rf"
+    },
+    {
+      "features": [
+        "finaltok_dom",
+        "seq_len"
+      ],
+      "macro_f1": 0.42757240265109403,
+      "compute_per_problem": 1.406,
+      "overall_accuracy": 0.478,
+      "D_recall_to_K1": 0.5555555555555556,
+      "C_recall_to_refuse": 0.5873015873015873,
+      "B_recall_to_K8": 0.0,
+      "label": "finaltok_dom + seq_len",
+      "clf": "rf"
+    }
+  ]
+}

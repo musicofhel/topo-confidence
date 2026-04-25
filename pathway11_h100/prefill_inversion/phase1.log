@@ -1,0 +1,58 @@
+======================================================================
+Exp 3 / Phase 1: Bootstrap validation of 7B prefill PR inversion
+======================================================================
+
+Loading 7B prefill...
+  7B shape: (500, 3584)
+Loading 1.5B prefill...
+  1.5B shape: (500, 1536)
+
+=== 7B_prefill ===
+  n=500, correct=366 (0.732), incorrect=134
+  point: PR_correct=26.873, PR_incorrect=19.514, ratio=1.377
+  bootstrap 1000x ...
+    PR_correct: mean=25.066 CI95=[23.07157015800476, 26.989775609970092]
+    PR_incorrect: mean=17.006 CI95=[14.291020822525024, 20.1645809173584]
+    ratio: mean=1.485 CI95=[1.2254645586938757, 1.7569904867197708] P(ratio>1)=1.000
+  balance control 100x ...
+    balanced: PR_min=19.514 PR_maj_subsamp=23.953
+    ratio correct/incorrect: 1.227 CI95=[1.1310119734673616, 1.317613040962006] P(>1)=1.000
+  321.3s
+
+=== 1.5B_prefill ===
+  n=500, correct=243 (0.486), incorrect=257
+  point: PR_correct=19.405, PR_incorrect=20.521, ratio=0.946
+  bootstrap 1000x ...
+    PR_correct: mean=17.999 CI95=[16.520549535751343, 19.629527664184568]
+    PR_incorrect: mean=18.957 CI95=[17.395156049728392, 20.55788927078247]
+    ratio: mean=0.951 CI95=[0.8426721740824179, 1.065840183417546] P(ratio>1)=0.187
+  balance control 100x ...
+    balanced: PR_min=19.405 PR_maj_subsamp=20.445
+    ratio correct/incorrect: 0.949 CI95=[0.9320331140785179, 0.968146909201479] P(>1)=0.000
+  195.0s
+
+=== 7B_final_token ===
+  n=500, correct=366 (0.732), incorrect=134
+  point: PR_correct=2.629, PR_incorrect=6.848, ratio=0.384
+  bootstrap 1000x ...
+    PR_correct: mean=2.620 CI95=[2.4237755298614503, 2.848037302494049]
+    PR_incorrect: mean=6.316 CI95=[5.680855822563172, 6.957733011245727]
+    ratio: mean=0.416 CI95=[0.3651180314266477, 0.47861362101025656] P(ratio>1)=0.000
+  balance control 100x ...
+    balanced: PR_min=6.848 PR_maj_subsamp=2.612
+    ratio correct/incorrect: 0.381 CI95=[0.34954073659715607, 0.42824015380168334] P(>1)=0.000
+  320.4s
+
+=== 1.5B_final_token ===
+  n=500, correct=243 (0.486), incorrect=257
+  point: PR_correct=4.330, PR_incorrect=8.511, ratio=0.509
+  bootstrap 1000x ...
+    PR_correct: mean=4.201 CI95=[3.3827039301395416, 5.003798806667328]
+    PR_incorrect: mean=8.092 CI95=[7.255988013744354, 8.862815356254577]
+    ratio: mean=0.521 CI95=[0.41153187775591293, 0.6450815340969394] P(ratio>1)=0.000
+  balance control 100x ...
+    balanced: PR_min=4.330 PR_maj_subsamp=8.468
+    ratio correct/incorrect: 0.511 CI95=[0.5020851285947373, 0.5226044344526123] P(>1)=0.000
+  147.6s
+
+Saved: /home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/phase1_bootstrap.json

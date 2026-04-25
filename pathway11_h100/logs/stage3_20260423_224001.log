@@ -1,0 +1,64 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+======================================================================
+Stage 3: K=8 self-consistency × 1.5B, T=0.7
+         Saving L19 final-token activations per sample (1536-d float16)
+======================================================================
+  5 problems already sampled, continuing from remainder
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   6%|▌         | 20/338 [00:00<00:01, 192.33it/s]Loading weights:  20%|██        | 69/338 [00:00<00:00, 361.99it/s]Loading weights:  33%|███▎      | 112/338 [00:00<00:00, 379.49it/s]Loading weights:  46%|████▌     | 156/338 [00:00<00:00, 400.96it/s]Loading weights:  58%|█████▊    | 197/338 [00:00<00:00, 399.98it/s]Loading weights:  70%|███████   | 238/338 [00:00<00:00, 397.25it/s]Loading weights:  83%|████████▎ | 280/338 [00:00<00:00, 399.64it/s]Loading weights:  95%|█████████▍| 320/338 [00:00<00:00, 391.23it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 392.36it/s]
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa)
+  Device: cuda:0
+Loaded 500 MATH-500 problems
+  10/500: maj=7/10 any=8/10 all=1/10, 311s elapsed, ETA 30457s
+  20/500: maj=9/20 any=13/20 all=2/20, 965s elapsed, ETA 30890s
+  30/500: maj=13/30 any=19/30 all=4/30, 1591s elapsed, ETA 29902s
+  40/500: maj=19/40 any=27/40 all=5/40, 2141s elapsed, ETA 28137s
+  50/500: maj=23/50 any=36/50 all=7/50, 2786s elapsed, ETA 27855s
+  60/500: maj=29/60 any=45/60 all=11/60, 3339s elapsed, ETA 26710s
+  70/500: maj=31/70 any=52/70 all=12/70, 4115s elapsed, ETA 27222s
+  80/500: maj=38/80 any=61/80 all=15/80, 4657s elapsed, ETA 26080s
+  90/500: maj=42/90 any=68/90 all=17/90, 5396s elapsed, ETA 26030s
+  100/500: maj=46/100 any=76/100 all=19/100, 6058s elapsed, ETA 25506s
+  110/500: maj=48/110 any=80/110 all=20/110, 6826s elapsed, ETA 25354s
+  120/500: maj=53/120 any=87/120 all=23/120, 7464s elapsed, ETA 24664s
+  130/500: maj=56/130 any=94/130 all=23/130, 8112s elapsed, ETA 24011s
+  140/500: maj=61/140 any=101/140 all=24/140, 8805s elapsed, ETA 23480s
+  150/500: maj=66/150 any=108/150 all=25/150, 9487s elapsed, ETA 22901s
+  160/500: maj=68/160 any=115/160 all=25/160, 10249s elapsed, ETA 22482s
+  170/500: maj=72/170 any=122/170 all=27/170, 10849s elapsed, ETA 21697s
+  180/500: maj=78/180 any=131/180 all=29/180, 11590s elapsed, ETA 21193s
+  190/500: maj=82/190 any=139/190 all=30/190, 12249s elapsed, ETA 20526s
+  200/500: maj=84/200 any=147/200 all=31/200, 12849s elapsed, ETA 19768s
+  210/500: maj=88/210 any=157/210 all=32/210, 13549s elapsed, ETA 19167s
+  220/500: maj=92/220 any=163/220 all=33/220, 14162s elapsed, ETA 18443s
+  230/500: maj=93/230 any=169/230 all=33/230, 14826s elapsed, ETA 17791s
+  240/500: maj=96/240 any=175/240 all=34/240, 15776s elapsed, ETA 17454s
+  250/500: maj=98/250 any=179/250 all=35/250, 16574s elapsed, ETA 16913s
+  260/500: maj=103/260 any=187/260 all=37/260, 17135s elapsed, ETA 16127s
+  270/500: maj=110/270 any=196/270 all=38/270, 17689s elapsed, ETA 15353s
+  280/500: maj=114/280 any=203/280 all=41/280, 18248s elapsed, ETA 14598s
+  290/500: maj=116/290 any=207/290 all=41/290, 19092s elapsed, ETA 14068s
+  300/500: maj=116/300 any=211/300 all=41/300, 19965s elapsed, ETA 13536s
+  310/500: maj=119/310 any=217/310 all=42/310, 20672s elapsed, ETA 12878s
+  320/500: maj=122/320 any=225/320 all=43/320, 21305s elapsed, ETA 12174s
+  330/500: maj=126/330 any=232/330 all=46/330, 22038s elapsed, ETA 11528s
+  340/500: maj=130/340 any=238/340 all=46/340, 22739s elapsed, ETA 10860s
+  350/500: maj=135/350 any=246/350 all=50/350, 23337s elapsed, ETA 10146s
+  360/500: maj=135/360 any=252/360 all=50/360, 24167s elapsed, ETA 9531s
+  370/500: maj=140/370 any=259/370 all=51/370, 24766s elapsed, ETA 8821s
+  380/500: maj=145/380 any=267/380 all=53/380, 25477s elapsed, ETA 8153s
+  390/500: maj=150/390 any=275/390 all=55/390, 26109s elapsed, ETA 7460s
+  400/500: maj=154/400 any=283/400 all=58/400, 26798s elapsed, ETA 6784s
+  410/500: maj=158/410 any=289/410 all=58/410, 27436s elapsed, ETA 6097s
+  420/500: maj=162/420 any=296/420 all=58/420, 28229s elapsed, ETA 5442s
+  430/500: maj=166/430 any=301/430 all=59/430, 29086s elapsed, ETA 4791s
+  440/500: maj=169/440 any=309/440 all=60/440, 29890s elapsed, ETA 4123s
+  450/500: maj=174/450 any=317/450 all=60/450, 30491s elapsed, ETA 3426s
+  460/500: maj=177/460 any=325/460 all=62/460, 31180s elapsed, ETA 2741s
+  470/500: maj=180/470 any=332/470 all=63/470, 31703s elapsed, ETA 2045s
+  480/500: maj=182/480 any=339/480 all=65/480, 32472s elapsed, ETA 1367s
+  490/500: maj=184/490 any=344/490 all=66/490, 33216s elapsed, ETA 685s
+  500/500: maj=185/500 any=352/500 all=66/500, 34001s elapsed, ETA 0s
+
+Done: 34001s total. Majority-vote acc=37.0%, any-correct rate=70.4%, all-correct rate=13.2%
+Output: 500/500 npz files in /workspace/topo-confidence/pathway11_h100/data/k8_selfconsistency
+[DONE] stage3 marker written

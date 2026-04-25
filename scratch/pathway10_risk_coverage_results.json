@@ -1,0 +1,808 @@
+{
+  "meta": {
+    "seed": 9999,
+    "test_size": 0.2,
+    "n_hold": 100,
+    "n_hold_pos": 21,
+    "hold_base_rate": 0.21,
+    "labels": "NEW (baseline_correct_v2)",
+    "coverage_grid": [
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3,
+      0.35,
+      0.4,
+      0.45,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ]
+  },
+  "Q1_1_5B_L19_DoM": {
+    "layer": 19,
+    "auroc_holdout": 0.8227848101265822,
+    "aurc_holdout": 0.5965003620062783,
+    "curve": [
+      {
+        "coverage": 0.1,
+        "k_answered": 10,
+        "k_refused": 90,
+        "acc_answered": 0.6,
+        "acc_refused": 0.16666666666666666
+      },
+      {
+        "coverage": 0.15,
+        "k_answered": 15,
+        "k_refused": 85,
+        "acc_answered": 0.6666666666666666,
+        "acc_refused": 0.12941176470588237
+      },
+      {
+        "coverage": 0.2,
+        "k_answered": 20,
+        "k_refused": 80,
+        "acc_answered": 0.65,
+        "acc_refused": 0.1
+      },
+      {
+        "coverage": 0.25,
+        "k_answered": 25,
+        "k_refused": 75,
+        "acc_answered": 0.56,
+        "acc_refused": 0.09333333333333334
+      },
+      {
+        "coverage": 0.3,
+        "k_answered": 30,
+        "k_refused": 70,
+        "acc_answered": 0.4666666666666667,
+        "acc_refused": 0.1
+      },
+      {
+        "coverage": 0.35,
+        "k_answered": 35,
+        "k_refused": 65,
+        "acc_answered": 0.45714285714285713,
+        "acc_refused": 0.07692307692307693
+      },
+      {
+        "coverage": 0.4,
+        "k_answered": 40,
+        "k_refused": 60,
+        "acc_answered": 0.45,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.45,
+        "k_answered": 45,
+        "k_refused": 55,
+        "acc_answered": 0.4,
+        "acc_refused": 0.05454545454545454
+      },
+      {
+        "coverage": 0.5,
+        "k_answered": 50,
+        "k_refused": 50,
+        "acc_answered": 0.36,
+        "acc_refused": 0.06
+      },
+      {
+        "coverage": 0.55,
+        "k_answered": 55,
+        "k_refused": 45,
+        "acc_answered": 0.32727272727272727,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.6,
+        "k_answered": 60,
+        "k_refused": 40,
+        "acc_answered": 0.31666666666666665,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.65,
+        "k_answered": 65,
+        "k_refused": 35,
+        "acc_answered": 0.2923076923076923,
+        "acc_refused": 0.05714285714285714
+      },
+      {
+        "coverage": 0.7,
+        "k_answered": 70,
+        "k_refused": 30,
+        "acc_answered": 0.2714285714285714,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.75,
+        "k_answered": 75,
+        "k_refused": 25,
+        "acc_answered": 0.25333333333333335,
+        "acc_refused": 0.08
+      },
+      {
+        "coverage": 0.8,
+        "k_answered": 80,
+        "k_refused": 20,
+        "acc_answered": 0.25,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.85,
+        "k_answered": 85,
+        "k_refused": 15,
+        "acc_answered": 0.23529411764705882,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.9,
+        "k_answered": 90,
+        "k_refused": 10,
+        "acc_answered": 0.23333333333333334,
+        "acc_refused": 0.0
+      }
+    ]
+  },
+  "Q2a_random": {
+    "curve": [
+      {
+        "coverage": 0.1,
+        "k_answered": 10,
+        "k_refused": 90,
+        "acc_answered_mean": 0.207,
+        "acc_answered_2_5": 0.0,
+        "acc_answered_97_5": 0.5
+      },
+      {
+        "coverage": 0.15,
+        "k_answered": 15,
+        "k_refused": 85,
+        "acc_answered_mean": 0.2076666666666667,
+        "acc_answered_2_5": 0.06666666666666667,
+        "acc_answered_97_5": 0.4
+      },
+      {
+        "coverage": 0.2,
+        "k_answered": 20,
+        "k_refused": 80,
+        "acc_answered_mean": 0.21555000000000002,
+        "acc_answered_2_5": 0.05,
+        "acc_answered_97_5": 0.4
+      },
+      {
+        "coverage": 0.25,
+        "k_answered": 25,
+        "k_refused": 75,
+        "acc_answered_mean": 0.21436000000000005,
+        "acc_answered_2_5": 0.08,
+        "acc_answered_97_5": 0.36
+      },
+      {
+        "coverage": 0.3,
+        "k_answered": 30,
+        "k_refused": 70,
+        "acc_answered_mean": 0.21013333333333334,
+        "acc_answered_2_5": 0.1,
+        "acc_answered_97_5": 0.3333333333333333
+      },
+      {
+        "coverage": 0.35,
+        "k_answered": 35,
+        "k_refused": 65,
+        "acc_answered_mean": 0.21091428571428572,
+        "acc_answered_2_5": 0.11428571428571428,
+        "acc_answered_97_5": 0.3142857142857143
+      },
+      {
+        "coverage": 0.4,
+        "k_answered": 40,
+        "k_refused": 60,
+        "acc_answered_mean": 0.20925,
+        "acc_answered_2_5": 0.1,
+        "acc_answered_97_5": 0.3
+      },
+      {
+        "coverage": 0.45,
+        "k_answered": 45,
+        "k_refused": 55,
+        "acc_answered_mean": 0.20764444444444444,
+        "acc_answered_2_5": 0.1111111111111111,
+        "acc_answered_97_5": 0.28888888888888886
+      },
+      {
+        "coverage": 0.5,
+        "k_answered": 50,
+        "k_refused": 50,
+        "acc_answered_mean": 0.21116000000000001,
+        "acc_answered_2_5": 0.13950000000000004,
+        "acc_answered_97_5": 0.3
+      },
+      {
+        "coverage": 0.55,
+        "k_answered": 55,
+        "k_refused": 45,
+        "acc_answered_mean": 0.21059999999999998,
+        "acc_answered_2_5": 0.12727272727272726,
+        "acc_answered_97_5": 0.2727272727272727
+      },
+      {
+        "coverage": 0.6,
+        "k_answered": 60,
+        "k_refused": 40,
+        "acc_answered_mean": 0.21108333333333337,
+        "acc_answered_2_5": 0.15,
+        "acc_answered_97_5": 0.2833333333333333
+      },
+      {
+        "coverage": 0.65,
+        "k_answered": 65,
+        "k_refused": 35,
+        "acc_answered_mean": 0.21075384615384615,
+        "acc_answered_2_5": 0.15384615384615385,
+        "acc_answered_97_5": 0.26153846153846155
+      },
+      {
+        "coverage": 0.7,
+        "k_answered": 70,
+        "k_refused": 30,
+        "acc_answered_mean": 0.21015714285714288,
+        "acc_answered_2_5": 0.15714285714285714,
+        "acc_answered_97_5": 0.2571428571428571
+      },
+      {
+        "coverage": 0.75,
+        "k_answered": 75,
+        "k_refused": 25,
+        "acc_answered_mean": 0.2095066666666667,
+        "acc_answered_2_5": 0.16,
+        "acc_answered_97_5": 0.25333333333333335
+      },
+      {
+        "coverage": 0.8,
+        "k_answered": 80,
+        "k_refused": 20,
+        "acc_answered_mean": 0.209625,
+        "acc_answered_2_5": 0.1746875,
+        "acc_answered_97_5": 0.2378124999999997
+      },
+      {
+        "coverage": 0.85,
+        "k_answered": 85,
+        "k_refused": 15,
+        "acc_answered_mean": 0.20934117647058825,
+        "acc_answered_2_5": 0.17647058823529413,
+        "acc_answered_97_5": 0.23529411764705882
+      },
+      {
+        "coverage": 0.9,
+        "k_answered": 90,
+        "k_refused": 10,
+        "acc_answered_mean": 0.20981111111111114,
+        "acc_answered_2_5": 0.17777777777777778,
+        "acc_answered_97_5": 0.23333333333333334
+      }
+    ]
+  },
+  "Q2b_length": {
+    "direction": "refuse_longest (score = -seq_len from trajectories.npz)",
+    "auroc_holdout": 0.8321277878239903,
+    "aurc_holdout": 0.6250513323092932,
+    "seq_len_stats": {
+      "mean": 88.74,
+      "median": 70.0,
+      "min": 28.0,
+      "max": 512.0
+    },
+    "curve": [
+      {
+        "coverage": 0.1,
+        "k_answered": 10,
+        "k_refused": 90,
+        "acc_answered": 0.7,
+        "acc_refused": 0.15555555555555556
+      },
+      {
+        "coverage": 0.15,
+        "k_answered": 15,
+        "k_refused": 85,
+        "acc_answered": 0.6,
+        "acc_refused": 0.1411764705882353
+      },
+      {
+        "coverage": 0.2,
+        "k_answered": 20,
+        "k_refused": 80,
+        "acc_answered": 0.55,
+        "acc_refused": 0.125
+      },
+      {
+        "coverage": 0.25,
+        "k_answered": 25,
+        "k_refused": 75,
+        "acc_answered": 0.52,
+        "acc_refused": 0.10666666666666667
+      },
+      {
+        "coverage": 0.3,
+        "k_answered": 30,
+        "k_refused": 70,
+        "acc_answered": 0.5,
+        "acc_refused": 0.08571428571428572
+      },
+      {
+        "coverage": 0.35,
+        "k_answered": 35,
+        "k_refused": 65,
+        "acc_answered": 0.45714285714285713,
+        "acc_refused": 0.07692307692307693
+      },
+      {
+        "coverage": 0.4,
+        "k_answered": 40,
+        "k_refused": 60,
+        "acc_answered": 0.45,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.45,
+        "k_answered": 45,
+        "k_refused": 55,
+        "acc_answered": 0.4222222222222222,
+        "acc_refused": 0.03636363636363636
+      },
+      {
+        "coverage": 0.5,
+        "k_answered": 50,
+        "k_refused": 50,
+        "acc_answered": 0.38,
+        "acc_refused": 0.04
+      },
+      {
+        "coverage": 0.55,
+        "k_answered": 55,
+        "k_refused": 45,
+        "acc_answered": 0.34545454545454546,
+        "acc_refused": 0.044444444444444446
+      },
+      {
+        "coverage": 0.6,
+        "k_answered": 60,
+        "k_refused": 40,
+        "acc_answered": 0.3333333333333333,
+        "acc_refused": 0.025
+      },
+      {
+        "coverage": 0.65,
+        "k_answered": 65,
+        "k_refused": 35,
+        "acc_answered": 0.3076923076923077,
+        "acc_refused": 0.02857142857142857
+      },
+      {
+        "coverage": 0.7,
+        "k_answered": 70,
+        "k_refused": 30,
+        "acc_answered": 0.2857142857142857,
+        "acc_refused": 0.03333333333333333
+      },
+      {
+        "coverage": 0.75,
+        "k_answered": 75,
+        "k_refused": 25,
+        "acc_answered": 0.26666666666666666,
+        "acc_refused": 0.04
+      },
+      {
+        "coverage": 0.8,
+        "k_answered": 80,
+        "k_refused": 20,
+        "acc_answered": 0.25,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.85,
+        "k_answered": 85,
+        "k_refused": 15,
+        "acc_answered": 0.23529411764705882,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.9,
+        "k_answered": 90,
+        "k_refused": 10,
+        "acc_answered": 0.2222222222222222,
+        "acc_refused": 0.1
+      }
+    ]
+  },
+  "Q2c_max_token_prob": {
+    "source": "data/experiment1_v2/output_entropy_scores.json (max_new_tokens=256)",
+    "caveat": "This run's generations may differ from the activations/NEW-labels run; use as a logprob-refusal surrogate on the same problems, not the same outputs.",
+    "auroc_holdout": 0.5925256178420735,
+    "aurc_holdout": 0.7740090012352273,
+    "curve": [
+      {
+        "coverage": 0.1,
+        "k_answered": 10,
+        "k_refused": 90,
+        "acc_answered": 0.2,
+        "acc_refused": 0.2111111111111111
+      },
+      {
+        "coverage": 0.15,
+        "k_answered": 15,
+        "k_refused": 85,
+        "acc_answered": 0.2,
+        "acc_refused": 0.21176470588235294
+      },
+      {
+        "coverage": 0.2,
+        "k_answered": 20,
+        "k_refused": 80,
+        "acc_answered": 0.2,
+        "acc_refused": 0.2125
+      },
+      {
+        "coverage": 0.25,
+        "k_answered": 25,
+        "k_refused": 75,
+        "acc_answered": 0.24,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.3,
+        "k_answered": 30,
+        "k_refused": 70,
+        "acc_answered": 0.23333333333333334,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.35,
+        "k_answered": 35,
+        "k_refused": 65,
+        "acc_answered": 0.2571428571428571,
+        "acc_refused": 0.18461538461538463
+      },
+      {
+        "coverage": 0.4,
+        "k_answered": 40,
+        "k_refused": 60,
+        "acc_answered": 0.25,
+        "acc_refused": 0.18333333333333332
+      },
+      {
+        "coverage": 0.45,
+        "k_answered": 45,
+        "k_refused": 55,
+        "acc_answered": 0.24444444444444444,
+        "acc_refused": 0.18181818181818182
+      },
+      {
+        "coverage": 0.5,
+        "k_answered": 50,
+        "k_refused": 50,
+        "acc_answered": 0.26,
+        "acc_refused": 0.16
+      },
+      {
+        "coverage": 0.55,
+        "k_answered": 55,
+        "k_refused": 45,
+        "acc_answered": 0.2545454545454545,
+        "acc_refused": 0.15555555555555556
+      },
+      {
+        "coverage": 0.6,
+        "k_answered": 60,
+        "k_refused": 40,
+        "acc_answered": 0.26666666666666666,
+        "acc_refused": 0.125
+      },
+      {
+        "coverage": 0.65,
+        "k_answered": 65,
+        "k_refused": 35,
+        "acc_answered": 0.26153846153846155,
+        "acc_refused": 0.11428571428571428
+      },
+      {
+        "coverage": 0.7,
+        "k_answered": 70,
+        "k_refused": 30,
+        "acc_answered": 0.24285714285714285,
+        "acc_refused": 0.13333333333333333
+      },
+      {
+        "coverage": 0.75,
+        "k_answered": 75,
+        "k_refused": 25,
+        "acc_answered": 0.25333333333333335,
+        "acc_refused": 0.08
+      },
+      {
+        "coverage": 0.8,
+        "k_answered": 80,
+        "k_refused": 20,
+        "acc_answered": 0.25,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.85,
+        "k_answered": 85,
+        "k_refused": 15,
+        "acc_answered": 0.23529411764705882,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.9,
+        "k_answered": 90,
+        "k_refused": 10,
+        "acc_answered": 0.2222222222222222,
+        "acc_refused": 0.1
+      }
+    ]
+  },
+  "Q2d_neg_entropy": {
+    "source": "same as Q2c (-entropy as confidence)",
+    "auroc_holdout": 0.6003616636528029,
+    "aurc_holdout": 0.7657873110033531,
+    "curve": [
+      {
+        "coverage": 0.1,
+        "k_answered": 10,
+        "k_refused": 90,
+        "acc_answered": 0.3,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.15,
+        "k_answered": 15,
+        "k_refused": 85,
+        "acc_answered": 0.26666666666666666,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.2,
+        "k_answered": 20,
+        "k_refused": 80,
+        "acc_answered": 0.2,
+        "acc_refused": 0.2125
+      },
+      {
+        "coverage": 0.25,
+        "k_answered": 25,
+        "k_refused": 75,
+        "acc_answered": 0.24,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.3,
+        "k_answered": 30,
+        "k_refused": 70,
+        "acc_answered": 0.23333333333333334,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.35,
+        "k_answered": 35,
+        "k_refused": 65,
+        "acc_answered": 0.2571428571428571,
+        "acc_refused": 0.18461538461538463
+      },
+      {
+        "coverage": 0.4,
+        "k_answered": 40,
+        "k_refused": 60,
+        "acc_answered": 0.225,
+        "acc_refused": 0.2
+      },
+      {
+        "coverage": 0.45,
+        "k_answered": 45,
+        "k_refused": 55,
+        "acc_answered": 0.26666666666666666,
+        "acc_refused": 0.16363636363636364
+      },
+      {
+        "coverage": 0.5,
+        "k_answered": 50,
+        "k_refused": 50,
+        "acc_answered": 0.28,
+        "acc_refused": 0.14
+      },
+      {
+        "coverage": 0.55,
+        "k_answered": 55,
+        "k_refused": 45,
+        "acc_answered": 0.2545454545454545,
+        "acc_refused": 0.15555555555555556
+      },
+      {
+        "coverage": 0.6,
+        "k_answered": 60,
+        "k_refused": 40,
+        "acc_answered": 0.26666666666666666,
+        "acc_refused": 0.125
+      },
+      {
+        "coverage": 0.65,
+        "k_answered": 65,
+        "k_refused": 35,
+        "acc_answered": 0.26153846153846155,
+        "acc_refused": 0.11428571428571428
+      },
+      {
+        "coverage": 0.7,
+        "k_answered": 70,
+        "k_refused": 30,
+        "acc_answered": 0.24285714285714285,
+        "acc_refused": 0.13333333333333333
+      },
+      {
+        "coverage": 0.75,
+        "k_answered": 75,
+        "k_refused": 25,
+        "acc_answered": 0.24,
+        "acc_refused": 0.12
+      },
+      {
+        "coverage": 0.8,
+        "k_answered": 80,
+        "k_refused": 20,
+        "acc_answered": 0.25,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.85,
+        "k_answered": 85,
+        "k_refused": 15,
+        "acc_answered": 0.23529411764705882,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.9,
+        "k_answered": 90,
+        "k_refused": 10,
+        "acc_answered": 0.2222222222222222,
+        "acc_refused": 0.1
+      }
+    ]
+  },
+  "Q3_7B_L15_DoM": {
+    "layer": 15,
+    "trained_on": "7B correctness labels (81/500, 256-tok run)",
+    "applied_to": "1.5B NEW labels",
+    "auroc_holdout": 0.8282097649186257,
+    "aurc_holdout": 0.5994224751500271,
+    "curve": [
+      {
+        "coverage": 0.1,
+        "k_answered": 10,
+        "k_refused": 90,
+        "acc_answered": 0.6,
+        "acc_refused": 0.16666666666666666
+      },
+      {
+        "coverage": 0.15,
+        "k_answered": 15,
+        "k_refused": 85,
+        "acc_answered": 0.6,
+        "acc_refused": 0.1411764705882353
+      },
+      {
+        "coverage": 0.2,
+        "k_answered": 20,
+        "k_refused": 80,
+        "acc_answered": 0.5,
+        "acc_refused": 0.1375
+      },
+      {
+        "coverage": 0.25,
+        "k_answered": 25,
+        "k_refused": 75,
+        "acc_answered": 0.52,
+        "acc_refused": 0.10666666666666667
+      },
+      {
+        "coverage": 0.3,
+        "k_answered": 30,
+        "k_refused": 70,
+        "acc_answered": 0.5,
+        "acc_refused": 0.08571428571428572
+      },
+      {
+        "coverage": 0.35,
+        "k_answered": 35,
+        "k_refused": 65,
+        "acc_answered": 0.45714285714285713,
+        "acc_refused": 0.07692307692307693
+      },
+      {
+        "coverage": 0.4,
+        "k_answered": 40,
+        "k_refused": 60,
+        "acc_answered": 0.45,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.45,
+        "k_answered": 45,
+        "k_refused": 55,
+        "acc_answered": 0.4,
+        "acc_refused": 0.05454545454545454
+      },
+      {
+        "coverage": 0.5,
+        "k_answered": 50,
+        "k_refused": 50,
+        "acc_answered": 0.38,
+        "acc_refused": 0.04
+      },
+      {
+        "coverage": 0.55,
+        "k_answered": 55,
+        "k_refused": 45,
+        "acc_answered": 0.34545454545454546,
+        "acc_refused": 0.044444444444444446
+      },
+      {
+        "coverage": 0.6,
+        "k_answered": 60,
+        "k_refused": 40,
+        "acc_answered": 0.31666666666666665,
+        "acc_refused": 0.05
+      },
+      {
+        "coverage": 0.65,
+        "k_answered": 65,
+        "k_refused": 35,
+        "acc_answered": 0.2923076923076923,
+        "acc_refused": 0.05714285714285714
+      },
+      {
+        "coverage": 0.7,
+        "k_answered": 70,
+        "k_refused": 30,
+        "acc_answered": 0.2714285714285714,
+        "acc_refused": 0.06666666666666667
+      },
+      {
+        "coverage": 0.75,
+        "k_answered": 75,
+        "k_refused": 25,
+        "acc_answered": 0.28,
+        "acc_refused": 0.0
+      },
+      {
+        "coverage": 0.8,
+        "k_answered": 80,
+        "k_refused": 20,
+        "acc_answered": 0.2625,
+        "acc_refused": 0.0
+      },
+      {
+        "coverage": 0.85,
+        "k_answered": 85,
+        "k_refused": 15,
+        "acc_answered": 0.24705882352941178,
+        "acc_refused": 0.0
+      },
+      {
+        "coverage": 0.9,
+        "k_answered": 90,
+        "k_refused": 10,
+        "acc_answered": 0.23333333333333334,
+        "acc_refused": 0.0
+      }
+    ]
+  }
+}
