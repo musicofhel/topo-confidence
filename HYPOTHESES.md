@@ -8,6 +8,36 @@ change the story.
 
 **Numbering continues monotonically. Next ID: H-15.**
 
+## Cost + time summary (at a glance)
+
+Grouped by rung so you can pick a session's worth of work without scrolling.
+
+| Rung | # | Experiment | Compute | $ | Notes |
+|---|---|---|---|---|---|
+| **Free / local** | H-14 | Qwen breathing headline figure | 30 min CPU | $0 | Script over cached NPZs; validates vs RESEARCH_SUMMARY §3 table. |
+| **Free / local** | H-6 | CoE-60 re-baseline at 1024 tok | 30 min CPU | $0 | Validates whether CoE > ABC-44 headline survives label correction. |
+| **Cheap GPU** | H-2 | Short-CoT breathing (~20–40 tok) | ~5 min H100 | ~$0.25 | Decides length vs CoT-structure confound. Blocks EXP-042 follow-up. |
+| **Cheap GPU** | H-3 | Code-generation breathing (HumanEval) | ~1 H100-hr | ~$2 | Generalizes breathing beyond math. |
+| **Cheap GPU** | H-11 | Within-problem K=8 PR spread | ~1 H100-hr | ~$2 | Closes the 4th control gap in RESEARCH_SUMMARY §3. |
+| **Big swing** | H-1 | Per-position DoM steering | ~3 H100-days | ~$200 | Most decisive — diagnostic vs lever question for the whole program. |
+| **Blocked** | H-4 | Breathing ↔ EoS correspondence | ~3 H100-days | ~$200 | Needs Qwen-2.5-1.5B training checkpoints (HF hub + budget). |
+| **Blocked** | H-8 | Prefill direction across training checkpoints | ~3 H100-days | ~$200 | Same checkpoint blocker as H-4. |
+
+**Pod state** (from `STATE.md`):
+- `lsuoka6bo8io7m` — STOPPED, volume preserved. Resume with `runpodctl pod
+  start lsuoka6bo8io7m`; pip packages live on container disk, reinstall after
+  start. Best target for H-2 / H-3 / H-11.
+- `y687b9z2dgukcj` — REMOVED (volumeInGb=0 at end of `exp1_cross_model`).
+  Re-create from scratch if needed (~15 min).
+
+**One-session suggestions:**
+- "Local afternoon": H-14 + H-6 → ~1 hr, $0, closes the headline-figure
+  gap and the CoE label-correction question.
+- "Cheap-GPU evening": H-2 + H-3 + H-11 → ~2 H100-hr, ~$5, closes the
+  length-vs-structure ambiguity and generalizes the claim beyond math.
+- "Commit the program": H-1 alone → ~3 H100-days, ~$200, decides whether
+  the project ships as "good selective predictor" or "actionable lever."
+
 ---
 
 ### H-1: Per-position DoM steering moves MATH-500 accuracy
