@@ -1,102 +1,117 @@
-# topo-confidence
+# CLAUDE.md — agent orientation
 
-Topological uncertainty estimation for LLMs. Uses persistent homology on hidden-state geometry to predict whether an LLM's output is correct from a single forward pass.
+This is the agent-facing guide. Humans should read [README.md](README.md) first, then [QUICKSTART.md](QUICKSTART.md).
 
-## Current state (April 2026)
+## Source of truth
 
-Pathway 6 rebuild + Phase 6.5 deconfounding complete. Pathway 7 (non-Euclidean PH) NO-GO (0.774 < 0.796). **Pathway 8 (layer-wise PH) coded, ready for RunPod H100.**
+Always read these before answering questions about project state — they are kept current and supersede anything you might infer from older files:
 
-### Key results
+| File | What it has | When to read |
+|---|---|---|
+| [STATE.md](STATE.md) | Where the most recent session left off, pod status, top 3 next experiments | First, every session |
+| [QUICKSTART.md](QUICKSTART.md) | ~480-word orientation: what we found, what was wrong, where data lives | If you're cold on the project |
+| [PROJECT_RECORD.md](PROJECT_RECORD.md) | Authoritative archive. §1a chronology, §1b provenance table, §1c reproducibility, §1d graveyard, §1e queue, §1f literature, §1g file inventory | When any claim needs verification |
+| [FINDINGS.md](FINDINGS.md) | F-1…F-10 registry with controls and counterarguments | When discussing what's been established |
+| [HYPOTHESES.md](HYPOTHESES.md) | H-1…H-14 prioritized queue with cost estimates | When proposing next experiments |
+| [PERSPECTIVES.md](PERSPECTIVES.md) | Reflective notes — what surprised, what was wrong | For framing/narrative |
+| [DATA_MANIFEST.md](DATA_MANIFEST.md) | NPZ schema, sizes, regeneration commands | Before claiming a cache exists |
+| [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) | EXP-001…EXP-042 append-only log | When tracing where a number came from |
+| [PAPER_INDEX.md](PAPER_INDEX.md) | External papers, REPLICATED / CONTRADICTED / TO TEST | Before citing literature |
+| [RESEARCH_GRAPH.md](RESEARCH_GRAPH.md) | Neo4j knowledge graph linking findings to literature | Before claiming novelty / planning experiments / citing prior work |
 
-| Config | Accuracy | Topo AUROC | Best Baseline | Gap |
-|--------|----------|------------|---------------|-----|
-| Qwen2.5-1.5B x MATH-500 | 104/500 (20.8%) | **0.796** | vote_margin 0.767 | +0.057 |
-| Qwen2.5-1.5B x GSM8K | 871/1319 (66.0%) | 0.615 | neg_entropy 0.741 | -0.126 |
-| Qwen2.5-7B x MATH-500 | 348/500 (69.6%) | **0.739** | first_token 0.637 | +0.102 |
+## Research graph
 
-**What works:** MATH-500 across model scales. **What doesn't:** GSM8K (baseline wins), cross-benchmark transfer (chance level).
+A Neo4j knowledge graph at `bolt://localhost:7688` (auth `neo4j / topo_graph_dev`)
+links this project's findings (F-1…F-14) to ~40 external papers via typed edges
+(CORROBORATED_BY, CONTRADICTED_BY, EXTENDED_BY, METHOD_DIFFERS, EXPLAINS). It is
+separate from link-forge (`bolt://localhost:7687`); Paper nodes here are arxiv
+stubs that resolve to link-forge for full metadata.
 
-### History of corrections
+```bash
+# Before claiming a finding is novel:
+cd ~/topo-confidence/research-graph && python query.py novelty "<one-line claim>"
 
-The initial AUROC was 0.948, later corrected to 0.796 after fixing:
-1. Answer extraction false negatives (+47 problems, accuracy 11.4% -> 20.8%)
-2. PCA holdout leakage (PCA was fit on all 500, now train-only)
-3. Truncation confound (max_new_tokens=256 inflated GSM8K/7B AUROCs)
+# Before planning a new experiment:
+cd ~/topo-confidence/research-graph && python query.py extensions <F-id>
 
-## Code structure
+# What's validated, what's pending:
+cd ~/topo-confidence/research-graph && python query.py status-report
 
-```
-topo_confidence/           # Pip-installable package
-pathway1/                  # CORAL feature extraction (78 features, 4 tiers)
-  phase0/winning_features.py  # Frozen feature extractor (1407 lines)
-  phase1/                  # Original holdout experiment
-pathway6_rebuild/          # Corrected pipeline (use this, not pathway1-5)
-  common.py                # Shared utilities (answer checking, PCA, generation)
-  phase0_relabel/          # Answer extraction fix
-  phase1_prompt_model/     # AUROC 0.796 experiment
-  phase2_completion/       # Majority vote + gating experiments
-  phase3_cross_benchmark/  # GSM8K + 7B (confounded by truncation)
-  phase6_5/                # Deconfounded results (max_tokens=1024)
-    FINAL_SUMMARY.md       # Complete deconfounded analysis
-pathway7/                  # Non-Euclidean PH upgrade (NO-GO: 0.774 < 0.796 baseline)
-  distance_metrics.py      # Eff-res, cosine, diffusion, DTM PH
-  feature_extractor_v2.py  # Original 44 + 18 non-Euclidean features
-  phase71_noneuclid_math500.py  # CPU: AUROC comparison vs 0.796 baseline
-  zigzag_features.py       # Zigzag persistence across layers (needs Dionysus2)
-  Dockerfile               # Pinned reproducible RunPod environment
-  runpod_pathway7.sh       # Master orchestrator (6 steps)
-  PLAYBOOK.md              # Full research playbook reference
-  validation/              # Synthetic shapes, metric divergence, DeLong tests
-  benchmarks/              # HumanEval + BBH pipelines
-pathway8_layerwise/        # Layer-wise PH across all 28 layers (READY FOR RUNPOD)
-  config.py                # Constants, paths, SSS split, data loading
-  extraction_utils.py      # All-layer + D2H attention extraction
-  extract_math500.py       # GPU: MATH-500 all-layer extraction
-  extract_humaneval.py     # GPU: HumanEval + evalplus evaluation
-  extract_bbh.py           # GPU: BBH 3×250 extraction
-  layerwise_features.py    # Per-layer PCA(20) + 6 PH features × 28 layers
-  coe_features.py          # Chain-of-Embedding (Wang ICLR 2025)
-  d2hscore_features.py     # D2HScore dispersion + drift
-  twonn_features.py        # TwoNN intrinsic dimension
-  crosslayer_features.py   # Cross-layer token trajectory PH
-  diagnostics.py           # Pre/in/post-flight validation
-  exp1-5                   # 5 experiments: layer-wise PH, comparison, cross-domain, TwoNN, trajectory
-  runpod_pathway8.sh       # Master orchestrator (10 steps, --from STEP resume)
+# Full neighborhood of a finding (LLM context-friendly JSON):
+cd ~/topo-confidence/research-graph && python query.py subgraph <F-id> --depth 2
+
+# Resolve an arxiv ID against link-forge for forgeScore + title:
+cd ~/topo-confidence/research-graph && python bridge.py resolve <arxiv-id>
 ```
 
-## Running experiments
+Key files: `research-graph/seed.py` (authoritative seed data),
+`research-graph/query.py` (CLI), `research-graph/bridge.py` (link-forge resolver).
+Start with: `cd research-graph && docker compose up -d`.
 
-- **Local (CPU-only analysis):** `python pathway6_rebuild/audit_e2e.py`
-- **GPU (RunPod H100):** `bash pathway6_rebuild/phase6_5/runpod_phase6_5.sh`
-- **Setup on RunPod:** `bash pathway6_rebuild/runpod_setup.sh`
-- **Pathway 7 (CPU Phase 7.1):** `python pathway7/phase71_noneuclid_math500.py`
-- **Pathway 7 (full, RunPod):** `bash pathway7/runpod_pathway7.sh`
-- **Pathway 7 validation:** `python pathway7/validation/synthetic_shapes.py`
-- **Pathway 8 (full, RunPod):** `bash pathway8_layerwise/runpod_pathway8.sh`
-- **Pathway 8 (resume):** `bash pathway8_layerwise/runpod_pathway8.sh --from STEP`
+## Smoke test
 
-## Binary data policy
+```bash
+python validate_claims.py > validation_report.txt
+```
 
-- `.npy`, `.npz`, `.pkl`, `.pt` files are gitignored (too large for git)
-- All numeric results committed as JSON
-- To regenerate binaries: run the pipeline scripts on GPU
+91 quantitative claims back-checked against committed JSONs. **91/91 PASS as of 2026-04-24.** If you've changed any number in the narrative docs, you must update the matching `Claim` entry in `validate_claims.py` and re-run.
 
-## Key files for understanding results
+## What the project is, in two sentences
 
-- `pathway6_rebuild/phase4_report/FINAL_REPORT.json` — corrected vs old comparison
-- `pathway6_rebuild/phase6_5/FINAL_SUMMARY.md` — deconfounded cross-benchmark analysis
-- `pathway6_rebuild/phase1_prompt_model/experiment9_v2.json` — all baseline comparisons
-- `pathway6_rebuild/phase2_completion/experiment1_v2.json` — gating tau sweep
+Three weeks of experiments testing whether residual-stream geometry predicts LLM correctness. The "topological homology" framing was overturned (PH = Gaussian null, F-10); what survived is a single L19 prefill direction (DoM) that predicts correctness at AUROC 0.7731 on Qwen-2.5-1.5B and enables 71.6% selective-prediction accuracy at 50% coverage.
 
-## Dependencies
+## Headline numbers (1024-tok labels, the only ones that aren't truncation-confounded)
 
-Python >= 3.10, torch >= 2.0, transformers >= 4.36, ripser >= 0.6, persim >= 0.3, scikit-learn >= 1.3
+| Quantity | Value | Source |
+|---|---|---|
+| 1.5B MATH-500 K=1 accuracy | 48.6% (243/500) | `pathway11_h100/prefill_gated_compute/results.json` |
+| 7B MATH-500 K=1 accuracy | 73.2% (366/500) | `pathway11_h100/prefill_gated_compute/results.json` |
+| Prefill L19 DoM AUROC (1.5B, OOF 5-fold) | 0.7731 | same |
+| Final-token L19 DoM AUROC (1.5B) | 0.7186 | same |
+| cos(prefill_DoM, final_DoM) | 0.046 | `scratch/pathway10_temporal_and_verifier_results.json` |
+| Selective-prediction acc at coverage 0.5 | 71.6% on answered, K=2.5 avg | same |
 
-## Feature pipeline
+The 0.796 ABC-44 number, the 20.8% baseline, and any cross-scale "7B is a stronger verifier" claim are all 256-tok truncation artifacts — superseded.
 
-44 ABC-tier features from the CORAL pipeline:
-- **Tier A (9):** Persistent homology (H0/H1 entropy, lifetimes) + geometry (centroid distances, token norms)
-- **Tier B (30):** Layer dynamics (inter-layer cosines, PCA spectrum, SVD ratios)
-- **Tier C (5):** Depth-2 cross-tier products
+## Repo layout
 
-Feature extractor frozen at `pathway1/phase0/winning_features.py`. Adding Tier D (34 depth-3+ features) hurts performance.
+```
+README.md, QUICKSTART.md, STATE.md, CLAUDE.md
+PROJECT_RECORD.md, FINDINGS.md, HYPOTHESES.md, PERSPECTIVES.md
+DATA_MANIFEST.md, EXPERIMENT_LOG.md, PAPER_INDEX.md
+validate_claims.py + validation_report.txt
+
+topo_confidence/                 # Pip-installable package (v0.2.0, v1-framing reference impl)
+pathway1/ … pathway11_h100/      # Per-pathway code + result JSONs (NPZ binaries gitignored)
+figures/                         # Headline PNGs, see figures/README.md for captions
+scratch/                         # Pathway 10 sanity-check JSONs — cited as evidence in PROJECT_RECORD §1b
+archive/                         # Superseded design docs and pre-rebuild scripts
+configs/, data/, tests/          # Harness + working data
+```
+
+## Pathway timeline (very short)
+
+Full chronology in PROJECT_RECORD §1a. One-liner per pathway:
+
+- **P1** CORAL feature extraction → frozen ABC-44 extractor.
+- **P2** Spherical steering → Pathway 10 v1 later showed the steering vector was geometrically unrelated to the current DoM direction.
+- **P3** Complexity expansion → didn't help.
+- **P4** Track A topo-guided selection → +11 net gain (PUBLICATION_READY at the time).
+- **P5** Cross-benchmark / cross-model → "transfer works" (later truncation-confounded).
+- **P6 rebuild** Corrected labels + Phase 6.5 deconfounding → caught the 256-tok bug.
+- **P7** Non-Euclidean PH → NO-GO (0.774 < 0.796).
+- **P8 layer-wise** Per-layer PH across all 28 layers → modest lift, then null vs Gaussian.
+- **P9** CoE pivot → CoE-60 = 0.811 (later shown matched by single-layer DoM).
+- **P10** v1 five directions, v2 steering program → direction-rotation refutes fixed-vector steering; prefill/final orthogonality emerges.
+- **P11** H100 re-extract at 1024 tok → current findings, 7 stage markers, exp1_cross_model + gibberish + no-CoT controls.
+
+## Working norms
+
+- **Numbers come from JSONs, not narrative docs.** If you see a discrepancy, the JSON wins and the narrative doc gets updated.
+- **Label scheme matters.** Tag every number you cite with `1024tok` (current canonical), `256tok_NEW`, or `256tok_manifest`. The 256-tok numbers are not directly comparable to 1024-tok — see PROJECT_RECORD §1d.
+- **Don't add a new claim without updating `validate_claims.py`.** The 91/91 invariant is load-bearing.
+- **NPZ caches are gitignored.** Regeneration commands are in DATA_MANIFEST.md. Don't assume a cache exists on a fresh machine.
+
+## RunPod
+
+Always use H100 SXM. Pod state is in STATE.md (currently: `lsuoka6bo8io7m` stopped with volume preserved; `y687b9z2dgukcj` removed). See `~/.claude/projects/-home-musicofhel/memory/runpod-preferences.md` for general defaults.

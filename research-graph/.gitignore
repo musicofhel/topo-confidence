@@ -1,0 +1,9 @@
+# Neo4j Docker volume
+data/
+
+# Python
+__pycache__/
+*.pyc
+
+# Local secrets (already covered at repo root, but explicit here too)
+.env
