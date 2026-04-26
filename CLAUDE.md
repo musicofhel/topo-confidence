@@ -18,6 +18,7 @@ Always read these before answering questions about project state — they are ke
 | [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) | EXP-001…EXP-042 append-only log | When tracing where a number came from |
 | [PAPER_INDEX.md](PAPER_INDEX.md) | External papers, REPLICATED / CONTRADICTED / TO TEST | Before citing literature |
 | [RESEARCH_GRAPH.md](RESEARCH_GRAPH.md) | Neo4j knowledge graph linking findings to literature | Before claiming novelty / planning experiments / citing prior work |
+| [NEXT_EXPERIMENTS.md](NEXT_EXPERIMENTS.md) | Auto-generated priority queue from `:FutureExperiment` nodes | When picking what to work on next |
 
 ## Research graph
 
@@ -47,6 +48,28 @@ cd ~/topo-confidence/research-graph && python bridge.py resolve <arxiv-id>
 Key files: `research-graph/seed.py` (authoritative seed data),
 `research-graph/query.py` (CLI), `research-graph/bridge.py` (link-forge resolver).
 Start with: `cd research-graph && docker compose up -d`.
+
+### Next experiments
+
+`:FutureExperiment` nodes track planned work across all 11 pathways with ROI scores,
+trigger papers, and depends-on/would-update edges to findings. The priority queue
+is rendered to `NEXT_EXPERIMENTS.md` at the repo root.
+
+```bash
+# Before starting any new experiment, check the priority queue:
+cat ~/topo-confidence/NEXT_EXPERIMENTS.md
+
+# Before planning a new experiment, check if it already exists:
+cd ~/topo-confidence/research-graph && python query.py future <pathway-id>
+
+# After completing an experiment, update its status and refresh the queue:
+cd ~/topo-confidence/research-graph
+python update_status.py <fe-id> COMPLETED --outcome "..."
+python generate_next_experiments.py    # rewrites NEXT_EXPERIMENTS.md
+
+# After reading a new paper, check if it triggers anything:
+python query.py watchlist
+```
 
 ## Smoke test
 

@@ -37,7 +37,14 @@ PASSWORD = os.environ.get("NEO4J_PASSWORD", "topo_graph_dev")
 # ---------------------------------------------------------------------------
 
 def _driver():
-    return GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
+    # Suppress "property key does not exist" warnings — these fire for nullable
+    # fields (completed_date, outcome) that don't get written until an experiment
+    # runs. Functionally harmless, visually noisy.
+    return GraphDatabase.driver(
+        BOLT,
+        auth=(USER, PASSWORD),
+        notifications_min_severity="OFF",
+    )
 
 
 def _run(cypher: str, **params) -> list[dict[str, Any]]:
@@ -234,6 +241,169 @@ def subgraph_for_finding(finding_id: str, depth: int = 2) -> dict[str, Any]:
     return payload
 
 
+def future_experiments(
+    pathway_id: str | None = None,
+    status: str | None = None,
+    min_roi: int | None = None,
+) -> list[dict[str, Any]]:
+    """Return future experiments, optionally filtered. Sorted by roi_score desc."""
+    where = []
+    params: dict[str, Any] = {}
+    if pathway_id:
+        where.append("fe.pathway_id = $pid")
+        params["pid"] = pathway_id
+    if status:
+        where.append("fe.status = $status")
+        params["status"] = status
+    if min_roi is not None:
+        where.append("fe.roi_score >= $min_roi")
+        params["min_roi"] = min_roi
+    where_clause = ("WHERE " + " AND ".join(where)) if where else ""
+    return _run(
+        f"""
+        MATCH (fe:FutureExperiment)
+        {where_clause}
+        OPTIONAL MATCH (fe)-[:TRIGGERED_BY]->(p:Paper)
+        OPTIONAL MATCH (fe)-[:DEPENDS_ON_FINDING]->(d:Finding)
+        OPTIONAL MATCH (fe)-[:WOULD_UPDATE]->(u:Finding)
+        WITH fe,
+             collect(DISTINCT p.arxiv_id) AS triggered_by,
+             collect(DISTINCT d.id) AS depends_on,
+             collect(DISTINCT u.id) AS would_update
+        RETURN fe.id AS id, fe.pathway_id AS pathway_id,
+               fe.description AS description, fe.rationale AS rationale,
+               fe.trigger AS trigger, fe.status AS status,
+               fe.blocked_by AS blocked_by, fe.priority AS priority,
+               fe.estimated_cost AS estimated_cost, fe.roi_score AS roi_score,
+               fe.created_date AS created_date, fe.completed_date AS completed_date,
+               fe.outcome AS outcome,
+               [x IN triggered_by WHERE x IS NOT NULL] AS triggered_by,
+               [x IN depends_on WHERE x IS NOT NULL] AS depends_on,
+               [x IN would_update WHERE x IS NOT NULL] AS would_update
+        ORDER BY fe.roi_score DESC, fe.id
+        """,
+        **params,
+    )
+
+
+def triggered_experiments() -> list[dict[str, Any]]:
+    """Return all future experiments with status=TRIGGERED."""
+    return future_experiments(status="TRIGGERED")
+
+
+def blocked_experiments() -> list[dict[str, Any]]:
+    """Return all BLOCKED future experiments with their blocked_by reason."""
+    rows = future_experiments(status="BLOCKED")
+    if rows:
+        return rows
+    # Many "READY" rows have a non-null blocked_by (blocked on a resource, not a status).
+    # Surface those too.
+    return _run(
+        """
+        MATCH (fe:FutureExperiment)
+        WHERE fe.blocked_by IS NOT NULL AND fe.status <> 'COMPLETED'
+        RETURN fe.id AS id, fe.pathway_id AS pathway_id,
+               fe.description AS description, fe.status AS status,
+               fe.blocked_by AS blocked_by, fe.priority AS priority,
+               fe.roi_score AS roi_score, fe.estimated_cost AS estimated_cost
+        ORDER BY fe.roi_score DESC, fe.id
+        """
+    )
+
+
+def experiment_impact(fe_id: str) -> dict[str, Any]:
+    """Full impact analysis for a single future experiment."""
+    base = _run(
+        """
+        MATCH (fe:FutureExperiment {id: $id})
+        RETURN properties(fe) AS props
+        """,
+        id=fe_id,
+    )
+    if not base:
+        return {"error": f"No FutureExperiment {fe_id}"}
+    payload: dict[str, Any] = {"future_experiment": base[0]["props"]}
+
+    payload["triggered_by_papers"] = _run(
+        """
+        MATCH (:FutureExperiment {id: $id})-[r:TRIGGERED_BY]->(p:Paper)
+        RETURN p.arxiv_id AS arxiv_id, p.title AS title, p.year AS year,
+               p.repo_url AS repo_url, properties(r) AS edge
+        """,
+        id=fe_id,
+    )
+    payload["depends_on_findings"] = _run(
+        """
+        MATCH (:FutureExperiment {id: $id})-[r:DEPENDS_ON_FINDING]->(f:Finding)
+        RETURN f.id AS id, f.claim AS claim, f.status AS status,
+               f.strength AS strength, properties(r) AS edge
+        ORDER BY f.id
+        """,
+        id=fe_id,
+    )
+    payload["would_update_findings"] = _run(
+        """
+        MATCH (:FutureExperiment {id: $id})-[r:WOULD_UPDATE]->(f:Finding)
+        RETURN f.id AS id, f.claim AS claim, f.status AS status,
+               f.strength AS strength, properties(r) AS edge
+        ORDER BY f.id
+        """,
+        id=fe_id,
+    )
+    payload["blocked_by_experiments"] = _run(
+        """
+        MATCH (:FutureExperiment {id: $id})-[:BLOCKED_BY_EXPERIMENT]->(other:FutureExperiment)
+        RETURN other.id AS id, other.description AS description, other.status AS status,
+               other.priority AS priority
+        ORDER BY other.id
+        """,
+        id=fe_id,
+    )
+    return payload
+
+
+def highest_roi(n: int = 10) -> list[dict[str, Any]]:
+    """Top N future experiments by roi_score (active only — excludes COMPLETED/ABANDONED)."""
+    return _run(
+        """
+        MATCH (fe:FutureExperiment)
+        WHERE fe.status IN ['READY', 'TRIGGERED', 'BLOCKED']
+        OPTIONAL MATCH (fe)-[:TRIGGERED_BY]->(p:Paper)
+        OPTIONAL MATCH (fe)-[:DEPENDS_ON_FINDING]->(d:Finding)
+        OPTIONAL MATCH (fe)-[:WOULD_UPDATE]->(u:Finding)
+        WITH fe,
+             collect(DISTINCT p.arxiv_id) AS triggered_by,
+             collect(DISTINCT d.id) AS depends_on,
+             collect(DISTINCT u.id) AS would_update
+        RETURN fe.id AS id, fe.pathway_id AS pathway_id,
+               fe.description AS description, fe.status AS status,
+               fe.priority AS priority, fe.roi_score AS roi_score,
+               fe.estimated_cost AS estimated_cost,
+               fe.blocked_by AS blocked_by,
+               [x IN triggered_by WHERE x IS NOT NULL] AS triggered_by,
+               [x IN depends_on WHERE x IS NOT NULL] AS depends_on,
+               [x IN would_update WHERE x IS NOT NULL] AS would_update
+        ORDER BY fe.roi_score DESC, fe.id
+        LIMIT $n
+        """,
+        n=n,
+    )
+
+
+def watchlist() -> list[dict[str, Any]]:
+    """Papers referenced as TRIGGERED_BY targets — monitor for follow-ups."""
+    return _run(
+        """
+        MATCH (fe:FutureExperiment)-[:TRIGGERED_BY]->(p:Paper)
+        WHERE fe.status <> 'COMPLETED'
+        WITH p, collect(DISTINCT {fe_id: fe.id, status: fe.status}) AS triggers
+        RETURN p.arxiv_id AS arxiv_id, p.title AS title, p.year AS year,
+               p.repo_url AS repo_url, triggers
+        ORDER BY p.year DESC, p.arxiv_id
+        """
+    )
+
+
 def resolve_paper(arxiv_id: str) -> dict[str, Any] | None:
     rows = _run(
         """
@@ -381,6 +551,75 @@ def cmd_paper(args) -> None:
     print(json.dumps(paper, indent=2, default=str))
 
 
+# ---- Future experiments ----
+
+def _print_future_experiment(fe: dict[str, Any], indent: str = "  ") -> None:
+    cost = fe.get("estimated_cost") or "—"
+    blocked = fe.get("blocked_by")
+    blocked_str = f"  blocked: {blocked}" if blocked else ""
+    print(f"\n{indent}{fe['id']}  [ROI={fe['roi_score']}, {fe['status']}, {fe['priority']}]  {cost}{blocked_str}")
+    desc = fe.get("description") or ""
+    print(textwrap.fill(desc, width=92, initial_indent=indent + "  ", subsequent_indent=indent + "  "))
+    if fe.get("triggered_by"):
+        print(f"{indent}  triggered by: {', '.join(fe['triggered_by'])}")
+    if fe.get("depends_on"):
+        print(f"{indent}  depends on:   {', '.join(fe['depends_on'])}")
+    if fe.get("would_update"):
+        print(f"{indent}  would update: {', '.join(fe['would_update'])}")
+
+
+def cmd_future(args) -> None:
+    rows = future_experiments(
+        pathway_id=args.pathway_id,
+        status=args.status,
+        min_roi=args.min_roi,
+    )
+    label = args.pathway_id or "ALL"
+    print(f"\nFuture experiments ({label}, {len(rows)}):")
+    for r in rows:
+        _print_future_experiment(r)
+
+
+def cmd_triggered(_args) -> None:
+    rows = triggered_experiments()
+    print(f"\nTRIGGERED future experiments ({len(rows)}) — papers make these actionable now:")
+    for r in rows:
+        _print_future_experiment(r)
+
+
+def cmd_blocked(_args) -> None:
+    rows = blocked_experiments()
+    print(f"\nBLOCKED future experiments ({len(rows)}):")
+    for r in rows:
+        _print_future_experiment(r)
+
+
+def cmd_highest_roi(args) -> None:
+    rows = highest_roi(n=args.n)
+    print(f"\nTop {args.n} future experiments by ROI:")
+    for r in rows:
+        _print_future_experiment(r)
+
+
+def cmd_impact(args) -> None:
+    payload = experiment_impact(args.fe_id)
+    print(json.dumps(payload, indent=2, default=str))
+
+
+def cmd_watchlist(_args) -> None:
+    rows = watchlist()
+    print(f"\nWatchlist — papers triggering future experiments ({len(rows)}):")
+    for r in rows:
+        triggers = r.get("triggers") or []
+        trigger_strs = [f"{t['fe_id']}({t['status']})" for t in triggers]
+        title = r.get("title") or "(untitled)"
+        year = r.get("year") or "—"
+        print(f"  - {r['arxiv_id']} ({year}) {title}")
+        print(f"      triggers: {', '.join(trigger_strs)}")
+        if r.get("repo_url"):
+            print(f"      repo: {r['repo_url']}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="topo-confidence research graph CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -416,6 +655,31 @@ def main() -> None:
     s = sub.add_parser("paper")
     s.add_argument("arxiv_id")
     s.set_defaults(func=cmd_paper)
+
+    s = sub.add_parser("future", help="List future experiments (optionally filter by pathway/status/roi)")
+    s.add_argument("pathway_id", nargs="?", default=None,
+                   help="e.g. P7  — omit for all pathways")
+    s.add_argument("--status", default=None,
+                   choices=["READY", "TRIGGERED", "BLOCKED", "COMPLETED", "ABANDONED"])
+    s.add_argument("--min-roi", type=int, default=None)
+    s.set_defaults(func=cmd_future)
+
+    s = sub.add_parser("triggered", help="All TRIGGERED future experiments")
+    s.set_defaults(func=cmd_triggered)
+
+    s = sub.add_parser("blocked", help="All BLOCKED future experiments (or those with a blocked_by reason)")
+    s.set_defaults(func=cmd_blocked)
+
+    s = sub.add_parser("highest-roi", help="Top N future experiments by ROI")
+    s.add_argument("n", nargs="?", type=int, default=10)
+    s.set_defaults(func=cmd_highest_roi)
+
+    s = sub.add_parser("impact", help="Full impact analysis for a single future experiment")
+    s.add_argument("fe_id")
+    s.set_defaults(func=cmd_impact)
+
+    s = sub.add_parser("watchlist", help="Papers triggering future experiments — monitor for follow-ups")
+    s.set_defaults(func=cmd_watchlist)
 
     args = parser.parse_args()
     args.func(args)

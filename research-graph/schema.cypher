@@ -24,6 +24,9 @@ CREATE CONSTRAINT paper_arxiv IF NOT EXISTS
 CREATE CONSTRAINT tag_name IF NOT EXISTS
   FOR (t:Tag) REQUIRE t.name IS UNIQUE;
 
+CREATE CONSTRAINT future_experiment_id IF NOT EXISTS
+  FOR (fe:FutureExperiment) REQUIRE fe.id IS UNIQUE;
+
 // ---- Lookup indexes -------------------------------------------------
 
 CREATE INDEX experiment_pathway IF NOT EXISTS
@@ -48,6 +51,9 @@ CREATE FULLTEXT INDEX paper_relevance IF NOT EXISTS
 
 CREATE FULLTEXT INDEX experiment_hypotheses IF NOT EXISTS
   FOR (e:Experiment) ON EACH [e.hypothesis, e.result];
+
+CREATE FULLTEXT INDEX future_experiment_search IF NOT EXISTS
+  FOR (fe:FutureExperiment) ON EACH [fe.description, fe.trigger, fe.rationale];
 
 // =====================================================================
 // Relationship vocabulary (documentation only — Neo4j is schema-free
@@ -79,4 +85,12 @@ CREATE FULLTEXT INDEX experiment_hypotheses IF NOT EXISTS
 // Tagging:
 //   (Paper)-[:TAGGED]->(Tag)
 //   (Finding)-[:TAGGED]->(Tag)
+//
+// Future experiments (forward-looking, distinct from completed Experiment):
+//   (Pathway)-[:HAS_FUTURE_EXPERIMENT]->(FutureExperiment)
+//   (FutureExperiment)-[:TRIGGERED_BY {reason}]->(Paper)
+//   (FutureExperiment)-[:DEPENDS_ON_FINDING {why}]->(Finding)
+//   (FutureExperiment)-[:WOULD_UPDATE {if_positive, if_negative}]->(Finding)
+//   (FutureExperiment)-[:WOULD_CREATE_FINDING {claim}]->(Tag)
+//   (FutureExperiment)-[:BLOCKED_BY_EXPERIMENT]->(FutureExperiment)
 // =====================================================================
