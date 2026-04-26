@@ -108,6 +108,135 @@ archive/                         # Superseded design docs and pre-rebuild script
 data/, configs/, tests/          # Working data and harness
 ```
 
+## Research path & literature
+
+Each pathway below is one chronological step of the program, paired with the external papers that informed or were tested by it. Status tags follow [PAPER_INDEX.md](PAPER_INDEX.md): ✅ replicated on our data, ❌ contradicted, ≈ partially confirmed, • cited / motivating only. Authoritative finding↔paper edges live in `research-graph/seed.py` (`PAPER_EDGES`).
+
+```mermaid
+flowchart LR
+    P1[P1 · CORAL] --> P2[P2 · Steering v1]
+    P2 --> P3[P3 · Complexity]
+    P3 --> P4[P4 · ABC-44 + Track-A]
+    P4 --> P5[P5 · Cross-bench]
+    P5 --> P6[P6 · Rebuild + 6.5]
+    P6 --> P7[P7 · Non-Eucl PH]
+    P7 --> P8[P8 · Layer-wise]
+    P8 --> P9[P9 · CoE pivot + audit]
+    P9 --> P10[P10 · Steering plan v2]
+    P10 --> P11[P11 · H100 + headline]
+```
+
+### P1 — CORAL feature extraction *(closed)*
+Ported the 78-feature CORAL pipeline from ATT and froze it as the 44-feature ABC extractor — ancestor of every later feature pipeline. **Papers:** [1].
+
+### P2 — Steering v1 *(closed, superseded)*
+Track A spherical steering hit "+26 net gain" at 256-tok; Pathway 11 later showed the cached vector has cos ≈ 0.05 with the current L19 correctness axis. **Papers:** [2].
+
+### P3 — Complexity expansion *(closed, NO-GO)*
+Multi-layer non-adjacent features + K-NN prototypes didn't help. PIVOT. **Papers:** [4][5].
+
+### P4 — ABC-44 + Track-A selection *(closed)*
+Track A topo-guided test-time selection at +11 net gain (256-tok); Track B learned steering null. **Papers:** [6][7][8][9][10].
+
+### P5 — Cross-benchmark / cross-model *(closed, superseded)*
+GSM8K + 7B transfer "worked" at 256-tok and was later refuted by Phase 6.5; no external paper directly informed this test. **Papers:** —
+
+### P6 — Rebuild + Phase 6.5 deconfounding *(closed)*
+Caught the 256-tok truncation bug. At 1024 tokens cross-benchmark transfer collapses to chance (0.504). **Papers:** [13].
+
+### P7 — Non-Euclidean PH *(closed, NO-GO)*
+Diffusion / effective-resistance / cosine / DTM metrics hit 0.774 vs the 0.7961 Euclidean baseline. **Papers:** [10][11][12].
+
+### P8 — Layer-wise PH + alternatives *(closed)*
+Layer-wise PH (168-dim) = 0.646 < single-layer; CoE-60 = 0.811 beats ABC-44 = 0.7961 (256-tok). **Papers:** [6][7][9][10].
+
+### P9 — CoE pivot + PH audit *(closed)*
+PH at Gaussian null (0.690 vs 0.693). CoE-60 the only domain-invariant signal. LR ≈ XGBoost — signal is linear. **Papers:** [6][8][9][10][11][12][14][15][16].
+
+### P10 — Goal pivot to steering *(active, plan-only)*
+v2 plan: E1 ITI-style steering, E2 prefix-CoE gating, E3 hidden-state refusal, E4 big→small distillation. **Papers:** [2][3][13][17][19][23][24][25][26][27][37][38].
+
+### P11 — H100 re-extract + headline *(active)*
+Truncation discovery (48.6%, not 20.8%). Prefill DoM 0.7731. Direction rotates with position. Selective prediction 71.6% accuracy at 50% coverage. Dimensional breathing universal across Qwen-1.5B, Qwen-7B, Phi-3-mini, Llama-3.2-1B. **Papers:** [4][5][14][17][18][19][20][21][22][23][24][25][27][28][29][30][31][32][33][34][35][36].
+
+### References
+
+[1] *ATT Phase 5* — internal predecessor (att-docs repo, seed for Pathway 1 CORAL). ≈
+
+[2] Li et al. 2023, *Inference-Time Intervention* — [arXiv:2306.03341](https://arxiv.org/abs/2306.03341). ❌
+
+[3] *Adaptive Layer-wise Steering (ALS)* — [arXiv:2509.18116](https://arxiv.org/abs/2509.18116). •
+
+[4] Tan, *Generalization of Steering Vectors* — [arXiv:2407.12404](https://arxiv.org/abs/2407.12404). •
+
+[5] *Small Vectors, Big Effects* — [arXiv:2509.06608](https://arxiv.org/abs/2509.06608). ✅
+
+[6] Wang et al. ICLR 2025, *Chain-of-Embedding (CoE)* — [arXiv:2410.13640](https://arxiv.org/abs/2410.13640). ≈
+
+[7] Pope et al., *Intrinsic Dimension via TwoNN* (classic). ❌
+
+[8] Chen et al. ICLR 2024, *INSIDE / EigenScore* — [arXiv:2402.03744](https://arxiv.org/abs/2402.03744). •
+
+[9] *D²HScore* — [arXiv:2509.11569](https://arxiv.org/abs/2509.11569). ≈
+
+[10] *Persistent Topological Features in LLMs* — [arXiv:2410.11042](https://arxiv.org/abs/2410.11042). •
+
+[11] Birdal, *ID, PH and Generalization* — [arXiv:2111.13171](https://arxiv.org/abs/2111.13171). •
+
+[12] *Truthfulness via Local ID* — [arXiv:2402.18048](https://arxiv.org/abs/2402.18048). •
+
+[13] Chen et al., *Cross-scale stitching* — [arXiv:2506.06609](https://arxiv.org/abs/2506.06609). •
+
+[14] Tuci et al., *Sharpness Dimension / EoS* — [arXiv:2604.19740](https://arxiv.org/abs/2604.19740). ≈
+
+[15] *A Long Way to Go (length in RLHF)* — [arXiv:2310.03716](https://arxiv.org/abs/2310.03716). ✅
+
+[16] *Between Underthinking and Overthinking* — [arXiv:2505.00127](https://arxiv.org/abs/2505.00127). ✅
+
+[17] Zhu, *The LLM Already Knows* — [arXiv:2509.12886](https://arxiv.org/abs/2509.12886). ✅
+
+[18] *LLMs Encode Problem Difficulty* — [arXiv:2510.18147](https://arxiv.org/abs/2510.18147). ✅
+
+[19] Zhang et al., *Reasoning Models Know When They're Right* — [arXiv:2504.05419](https://arxiv.org/abs/2504.05419). •
+
+[20] *LLMs Know More Than They Show* — [arXiv:2410.02707](https://arxiv.org/abs/2410.02707). •
+
+[21] Marks & Tegmark, *Geometry of Truth* — [arXiv:2310.06824](https://arxiv.org/abs/2310.06824). ✅
+
+[22] Park et al., *Linear Representation Hypothesis* — [arXiv:2311.03658](https://arxiv.org/abs/2311.03658). •
+
+[23] *PID Steering* — [arXiv:2510.04309](https://arxiv.org/abs/2510.04309). •
+
+[24] *STU-PID Steering* — [arXiv:2506.18831](https://arxiv.org/abs/2506.18831). •
+
+[25] *Knowing When to Quit* — [arXiv:2604.18419](https://arxiv.org/abs/2604.18419). ✅
+
+[26] *CCPS Calibration* — [arXiv:2505.21772](https://arxiv.org/abs/2505.21772). •
+
+[27] OATML, *Semantic Entropy Probes (SEPs)* — [arXiv:2406.15927](https://arxiv.org/abs/2406.15927). •
+
+[28] Mohri & Hashimoto, *Conformal Factuality* — [arXiv:2402.10978](https://arxiv.org/abs/2402.10978). •
+
+[29] Brumm et al., *Inference-time scaling of CoT* — [arXiv:2510.07364](https://arxiv.org/abs/2510.07364). ≈
+
+[30] Wang et al. ICLR 2023, *Self-Consistency* — [arXiv:2203.11171](https://arxiv.org/abs/2203.11171). ✅
+
+[31] *High-Dim Abstraction Phase* — [arXiv:2405.15471](https://arxiv.org/abs/2405.15471). ✅
+
+[32] *Linguistic Collapse* — [arXiv:2405.17767](https://arxiv.org/abs/2405.17767). ✅
+
+[33] *Geometry of Hidden Representations* — [arXiv:2302.00294](https://arxiv.org/abs/2302.00294). •
+
+[34] *LLM Reasoning as Trajectories* — [arXiv:2604.05655](https://arxiv.org/abs/2604.05655). •
+
+[35] *EigenTrack* — [arXiv:2509.15735](https://arxiv.org/abs/2509.15735). •
+
+[36] *Attention Sinks = Compression Valleys* — [arXiv:2510.06477](https://arxiv.org/abs/2510.06477). •
+
+[37] *ReDeEP + AARF* — [arXiv:2410.11414](https://arxiv.org/abs/2410.11414). •
+
+[38] *Brain-Grounded Axes* — [arXiv:2512.19399](https://arxiv.org/abs/2512.19399). •
+
 ## License
 
 MIT
