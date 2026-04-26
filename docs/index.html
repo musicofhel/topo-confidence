@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>topo-confidence: Know when your LLM is wrong</title>
-<meta name="description" content="Topological confidence estimation for LLM outputs. Persistent homology on hidden states predicts correctness from a single forward pass. AUROC 0.796 on MATH-500.">
+<title>topo-confidence (v1 archive) — see README for current findings</title>
+<meta name="description" content="Archived v1 framing of the topo-confidence research project (April 2026). The 0.796 MATH-500 AUROC headline shown on this page was overturned by a token-truncation correction; current findings (prefill-DoM AUROC 0.7731 on Qwen-2.5-1.5B; persistent homology at the Gaussian null) are in the GitHub README.">
 <style>
 :root {
   --bg: #0a0e17;
@@ -568,6 +568,16 @@ footer a { color: var(--accent); }
 </style>
 </head>
 <body>
+
+<!-- Supersession banner -->
+<div style="background: #1a1306; border-bottom: 2px solid #fb923c; padding: 18px 0; color: #fed7aa;">
+  <div class="container" style="max-width: 960px; margin: 0 auto; padding: 0 24px; font-size: 0.92rem; line-height: 1.6;">
+    <strong style="color: #fb923c; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.78rem;">Historical snapshot — v1 framing</strong><br>
+    This page reflects the project as of April 19, 2026. The headline <strong>0.796 MATH-500 AUROC</strong> was later shown to be a <code>max_new_tokens=256</code> truncation artifact; at 1024 tokens the corrected baseline is 48.6%, not 20.8%, and the topology-specific signal sits at the Gaussian null (PH AUROC 0.690 vs null 0.693). The current finding is a single L19 prefill direction (DoM) at AUROC 0.7731 on Qwen-2.5-1.5B, enabling 71.6% selective-prediction accuracy at 50% coverage.
+    <br><br>
+    Read the current state in <a href="https://github.com/musicofhel/topo-confidence" style="color: #fb923c; text-decoration: underline;">README.md</a>, <code>QUICKSTART.md</code>, <code>FINDINGS.md</code>, and <code>PROJECT_RECORD.md</code>. The page below is preserved unchanged as a record of the v1 framing.
+  </div>
+</div>
 
 <!-- Hero -->
 <div class="hero">

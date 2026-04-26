@@ -1,212 +1,111 @@
 # topo-confidence
 
-**Know when your LLM is wrong — from a single forward pass.**
+**Hidden-state geometry as a window into LLM reasoning.**
 
-topo-confidence uses persistent homology on hidden-state geometry to predict whether an LLM's output is correct. It extracts 44 topological features from the token-level point cloud at the final transformer layer and trains a logistic regression classifier to estimate P(correct).
+Three weeks of experiments (April 2026, Pathways 1–11) trying to predict whether a language model's chain-of-thought answer is correct from its residual-stream activations alone. The project began as "persistent homology of token clouds predicts correctness," and ended somewhere very different.
 
-## Headline result
+## Where the project actually landed
 
-On MATH-500 with Qwen2.5-1.5B-Instruct:
+The original "topology" framing was overturned. Persistent-homology features on trained-model residual streams sit at the rank-matched Gaussian null (AUROC 0.690 vs null 0.693, [F-10](FINDINGS.md)). What remained, after correcting label and truncation bugs, is a much simpler signal:
 
-| Metric | Value |
-|--------|-------|
-| Topo AUROC (holdout) | **0.796** [0.671, 0.907] |
-| Best baseline (vote_margin, 32-pass) | 0.767 [0.632, 0.878] |
-| Gap over best baseline | **+0.057** |
-| Greedy accuracy | 104/500 (20.8%) |
-| Ungated majority vote | +12 net gain |
-| Gated MV (tau=0.3) | +4 net gain, **0 R->W** |
+| Quantity | Value | Source |
+|---|---|---|
+| **Prefill L19 DoM AUROC** (Qwen-2.5-1.5B, K=1 correctness, OOF 5-fold) | **0.7731** | [F-2](FINDINGS.md) |
+| Final-token L19 DoM AUROC (same setup) | 0.7186 | [F-2](FINDINGS.md) |
+| cos(prefill_DoM, final_DoM) | **0.046** | [F-3](FINDINGS.md) |
+| Prefill-gated selective prediction at coverage 0.5 | **71.6% acc on answered**, K=2.5 avg | [F-8](FINDINGS.md) |
+| Unconditional baseline at K=1 | 48.6% | [F-8](FINDINGS.md) |
 
-The topo-confidence score comes from a single forward pass on the prompt (no generation required). It captures a fundamentally different signal from output-based methods — the geometry of the model's internal computation, not the uncertainty of its output distribution.
+**Headline.** A *single direction* in the prefill-position L19 residual stream — fit by logistic regression on K=1 correctness labels — predicts whether the model will get the answer right *better than the final-token activations after the model has reasoned*. Refusing the bottom half by this score and spending the saved compute on the top half gives 71.6% accuracy on what's answered, vs 48.6% unconditional.
 
-## Cross-benchmark results (deconfounded)
+## Findings that survived controls
 
-| Config | Accuracy | Topo AUROC | Best Baseline | Gap |
-|--------|----------|------------|---------------|-----|
-| Qwen2.5-1.5B x MATH-500 | 104/500 (20.8%) | **0.796** | vote_margin 0.767 | **+0.057** |
-| Qwen2.5-1.5B x GSM8K | 871/1319 (66.0%) | 0.615 | neg_entropy 0.741 | -0.126 |
-| Qwen2.5-7B x MATH-500 | 348/500 (69.6%) | **0.739** | first_token 0.637 | **+0.102** |
+Full registry in [FINDINGS.md](FINDINGS.md). Strength rating reflects model count + control coverage.
 
-**Takeaway**: Topo features show genuine signal on MATH-500 across model scales (1.5B and 7B), but do not generalize to GSM8K where logprob baselines dominate. Cross-benchmark transfer is near chance (AUROC 0.504). The signal appears specific to hard mathematical reasoning where output probabilities are poorly calibrated.
+- **F-1 (STRONG):** Dimensional breathing — residual-stream covariance participation ratio rises during CoT generation and collapses at the answer token. Universal across **Qwen-1.5B, Qwen-7B, Phi-3-mini, Llama-3.2-1B**. Random-token control is flat (PR ≈ 10).
+- **F-2 (MODERATE):** Prefill DoM is a stronger correctness predictor than final-token DoM. ~0.876 on 7B, 0.7731 on 1.5B.
+- **F-3 (MODERATE):** Prefill and final-token DoM directions are geometrically orthogonal (cos ≈ 0.046). "Can I solve this?" and "did I solve this?" live in unrelated subspaces.
+- **F-4 (STRONG):** Correct trajectories collapse harder than incorrect at the final token (4 models, bootstrap CIs).
+- **F-5 (MODERATE):** Breathing is content-dependent, not AR-mechanics. Random tokens give flat PR.
+- **F-6 (STRONG):** 7B prefill PR inversion (correct-group PR > incorrect-group). Driven by easy-level failures clustering. Not in 1.5B, not in BBH.
+- **F-7 (MODERATE):** D-bucket (K=1-right but K=8-majority-wrong) has a group-level signature but doesn't localize per-problem.
+- **F-8 (MODERATE):** Selective prediction via prefill DoM works at 50% coverage. +22 pp over unconditional at lower compute.
+- **F-9 (MODERATE):** CoE-60 trajectory features are redundant with single-layer L19 DoM (Δ = +0.004 in favor of DoM on cross-domain transfer).
+- **F-10 (STRONG):** Persistent homology on trained residual streams sits at the Gaussian null. PH = covariance dressed differently.
 
-## Install
+## What was overturned
+
+Full graveyard at [PROJECT_RECORD §1d](PROJECT_RECORD.md). The big ones:
+
+- **The 20.8% MATH-500 accuracy baseline** was a `max_new_tokens=256` truncation artifact. At 1024 tokens the 1.5B gets 48.6%, not 20.8%.
+- **The 0.796 ABC-44 / topo-AUROC headline** was computed against the truncated label distribution. At 1024 tokens, single-direction DoM gets 0.7731 — and the topology-specific signal in the 44-feature pipeline is fully explained by covariance structure (F-10).
+- **Cross-scale "7B is a stronger verifier."** At 1024 tokens, 7B → 1.5B transfer is 0.717 vs 1.5B's self-prediction at 0.719 — no asymmetry.
+- **CoE-60 > ABC-44.** Both numbers (0.811 vs 0.7961) were on truncated labels. At 1024 tok, single-direction DoM matches CoE on transfer (Δ = +0.004 in favor of DoM).
+- **Fixed-vector steering (Pathway 2, Pathway 10 E1).** The "correctness axis" rotates through generation; injecting a final-token-fit vector at position 15 is geometrically random.
+
+## Reading order
+
+If you've never seen this project before, read in this order:
+
+1. **[QUICKSTART.md](QUICKSTART.md)** (~480 words) — the orientation document. What we found, what we were wrong about, where the data lives.
+2. **[STATE.md](STATE.md)** — where the most recent session left off. Overwritten each session.
+3. **[PROJECT_RECORD.md](PROJECT_RECORD.md)** — authoritative archive. §1a chronology, §1b provenance table (every claim → JSON), §1d graveyard, §1e queue.
+4. **[FINDINGS.md](FINDINGS.md)** — F-1…F-10 registry with controls.
+5. **[HYPOTHESES.md](HYPOTHESES.md)** — H-1…H-14 prioritized queue with cost estimates.
+6. **[PERSPECTIVES.md](PERSPECTIVES.md)** — reflective notes on what surprised, what was wrong.
+7. **[DATA_MANIFEST.md](DATA_MANIFEST.md)** — cached activation inventory (~79 GB, gitignored).
+8. **[PAPER_INDEX.md](PAPER_INDEX.md)** — external papers that informed the work, with our REPLICATED / CONTRADICTED status.
+
+Smoke test: `python validate_claims.py` — 91 quantitative claims back-checked against committed JSONs. Should print 91/91 PASS.
+
+## What's next
+
+Top of [HYPOTHESES.md](HYPOTHESES.md):
+
+| H | Cost | Decides |
+|---|---|---|
+| H-2 short-CoT breathing | ~$0.25 | Whether breathing tracks CoT length or reasoning structure |
+| H-6 CoE re-baseline at 1024 tok | $0 / 30 min CPU | Whether CoE-beats-DoM headline survives label correction |
+| H-14 Qwen breathing headline figure | $0 / 30 min CPU | Generates the missing PNG that should anchor the project |
+| H-1 per-position DoM steering | ~$200 / 3 H100-days | The most decisive: diagnostic vs lever |
+
+H-1 is the question that decides the program: if a *position-aware* DoM bank steers MATH-500 accuracy by ≥ 3 pp, the prefill signal is an actionable lever. If not, the program closes at "good selective predictor."
+
+## Code
+
+The `topo_confidence/` Python package (v0.2.0) is the *original-framing* reference implementation — 44-feature ABC pipeline + logistic regression + CLI. The headline result it computes (AUROC 0.796 on MATH-500) is the now-overturned 256-tok number, kept for reproducibility of the historical claim.
 
 ```bash
 pip install -e .
 ```
 
-## Usage
-
-### Score prompts
-
 ```python
 from topo_confidence import TopoConfidence
-
 tc = TopoConfidence("Qwen/Qwen2.5-1.5B-Instruct")
 tc.calibrate(calibration_prompts, calibration_labels)
 confidences = tc.predict_confidence(["What is 2+2?", "Prove the Riemann Hypothesis"])
 ```
 
-### Selective prediction — only answer when confident
+The current findings (prefill DoM, breathing, gated compute) live in the pathway directories — there's no packaged API for them yet. See [`pathway11_h100/`](pathway11_h100/) for the most recent extraction + analysis pipelines.
 
-```python
-results = tc.selective_predict(problems, threshold=0.7)
-# results["answers"]: list of str | None (None = skipped)
-# results["confidences"]: array of P(correct)
-# results["answered_fraction"]: what fraction was answered
-```
-
-### CLI
-
-```bash
-# Score prompts
-topo-confidence score "What is 2+2?" "What is the integral of x^3?"
-
-# Calibrate on labeled data
-topo-confidence calibrate data.jsonl -o calibrated.pkl
-
-# Selective prediction
-topo-confidence selective -c calibrated.pkl -f problems.txt -t 0.7
-
-# Explain a prediction
-topo-confidence explain -c calibrated.pkl "What is 2+2?"
-```
-
-### Combine with output entropy
-
-```python
-from topo_confidence import CombinedConfidence
-
-cc = CombinedConfidence("Qwen/Qwen2.5-1.5B-Instruct")
-cc.calibrate(prompts, labels)  # uses topo features + output entropy + max token prob
-```
-
-### Save and load calibrated models
-
-```python
-tc.save("math_calibrated.pkl")
-
-tc2 = TopoConfidence("Qwen/Qwen2.5-1.5B-Instruct")
-tc2.load("math_calibrated.pkl")
-```
-
-## How it works
-
-Each prompt's hidden states at the final transformer layer form a point cloud in R^d (one point per token). The CORAL feature pipeline extracts 44 topological and geometric features organized into three tiers:
-
-### Feature tiers
-
-| Tier | Count | Description | Standalone AUROC |
-|------|-------|-------------|-----------------|
-| A | 9 | Persistent homology + geometry (H0/H1 entropy, lifetimes, centroid distances) | 0.704 |
-| B | 30 | Layer dynamics (inter-layer cosines, PCA spectrum, SVD ratios) | 0.761 |
-| C | 5 | Depth-2 products (cross-tier interactions) | 0.732 |
-| **A+B+C** | **44** | **Full model** | **0.796** |
-
-### Top features by leave-one-out importance
-
-| Feature | LOO Impact | Tier |
-|---------|-----------|------|
-| cos_l23_l26 | -0.041 | B |
-| last5_centroid_dist | -0.035 | A |
-| H1_persistence_entropy | -0.030 | A |
-| cos_l9_l28 | -0.028 | B |
-| cos_l17_l27 | -0.028 | B |
-
-The signal is distributed — no single feature is critical. Tier A (persistent homology) provides the irreplaceable anchor, while Tier B (layer dynamics) provides the largest AUROC boost (+0.057 from A to A+B).
-
-## Baseline comparison
-
-On the MATH-500 holdout (n=100):
-
-| Method | Passes | AUROC |
-|--------|--------|-------|
-| **Topo-confidence (44 features)** | 1 | **0.796** |
-| Vote margin | 32 | 0.767 |
-| P(majority) | 32 | 0.708 |
-| Neg agreement entropy | 32 | 0.617 |
-| Inv answer diversity | 32 | 0.593 |
-| Mean max token prob | 1 | 0.514 |
-| Neg mean entropy | 1 | 0.508 |
-| First token prob | 1 | 0.472 |
-
-Topo-confidence is the only single-pass method that competes with 32-pass self-consistency baselines.
-
-## Selection strategies
-
-### Gated majority vote (tau sweep, holdout)
-
-| Threshold | Answered | Net Gain | W->R | R->W |
-|-----------|----------|----------|------|------|
-| 0.1 | 8 | 0 | 0 | 0 |
-| 0.3 | 37 | **+4** | 4 | **0** |
-| 0.5 | 68 | +8 | 9 | 1 |
-| 0.7 | 88 | +11 | 13 | 2 |
-| Ungated | 100 | +12 | 14 | 2 |
-
-At tau=0.3, gating achieves zero regressions (0 R->W) — the model never makes a correct answer worse. The tradeoff is coverage: only 37% of problems are answered.
-
-### Adaptive sampling
-
-Topo-confidence enables 3-tier routing (easy/medium/hard) that matches uniform 32-pass majority vote accuracy with 77-89% fewer samples.
-
-## Research status
-
-This is an active research project. Key findings as of April 2026:
-
-**Established:**
-- Topo AUROC 0.796 on MATH-500 x 1.5B (corrected from initial 0.948 after fixing answer extraction and PCA leakage bugs)
-- Topo AUROC 0.739 on MATH-500 x 7B (genuine cross-model signal, +0.102 over baseline)
-- Zero-regression gating at tau=0.3 (0 R->W)
-- Adaptive sampling: 77-89% sample savings
-
-**Refuted:**
-- Cross-benchmark generalization to GSM8K (AUROC 0.615, baseline wins at 0.741)
-- Cross-benchmark transfer (MATH -> GSM8K = 0.504, chance level)
-
-**Open questions:**
-- Why does the signal appear specific to MATH-500? (Hypothesis: hard reasoning where logprobs are poorly calibrated)
-- Can per-completion features improve gated majority vote beyond +4?
-- Comparison with SEP (Semantic Entropy Probes, Kossen et al.)
-
-See `pathway6_rebuild/phase6_5/FINAL_SUMMARY.md` for the full deconfounded analysis.
-
-## Project structure
+## Repo layout
 
 ```
-topo_confidence/           # Python package (pip installable)
-  confidence.py            # TopoConfidence class
-  combined.py              # CombinedConfidence (topo + entropy fusion)
-  extractor.py             # HiddenStateExtractor
-  features.py              # TopologicalFeatureExtractor
-  baselines.py             # Output entropy, max token prob
-  cli.py                   # Command-line interface
+QUICKSTART.md, STATE.md          # Read first
+PROJECT_RECORD.md                # Authoritative archive
+FINDINGS.md, HYPOTHESES.md       # Live claims and queue
+PERSPECTIVES.md                  # Reflective notes
+DATA_MANIFEST.md                 # ~79 GB cached NPZ inventory
+EXPERIMENT_LOG.md                # EXP-001…EXP-042 append-only log
+PAPER_INDEX.md                   # External-paper bridge
+validate_claims.py               # Provenance smoke test (91/91 PASS)
 
-pathway1/                  # CORAL feature extraction + baseline model
-pathway2/                  # Steering experiments (Track A/B)
-pathway3/                  # Generalization gap experiments
-pathway4/                  # Selection strategies + GRPO steering
-pathway5/                  # Cross-benchmark exploration
-pathway6_rebuild/          # Bug-fix rebuild + Phase 6.5 deconfounding
-  phase0_relabel/          # Answer extraction fix (+47 problems)
-  phase1_prompt_model/     # Corrected AUROC 0.796
-  phase2_completion/       # Selection strategies (MV, gating)
-  phase3_cross_benchmark/  # GSM8K + 7B (confounded)
-  phase4_report/           # Corrected vs old comparison
-  phase6_5/                # Deconfounded results (max_tokens 1024)
-```
-
-## Citation
-
-If you use topo-confidence in your research, please cite:
-
-```bibtex
-@software{topo_confidence,
-  title={topo-confidence: Topological Uncertainty Estimation for LLM Reasoning},
-  author={musicofhel},
-  year={2026},
-  url={https://github.com/musicofhel/topo-confidence}
-}
+topo_confidence/                 # Pip-installable package (v1 framing)
+pathway1/ … pathway11_h100/      # Per-pathway code, results JSONs, NPZ caches
+figures/                         # Headline figures (see figures/README.md)
+scratch/                         # Pathway 10 sanity-check JSONs (cited as evidence)
+archive/                         # Superseded design docs and pre-rebuild scripts
+data/, configs/, tests/          # Working data and harness
 ```
 
 ## License
