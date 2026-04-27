@@ -1,0 +1,89 @@
+project: topo-confidence
+
+apis:
+  - arxiv
+  - semantic-scholar
+  - openalex
+  - huggingface
+
+per_query_limit: 10
+
+keyword_groups:
+  P11_breathing:
+    - participation ratio language model
+    - intrinsic dimension transformer reasoning
+    - residual stream geometry chain of thought
+    - dimensional collapse hidden states
+    - prefill activation correctness prediction
+    - activation trajectory reasoning LLM
+    - directional decomposability transformer
+    - hidden state PCA chain of thought
+
+  P10_intervention:
+    - per-position activation steering language model
+    - linear probe steering transformer
+    - selective prediction language model abstention
+    - confidence-gated inference LLM
+    - compute allocation chain of thought
+    - knowledge distillation 7B 1.5B reasoning
+    - hidden state refusal policy
+    - inference-time intervention transformer
+
+  P9_P8_CoE_layerwise:
+    - chain of embedding correctness
+    - layer-wise geometry transformer reasoning
+    - domain invariant features language model
+    - layer-wise PCA hidden states
+    - attention hidden state binding
+    - intrinsic dimension scaling reasoning
+
+  P4_P3_P2_steering:
+    - contrastive activation addition
+    - concept activation vector language model
+    - spherical activation steering
+    - multi-prototype steering vector
+    - GRPO group relative policy optimization steering
+    - differentiable activation steering
+    - bootstrap steering vector reasoning
+    - confidence-gated activation intervention
+
+  P7_non_euclidean_PH:
+    - non-Euclidean persistent homology
+    - diffusion distance topological data analysis
+    - effective resistance graph features
+    - distance to measure (DTM) topology
+    - persistent homology under metric variation
+
+  P5_cross_benchmark_scale:
+    - cross-benchmark transfer language model
+    - cross-scale generalization reasoning
+    - scale-dependent activation geometry
+    - prompt template effects reasoning
+    - benchmark transfer chain of thought
+
+  P1_PH_validation:
+    - persistent homology validation neural network
+    - topological feature evaluation transformer
+    - deconfounding analysis machine learning
+    - holdout cross-validation feature engineering
+    - null hypothesis topological features
+
+  F3_F7_circuit_orthogonality:
+    - orthogonal circuits transformer correctness
+    - prefill final-token activation different
+    - per-problem versus group-level confidence prediction
+    - majority voting hidden state signal
+
+  H3_code_generation:
+    - HumanEval activation analysis
+    - code generation correctness prediction
+    - programming reasoning hidden states
+    - dimensional dynamics code completion
+
+  cross_cutting:
+    - mechanistic interpretability small language model
+    - topological data analysis neural network
+    - persistent homology language model representations
+    - linear probe correctness prediction transformer
+    - calibration transformer reasoning
+    - hidden state geometry mathematical reasoning
