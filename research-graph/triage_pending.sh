@@ -1,25 +1,30 @@
 #!/usr/bin/env bash
-# Loop runner for max-depth paper triage over every :Paper {status:'pending_triage'}.
+# Parallel dispatcher for max-depth paper triage over every
+# :Paper {status:'pending_triage'}.
 #
-# Calls `claude -p "<full agent prompt>"` per paper. Each invocation is a separate
-# `claude` process — the per-paper isolation the SKILL.md hard-rule depends on
-# (Ríos-García 2604.18805 confirmation-bias defense). Briefs land in
-# ./briefs/triage-YYYY-MM-DD-<arxiv-id>.md.
+# Spawns N worker processes (default 3), each running triage_one.sh on one
+# paper at a time via xargs -P. Each worker spawns its own `claude -p` process,
+# preserving per-paper isolation (the SKILL.md hard rule per Ríos-García
+# 2604.18805 confirmation-bias defense).
 #
-# We DON'T use `claude -p "/paper-triage <id>"` because the spawned assistant
-# tends to second-guess slash-command invocations in headless mode. Inlining
-# the full prompt template removes that ambiguity.
+# Why 3? Conservative parallelism — each `claude -p` makes upstream API + MCP
+# calls. 3 keeps load well below any rate limit and keeps local memory usage
+# under ~3GB. Bump via `PARALLEL=5 bash triage_pending.sh` if the API holds up.
 #
-# Skips a paper if its brief already exists. Logs failures to <brief>.log so you
-# can re-run without losing progress.
+# Each worker wraps its claude call in `timeout 1800` (30 min ceiling), so a
+# hung paper releases its slot rather than pinning one worker. A separate
+# triage_watchdog.sh is no longer required — kill stale claude children
+# upstream by raising PARALLEL or `pkill -f "claude -p"`.
 #
-# Tier-priority ordering is enforced by `query.py pending --ids-only`:
-#   T1 admitted-then-rejected → T2 prior candidate → T3 graphed-no-brief
-#   → T4 seed paragraph → T5 Desktop backfill → T6 fresh admission
+# Tier-priority ordering (admitted-then-rejected first, etc.) is enforced by
+# `query.py pending --ids-only`. With parallelism, ordering is best-effort:
+# faster workers may take Tier-2 papers before slower workers finish Tier-1,
+# but every paper still gets processed.
 #
 # Usage:
-#   bash triage_pending.sh             # process all pending papers
-#   LIMIT=10 bash triage_pending.sh    # stop after 10 successful briefs
+#   bash triage_pending.sh                 # 3 workers, all pending
+#   PARALLEL=5 bash triage_pending.sh      # 5 workers
+#   LIMIT=10 bash triage_pending.sh        # process at most 10 IDs from queue
 
 set -euo pipefail
 
@@ -32,70 +37,29 @@ unset CLAUDECODE
 
 mkdir -p briefs
 
-TEMPLATE_PATH="./_paper_triage_prompt.template"
-if [[ ! -f "$TEMPLATE_PATH" ]]; then
-  echo "FATAL: prompt template missing at $TEMPLATE_PATH" >&2
-  exit 1
-fi
-TEMPLATE_RAW="$(cat "$TEMPLATE_PATH")"
-
+PARALLEL="${PARALLEL:-3}"
 LIMIT="${LIMIT:-0}"
-TODAY="$(date +%Y-%m-%d)"
-processed=0
-skipped=0
-failed=0
 
 ids="$(python query.py pending --ids-only)"
 total="$(printf '%s\n' "$ids" | grep -c '^[0-9]' || true)"
-echo "==> $total papers in pending_triage queue (LIMIT=${LIMIT:-unlimited})"
 
-build_prompt() {
-  local arxiv_id="$1"
-  printf '%s\n' "$TEMPLATE_RAW" \
-    | sed -e "s|__ARXIV_ID__|${arxiv_id}|g" \
-          -e "s|__TODAY__|${TODAY}|g"
-}
+if [[ "$LIMIT" -ne 0 ]]; then
+  ids="$(printf '%s\n' "$ids" | head -n "$LIMIT")"
+  echo "==> $total papers in queue, processing first $LIMIT with PARALLEL=$PARALLEL"
+else
+  echo "==> $total papers in queue, processing all with PARALLEL=$PARALLEL"
+fi
 
-while IFS= read -r arxiv_id; do
-  [[ -z "$arxiv_id" ]] && continue
-
-  brief="briefs/triage-${TODAY}-${arxiv_id}.md"
-  log="${brief}.log"
-
-  # Skip if a brief for this arxiv_id exists from any date — don't redo work.
-  existing="$(ls briefs/triage-*-"${arxiv_id}".md 2>/dev/null | head -1 || true)"
-  if [[ -n "$existing" ]]; then
-    echo "skip  $arxiv_id (brief exists at $existing)"
-    skipped=$((skipped + 1))
-    continue
-  fi
-
-  echo "===== $arxiv_id ====="
-  prompt="$(build_prompt "$arxiv_id")"
-  # `< /dev/null` is load-bearing: without it, claude -p reads from the loop's
-  # stdin (the here-string `<<< "$ids"` at `done`) and consumes the remaining
-  # arxiv IDs, ending the loop after the first non-skip paper.
-  if claude -p --dangerously-skip-permissions "$prompt" < /dev/null > "$log" 2>&1; then
-    if [[ -f "$brief" ]]; then
-      processed=$((processed + 1))
-      echo "  ok  $brief"
-    else
-      failed=$((failed + 1))
-      echo "  WARN $arxiv_id — claude exited 0 but no brief written; see $log"
-    fi
-  else
-    failed=$((failed + 1))
-    echo "  FAIL $arxiv_id — see $log"
-  fi
-
-  if [[ "$LIMIT" -ne 0 && "$processed" -ge "$LIMIT" ]]; then
-    echo "==> reached LIMIT=$LIMIT, stopping"
-    break
-  fi
-done <<< "$ids"
+# xargs -P PARALLEL spawns up to PARALLEL workers; -n 1 means one arxiv_id per
+# worker invocation; --no-run-if-empty avoids running with no input.
+# Worker exit status is captured but does NOT abort siblings (xargs default).
+printf '%s\n' "$ids" \
+  | grep '^[0-9]' \
+  | xargs --no-run-if-empty -P "$PARALLEL" -n 1 -I {} bash triage_one.sh {}
 
 echo
-echo "==> done.  processed=$processed  skipped=$skipped  failed=$failed"
-echo "Review briefs in $(pwd)/briefs/, then promote keepers:"
-echo "    python promote_brief.py briefs/triage-${TODAY}-<arxiv-id>.md --dry-run"
-echo "    python promote_brief.py briefs/triage-${TODAY}-<arxiv-id>.md"
+echo "==> dispatcher exited."
+echo "    Brief count: $(ls briefs/triage-*.md 2>/dev/null | wc -l)"
+echo "    Review briefs in $(pwd)/briefs/, then promote keepers:"
+echo "      python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --dry-run"
+echo "      python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md"

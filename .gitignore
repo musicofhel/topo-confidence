@@ -21,6 +21,9 @@ research-graph/triage_run_*.log
 research-graph/triage_watchdog.log
 research-graph/briefs/*.log
 
+# Papers downloaded by per-paper triage subagents (PDFs, transient)
+research-graph/downloads/
+
 # SQLite working files (transient WAL/SHM)
 data/access.db
 data/access.db-shm
