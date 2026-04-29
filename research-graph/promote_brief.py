@@ -207,6 +207,114 @@ def parse_filename(path: Path) -> tuple[str, str]:
 
 
 # ---------------------------------------------------------------------------
+# ID renumbering (collision-safe contiguous allocation at promote time)
+# ---------------------------------------------------------------------------
+
+# A "promote-time ID" is any H-N or P{N}(_h100)?-FE{N} the brief picked.
+# Bulk-triage briefs are written in parallel, so they all jump to high
+# numbers ("collision-safe") to avoid stomping each other. The graph wants
+# contiguous numbering from current Next IDs, so we remap everything at
+# promote time.
+ID_TOKEN_RE = re.compile(r"\b(?:H-\d+|P\d+(?:_h100)?-FE\d+)\b")
+FE_ID_RE = re.compile(r"^(P\d+(?:_h100)?)-FE(\d+)$")
+
+
+def _max_fe_for_pathway(driver, pathway: str) -> int:
+    """Return the largest existing FE-N for `pathway` (0 if none)."""
+    with driver.session() as s:
+        res = s.run(
+            """
+            MATCH (fe:FutureExperiment)
+            WHERE fe.id STARTS WITH $prefix
+            WITH fe.id AS id, $prefix AS prefix
+            WITH toInteger(substring(id, size(prefix))) AS n
+            RETURN max(n) AS max_n
+            """,
+            prefix=f"{pathway}-FE",
+        ).single()
+    return int(res["max_n"]) if res and res["max_n"] is not None else 0
+
+
+def renumber(parsed: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """Remap brief-declared H-N / P{X}-FE-N to contiguous IDs from current
+    Next-ID state. Mutates `parsed` in place; returns the remap dicts."""
+    # H-N remap: contiguous from HYPOTHESES.md "Next ID: H-N".
+    hyp_text = (REPO / "HYPOTHESES.md").read_text()
+    m = re.search(r"Next ID: H-(\d+)", hyp_text)
+    if not m:
+        raise SystemExit('No "Next ID: H-N" line in HYPOTHESES.md.')
+    next_h = int(m.group(1))
+
+    h_remap: dict[str, str] = {}
+    for i, block in enumerate(parsed["hypotheses_blocks"]):
+        hm = re.match(r"### H-(\d+):", block)
+        if not hm:
+            continue
+        old = f"H-{hm.group(1)}"
+        new = f"H-{next_h + i}"
+        if old != new:
+            h_remap[old] = new
+
+    # FE-N remap: per-pathway contiguous from current graph max+1.
+    fe_remap: dict[str, str] = {}
+    pathways: dict[str, int] = {}
+    if parsed["future_experiments"]:
+        drv = GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
+        try:
+            seen_pathways = sorted({fe["pathway"] for fe in parsed["future_experiments"]})
+            for pw in seen_pathways:
+                pathways[pw] = _max_fe_for_pathway(drv, pw) + 1
+        finally:
+            drv.close()
+        for fe in parsed["future_experiments"]:
+            old = fe["id"]
+            fm = FE_ID_RE.match(old)
+            if not fm:
+                continue
+            pw = fm.group(1)
+            new = f"{pw}-FE{pathways[pw]}"
+            pathways[pw] += 1
+            if old != new:
+                fe_remap[old] = new
+
+    full = {**h_remap, **fe_remap}
+    if not full:
+        return {"h_remap": {}, "fe_remap": {}}
+
+    # Substitute longest keys first so "H-72" doesn't shadow "H-723".
+    sorted_keys = sorted(full.keys(), key=len, reverse=True)
+
+    def remap_text(text: str) -> str:
+        for k in sorted_keys:
+            v = full[k]
+            text = re.sub(rf"(?<![A-Za-z0-9]){re.escape(k)}(?![0-9])", v, text)
+        return text
+
+    # Mutate FE blocks: id, prose fields, blocked-by-experiment cross-refs.
+    for fe in parsed["future_experiments"]:
+        if fe["id"] in fe_remap:
+            fe["id"] = fe_remap[fe["id"]]
+        for field in ("description", "rationale", "trigger"):
+            v = fe.get(field)
+            if isinstance(v, str):
+                fe[field] = remap_text(v)
+        bbe = fe.get("blocked-by-experiment")
+        if isinstance(bbe, list):
+            fe["blocked-by-experiment"] = [fe_remap.get(x, x) for x in bbe]
+
+    # Mutate H-N blocks (header + body), PAPER_INDEX entry, deep subsections,
+    # and new-claim lines so cross-references stay aligned.
+    parsed["hypotheses_blocks"] = [remap_text(b) for b in parsed["hypotheses_blocks"]]
+    parsed["paper_index_entry"] = remap_text(parsed["paper_index_entry"])
+    parsed["deep_subsections"] = {
+        k: remap_text(v) for k, v in parsed["deep_subsections"].items()
+    }
+    parsed["new_claims_lines"] = [remap_text(c) for c in parsed["new_claims_lines"]]
+
+    return {"h_remap": h_remap, "fe_remap": fe_remap}
+
+
+# ---------------------------------------------------------------------------
 # Validate-claims gate (protects 91/91 invariant)
 # ---------------------------------------------------------------------------
 
@@ -632,6 +740,10 @@ def main() -> None:
     p.add_argument("--update-existing", action="store_true",
                    help="Re-promote a brief whose H-N / FE / PAPER_INDEX entries "
                         "already exist. Replaces them in place idempotently.")
+    p.add_argument("--no-renumber", action="store_true",
+                   help="Skip the renumber-on-promote step (use brief's exact "
+                        "H-N / FE-N IDs verbatim). Default: renumber to "
+                        "contiguous IDs from current Next-ID state.")
     args = p.parse_args()
 
     brief_path = Path(args.brief).expanduser().resolve()
@@ -655,6 +767,21 @@ def main() -> None:
           f"deep subsections={len(parsed['deep_subsections'])}, "
           f"methods={len(parsed['method_names'])}, "
           f"datasets={len(parsed['dataset_names'])}")
+
+    if args.no_renumber:
+        print("\nstep 0: renumber (skipped — --no-renumber)")
+    else:
+        print("\nstep 0: renumber to contiguous IDs from current Next-ID state")
+        remaps = renumber(parsed)
+        if remaps["h_remap"]:
+            for old, new in sorted(remaps["h_remap"].items(),
+                                   key=lambda kv: int(kv[0].split("-")[1])):
+                print(f"  H remap: {old} -> {new}")
+        if remaps["fe_remap"]:
+            for old, new in sorted(remaps["fe_remap"].items()):
+                print(f"  FE remap: {old} -> {new}")
+        if not remaps["h_remap"] and not remaps["fe_remap"]:
+            print("  (no IDs needed renumbering)")
 
     print("\nstep 1: validate-claims gate")
     assert_claims_gate(parsed, brief_path)
