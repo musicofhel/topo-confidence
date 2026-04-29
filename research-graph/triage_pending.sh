@@ -72,7 +72,10 @@ while IFS= read -r arxiv_id; do
 
   echo "===== $arxiv_id ====="
   prompt="$(build_prompt "$arxiv_id")"
-  if claude -p --dangerously-skip-permissions "$prompt" > "$log" 2>&1; then
+  # `< /dev/null` is load-bearing: without it, claude -p reads from the loop's
+  # stdin (the here-string `<<< "$ids"` at `done`) and consumes the remaining
+  # arxiv IDs, ending the loop after the first non-skip paper.
+  if claude -p --dangerously-skip-permissions "$prompt" < /dev/null > "$log" 2>&1; then
     if [[ -f "$brief" ]]; then
       processed=$((processed + 1))
       echo "  ok  $brief"
