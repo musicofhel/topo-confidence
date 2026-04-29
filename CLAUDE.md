@@ -12,7 +12,7 @@ Always read these before answering questions about project state — they are ke
 | [QUICKSTART.md](QUICKSTART.md) | ~480-word orientation: what we found, what was wrong, where data lives | If you're cold on the project |
 | [PROJECT_RECORD.md](PROJECT_RECORD.md) | Authoritative archive. §1a chronology, §1b provenance table, §1c reproducibility, §1d graveyard, §1e queue, §1f literature, §1g file inventory | When any claim needs verification |
 | [FINDINGS.md](FINDINGS.md) | F-1…F-10 registry with controls and counterarguments | When discussing what's been established |
-| [HYPOTHESES.md](HYPOTHESES.md) | H-1…H-14 prioritized queue with cost estimates | When proposing next experiments |
+| [HYPOTHESES.md](HYPOTHESES.md) | H-1…H-22 prioritized queue with cost estimates | When proposing next experiments |
 | [PERSPECTIVES.md](PERSPECTIVES.md) | Reflective notes — what surprised, what was wrong | For framing/narrative |
 | [DATA_MANIFEST.md](DATA_MANIFEST.md) | NPZ schema, sizes, regeneration commands | Before claiming a cache exists |
 | [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) | EXP-001…EXP-042 append-only log | When tracing where a number came from |
@@ -23,10 +23,10 @@ Always read these before answering questions about project state — they are ke
 ## Research graph
 
 A Neo4j knowledge graph at `bolt://localhost:7688` (auth `neo4j / topo_graph_dev`)
-links this project's findings (F-1…F-14) to ~40 external papers via typed edges
-(CORROBORATED_BY, CONTRADICTED_BY, EXTENDED_BY, METHOD_DIFFERS, EXPLAINS). It is
-separate from link-forge (`bolt://localhost:7687`); Paper nodes here are arxiv
-stubs that resolve to link-forge for full metadata.
+links this project's findings (F-1…F-10) to 220+ external papers via typed edges
+(CORROBORATED_BY, CONTRADICTED_BY, EXTENDED_BY, METHOD_DIFFERS, EXPLAINS,
+USED_IN). It is separate from link-forge (`bolt://localhost:7687`); Paper nodes
+here are arxiv stubs that resolve to link-forge for full metadata.
 
 ```bash
 # Before claiming a finding is novel:
@@ -70,6 +70,51 @@ python generate_next_experiments.py    # rewrites NEXT_EXPERIMENTS.md
 # After reading a new paper, check if it triggers anything:
 python query.py watchlist
 ```
+
+### Paper triage
+
+A perimeter admission filter (`link-forge/src/processor/research-graph-suggest.ts`)
+runs automatically on every link-forge ingest of an arxiv URL. If the paper
+crosses the perimeter, it lands in the graph as `:Paper {status:'pending_triage'}`.
+**Every admitted paper gets the same maximum-depth `/paper-triage` pass** — there
+is no light-touch second tier. The admission filter only decides "is this paper
+on-topic enough to enter the graph at all?" Once admitted, every paper earns a
+structured brief.
+
+```bash
+# List pending-triage papers, tier-priority ordered (admitted-then-rejected
+# first, then current candidates, then graphed-no-brief, then seed paragraphs,
+# then Desktop backfill, then fresh admissions):
+cd ~/topo-confidence/research-graph && python query.py pending
+
+# Deep pass — fresh subagent per paper, headlines-only context, refutations-first:
+/paper-triage <arxiv-id>          # writes briefs/triage-YYYY-MM-DD-<arxiv-id>.md
+
+# Loop the deep pass over every pending paper (overnight job, sequential):
+bash triage_pending.sh
+
+# Promote a reviewed brief into HYPOTHESES.md / PAPER_INDEX.md / graph:
+python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --dry-run
+python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md
+python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --update-existing  # idempotent re-promote
+```
+
+`promote_brief.py` parses YAML FE blocks, MERGEs `:FutureExperiment` nodes (with
+`DEPENDS_ON_FINDING` / `WOULD_UPDATE` / `TRIGGERED_BY` edges), runs
+`bridge.py resolve`, inserts H-N + PAPER_INDEX.md sections (folding the brief's
+deep-extraction subsections — methodologies / approaches / datasets /
+implementation / replicable / cross-paper signals — under each PAPER_INDEX
+entry), writes `(:Method)-[:USED_IN]->(:Paper)` and
+`(:Dataset)-[:USED_IN]->(:Paper)` edges, regenerates `NEXT_EXPERIMENTS.md`, and
+sets the paper to `status='graphed'`. **Refuses to promote** if the brief
+declares new quantitative claims and `validate_claims.py` hasn't been updated
+since the brief was written — protects the 91/91 invariant.
+
+The `/paper-triage` skill spawns a fresh subagent per paper (per-paper context
+isolation) to defend against the confirmation-bias failure mode documented in
+Ríos-García `2604.18805` (68% in agent traces). Default context is headlines-only;
+the subagent must explicitly `Read` F-N bodies on demand and log them in the
+brief footer.
 
 ## Smoke test
 

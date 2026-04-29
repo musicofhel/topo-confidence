@@ -10,6 +10,8 @@ Examples:
     python query.py status-report
     python query.py subgraph F-2 --depth 2
     python query.py paper 2410.13640
+    python query.py pending                # tier-ordered list of pending_triage papers
+    python query.py pending --ids-only     # arxiv IDs only — feeds triage_pending.sh
 """
 from __future__ import annotations
 
@@ -404,6 +406,85 @@ def watchlist() -> list[dict[str, Any]]:
     )
 
 
+def pending_triage_papers() -> list[dict[str, Any]]:
+    """Papers awaiting deep triage (status='pending_triage'), tier-ordered.
+
+    Tier priority (most signal-dense first), driven by migration-preserved fields:
+      1. prior_status_at_migration='rejected'   — admitted by LLM, then operator-flipped
+      2. prior_status_at_migration='candidate'  — most recent admission, never triaged
+      3. prior_brief_kind='admission_only'      — graphed via triage-promote, no brief
+      4. prior_brief_kind='seed_paragraph'      — seed.py one-paragraph notes
+      5. prior_brief_kind='desktop_chat'        — Desktop session backfill briefs
+      6. (no prior_* fields)                    — freshly admitted post-migration
+    """
+    return _run(
+        """
+        MATCH (p:Paper)
+        WHERE p.status IN ['pending_triage', 'candidate']
+        OPTIONAL MATCH (p)-[:TAGGED]->(t:Tag)
+        WITH p, collect(DISTINCT t.name) AS tags,
+             CASE p.prior_status_at_migration
+               WHEN 'rejected' THEN 1
+               WHEN 'candidate' THEN 2
+               ELSE
+                 CASE p.prior_brief_kind
+                   WHEN 'admission_only' THEN 3
+                   WHEN 'seed_paragraph' THEN 4
+                   WHEN 'desktop_chat' THEN 5
+                   ELSE 6
+                 END
+             END AS tier
+        RETURN p.arxiv_id AS arxiv_id, p.title AS title,
+               p.relevance_note AS relevance_note,
+               p.prior_admission_note AS prior_admission_note,
+               p.prior_brief_kind AS prior_brief_kind,
+               p.prior_status_at_migration AS prior_status_at_migration,
+               p.linkforge_url AS linkforge_url,
+               p.suggested_at AS suggested_at,
+               tags, tier
+        ORDER BY tier, p.suggested_at DESC, p.arxiv_id
+        """
+    )
+
+
+# Backward-compat alias — `cmd_triage` historically called this.
+candidate_papers = pending_triage_papers
+
+
+def promote_paper(arxiv_id: str, relevance_note: str | None = None) -> bool:
+    """Move a pending_triage (or legacy 'candidate') paper to status='graphed'."""
+    rows = _run(
+        """
+        MATCH (p:Paper {arxiv_id: $a})
+        WHERE p.status IN ['pending_triage', 'candidate']
+        SET p.status = 'graphed',
+            p.relevance_note = coalesce($rel, p.relevance_note),
+            p.triaged_at = datetime()
+        RETURN p.arxiv_id AS arxiv_id
+        """,
+        a=arxiv_id,
+        rel=relevance_note,
+    )
+    return bool(rows)
+
+
+def reject_paper(arxiv_id: str, reason: str | None = None) -> bool:
+    """Tombstone a pending_triage (or legacy 'candidate') paper as status='rejected'."""
+    rows = _run(
+        """
+        MATCH (p:Paper {arxiv_id: $a})
+        WHERE p.status IN ['pending_triage', 'candidate']
+        SET p.status = 'rejected',
+            p.rejection_reason = $reason,
+            p.triaged_at = datetime()
+        RETURN p.arxiv_id AS arxiv_id
+        """,
+        a=arxiv_id,
+        reason=reason,
+    )
+    return bool(rows)
+
+
 def resolve_paper(arxiv_id: str) -> dict[str, Any] | None:
     rows = _run(
         """
@@ -606,6 +687,71 @@ def cmd_impact(args) -> None:
     print(json.dumps(payload, indent=2, default=str))
 
 
+def cmd_pending(args) -> None:
+    rows = pending_triage_papers()
+    if getattr(args, "ids_only", False):
+        # Loop runner mode — just emit arxiv IDs in tier-priority order.
+        for r in rows:
+            print(r["arxiv_id"])
+        return
+    print(f"\nPending-triage papers ({len(rows)}) — admitted, awaiting deep `/paper-triage`:")
+    if not rows:
+        print("  (none)")
+        return
+    tier_labels = {
+        1: "T1 admitted-then-rejected",
+        2: "T2 prior candidate",
+        3: "T3 graphed-no-brief",
+        4: "T4 seed paragraph",
+        5: "T5 Desktop backfill",
+        6: "T6 fresh admission",
+    }
+    current_tier: int | None = None
+    for r in rows:
+        tier = r.get("tier")
+        if tier != current_tier:
+            current_tier = tier
+            label = tier_labels.get(tier or 6, f"T{tier}")
+            print(f"\n  --- {label} ---")
+        title = r.get("title") or "(untitled)"
+        suggested_at = r.get("suggested_at") or "—"
+        print(f"\n  {r['arxiv_id']}  suggested: {suggested_at}")
+        print(textwrap.fill(f"    title: {title}", width=92, subsequent_indent="           "))
+        note = r.get("relevance_note") or r.get("prior_admission_note") or "(none)"
+        print(textwrap.fill(f"    note:  {note}", width=92, subsequent_indent="           "))
+        url = r.get("linkforge_url")
+        if url:
+            print(f"    link:  {url}")
+        tags = r.get("tags") or []
+        if tags:
+            print(f"    tags:  {', '.join(tags)}")
+    print("\nDeep pass: claude -p '/paper-triage <arxiv-id>'")
+    print("Promote brief: python promote_brief.py <brief-path>")
+    print("Reject:        python query.py reject <arxiv-id> [--reason '...']")
+
+
+# Backward-compat alias — older docs reference cmd_triage / `triage` subcommand.
+cmd_triage = cmd_pending
+
+
+def cmd_promote(args) -> None:
+    ok = promote_paper(args.arxiv_id, relevance_note=args.note)
+    if ok:
+        print(f"Promoted {args.arxiv_id} -> status='graphed'.")
+    else:
+        print(f"No candidate {args.arxiv_id} found (already triaged or doesn't exist).")
+        sys.exit(1)
+
+
+def cmd_reject(args) -> None:
+    ok = reject_paper(args.arxiv_id, reason=args.reason)
+    if ok:
+        print(f"Rejected {args.arxiv_id} -> status='rejected' (kept as tombstone).")
+    else:
+        print(f"No candidate {args.arxiv_id} found (already triaged or doesn't exist).")
+        sys.exit(1)
+
+
 def cmd_watchlist(_args) -> None:
     rows = watchlist()
     print(f"\nWatchlist — papers triggering future experiments ({len(rows)}):")
@@ -680,6 +826,31 @@ def main() -> None:
 
     s = sub.add_parser("watchlist", help="Papers triggering future experiments — monitor for follow-ups")
     s.set_defaults(func=cmd_watchlist)
+
+    s = sub.add_parser(
+        "pending",
+        aliases=["triage"],
+        help="Papers awaiting deep `/paper-triage` (status='pending_triage'), tier-ordered",
+    )
+    s.add_argument(
+        "--ids-only",
+        action="store_true",
+        dest="ids_only",
+        help="Emit one arxiv ID per line, tier-priority order. Used by triage_pending.sh.",
+    )
+    s.set_defaults(func=cmd_pending)
+
+    s = sub.add_parser("promote", help="Promote a candidate to graphed (rejection: see 'reject')")
+    s.add_argument("arxiv_id")
+    s.add_argument("--note", default=None,
+                   help="Override the auto-generated relevance_note while promoting.")
+    s.set_defaults(func=cmd_promote)
+
+    s = sub.add_parser("reject", help="Tombstone a candidate so it isn't re-suggested")
+    s.add_argument("arxiv_id")
+    s.add_argument("--reason", default=None,
+                   help="Optional rejection reason recorded on the node.")
+    s.set_defaults(func=cmd_reject)
 
     args = parser.parse_args()
     args.func(args)

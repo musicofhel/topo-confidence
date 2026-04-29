@@ -15,3 +15,13 @@ data/experiment*/*.pkl
 *.npz
 experiments*.log
 .env
+
+# Paper triage runtime artifacts (logs only — briefs/*.md are committed)
+research-graph/triage_run_*.log
+research-graph/triage_watchdog.log
+research-graph/briefs/*.log
+
+# SQLite working files (transient WAL/SHM)
+data/access.db
+data/access.db-shm
+data/access.db-wal

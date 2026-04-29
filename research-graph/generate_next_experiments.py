@@ -37,11 +37,15 @@ def _driver():
 def fetch_all() -> list[dict[str, Any]]:
     cypher = """
     MATCH (fe:FutureExperiment)
-    OPTIONAL MATCH (fe)-[:TRIGGERED_BY]->(p:Paper)
+    OPTIONAL MATCH (fe)-[t:TRIGGERED_BY]->(p:Paper)
     OPTIONAL MATCH (fe)-[:DEPENDS_ON_FINDING]->(d:Finding)
     OPTIONAL MATCH (fe)-[:WOULD_UPDATE]->(u:Finding)
     WITH fe,
-         collect(DISTINCT {arxiv_id: p.arxiv_id, title: p.title}) AS triggered_by,
+         collect(DISTINCT {
+             arxiv_id: p.arxiv_id, title: p.title,
+             their_method: t.their_method, their_result: t.their_result,
+             our_method: t.our_method, same: t.same, differs: t.differs
+         }) AS triggered_by,
          collect(DISTINCT d.id) AS depends_on,
          collect(DISTINCT u.id) AS would_update
     RETURN fe.id AS id, fe.pathway_id AS pathway_id,
@@ -94,6 +98,28 @@ def _tier(roi: int | None) -> str:
     return "LOW"
 
 
+def render_source_paper(trig: dict[str, Any]) -> list[str]:
+    """Emit the per-paper 'what they did vs what we did' bullet block.
+
+    Bullets are emitted only when the corresponding edge property is set, so
+    edges seeded before the comparison fields existed degrade gracefully.
+    """
+    arxiv_id = trig.get("arxiv_id")
+    title = trig.get("title") or arxiv_id
+    out = [f"**Source paper:** {_arxiv_link(arxiv_id, title)}"]
+    if trig.get("their_method"):
+        out.append(f"- *What they did:* {trig['their_method']}")
+    if trig.get("their_result"):
+        out.append(f"- *Their result:* {trig['their_result']}")
+    if trig.get("our_method"):
+        out.append(f"- *What we'll do:* {trig['our_method']}")
+    if trig.get("same"):
+        out.append(f"- *Same:* {trig['same']}")
+    if trig.get("differs"):
+        out.append(f"- *Differs:* {trig['differs']}")
+    return out
+
+
 def render_experiment(fe: dict[str, Any]) -> str:
     lines: list[str] = []
     priority = fe.get("priority") or "MEDIUM"
@@ -104,6 +130,16 @@ def render_experiment(fe: dict[str, Any]) -> str:
     lines.append("")
     if fe.get("rationale"):
         lines.append(f"**Why:** {fe['rationale']}")
+        lines.append("")
+
+    triggered = fe.get("triggered_by") or []
+    annotated = [t for t in triggered if any(t.get(k) for k in ("their_method", "their_result", "our_method", "same", "differs"))]
+    if annotated:
+        for trig in annotated:
+            lines.extend(render_source_paper(trig))
+            lines.append("")
+    elif not triggered:
+        lines.append("**Source:** Internal re-validation — no external trigger paper.")
         lines.append("")
 
     cost = fe.get("estimated_cost") or "—"

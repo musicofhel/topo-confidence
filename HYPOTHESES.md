@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-15.**
+**Numbering continues monotonically. Next ID: H-23.**
 
 ## Cost + time summary (at a glance)
 
@@ -22,6 +22,14 @@ Grouped by rung so you can pick a session's worth of work without scrolling.
 | **Big swing** | H-1 | Per-position DoM steering | ~3 H100-days | ~$200 | Most decisive — diagnostic vs lever question for the whole program. |
 | **Blocked** | H-4 | Breathing ↔ EoS correspondence | ~3 H100-days | ~$200 | Needs Qwen-2.5-1.5B training checkpoints (HF hub + budget). |
 | **Blocked** | H-8 | Prefill direction across training checkpoints | ~3 H100-days | ~$200 | Same checkpoint blocker as H-4. |
+| **Free / local** | H-15 | Length-band PR control (refutation) | 20 min CPU | $0 | Self-applied refutation test for F-4. Cached NPZs. |
+| **Free / local** | H-16 | Marchenko-Pastur PR bias correction | 1 h CPU | $0 | Methodology check on F-1, F-4. Cached NPZs. |
+| **Free / local** | H-17 | RoPE de-rotation of DoM | 1 h CPU | $0 | Could revive E1 steering and retire H-1 if F-3 is mechanical. |
+| **Cheap GPU** | H-18 | PANL-equivalent correctability gate | ~30 min H100 | ~$1 | Could explain F-7 (D-bucket) via second-order confidence. |
+| **Cheap GPU** | H-19 | C_exact verification routing ★ | ~30 min H100 | ~$1 | Highest-leverage; converts F-8 from predictor to recipe. |
+| **Free / local** | H-20 | Cross-model kernel alignment fluctuation | 2 h CPU | $0 | Extends F-1 to dynamic Platonic hypothesis. |
+| **Cheap GPU** | H-21 | D-bucket prefill attention entropy | ~30 min GPU | ~$1 | Mechanism for F-7 fragility. |
+| **Big swing** | H-22 | Abstract-CoT compressed breathing | ~1 week H100 | ~$300 | Tests whether breathing is verbalization or computation. |
 
 **Pod state** (from `STATE.md`):
 - `lsuoka6bo8io7m` — STOPPED, volume preserved. Resume with `runpodctl pod
@@ -247,6 +255,158 @@ on one log-x axes. Validate against the RESEARCH_SUMMARY §3 inlined table
 Zero dollar.
 **Would change:** Nothing quantitative. Makes the headline communicable
 in a single image — it's the one figure most people will look at first.
+
+---
+
+
+### H-15: Length-band PR control validates asymmetric-collapse claim
+**Priority:** HIGH (refutation test, user-prioritized 2026-04-28)
+**Motivated by:** Ríos-García 2604.18805 (agents ignore disconfirming
+evidence in 68% of traces). Self-applied refutation test for F-4.
+**Test:** Split 500 MATH-500 problems by generation length (<25th,
+25-75th, >75th percentile). Compute final-token PR per band, separately
+for correct vs incorrect. Uses cached Stage 2 NPZs.
+**Requires:** CPU only, ~20 min. Zero dollar.
+**Would change:** If correct/incorrect PR ratio approaches 1.0 within
+length-matched bands, asymmetric collapse is a length-mixing artifact and
+F-4 retracts. If ratio holds within each band, F-4 is corroborated against
+the strongest available within-data refutation.
+**Blocks:** nothing. Cheap, decisive validity check.
+
+### H-16: Marchenko-Pastur bias correction preserves breathing magnitude
+**Priority:** HIGH (methodological, user-prioritized 2026-04-28)
+**Motivated by:** Chun et al. 2509.26560. Our cross-model P/Q ratios
+(Qwen 1.5B 0.33, Qwen 7B 0.14, Llama 0.24, Phi-3 0.16) are all in the
+bias-significant regime; cross-model peak-PR comparisons at fixed n=500
+are the scenario the paper warns against.
+**Test:** Implement bias-corrected PR estimator (Section 4 of the paper
+or their reference code). Recompute (a) temporal PR curve for Qwen 1.5B
+and 7B, (b) correct vs incorrect PR at prefill and final token,
+(c) cross-model peak-PR comparison. Report naive and corrected
+side-by-side.
+**Requires:** CPU only, ~1 h. Uses cached Stage 2 NPZs.
+**Would change:** If correct-collapses-harder (F-4) and cross-arch
+breathing magnitude (F-1) survive correction, the headline numbers are
+robust. If correction shifts ratios materially, narrative claims need
+re-stating with the corrected estimator.
+**Blocks:** nothing.
+
+### H-17: DoM rotation during generation is RoPE-mechanical, not computed
+**Priority:** HIGH (could revive E1 steering)
+**Motivated by:** Puranik (Jane Street) shows positional encodings are
+matrix groups exp(M·tau); RoPE applies deterministic constant-frequency
+rotations. F-3 (cos(prefill, final) ≈ 0.046) might be a RoPE consequence
+rather than a computational orthogonality.
+**Test:** For 1.5B per-token L19 activations, undo RoPE rotation at each
+position (rotation angles deterministic from model config), recompute
+temporal DoM AUROC curve and cosine-to-final table.
+**Requires:** CPU only, ~1 h. Uses cached per-token L19 activations and
+the model config.
+**Would change:** If cos(DoM_t, DoM_final) rises above 0.8 after
+de-rotation, F-3 becomes a positional-encoding artifact and the
+direction-rotation argument against E1 steering collapses — H-1
+per-position bank loses its motivation, and a single un-rotated DoM is
+sufficient for steering. Partial explanation (cos 0.2 to 0.6) still
+informative about how much of F-3 is mechanical.
+**Blocks:** H-1 (per-position steering bank) becomes unnecessary if this
+confirms; reframes if it partially confirms.
+
+### H-18: Post-answer-newline activation predicts B/D-bucket membership
+**Priority:** HIGH
+**Motivated by:** Kumaran et al. 2604.22271 (PANL = orthogonal
+second-order confidence signal, AUROC 0.986). Our prefill DoM is the
+pre-hoc analog. The B/D-bucket question (F-7) — recoverable vs
+pathological — sits at mid-confidence where prefill gating fails (Exp 2).
+**Test:** In K=1 greedy generations, locate the post-answer-newline
+token per problem, extract L19 activations at that position. Compute DoM
+AUROC predicting (a) K=1 correctness, (b) K=8 majority correctness,
+(c) B-bucket membership (K=1 wrong, K=8 right), (d) D-bucket membership
+(K=1 right, K=8 wrong). Compare against prefill (F-2) and final-token
+AUROC.
+**Requires:** Model loaded (2060 sufficient), ~30 min. Uses cached
+per-token trajectories from Stage 2.
+**Would change:** If PANL-equivalent predicts B-bucket > prefill does,
+post-hoc correctability gating becomes feasible — route only genuinely
+recoverable problems to K=8. F-7 gains a mechanism.
+**Blocks:** H-19 (verification routing builds on this signal).
+
+### H-19: C_exact verification routing beats C_infer scaling at matched compute
+**Priority:** CRITICAL (Desktop's highest-leverage call, user-prioritized 2026-04-28)
+**Motivated by:** Rybin compute-allocation framework
+(C_train / C_infer / C_exact decomposition) + Kumaran 2604.22271 PANL
+signal. E2 prefill-gated compute (pure C_infer) failed because B-bucket
+lives at mid-confidence; the right axis is C_infer ↔ C_exact.
+**Test:** For 500 MATH-500 problems: take K=1 greedy answer, prompt the
+model to verify its own answer (verify-then-correct paradigm), extract
+PANL-equivalent activation, use as routing signal. Route
+verification-failed problems to K=8 sampling, keep verification-passed at
+K=1. Compare against (a) pure C_infer (uniform K=8), (b) pure C_exact
+(verify-then-correct, no sampling) at matched compute. Total avg K ≈ 3-4.
+**Requires:** Model loaded (2060 sufficient), ~30 min plus verification
+pass per problem.
+**Would change:** If C_exact routing beats C_infer routing at matched
+compute, the selective-prediction story (F-8) shifts from predict-
+difficulty-at-prefill to verify-after-generation-and-route-failures. This
+is the result that converts the program from "good selective predictor"
+to "actionable inference recipe."
+**Blocks:** nothing downstream, but it's the highest-impact lever the
+program has access to without GPU-week investment.
+
+### H-20: Cross-model kernel alignment fluctuates during inference
+**Priority:** MEDIUM
+**Motivated by:** Huh et al. 2405.07987 (Platonic Representation
+Hypothesis). Our F-1 cross-arch breathing universality is evidence for
+the hypothesis applied to inference-time dynamics — not just trained
+representations but their temporal evolution converges.
+**Test:** Compute mutual k-NN alignment between all 6 model pairs (Qwen
+1.5B, Qwen 7B, Phi-3, Llama) at each of the 7 temporal positions using
+cached 2/3-depth activations. Predicts: alignment peaks at low-PR
+moments (prefill, final token), reaches min at mid-generation peak PR.
+**Requires:** CPU only, ~2 h, all data cached.
+**Would change:** If alignment fluctuates as predicted, F-1 extends
+from "all transformers breathe" to "all transformers explore differently
+but compress to the same place" — a temporal version of the Platonic
+hypothesis. If alignment is flat or anti-correlated with PR, F-1 is
+universality of *shape* but not of *content* (each model breathes through
+its own subspace).
+**Blocks:** nothing.
+
+### H-21: D-bucket has narrower prefill attention than A-bucket
+**Priority:** MEDIUM
+**Motivated by:** Akli et al. 2604.24712 single-specification fragility:
+HumanEval prompts concentrate 60-86% attention on the description while
+LiveCodeBench distributes across description, I/O format, sample I/O.
+D-bucket fragility (F-7) may be the same effect at sampling time.
+**Test:** Extract attention weights at prefill for the 36 D-bucket and
+207 A-bucket problems, compute entropy of attention across prompt
+regions, compare distributions.
+**Requires:** Model loaded (small GPU, ~30 min), or approximate from
+cached Stage 2 attention if saved.
+**Would change:** If D-bucket prefill attention entropy is lower than
+A-bucket, F-7 gains a mechanistic explanation: D-bucket relies on a
+single prompt feature triggering a single reasoning pathway, fragile to
+sampling perturbation. If equivalent, F-7 fragility lives elsewhere
+(generation-time stochasticity, not prompt-side concentration).
+**Blocks:** nothing.
+
+### H-22: Abstract-CoT shows compressed or qualitatively different breathing
+**Priority:** MEDIUM (heaviest experiment in the queue)
+**Motivated by:** Ramji et al. 2604.22709 (Abstract Chain-of-Thought,
+11.6x token compression at comparable accuracy). Cleanly separates
+reasoning-as-computation from reasoning-as-verbalization.
+**Test:** Fine-tune Qwen2.5-1.5B with Abstract-CoT on MATH-500. Extract
+per-token L19 activations during abstract reasoning. Compute temporal PR
+curve. Compare peak PR, inflation rate, and collapse asymmetry against
+natural-language CoT.
+**Requires:** GPU (training pipeline release pending from authors),
+~1 week H100. ~$300.
+**Would change:** If Abstract-CoT shows flat or monotonically decreasing
+PR, breathing (F-1, F-5) is specific to verbalized reasoning, not
+reasoning itself — dimensional inflation is the computational cost of
+verbalization, not of computation. If breathing replicates with
+compressed shape, breathing is a property of sequential autoregressive
+generation regardless of vocabulary.
+**Blocks:** nothing. Long-tail experiment.
 
 ---
 

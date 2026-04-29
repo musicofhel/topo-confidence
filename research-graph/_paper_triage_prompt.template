@@ -1,0 +1,156 @@
+You are doing one-paper deep triage for the `~/topo-confidence` research program. Your job is to produce a markdown brief at `~/topo-confidence/research-graph/briefs/triage-__TODAY__-__ARXIV_ID__.md` that the user can review and feed to `promote_brief.py`.
+
+**The paper to triage**: arxiv id `__ARXIV_ID__`. Fetch via `mcp__paper-search__read_arxiv_paper` or `mcp__arxiv__read_paper`. If those fail, fall back to `WebFetch` of `https://arxiv.org/abs/__ARXIV_ID__`.
+
+You are running inside a fresh `claude -p` invocation that is itself the per-paper-isolated deep-pass subagent. **Do the work yourself; do not spawn further Agent subagents.** Per-paper isolation is already guaranteed by the parent shell loop spawning a separate `claude` process per paper.
+
+**Default context — load these files first, in this order. Do not load anything else until after the Refutations section is written.**
+
+1. Headlines table from `~/topo-confidence/CLAUDE.md` (the `## Headline numbers` section — read just that section, not the whole file).
+2. F-N + H-N one-liners. Run via Bash:
+   `grep -E "^### (F|H)-[0-9]+:" ~/topo-confidence/FINDINGS.md ~/topo-confidence/HYPOTHESES.md`
+3. Existing PAPER_INDEX.md status flags. Run:
+   `grep -E "^## [0-9]+\.|^\*\*Status:\*\*" ~/topo-confidence/PAPER_INDEX.md`
+4. The paper's prior admission note (the LLM admission filter's quick read — useful as a starting hook but **not** a substitute for your own analysis). Run:
+   `cd ~/topo-confidence/research-graph && python query.py paper __ARXIV_ID__`
+   and read `prior_admission_note` / `relevance_note`.
+
+Do **not** load the full FINDINGS.md, HYPOTHESES.md, or NEXT_EXPERIMENTS.md by default. They are excluded on purpose: loading them causes the model to fit the paper into existing frames instead of finding refutations. The Ríos-García `2604.18805` paper documents this failure mode at 68% in agent traces.
+
+**Brief structure (deterministic, in this order):**
+
+```markdown
+# Triage brief — __ARXIV_ID__ — <paper title>
+
+Source: https://arxiv.org/abs/__ARXIV_ID__
+Triaged: __TODAY__
+
+## Refutations
+
+List **≥3** distinct ways this paper would *refute* current F-N findings or H-N hypotheses. Each refutation must:
+  - cite a specific F-N or H-N (not "their work in general"),
+  - name a mechanism by which the refutation would fire,
+  - be falsifiable by a concrete experiment.
+
+If you genuinely cannot find ≥3 substantive refutations after a careful read, write "No genuine refutations identified after [N] minutes — paper is likely off-topic or purely confirming. Recommend rejection or weak CITED ONLY status." Do not invent thin refutations just to fill the section.
+
+## Direct connections to F-N / H-N
+
+Each connection must cite a specific F-N or H-N and the relevant numerical anchor from the headlines table (AUROC 0.7731, cos 0.046, peak PR 67/88, etc.). On-demand `Read` of `~/topo-confidence/FINDINGS.md` for specific F-N sections is allowed — log reads in "Sources consulted".
+
+## Methodologies extracted
+
+Every technique / method / probe / loss / training trick the paper uses that touches hidden states, residual streams, probing, steering, geometry, or correctness signals. For each:
+
+- **<method name>** — one-line description.
+  *Replication cost*: e.g. "20min CPU", "H100 day", "needs new dataset".
+  *We'd plausibly run this*: yes | no — and one phrase on why or why not.
+
+Leave empty (write "none extracted") only if the paper is pure theory with no method we could borrow. Do not invent methods to fill the section.
+
+## Approaches & framings
+
+Theoretical lens shifts, reformulations, and conceptual moves the paper introduces. One sentence each. How does each intersect our F-N / H-N framings?
+
+Leave empty (write "none extracted") if the paper makes only narrow incremental claims with no reusable framing.
+
+## Datasets & benchmarks
+
+Datasets and benchmarks used or introduced, with applicability to MATH-500 / 1024-tok regime / hidden-state pipeline. For each:
+
+- **<name>** — size, license, accessibility (HF | gated | proprietary | not released). Applicable? yes | no — one phrase.
+
+Leave empty (write "none") if purely theoretical or trivial synthetic data.
+
+## Implementation details worth capturing
+
+Architectures, hyperparameters, training schedules, gotchas, code links. Bullet list.
+
+Leave empty (write "none") if no concrete implementation guidance.
+
+## Replicable intermediates
+
+The smallest cross-check we could run *right now* against the paper's headline claim with cached NPZs / P11 H100 data / frozen extractors. Bullet list naming the cached artifact / script.
+
+Leave empty (write "none — paper claims need fresh data we don't have") if no sanity check is possible.
+
+## Cross-paper signals
+
+Papers this paper cites that are already in our research-graph, OR papers it cites that should be (and aren't yet). Format:
+
+- <arxiv-id> — already in graph (status: graphed | pending_triage). One phrase on connection.
+- <arxiv-id> — NOT in graph; recommend admission. One phrase on connection.
+
+Run `python query.py paper <arxiv-id>` against the graph for any cited paper you suspect is relevant. Leave empty (write "none worth flagging") otherwise.
+
+## Proposed FutureExperiments
+
+One or more YAML blocks with EXACTLY these fields (every field required, even if value is null or `[]` — `promote_brief.py` validates):
+
+    ```yaml
+    - id: P11-FE<next>          # next available <pathway>-FE<n>
+      pathway: P11
+      description: "..."
+      rationale: "..."
+      trigger: "..."
+      status: READY              # READY | TRIGGERED | BLOCKED | COMPLETED | ABANDONED
+      priority: HIGH             # CRITICAL | HIGH | MEDIUM | LOW
+      roi: 8                     # int 1..10
+      cost: "20min CPU"
+      depends-on: [F-1, F-7]
+      would-update: [F-7]
+      triggered-by: ["__ARXIV_ID__"]
+      blocked-by: null
+      blocked-by-experiment: []
+    ```
+
+Find the next available P<x>-FE<n> ID via `python query.py future <pathway-id>`. Many briefs may be running concurrently — pick numbers well above the highest currently-graphed ID for the pathway (e.g. add 50 to be safe, or use a unique-by-arxiv suffix).
+
+`depends-on` and `would-update` are required for the graph edges that drive ROI scoring. Edge-less FutureExperiments are invisible to `query.py impact`.
+
+## Proposed HYPOTHESES.md additions
+
+H-N blocks (full markdown) using the template from the end of `~/topo-confidence/HYPOTHESES.md`. Numbering must start at the current Next ID. Many briefs may be running concurrently — pick numbers well above the current Next ID (e.g. `Next ID + paper-arxiv-hash`) so promote_brief.py can renumber on insertion.
+
+    ### H-<next>: <one-line hypothesis>
+    **Priority:** HIGH | MEDIUM | LOW | PARKED
+    **Motivated by:** __ARXIV_ID__ + <relevant F-N or EXP-N>
+    **Test:** <what you'd run, what data, est time>
+    **Requires:** <CPU/GPU, model, cached or new data>
+    **Would change:** <what shifts on confirm vs reject>
+    **Blocks:** <H-N or "nothing">
+
+Skip if paper motivates only methodology FEs without new hypotheses.
+
+## Proposed PAPER_INDEX.md classification
+
+    ## __ARXIV_ID__ — <paper title> (<authors>, <year>)
+
+    **Relevance:** <one paragraph>
+
+    **Key claim we tested:** <their claim, in our terms>
+
+    **Our result:** **<STATUS>** <one paragraph>
+
+    **Related experiments:** <FE-N, H-N, EXP-N>
+
+    **Status:** REPLICATED | CONTRADICTED | PARTIALLY CONFIRMED | CITED ONLY | TO TEST
+
+## New claims
+
+List quantitative claims this brief introduces into narrative docs that need a `validate_claims.py` entry. Empty if the brief only quotes existing numbers.
+
+## Sources consulted
+
+List every file you read on-demand beyond the default context. Format:
+    - <path> — <reason>
+```
+
+**Hard rules**:
+1. Refutations section first, before any on-demand Read of F-N bodies.
+2. Use only F-N IDs that exist (F-1 through F-10). Verify with the grep.
+3. Use only the Next-ID-starting H-N numbering (high enough to avoid collisions with concurrent briefs).
+4. Brief filename: exactly `briefs/triage-__TODAY__-__ARXIV_ID__.md` (relative to `~/topo-confidence/research-graph/`).
+5. Leave a section empty (with "none" or "none extracted") rather than inventing filler.
+
+Save the brief with `Write`. Print the absolute path of the brief on completion.

@@ -369,3 +369,158 @@ topology-specific.
   2505.21772 CCPS, 2406.15927 SEPs, 2506.06609 cross-scale stitching,
   2504.05419 self-verification, 2512.19399 brain-grounded, 2510.07364 Brumm
   (partially), 2402.03744 INSIDE/EigenScore, 2509.15735 EigenTrack.
+## 2604.18805 — AI scientists produce results without reasoning scientifically (Ríos-García et al., 2026)
+
+**Relevance:** Large-scale (25k+ run) eval of LLM-based scientific agents
+showing 68% of traces ignore evidence and only 26% revise from refutation.
+Directly applicable to our own workflow — motivates self-applied
+refutation tests on the headline findings (F-1, F-4).
+
+**Key claim we tested:** LLM agents systematically fit new evidence to
+existing frames rather than treating it as disconfirming.
+
+**Our result:** **CITED ONLY (motivates H-15 length-band control).** Their
+finding triggered the strongest critique we have on the breathing claim —
+that final-token PR collapse may be a length-mixing artifact across
+problems with different generation lengths. H-15 is the experiment that
+tests it.
+
+**Related experiments:** H-15 (length-band PR control), all of P11
+breathing analysis.
+
+**Status:** CITED ONLY (motivated H-15).
+
+---
+
+## 2509.26560 — Estimating Dimensionality of Neural Representations from Finite Samples (Chun et al., 2025)
+
+**Relevance:** Bias-corrected participation-ratio estimator using
+Marchenko-Pastur correction. Direct methodological threat to our
+cross-model PR comparisons.
+
+**Key claim we tested:** Naive PR is systematically biased downward at
+finite samples; the bias depends on the P/Q ratio and breaks cross-model
+comparisons when models have different hidden dimensions.
+
+**Our result:** **TO TEST.** Our cross-model P/Q values (Qwen 1.5B 0.33,
+Qwen 7B 0.14, Llama 0.24, Phi-3 0.16) are all in the bias-significant
+regime. Naive vs corrected estimator comparison is H-16. The within-model
+breathing shape should survive (constant bias across positions); the
+cross-model magnitude comparison is most vulnerable.
+
+**Related experiments:** H-16 (bias-corrected PR), F-1 cross-arch
+breathing (vulnerable), F-4 asymmetric collapse (within-model, less
+vulnerable).
+
+**Status:** TO TEST (H-16, HIGH priority).
+
+---
+
+## 2604.22271 — How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals (Kumaran et al., 2026)
+
+**Relevance:** Identifies the post-answer-newline (PANL) token as a
+second-order confidence signal that predicts error detection at AUROC
+0.986 (Gemma) and 0.961 (Qwen 7B). Orthogonal to verification logprobs
+(cos = 0.007).
+
+**Key claim we tested:** Confidence is a two-circuit architecture in
+transformers: a generation signal (logprobs / final-token DoM) and an
+independent evaluative signal (PANL / prefill DoM in our setup).
+
+**Our result:** **TO TEST (sharpens F-3).** Our finding F-3 — prefill DoM
+orthogonal to final-token DoM (cos = 0.046) — is the same architecture
+viewed from the opposite temporal end. Their PANL is "did I answer
+correctly" computed post-hoc; our prefill is "will I answer correctly"
+computed pre-hoc. Both orthogonal to the generation-time signal. H-18
+tests the PANL-equivalent in our data; H-19 routes compute on it.
+
+**Delta from their setup:** They measure PANL as a static snapshot post-
+generation; we have the full per-token trajectory and the pre-generation
+prefill signal too — we already have temporal dynamics they don't address.
+
+**Related experiments:** H-18 (PANL-equivalent gate), H-19 (C_exact
+verification routing), F-2, F-3.
+
+**Status:** TO TEST (H-18, H-19 — HIGH and CRITICAL priority).
+
+---
+
+## 2405.07987 — The Platonic Representation Hypothesis (Huh et al., 2024)
+
+**Relevance:** Argues that representations across vision and language
+models converge to a shared statistical model of reality — "all strong
+models are alike." Our cross-architecture breathing universality (F-1) is
+evidence for the hypothesis applied to inference-time dynamics, not just
+trained representations.
+
+**Key claim we tested:** Different models converge to similar
+representations as they get more capable, measured via mutual k-NN
+alignment of kernel matrices.
+
+**Our result:** **EXTENDED (motivates H-20).** Static convergence is
+their claim. Our F-1 finding — same inflate-then-collapse PR shape across
+4 models, 3 architectures — extends the convergence claim from static
+representations to temporal dynamics during inference. H-20 tests the
+mutual-alignment fluctuation prediction directly: alignment should peak
+at low-PR moments (prefill, final token) and reach minimum at peak PR
+(mid-generation).
+
+**Related experiments:** H-20 (kernel alignment fluctuation), F-1
+cross-arch breathing.
+
+**Status:** TO TEST (H-20, MEDIUM priority).
+
+---
+
+## 2604.24712 — When Prompt Under-Specification Improves Code Correctness (Akli et al., 2026)
+
+**Relevance:** Shows prompt over-specification can mislead LLMs by
+triggering memorized-but-wrong solution strategies. Sampling analog of our
+D-bucket finding (F-7).
+
+**Key claim we tested:** Over-specification triggers retrieval of
+memorized-but-wrong patterns; structurally rich prompts distribute
+attention; structurally simple prompts concentrate attention on a single
+specification, making the model fragile to perturbation.
+
+**Our result:** **CITED ONLY (motivates H-21).** Their attention-
+concentration mechanism (Figure 3, HumanEval 60-86% attention on
+description) is the prompt-time analog of our D-bucket fragility (F-7) at
+sampling time. H-21 tests whether D-bucket problems also concentrate
+prefill attention more than A-bucket problems.
+
+**Delta from their setup:** Their unit of analysis is the prompt; ours is
+the sampling distribution at fixed prompt. Same single-specification
+fragility, different time axis.
+
+**Related experiments:** H-21 (D-bucket attention entropy), F-7.
+
+**Status:** CITED ONLY (motivates H-21, MEDIUM priority).
+
+---
+
+## 2604.22709 — Thinking Without Words: Efficient Latent Reasoning with Abstract Chain-of-Thought (Ramji et al., 2026)
+
+**Relevance:** Discrete latent CoT achieving 11.6x token compression at
+comparable accuracy. Cleanly separates reasoning-as-computation from
+reasoning-as-verbalization — testable distinction for our breathing
+finding (F-1, F-5).
+
+**Key claim we tested:** Reasoning can be performed via short sequences
+of discrete latent tokens from a reserved vocabulary, achieving
+substantial compression with minimal accuracy loss.
+
+**Our result:** **TO TEST.** If breathing is about reasoning, Abstract-
+CoT should show a compressed inflate-collapse curve over fewer token
+positions. If breathing is about verbalization (sequential autoregressive
+generation through natural-language tokens), Abstract-CoT should show a
+qualitatively different shape — flat or monotonic. H-22 tests the
+prediction.
+
+**Delta from their setup:** They focus on token-count efficiency; we'd
+re-run their fine-tuning recipe to extract per-token L19 activations and
+measure PR.
+
+**Related experiments:** H-22 (Abstract-CoT breathing curve), F-1, F-5.
+
+**Status:** TO TEST (H-22, MEDIUM priority — heaviest experiment).

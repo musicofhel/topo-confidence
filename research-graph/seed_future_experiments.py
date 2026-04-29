@@ -101,7 +101,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 7,
         "depends_on_findings": ["F-3", "F-13"],
         "would_update_findings": ["F-3"],
-        "triggered_by_papers": ["2306.03341"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2306.03341",
+                "their_method": "ITI shifts activations across a small set of attention heads at inference, using directions learned from a few hundred labeled examples.",
+                "their_result": "Alpaca's TruthfulQA score nearly doubles (32.5% to 65.1%) with minimal data and compute.",
+                "our_method": "Re-derive the steering vector at L19 from 1024-token correctness labels and test it on MATH-500 generation, comparing cos against the project's stale P2 vector.",
+                "same": "Same idea of a label-derived directional intervention on residual-stream geometry.",
+                "differs": "Target is correctness on math (not truthfulness on QA); intervention site is residual stream not attention heads; the goal is to test whether re-derivation rescues a known-stale steering vector.",
+            },
+        ],
     },
     {
         "id": "P3-FE1",
@@ -116,7 +125,24 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 9,
         "depends_on_findings": ["F-3", "F-4"],
         "would_update_findings": ["F-3"],
-        "triggered_by_papers": ["2510.04309", "2506.18831"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2510.04309",
+                "their_method": "Casts activation steering as a P controller, then proposes a full PID controller where I accumulates layer-wise error and D damps overshoot.",
+                "their_result": "Closed-loop design with stability guarantees; consistently outperforms existing steering across multiple LLM families and benchmarks.",
+                "our_method": "Apply a PID controller using the project's L19 prefill DoM as the reference signal during MATH-500 generation, instead of P3's failed fixed-vector injection.",
+                "same": "Same closed-loop control framing; same idea of using a learned semantic direction as the feedback signal.",
+                "differs": "Reference signal is a correctness direction (not generic semantic targets); benchmark is MATH-500; we evaluate accuracy and AUROC lift against the P3 baseline that failed due to direction rotation (F-3).",
+            },
+            {
+                "arxiv_id": "2506.18831",
+                "their_method": "Trains a chunk-level classifier for redundant reasoning patterns and uses a PID controller to adaptively modulate steering strength based on predicted redundancy.",
+                "their_result": "On GSM8K: +6% accuracy and -32% tokens vs static-steering baselines, training-free at inference.",
+                "our_method": "Plug STU-PID's controller into our pipeline using the L19 DoM correctness direction as the steering target on MATH-500.",
+                "same": "Same per-chunk PID-controlled steering recipe targeting an LLM that overshoots without dynamic adjustment.",
+                "differs": "Target signal is correctness (not redundancy); benchmark is MATH-500 not GSM8K; we layer it on an existing correctness probe rather than a fresh redundancy classifier.",
+            },
+        ],
     },
     # ---------- P4-P6 ----------
     {
@@ -132,7 +158,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 5,
         "depends_on_findings": ["F-9"],
         "would_update_findings": ["F-9"],
-        "triggered_by_papers": ["2306.03819"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2306.03819",
+                "their_method": "Closed-form least-squares concept erasure that provably prevents any linear classifier from recovering a target concept while minimally perturbing the embedding.",
+                "their_result": "Reduces gender bias in BERT and POS-information leakage across LLMs via 'concept scrubbing' applied at every layer.",
+                "our_method": "Use LEACE to erase length from L19 activations, then refit the ABC-44 correctness probe and compare against the regression-deconfounded 0.746 AUROC.",
+                "same": "Both deconfound a target representation against a nuisance direction before downstream prediction.",
+                "differs": "Nuisance is generation length (not gender / POS); we use it as a baseline upgrade for an existing regression-deconfounded probe; we evaluate AUROC, not bias metrics.",
+            },
+        ],
     },
     {
         "id": "P4-FE2",
@@ -147,7 +182,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 8,
         "depends_on_findings": ["F-10"],
         "would_update_findings": ["F-10"],
-        "triggered_by_papers": ["2402.18048"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2402.18048",
+                "their_method": "Estimates per-token local intrinsic dimension (LID) of LLM activations via GeoMLE on a k-NN neighborhood and uses it as a truthfulness score.",
+                "their_result": "On four QA datasets, local LID outperforms entropy and verbalized-confidence baselines by 5-8 AUROC points.",
+                "our_method": "Compute GeoMLE local LID at L19 per MATH-500 problem (k=20) on cached activations and test it as a correctness predictor.",
+                "same": "Same LID-on-activations methodology and same GeoMLE estimator; same intent of recovering signal that global ID misses.",
+                "differs": "Local instead of global TwoNN (the project's failed P9 setup); benchmark is MATH-500 correctness rather than QA truthfulness; layer is L19, not the paper's mid-layer choice.",
+            },
+        ],
     },
     {
         "id": "P5-FE1",
@@ -177,7 +221,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 6,
         "depends_on_findings": ["F-5"],
         "would_update_findings": ["F-5"],
-        "triggered_by_papers": ["2506.00653"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2506.00653",
+                "their_method": "Learns affine maps between hidden states of different-sized models on shared inputs, then transfers steering vectors through the map (the LRT hypothesis).",
+                "their_result": "Steering vectors transferred small-to-large preserve their semantic effect, supporting linear representation transferability across scales.",
+                "our_method": "Train an affine map from 1.5B L19 to 7B L20 activations, then test whether the 7B's correctness DoM transfers back to 1.5B and beats raw cross-scale transfer (0.717).",
+                "same": "Same affine-alignment-then-transfer recipe; same hypothesis that representations across scales share linear structure.",
+                "differs": "Direction is a correctness probe (not a generic steering target); we measure AUROC lift on MATH-500 vs the raw-transfer baseline; mapping direction is large-to-small (1.5B inheriting from 7B).",
+            },
+        ],
     },
     # ---------- P7 ----------
     {
@@ -193,7 +246,24 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 7,
         "depends_on_findings": ["F-7", "F-8"],
         "would_update_findings": ["F-7", "F-8"],
-        "triggered_by_papers": ["2103.07353", "2410.11042"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2103.07353",
+                "their_method": "Near-linear-time algorithms for 0- and 1-dimensional zigzag persistence on graphs (O(m log^2 n) and O(m log^4 n)).",
+                "their_result": "Practical zigzag computation on real-world graphs for the first time, removing the cubic-matrix-multiplication bottleneck.",
+                "our_method": "Use Dey-Hou's fzz library to make P7-FE1 computationally feasible on 28-layer activations across 500 problems.",
+                "same": "Same zigzag-persistence algorithm we depend on for the experiment to terminate.",
+                "differs": "We are a downstream user, not a competitor; the project's contribution is whether the resulting features predict correctness, not the algorithm itself.",
+            },
+            {
+                "arxiv_id": "2410.11042",
+                "their_method": "Builds a zigzag-persistence filtration across LLM layers and extracts topological descriptors that track holes evolving through the network.",
+                "their_result": "Descriptors are sensitive to model and dataset and enable layer pruning competitive with state-of-the-art while preserving a system-level view.",
+                "our_method": "Run zigzag PH on the cached pathway-8 layer-wise activations and check whether zigzag features survive the Gaussian null where Rips-PH didn't (F-7).",
+                "same": "Same zigzag-across-layers framing applied to LLM residual streams.",
+                "differs": "We test for correctness signal (not pruning); we apply a Gaussian-null control because Rips-PH failed it; we compare against per-layer DoM rather than to layer-pruning baselines.",
+            },
+        ],
     },
     {
         "id": "P7-FE2",
@@ -208,7 +278,24 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 6,
         "depends_on_findings": ["F-7"],
         "would_update_findings": ["F-7"],
-        "triggered_by_papers": ["2504.10063", "2601.01552"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2504.10063",
+                "their_method": "Computes a topological-divergence metric between prompt-side and response-side attention subgraphs in the RAG setting.",
+                "their_result": "Per-head divergence values correlate with hallucinations; achieves SOTA-or-competitive results on QA + summarization with minimal labeled data.",
+                "our_method": "Use the same attention-graph object on MATH-500 and test correctness rather than RAG-grounding divergence.",
+                "same": "Same conclusion that attention graphs (not residual streams) are the right object for PH-on-LLMs.",
+                "differs": "We are not in the RAG setting (no prompt-vs-response divergence); we use a probe directly, not a divergence metric; benchmark is math correctness.",
+            },
+            {
+                "arxiv_id": "2601.01552",
+                "their_method": "Models per-layer attention matrices as a zigzag graph filtration and extracts a topological signature from the dynamic graph evolution.",
+                "their_result": "Outperforms strong hallucination-detection baselines across benchmarks; signatures generalize across models and across partial network depth.",
+                "our_method": "Apply the same zigzag-on-attention-graphs pipeline to MATH-500 correctness instead of factuality, on the project's cached attention matrices.",
+                "same": "Same object (attention graphs) and same zigzag-on-attention filtration.",
+                "differs": "Target is correctness (not factual hallucination); benchmark is math reasoning (not RAG QA); we compare against the residual-stream-PH null result (F-7) to test whether attention graphs are the right object.",
+            },
+        ],
     },
     # ---------- P8 ----------
     {
@@ -239,7 +326,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 8,
         "depends_on_findings": ["F-6", "F-2"],
         "would_update_findings": ["F-6", "F-2"],
-        "triggered_by_papers": ["2504.05419"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2504.05419",
+                "their_method": "Trains linear probes on hidden states at intermediate-answer positions during long-CoT reasoning to verify correctness mid-generation.",
+                "their_result": "Probes verify intermediate answers with high accuracy and calibration; using the probe as an early-exit verifier cuts inference tokens by 24% with no quality drop.",
+                "our_method": "Extract CoE features at chunk boundaries (every 50 tokens) on cached MATH-500 generations and train a step-level correctness probe.",
+                "same": "Same step-level probing target (correctness encoded in hidden states) and same goal of beating final-token-only probes.",
+                "differs": "We probe CoE-style geometry features (not raw hidden state); benchmark is MATH-500 (not AIME); the result feeds into selective-prediction (E2/E3), not just early exit.",
+            },
+        ],
     },
     {
         "id": "P8-FE3",
@@ -254,7 +350,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 5,
         "depends_on_findings": ["F-6"],
         "would_update_findings": [],
-        "triggered_by_papers": ["2506.24106"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2506.24106",
+                "their_method": "Computes representation dispersion (mean pairwise cosine distance among hidden vectors) per layer and uses it as an unsupervised quality signal.",
+                "their_result": "Dispersion correlates strongly and negatively with perplexity across LLaMA + Qwen on Wikipedia / news / scientific abstracts; helps rank examples by difficulty and select layers for kNN-LM.",
+                "our_method": "Compute per-layer dispersion (1 number per layer, 28 total) on cached activations and test against D2H-lite's 58-dim AUROC for correctness.",
+                "same": "Same metric (mean pairwise cosine distance) on the same kind of representations.",
+                "differs": "Target is supervised correctness (not perplexity); benchmark is MATH-500; we compare against an existing 58-dim D2H baseline rather than to perplexity itself.",
+            },
+        ],
     },
     # ---------- P9 ----------
     {
@@ -285,7 +390,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 4,
         "depends_on_findings": ["F-7"],
         "would_update_findings": ["F-7"],
-        "triggered_by_papers": ["1207.6437"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "1207.6437",
+                "their_method": "Defines persistence landscapes — a Banach-space vector representation of persistence diagrams that obeys a strong law of large numbers and a central limit theorem, enabling standard hypothesis tests.",
+                "their_result": "Landscapes are stable, give bottleneck and Wasserstein lower bounds, and unlock parametric statistical inference on PH features.",
+                "our_method": "Replace the 5-stat PH summary with persistence landscapes (and persistence images) and re-run the F-7 Gaussian null test.",
+                "same": "Same Rips-PH on the same point clouds; same Gaussian-null control.",
+                "differs": "Feature representation is a full vectorization (not 5 lossy stats); the comparison is whether a richer summary recovers signal lost to summarization, not whether PH itself works.",
+            },
+        ],
     },
     {
         "id": "P9-FE3",
@@ -316,7 +430,40 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 9,
         "depends_on_findings": ["F-3", "F-4"],
         "would_update_findings": ["F-3", "F-4"],
-        "triggered_by_papers": ["2306.03341", "2505.18706", "2504.07986", "2501.17148"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2306.03341",
+                "their_method": "ITI applies an activation-shift intervention to a small set of attention heads at inference, using directions derived from labeled probes.",
+                "their_result": "Alpaca's TruthfulQA score nearly doubles (32.5% to 65.1%) with a few hundred examples and minimal compute.",
+                "our_method": "Treat ITI's mass-mean direction as one arm of E1 (alongside probe-weight and trained-bias) and apply it at L19 on MATH-500 with sweeps over alpha.",
+                "same": "Same idea of mass-mean / difference-in-means as a steering direction.",
+                "differs": "Site is the residual stream at L19 (not selected attention heads); target is math correctness (not truthfulness); evaluation is MATH-500 accuracy across an alpha sweep.",
+            },
+            {
+                "arxiv_id": "2505.18706",
+                "their_method": "Trains a single d-dim per-layer steering bias with reinforcement learning while freezing all base weights.",
+                "their_result": "On 8B models, +0.0016% extra params matches full RL-tuned reasoning accuracy on math benchmarks; reduces optimizer memory and inter-GPU communication.",
+                "our_method": "Run an analogous RL-trained per-layer bias arm at L19 in E1, alongside ITI mass-mean and probe-weight, on MATH-500 holdout.",
+                "same": "Same per-layer bias-only trainable adapter; same math-reasoning benchmark family.",
+                "differs": "Backbone is Qwen-2.5-1.5B (not 8B); we ablate it as one arm of a three-arm comparison rather than as a standalone result.",
+            },
+            {
+                "arxiv_id": "2504.07986",
+                "their_method": "Categorizes CoT into execution / reflection / transition thoughts; offline-extracts a thought-type steering vector and applies it during generation.",
+                "their_result": "+11% accuracy and 11.8-50.4% token reduction on Math500 + GSM8K + LiveCodeBench using DeepSeek-R1-Distill and QwQ-32B.",
+                "our_method": "Run SEAL's thought-type vector as a fourth arm of E1 (when feasible).",
+                "same": "Same offline-extraction-then-online-intervention recipe; same family of math benchmarks.",
+                "differs": "Target is correctness (not reasoning-style efficiency); model is Qwen-2.5-1.5B base (not R1-Distill or QwQ-32B); the comparison is against probe-weight / mass-mean / bias arms.",
+            },
+            {
+                "arxiv_id": "2501.17148",
+                "their_method": "Large-scale benchmark on Gemma-2-2B/9B comparing prompting, finetuning, SAEs, supervised steering vectors, linear probes, and ReFT-r1.",
+                "their_result": "Prompting > finetuning > all representation methods for steering; difference-in-means wins concept detection; SAEs are not competitive.",
+                "our_method": "Use AxBench's ranking as the prior that orders our three E1 arms (probe-weight, mass-mean, trained bias) and predicts mass-mean >= probe-weight.",
+                "same": "Same comparison axis (probe-weight vs difference-in-means vs trained methods).",
+                "differs": "Single-model + math-benchmark setup vs a multi-method benchmark on Gemma; we test the literature ranking on a model and benchmark the original paper does not cover.",
+            },
+        ],
     },
     {
         "id": "P10-FE2",
@@ -331,7 +478,24 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 8,
         "depends_on_findings": ["F-11", "F-2"],
         "would_update_findings": ["F-11"],
-        "triggered_by_papers": ["2402.10978", "2604.16217"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2402.10978",
+                "their_method": "Conformal factuality: a back-off algorithm that progressively makes LM outputs less specific until conformal prediction guarantees high-probability correctness.",
+                "their_result": "80-90% correctness guarantees on FActScore, NaturalQuestions, MATH while preserving most of the original output content.",
+                "our_method": "Wrap the project's L19 DoM probe as a conformal nonconformity score and report coverage-vs-accuracy tradeoffs on MATH-500.",
+                "same": "Same conformal-prediction wrapper around an LM-correctness signal; same MATH benchmark.",
+                "differs": "Score is an internal-representation probe (not back-off entailment); we report a single operating point (e.g. 71.6%@50% coverage) with a guarantee, not a back-off cascade.",
+            },
+            {
+                "arxiv_id": "2604.16217",
+                "their_method": "Defines Layer-Wise Information (LI) scores from internal representations and uses them as conformal nonconformity scores in split conformal prediction.",
+                "their_result": "LI scores beat token-probability and entropy baselines on the validity-efficiency tradeoff, especially under cross-domain shift.",
+                "our_method": "Substitute the L19 DoM score for the LI score and report conformal coverage at fixed risk levels on MATH-500.",
+                "same": "Same internal-rep nonconformity score; same conformal pipeline.",
+                "differs": "Score is single-layer DoM (not layer-wise information); benchmark is math reasoning (not closed-book / open-domain QA); we have a published probe AUROC (0.7731) to compare against.",
+            },
+        ],
     },
     {
         "id": "P10-FE3",
@@ -346,7 +510,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 8,
         "depends_on_findings": ["F-14", "F-2"],
         "would_update_findings": ["F-14"],
-        "triggered_by_papers": ["2410.04707"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2410.04707",
+                "their_method": "Trains a meta-predictor of the reward distribution given an input + budget; uses it for adaptive best-of-k and decoder routing.",
+                "their_result": "Up to -50% compute at fixed quality, or +10% quality at fixed compute, across programming + math + dialog suites.",
+                "our_method": "Train a Damani-style predictor on prefill embeddings to estimate marginal reward of additional samples; gate K dynamically against the project's bucket-B problems.",
+                "same": "Same meta-predictor framing; same input-adaptive compute-allocation goal.",
+                "differs": "Predictor input is L19 prefill (not text features); gating policy targets the bucket-B recovery problem (F-14) rather than generic best-of-k; benchmark is MATH-500 with the project's K-vs-accuracy curve.",
+            },
+        ],
     },
     {
         "id": "P10-FE4",
@@ -361,7 +534,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 6,
         "depends_on_findings": ["F-4", "F-5"],
         "would_update_findings": ["F-5"],
-        "triggered_by_papers": ["2604.14084"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2604.14084",
+                "their_method": "Distillation token-importance taxonomy across student-entropy x teacher-student-divergence; Q3 = low-entropy + high-divergence (overconfident-wrong) tokens carry dense corrective signal.",
+                "their_result": "Q3-only training on <20% of tokens surpasses full-token OPD on MATH-500 + AIME 2024/2025 + DeepPlanning across Qwen3 / Llama / Qwen2.5 teacher-student pairs.",
+                "our_method": "Distill Qwen-2.5-1.5B from the 7B teacher with a Q3-token loss matching L19 (student) to L20 (teacher) only at correctness-relevant positions.",
+                "same": "Same Q3 token-selection rule; same Qwen2.5 teacher-student family.",
+                "differs": "Loss target is the L19 correctness direction (not the teacher's full distribution); we apply distillation to a single layer pair at the token positions where the student's correctness probe disagrees with the teacher's.",
+            },
+        ],
     },
     # ---------- P11 ----------
     {
@@ -392,7 +574,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 8,
         "depends_on_findings": ["F-2"],
         "would_update_findings": ["F-2"],
-        "triggered_by_papers": ["2510.18147"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2510.18147",
+                "their_method": "Trains linear probes across layers and token positions on 60 models and evaluates on Easy2HardBench math + coding subsets.",
+                "their_result": "Human-difficulty rho approx 0.88 on AMC with clear model-size scaling; steering toward 'easier' reduces hallucination; GRPO on Qwen2.5-Math-1.5B amplifies the human-difficulty probe.",
+                "our_method": "Compute the project's prefill DoM score against MATH-500 difficulty levels (1-5) on Qwen-2.5-1.5B and check whether the prefill direction is the same as Lugoloobi's difficulty direction or orthogonal to it.",
+                "same": "Same model family (Qwen2.5-Math-1.5B), same kind of math benchmark, same probe-the-residual-stream method.",
+                "differs": "We are testing whether prefill-DoM-correctness != difficulty (orthogonality); they showed difficulty itself is encoded — we want to know if our 'can I solve this' signal is a different direction.",
+            },
+        ],
     },
     {
         "id": "P11-FE3",
@@ -407,7 +598,24 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 9,
         "depends_on_findings": ["F-2"],
         "would_update_findings": ["F-2"],
-        "triggered_by_papers": ["2412.01113", "2404.15255"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2412.01113",
+                "their_method": "Multi-step arithmetic + activation patching to determine when LLMs commit to an answer relative to CoT generation.",
+                "their_result": "LLMs do not pre-determine the answer; they iteratively compute sub-answers during CoT — CoT is a faithful reflection of internal computation.",
+                "our_method": "Apply the same activation-patching methodology to swap prefill activations between correct- and incorrect-predicted MATH-500 problem pairs at L19.",
+                "same": "Same causal-intervention recipe (activation patching across CoT positions).",
+                "differs": "We test prefill (not mid-CoT) and correctness (not arithmetic-answer faithfulness); the swap is between problem pairs, not corrupted-vs-clean copies of the same problem.",
+            },
+            {
+                "arxiv_id": "2404.15255",
+                "their_method": "Survey + best-practice tutorial on activation patching: how to choose metrics, how to interpret causal effects, common pitfalls.",
+                "their_result": "Methodology document with no headline number — provides the right-tool guidance for circuit-level interventions.",
+                "our_method": "Follow the tutorial's metric and validation guidance when designing the prefill-swap intervention so the causal claim is interpretable.",
+                "same": "Same activation-patching methodology and same concern about how to interpret the result.",
+                "differs": "We are users, not contributors; the focus is whether prefill geometry is causal for correctness rather than circuit identification.",
+            },
+        ],
     },
     {
         "id": "P11-FE4",
@@ -422,7 +630,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 7,
         "depends_on_findings": ["F-12", "F-3"],
         "would_update_findings": ["F-12"],
-        "triggered_by_papers": ["2402.13212"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2402.13212",
+                "their_method": "Replaces self-consistency majority voting with a continuous likelihood-based score, enabling selection on long-horizon agentic tasks where answers are sparsely distributed.",
+                "their_result": "+1.3% (bash), +6.6% (WebShop), +4.7% (ALFWorld) absolute success-rate gains; matches SC quality with half the samples.",
+                "our_method": "Train a classifier on mid-generation L19 features (token positions 50/100/150) to detect bucket-D problems where K=1 right but K=8 wrong (self-consistency failure).",
+                "same": "Same target (self-consistency failure modes when answers diverge); same diagnosis that majority voting masks signal.",
+                "differs": "Probe-on-hidden-states, not output-likelihood scoring; benchmark is MATH-500 K=8 sampling (not interactive agents); detection target is the bucket-D self-consistency-failure case (F-12).",
+            },
+        ],
     },
     {
         "id": "P11-FE5",
@@ -437,7 +654,16 @@ FUTURE_EXPERIMENTS: list[dict[str, Any]] = [
         "roi_score": 9,
         "depends_on_findings": ["F-1", "F-2", "F-4"],
         "would_update_findings": ["F-1", "F-2", "F-4"],
-        "triggered_by_papers": ["2501.12948"],
+        "triggered_by_papers": [
+            {
+                "arxiv_id": "2501.12948",
+                "their_method": "Trains long-CoT reasoning capability via pure reinforcement learning without human-annotated reasoning trajectories; the distilled R1-Distill series transfers this to smaller backbones via SFT on R1 traces.",
+                "their_result": "Emergent self-reflection and verification behaviors; R1-Distill-Qwen-1.5B reaches 83.9% on MATH-500 vs 48.6% for the base.",
+                "our_method": "Run breathing / collapse / DoM analysis on R1-Distill-Qwen-1.5B and compare against the base Qwen-2.5-1.5B on MATH-500.",
+                "same": "Same architecture; same MATH-500 benchmark; same residual-stream geometry analysis pipeline.",
+                "differs": "Model is the SFT'd R1-Distill (not RL-on-base); we ask whether reasoning training amplifies F-1 / F-2 / F-4 or leaves them unchanged — a comparison the original R1 paper does not perform.",
+            },
+        ],
     },
 ]
 
@@ -534,13 +760,31 @@ def seed_future_experiments(session) -> None:
             )
 
         # FutureExperiment -[:TRIGGERED_BY]-> Paper
-        for arxiv_id in fe.get("triggered_by_papers", []):
+        # Each entry is either a bare arxiv_id (legacy) or a dict carrying
+        # comparison fields (their_method, their_result, our_method, same, differs).
+        for entry in fe.get("triggered_by_papers", []):
+            if isinstance(entry, str):
+                arxiv_id, props = entry, {}
+            else:
+                arxiv_id = entry["arxiv_id"]
+                props = {k: entry.get(k) for k in
+                         ("their_method", "their_result", "our_method", "same", "differs")}
             session.run(
                 """
                 MATCH (fe:FutureExperiment {id: $fid}), (p:Paper {arxiv_id: $a})
                 MERGE (fe)-[r:TRIGGERED_BY]->(p)
+                SET r.their_method = $their_method,
+                    r.their_result = $their_result,
+                    r.our_method   = $our_method,
+                    r.same         = $same,
+                    r.differs      = $differs
                 """,
                 fid=fe["id"], a=arxiv_id,
+                their_method=props.get("their_method"),
+                their_result=props.get("their_result"),
+                our_method=props.get("our_method"),
+                same=props.get("same"),
+                differs=props.get("differs"),
             )
 
 

@@ -41,6 +41,9 @@ CREATE INDEX finding_strength IF NOT EXISTS
 CREATE INDEX paper_year IF NOT EXISTS
   FOR (p:Paper) ON (p.year);
 
+CREATE INDEX paper_status IF NOT EXISTS
+  FOR (p:Paper) ON (p.status);
+
 // ---- Fulltext indexes for RAG --------------------------------------
 
 CREATE FULLTEXT INDEX finding_claims IF NOT EXISTS
@@ -88,7 +91,14 @@ CREATE FULLTEXT INDEX future_experiment_search IF NOT EXISTS
 //
 // Future experiments (forward-looking, distinct from completed Experiment):
 //   (Pathway)-[:HAS_FUTURE_EXPERIMENT]->(FutureExperiment)
-//   (FutureExperiment)-[:TRIGGERED_BY {reason}]->(Paper)
+//   (FutureExperiment)-[:TRIGGERED_BY {reason, their_method, their_result,
+//     our_method, same, differs}]->(Paper)
+//     - reason         legacy free-form reason (kept for backward compat)
+//     - their_method   1-2 sentence neutral summary of the trigger paper's method
+//     - their_result   concrete numbers + model + benchmark from the paper
+//     - our_method     what we'll do, derived from FE.description + FE.rationale
+//     - same           single sentence: what overlaps between their work and ours
+//     - differs        single sentence: target signal/benchmark/metric/model deltas
 //   (FutureExperiment)-[:DEPENDS_ON_FINDING {why}]->(Finding)
 //   (FutureExperiment)-[:WOULD_UPDATE {if_positive, if_negative}]->(Finding)
 //   (FutureExperiment)-[:WOULD_CREATE_FINDING {claim}]->(Tag)

@@ -31,6 +31,9 @@ def main() -> None:
     p.add_argument("--relevance", default=None,
                    help="One or two sentences on why this paper is in the graph.")
     p.add_argument("--tags", nargs="*", default=[])
+    p.add_argument("--status", default="graphed",
+                   choices=["pending_triage", "graphed", "rejected"],
+                   help="Triage state. Manual additions default to 'graphed'.")
     args = p.parse_args()
 
     drv = GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
@@ -41,13 +44,15 @@ def main() -> None:
             SET p.title = coalesce($title, p.title),
                 p.year = coalesce($year, p.year),
                 p.repo_url = coalesce($repo, p.repo_url),
-                p.relevance_note = coalesce($rel, p.relevance_note)
+                p.relevance_note = coalesce($rel, p.relevance_note),
+                p.status = $status
             """,
             a=args.arxiv,
             title=args.title,
             year=args.year,
             repo=args.repo,
             rel=args.relevance,
+            status=args.status,
         )
         for tag in args.tags:
             s.run("MERGE (:Tag {name: $t})", t=tag)
