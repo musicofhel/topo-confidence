@@ -18,6 +18,8 @@ from __future__ import annotations
 import json
 import math
 import os
+import shlex
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -50,89 +52,156 @@ class Claim:
     path: list
     expected: Any
     tol: float = 0.005
-    labels: str = "1024tok"  # 256tok_NEW | 256tok_manifest | 1024tok | mixed
+    labels: str = "1024tok"  # 256tok_NEW | 256tok_manifest | 1024tok | mixed | external_anchor | forward_looking
     note: str = ""
+    # `kind` controls the readback semantics:
+    #   "internal"        — back-check `file[path]` against `expected` (default)
+    #   "external"        — paper-cited number, no project-side readback; kept on
+    #                       the books so PAPER_INDEX cross-references stay
+    #                       greppable. Result = "REGISTERED".
+    #   "forward_looking" — project-side prediction (a hypothesis acceptance
+    #                       threshold) that becomes a real readback target only
+    #                       when the FE produces a result JSON. Result =
+    #                       "PENDING_FE".
+    kind: str = "internal"
+    # --- Tier-1 regen (optional) -----------------------------------------
+    # `regen` is a shell command run from ROOT that recomputes this number
+    # from a cached intermediate (NPZ / parquet) and prints `key=value` lines
+    # on stdout. `regen_key` selects the line to compare against `expected`.
+    # When the script exits with "MISSING_REGEN_INPUT", the regen is treated
+    # as advisory (regen_result=SKIP_NO_DATA) — JSON-vs-doc Tier-0 still runs.
+    regen: str = ""
+    regen_key: str = ""
+    regen_tol: float = 0.0  # 0 ⇒ reuse `tol`
     result: str = field(default="", init=False)
     actual: Any = field(default=None, init=False)
+    regen_result: str = field(default="", init=False)
+    regen_actual: Any = field(default=None, init=False)
 
 
 # --- CLAIMS ------------------------------------------------------------------
 # Grouped roughly in the order of sections in RESEARCH_SUMMARY.md.
 
+_BASELINES_REGEN = "python pathway11_h100/prefill_gated_compute/recompute_baselines.py"
+_SELECTIVE_REGEN = "python pathway11_h100/prefill_gated_compute/recompute_selective.py"
+_PR_RATIOS_REGEN = "python pathway11_h100/prefill_inversion/recompute_pr_ratios.py"
+_BBH_PR_REGEN = "python pathway11_h100/prefill_inversion/recompute_bbh_pr_ratios.py"
+_CLASSIFIER_REGEN = "python pathway11_h100/multi_signal_oracle/recompute_classifier.py"
+_EXP2B_EXTRAS_REGEN = "python pathway11_h100/multi_signal_oracle/recompute_extras.py"
+_GIB_PR_REGEN = "python pathway11_h100/gibberish_control/recompute_pr.py"
+_NOCOT_PR_REGEN = "python pathway11_h100/no_cot_control/recompute_pr.py"
+_CROSS_MODEL_REGEN = "python pathway11_h100/exp1_cross_model/recompute_acc.py"
+_STAGE5_REGEN = "python pathway11_h100/recompute_stage5_bbh_transfer.py"
+
 CLAIMS: list[Claim] = [
     # ----- Section 1 / §1: baselines -----
+    # Tier-1: recompute_baselines.py replays K=1 greedy + K∈{2,4,8} majority over
+    # phase1_majority_vote.npz, plus A/B/C/D buckets and oracle compute.
     Claim("baseline-1.5B-acc", "1.5B MATH-500 K=1 accuracy 0.486",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["accuracy_at_uniform_K", "K=1 (greedy T=0)"], 0.486, 0.002, "1024tok"),
+          ["accuracy_at_uniform_K", "K=1 (greedy T=0)"], 0.486, 0.002, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="baseline_K1_greedy"),
     Claim("baseline-K2", "1.5B K=2 majority accuracy 0.413",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["accuracy_at_uniform_K", "K=2 majority (T=0.7)"], 0.4132, 0.005, "1024tok"),
+          ["accuracy_at_uniform_K", "K=2 majority (T=0.7)"], 0.4132, 0.005, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="baseline_K2_maj"),
     Claim("baseline-K4", "1.5B K=4 majority 0.495",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["accuracy_at_uniform_K", "K=4 majority (T=0.7)"], 0.495, 0.003, "1024tok"),
+          ["accuracy_at_uniform_K", "K=4 majority (T=0.7)"], 0.495, 0.003, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="baseline_K4_maj"),
     Claim("baseline-K8", "1.5B K=8 majority 0.550",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["accuracy_at_uniform_K", "K=8 majority (T=0.7)"], 0.55, 0.005, "1024tok"),
+          ["accuracy_at_uniform_K", "K=8 majority (T=0.7)"], 0.55, 0.005, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="baseline_K8_maj"),
     Claim("oracle-K", "Oracle compute/problem 1.01",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["oracle_compute_per_problem"], 1.01, 0.02, "1024tok"),
+          ["oracle_compute_per_problem"], 1.01, 0.02, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="oracle_K"),
     Claim("oracle-acc", "Oracle accuracy 0.589",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["oracle_overall_accuracy"], 0.589, 0.005, "1024tok"),
+          ["oracle_overall_accuracy"], 0.589, 0.005, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="oracle_acc"),
 
     # ----- Bucket sizes (used across §7, §9, §10) -----
     Claim("buckets-A", "Bucket A always-right n=207",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["bucket_sizes", "A_always_right"], 207, 0, "1024tok"),
+          ["bucket_sizes", "A_always_right"], 207, 0, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="bucket_A"),
     Claim("buckets-B", "Bucket B recoverable n=68",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["bucket_sizes", "B_recoverable"], 68, 0, "1024tok"),
+          ["bucket_sizes", "B_recoverable"], 68, 0, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="bucket_B"),
     Claim("buckets-C", "Bucket C never-right n=189",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["bucket_sizes", "C_never_right"], 189, 0, "1024tok"),
+          ["bucket_sizes", "C_never_right"], 189, 0, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="bucket_C"),
     Claim("buckets-D", "Bucket D pathological n=36",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["bucket_sizes", "D_pathological"], 36, 0, "1024tok"),
+          ["bucket_sizes", "D_pathological"], 36, 0, "1024tok",
+          regen=_BASELINES_REGEN, regen_key="bucket_D"),
 
     # ----- §2 / §4 DoM signal -----
+    # Tier-1 regen: recompute_dom_auroc.py replays roc_auc_score over the
+    # OOF DoM scores cached in phase2_prefill_dom.npz. --mode=full re-derives
+    # scores from per-problem NPZs, but is gated on the data dir existing.
     Claim("prefill-dom-auroc", "Prefill L19 DoM AUROC (OOF 5-fold) = 0.7731",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["prefill_DoM_auroc_oof"], 0.7731, 0.002, "1024tok"),
+          ["prefill_DoM_auroc_oof"], 0.7731, 0.002, "1024tok",
+          regen="python pathway11_h100/prefill_gated_compute/recompute_dom_auroc.py --key=prefill_oof",
+          regen_key="prefill_oof"),
     Claim("finaltok-dom-auroc", "Final-token L19 DoM AUROC = 0.7186",
           "pathway11_h100/prefill_gated_compute/results.json",
-          ["final_token_DoM_auroc_oof"], 0.7186, 0.002, "1024tok"),
+          ["final_token_DoM_auroc_oof"], 0.7186, 0.002, "1024tok",
+          regen="python pathway11_h100/prefill_gated_compute/recompute_dom_auroc.py --key=final_oof",
+          regen_key="final_oof"),
 
     # ----- §7 Selective prediction / refuse-and-spend -----
+    # Tier-1: recompute_selective.py reimplements the quartile gate policies
+    # over phase{1,2}_*.npz (refuse@0.5 + middle-heavy K=4.5).
     Claim("refuse-prefill-acc", "Prefill refuse@0.5 answered acc = 0.716",
           "pathway11_h100/prefill_gated_compute/results.json",
           ["headline", "refuse_and_spend_coverage_0.5", "prefill", "acc_on_answered"],
-          0.716, 0.005, "1024tok"),
+          0.716, 0.005, "1024tok",
+          regen=_SELECTIVE_REGEN, regen_key="refuse_prefill_acc"),
     Claim("refuse-random-acc", "Random refuse@0.5 answered acc = 0.494",
           "pathway11_h100/prefill_gated_compute/results.json",
           ["headline", "refuse_and_spend_coverage_0.5", "random", "acc_on_answered"],
-          0.494, 0.010, "1024tok"),
+          0.494, 0.010, "1024tok",
+          regen=_SELECTIVE_REGEN, regen_key="refuse_random_acc"),
     Claim("middle-heavy-acc", "Prefill middle-heavy K=4.5 acc = 0.526",
           "pathway11_h100/prefill_gated_compute/results.json",
           ["headline", "prefill_middle_heavy", "overall_accuracy"],
-          0.526, 0.005, "1024tok"),
+          0.526, 0.005, "1024tok",
+          regen=_SELECTIVE_REGEN, regen_key="middle_heavy_acc"),
 
     # ----- §9 Prefill inversion (7B) -----
+    # Tier-1: recompute_pr_ratios.py reloads cache/m{7b,15b}_prefill.npz and
+    # recomputes participation ratios from scratch. Bootstrap CIs (inv-*-ci-*)
+    # have no regen — bootstrap is non-deterministic across runs.
     Claim("inv-7B-ratio", "7B prefill PR ratio correct/incorrect = 1.377",
           "pathway11_h100/prefill_inversion/results.json",
           ["headline_ratios_point_estimates", "7B_prefill_PR_correct_over_incorrect"],
-          1.377113639689133, 1e-5, "1024tok"),
+          1.377113639689133, 1e-5, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="ratio_7b_prefill"),
     Claim("inv-15B-ratio", "1.5B prefill PR ratio = 0.946",
           "pathway11_h100/prefill_inversion/results.json",
           ["headline_ratios_point_estimates", "1.5B_prefill_PR_correct_over_incorrect"],
-          0.9456399969402085, 1e-5, "1024tok"),
+          0.9456399969402085, 1e-5, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="ratio_15b_prefill"),
     Claim("inv-7B-final-ratio", "7B final-token PR ratio = 0.384",
           "pathway11_h100/prefill_inversion/results.json",
           ["headline_ratios_point_estimates", "7B_final_token_PR_correct_over_incorrect"],
-          0.38397476790580454, 1e-5, "1024tok"),
+          0.38397476790580454, 1e-5, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="ratio_7b_final"),
     Claim("inv-15B-final-ratio", "1.5B final-token PR ratio = 0.509",
           "pathway11_h100/prefill_inversion/results.json",
           ["headline_ratios_point_estimates", "1.5B_final_token_PR_correct_over_incorrect"],
-          0.5086845084799126, 1e-5, "1024tok"),
+          0.5086845084799126, 1e-5, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="ratio_15b_final"),
+    # Bootstrap CIs: deterministic with SEED=9999, but 1000-iter bootstrap on
+    # 500×3584 matrices takes ~7 min — too slow for routine gate. Opt in via
+    # VALIDATE_BOOTSTRAP_CI=1 env var; default Tier-0-only (still back-checks
+    # the JSON-vs-doc consistency). See phase1_bootstrap.py for the canonical run.
     Claim("inv-7B-ci-lo", "7B prefill ratio 95% CI lo = 1.226",
           "pathway11_h100/prefill_inversion/results.json",
           ["bootstrap_95_CI_on_ratio", "7B_prefill", 0], 1.2254645586938757, 1e-5, "1024tok"),
@@ -141,180 +210,244 @@ CLAIMS: list[Claim] = [
           ["bootstrap_95_CI_on_ratio", "7B_prefill", 1], 1.7569904867197708, 1e-5, "1024tok"),
     Claim("inv-7B-balance-ratio", "7B prefill balance-controlled ratio = 1.227",
           "pathway11_h100/prefill_inversion/results.json",
-          ["balance_controlled_ratios", "7B_prefill"], 1.2274623411828771, 1e-5, "1024tok"),
+          ["balance_controlled_ratios", "7B_prefill"], 1.2274623411828771, 1e-5, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="ratio_7b_balance_controlled"),
 
     # Phase 1 bootstrap PR values (7B prefill, used in §3 aggregate table)
     Claim("7B-prefill-PR-correct", "7B prefill PR correct = 26.87",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["7B_prefill", "point", "pr_correct"], 26.872772216796875, 0.01, "1024tok"),
+          ["7B_prefill", "point", "pr_correct"], 26.872772216796875, 0.01, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_7b_prefill_correct"),
     Claim("7B-prefill-PR-incorrect", "7B prefill PR incorrect = 19.51",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["7B_prefill", "point", "pr_incorrect"], 19.513837814331055, 0.01, "1024tok"),
+          ["7B_prefill", "point", "pr_incorrect"], 19.513837814331055, 0.01, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_7b_prefill_incorrect"),
     Claim("7B-final-PR-correct", "7B final-token PR correct = 2.63",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["7B_final_token", "point", "pr_correct"], 2.629302501678467, 0.01, "1024tok"),
+          ["7B_final_token", "point", "pr_correct"], 2.629302501678467, 0.01, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_7b_final_correct"),
     Claim("7B-final-PR-incorrect", "7B final-token PR incorrect = 6.85",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["7B_final_token", "point", "pr_incorrect"], 6.847591876983643, 0.01, "1024tok"),
+          ["7B_final_token", "point", "pr_incorrect"], 6.847591876983643, 0.01, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_7b_final_incorrect"),
     Claim("15B-prefill-PR-correct", "1.5B prefill PR correct = 19.41",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["1.5B_prefill", "point", "pr_correct"], 19.405458450317383, 0.01, "1024tok"),
+          ["1.5B_prefill", "point", "pr_correct"], 19.405458450317383, 0.01, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_15b_prefill_correct"),
     Claim("15B-prefill-PR-incorrect", "1.5B prefill PR incorrect = 20.52",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["1.5B_prefill", "point", "pr_incorrect"], 20.520978927612305, 0.01, "1024tok"),
+          ["1.5B_prefill", "point", "pr_incorrect"], 20.520978927612305, 0.01, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_15b_prefill_incorrect"),
     Claim("15B-final-PR-correct", "1.5B final-token PR correct = 4.33",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["1.5B_final_token", "point", "pr_correct"], 4.329, 0.05, "1024tok"),
+          ["1.5B_final_token", "point", "pr_correct"], 4.329, 0.05, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_15b_final_correct"),
     Claim("15B-final-PR-incorrect", "1.5B final-token PR incorrect = 8.51",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["1.5B_final_token", "point", "pr_incorrect"], 8.51, 0.05, "1024tok"),
+          ["1.5B_final_token", "point", "pr_incorrect"], 8.51, 0.05, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="pr_15b_final_incorrect"),
 
     # Phase 1 counts
     Claim("7B-n-correct", "7B n_correct = 366",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["7B_prefill", "n_correct"], 366, 0, "1024tok"),
+          ["7B_prefill", "n_correct"], 366, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="n_7b_correct"),
     Claim("7B-n-incorrect", "7B n_incorrect = 134",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["7B_prefill", "n_incorrect"], 134, 0, "1024tok"),
+          ["7B_prefill", "n_incorrect"], 134, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="n_7b_incorrect"),
     Claim("15B-n-correct", "1.5B n_correct = 243",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["1.5B_prefill", "n_correct"], 243, 0, "1024tok"),
+          ["1.5B_prefill", "n_correct"], 243, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="n_15b_correct"),
     Claim("15B-n-incorrect", "1.5B n_incorrect = 257",
           "pathway11_h100/prefill_inversion/phase1_bootstrap.json",
-          ["1.5B_prefill", "n_incorrect"], 257, 0, "1024tok"),
+          ["1.5B_prefill", "n_incorrect"], 257, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="n_15b_incorrect"),
 
     # Three-way split
     Claim("three-way-both-right-n", "Both-right n=230",
           "pathway11_h100/prefill_inversion/results.json",
-          ["three_way_split", "both_right", "n"], 230, 0, "1024tok"),
+          ["three_way_split", "both_right", "n"], 230, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="three_way_both_right_n"),
     Claim("three-way-only7b-n", "Only-7B-right n=136",
           "pathway11_h100/prefill_inversion/results.json",
-          ["three_way_split", "only_7b", "n"], 136, 0, "1024tok"),
+          ["three_way_split", "only_7b", "n"], 136, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="three_way_only_7b_n"),
     Claim("three-way-only15b-n", "Only-1.5B-right n=13",
           "pathway11_h100/prefill_inversion/results.json",
-          ["three_way_split", "only_15b", "n"], 13, 0, "1024tok"),
+          ["three_way_split", "only_15b", "n"], 13, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="three_way_only_15b_n"),
     Claim("three-way-both-wrong-n", "Both-wrong n=121",
           "pathway11_h100/prefill_inversion/results.json",
-          ["three_way_split", "both_wrong", "n"], 121, 0, "1024tok"),
+          ["three_way_split", "both_wrong", "n"], 121, 0, "1024tok",
+          regen=_PR_RATIOS_REGEN, regen_key="three_way_both_wrong_n"),
 
-    # BBH prefill ratios (§9)
+    # BBH prefill ratios (§9). Tier-1: recompute_bbh_pr_ratios.py reloads
+    # pathway8_layerwise/data/bbh/<subset>/problem_*.npz and recomputes PR ratio.
     Claim("bbh-tracking-ratio", "BBH tracking_shuffled PR prefill ratio = 0.930",
           "pathway11_h100/prefill_inversion/results.json",
           ["bbh", "tracking_shuffled_objects_seven_objects", "pr_prefill_ratio"],
-          0.9304261877758804, 1e-4, "1024tok"),
+          0.9304261877758804, 1e-4, "1024tok",
+          regen=_BBH_PR_REGEN,
+          regen_key="pr_bbh_tracking_shuffled_objects_seven_objects_prefill_ratio"),
     Claim("bbh-logical-ratio", "BBH logical_deduction PR prefill ratio = 0.824",
           "pathway11_h100/prefill_inversion/results.json",
           ["bbh", "logical_deduction_seven_objects", "pr_prefill_ratio"],
-          0.8240621037129747, 1e-4, "1024tok"),
+          0.8240621037129747, 1e-4, "1024tok",
+          regen=_BBH_PR_REGEN,
+          regen_key="pr_bbh_logical_deduction_seven_objects_prefill_ratio"),
     Claim("bbh-web-ratio", "BBH web_of_lies PR prefill ratio = 1.009",
           "pathway11_h100/prefill_inversion/results.json",
-          ["bbh", "web_of_lies", "pr_prefill_ratio"], 1.00919347747066, 1e-4, "1024tok"),
+          ["bbh", "web_of_lies", "pr_prefill_ratio"], 1.00919347747066, 1e-4, "1024tok",
+          regen=_BBH_PR_REGEN, regen_key="pr_bbh_web_of_lies_prefill_ratio"),
 
     # ----- §10 Multi-signal oracle (Exp 2b) -----
+    # Tier-1: recompute_classifier.py rebuilds macro_f1 / acc / D-recall from
+    # oof_{logreg,rf}.npz (the OOF predictions cache).
     Claim("exp2b-logreg-f1", "Exp 2b logreg macro-F1 = 0.548",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["classifier_logreg", "macro_f1"], 0.5477024403341905, 1e-4, "1024tok"),
+          ["classifier_logreg", "macro_f1"], 0.5477024403341905, 1e-4, "1024tok",
+          regen=_CLASSIFIER_REGEN, regen_key="logreg_macro_f1"),
     Claim("exp2b-rf-f1", "Exp 2b RF macro-F1 = 0.494",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["classifier_rf", "macro_f1"], 0.49397192549427976, 1e-4, "1024tok"),
+          ["classifier_rf", "macro_f1"], 0.49397192549427976, 1e-4, "1024tok",
+          regen=_CLASSIFIER_REGEN, regen_key="rf_macro_f1"),
     Claim("exp2b-logreg-acc", "Exp 2b logreg overall acc = 0.620",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["classifier_logreg", "overall_acc_oof"], 0.62, 0.005, "1024tok"),
+          ["classifier_logreg", "overall_acc_oof"], 0.62, 0.005, "1024tok",
+          regen=_CLASSIFIER_REGEN, regen_key="logreg_overall_acc"),
     Claim("exp2b-rf-acc", "Exp 2b RF overall acc = 0.636",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["classifier_rf", "overall_acc_oof"], 0.636, 0.005, "1024tok"),
+          ["classifier_rf", "overall_acc_oof"], 0.636, 0.005, "1024tok",
+          regen=_CLASSIFIER_REGEN, regen_key="rf_overall_acc"),
     Claim("exp2b-logreg-Drecall", "Logreg D-recall to K=1 = 0.417",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["classifier_logreg", "D_recall_to_K1"], 0.4166666666666667, 1e-4, "1024tok"),
+          ["classifier_logreg", "D_recall_to_K1"], 0.4166666666666667, 1e-4, "1024tok",
+          regen=_CLASSIFIER_REGEN, regen_key="logreg_D_recall_to_K1"),
     Claim("exp2b-rf-Drecall", "RF D-recall to K=1 = 0.444",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["classifier_rf", "D_recall_to_K1"], 0.4444444444444444, 1e-4, "1024tok"),
+          ["classifier_rf", "D_recall_to_K1"], 0.4444444444444444, 1e-4, "1024tok",
+          regen=_CLASSIFIER_REGEN, regen_key="rf_D_recall_to_K1"),
+    # Tier-1 for the comparison-derived metrics: simulate K=1-fallback policy
+    # over oof_logreg.npz, subtract best-single-signal (read from phase3b).
     Claim("exp2b-multi-vs-single", "Multi-signal vs best single = +0.4pp",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["multi_signal_minus_single_signal_pp"], 0.4, 0.05, "1024tok"),
+          ["multi_signal_minus_single_signal_pp"], 0.4, 0.05, "1024tok",
+          regen=_EXP2B_EXTRAS_REGEN, regen_key="multi_vs_single_pp"),
     Claim("exp2b-2pp-met", "2pp bar met = False",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["user_threshold_2pp_met"], False, 0, "1024tok"),
+          ["user_threshold_2pp_met"], False, 0, "1024tok",
+          regen=_EXP2B_EXTRAS_REGEN, regen_key="threshold_2pp_met"),
     Claim("exp2b-best-single", "Best single-signal compute 2.74, acc 0.516",
           "pathway11_h100/multi_signal_oracle/results.json",
-          ["best_single_signal_at_matched_compute", "overall_accuracy"], 0.516, 0.003, "1024tok"),
+          ["best_single_signal_at_matched_compute", "overall_accuracy"], 0.516, 0.003, "1024tok",
+          regen=_EXP2B_EXTRAS_REGEN, regen_key="best_single_acc"),
 
     # ----- §3 Gibberish control -----
+    # Tier-1: gibberish_control/recompute_pr.py reloads data/{math500,random,
+    # stream}/problem_*.npz and recomputes participation_ratio per position.
     Claim("gib-math-pos50", "MATH-500 PR pos 50 = 30.55",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "math500_baseline", "pr_by_position", "50", "pr"],
-          30.554419380797377, 0.01, "1024tok"),
+          30.554419380797377, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_math_pos50"),
     Claim("gib-math-pos1", "MATH-500 PR pos 1 = 13.74",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "math500_baseline", "pr_by_position", "1", "pr"],
-          13.73524962240093, 0.01, "1024tok"),
+          13.73524962240093, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_math_pos1"),
     Claim("gib-math-final", "MATH-500 PR final = 22.19",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "math500_baseline", "pr_by_position", "final", "pr"],
-          22.186663572792018, 0.01, "1024tok"),
+          22.186663572792018, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_math_posfinal"),
     Claim("gib-random-pos1", "Random PR pos 1 = 11.32",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "random_tokens", "pr_by_position", "1", "pr"],
-          11.315935166610068, 0.01, "1024tok"),
+          11.315935166610068, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_random_pos1"),
     Claim("gib-random-final", "Random PR final = 8.96",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "random_tokens", "pr_by_position", "final", "pr"],
-          8.963097360506318, 0.01, "1024tok"),
+          8.963097360506318, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_random_posfinal"),
     Claim("gib-stream-pos10", "Stream-of-consc PR pos 10 = 15.66",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "stream_of_consciousness", "pr_by_position", "10", "pr"],
-          15.662493885959867, 0.01, "1024tok"),
+          15.662493885959867, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_stream_pos10"),
     Claim("gib-stream-pos1", "Stream-of-consc PR pos 1 = 4.60",
           "pathway11_h100/gibberish_control/pr_curves.json",
           ["conditions", "stream_of_consciousness", "pr_by_position", "1", "pr"],
-          4.5966970751104155, 0.01, "1024tok"),
+          4.5966970751104155, 0.01, "1024tok",
+          regen=_GIB_PR_REGEN, regen_key="gib_stream_pos1"),
 
     # ----- No-CoT control -----
+    # Tier-1: no_cot_control/recompute_pr.py reloads data/nocot/problem_*.npz.
     Claim("nocot-pos1", "No-CoT PR pos 1 = 15.78",
           "pathway11_h100/no_cot_control/pr_curves.json",
           ["conditions", "nocot", "pr_by_position", "1", "pr"],
-          15.78, 0.1, "1024tok"),
+          15.78, 0.1, "1024tok",
+          regen=_NOCOT_PR_REGEN, regen_key="nocot_pos1"),
     Claim("nocot-final", "No-CoT PR final = 19.80",
           "pathway11_h100/no_cot_control/pr_curves.json",
           ["conditions", "nocot", "pr_by_position", "final", "pr"],
-          19.80, 0.1, "1024tok"),
+          19.80, 0.1, "1024tok",
+          regen=_NOCOT_PR_REGEN, regen_key="nocot_posfinal"),
 
     # ----- Exp 1 cross-model -----
+    # Tier-1: exp1_cross_model/recompute_acc.py reloads data/{phi3mini,
+    # llama32_1b}/problem_*.npz and counts correctness.
     Claim("phi3-acc", "Phi-3-mini MATH-500 acc = 0.448",
           "pathway11_h100/exp1_cross_model/results.json",
-          ["models", 0, "accuracy"], 0.448, 0.002, "1024tok"),
+          ["models", 0, "accuracy"], 0.448, 0.002, "1024tok",
+          regen=_CROSS_MODEL_REGEN, regen_key="phi3_acc"),
     Claim("phi3-n-correct", "Phi-3-mini n_correct = 224",
           "pathway11_h100/exp1_cross_model/results.json",
-          ["models", 0, "n_correct"], 224, 0, "1024tok"),
+          ["models", 0, "n_correct"], 224, 0, "1024tok",
+          regen=_CROSS_MODEL_REGEN, regen_key="phi3_n_correct"),
     Claim("llama-acc", "Llama-3.2-1B MATH-500 acc = 0.252",
           "pathway11_h100/exp1_cross_model/results.json",
-          ["models", 1, "accuracy"], 0.252, 0.002, "1024tok"),
+          ["models", 1, "accuracy"], 0.252, 0.002, "1024tok",
+          regen=_CROSS_MODEL_REGEN, regen_key="llama_acc"),
     Claim("llama-n-correct", "Llama-3.2-1B n_correct = 126",
           "pathway11_h100/exp1_cross_model/results.json",
-          ["models", 1, "n_correct"], 126, 0, "1024tok"),
+          ["models", 1, "n_correct"], 126, 0, "1024tok",
+          regen=_CROSS_MODEL_REGEN, regen_key="llama_n_correct"),
     Claim("phi3-2thirds-layer", "Phi-3 2/3-depth layer = 21",
           "pathway11_h100/exp1_cross_model/results.json",
-          ["models", 0, "twothirds_layer_idx"], 21, 0, "1024tok"),
+          ["models", 0, "twothirds_layer_idx"], 21, 0, "1024tok",
+          regen=_CROSS_MODEL_REGEN, regen_key="phi3_2thirds_layer"),
     Claim("llama-2thirds-layer", "Llama 2/3-depth layer = 11",
           "pathway11_h100/exp1_cross_model/results.json",
-          ["models", 1, "twothirds_layer_idx"], 11, 0, "1024tok"),
+          ["models", 1, "twothirds_layer_idx"], 11, 0, "1024tok",
+          regen=_CROSS_MODEL_REGEN, regen_key="llama_2thirds_layer"),
 
     # ----- Stage 5 BBH L19 DoM transfer -----
+    # Tier-1: recompute_stage5_bbh_transfer.py reloads pathway8_layerwise/data/
+    # {math500,bbh/<subset>}/problem_*.npz, fits DoM, scores cross-domain. Slow
+    # (~2 min) due to ~1250 NPZ loads.
     Claim("stage5-math-to-bbh-pooled", "MATH→BBH pooled AUROC = 0.747",
           "pathway11_h100/results/stage5_bbh_dom_transfer.json",
-          ["math_to_bbh", "_pooled", "auroc"], 0.7471963025177446, 1e-4, "1024tok"),
+          ["math_to_bbh", "_pooled", "auroc"], 0.7471963025177446, 1e-4, "1024tok",
+          regen=_STAGE5_REGEN, regen_key="stage5_math_to_bbh_pooled"),
     Claim("stage5-bbh-to-math", "BBH→MATH AUROC = 0.693",
           "pathway11_h100/results/stage5_bbh_dom_transfer.json",
-          ["bbh_to_math", "auroc"], 0.6926230164448928, 1e-4, "1024tok"),
+          ["bbh_to_math", "auroc"], 0.6926230164448928, 1e-4, "1024tok",
+          regen=_STAGE5_REGEN, regen_key="stage5_bbh_to_math"),
     Claim("stage5-symmetric", "Symmetric avg = 0.720",
           "pathway11_h100/results/stage5_bbh_dom_transfer.json",
-          ["symmetric_avg"], 0.7199096594813187, 1e-4, "1024tok"),
+          ["symmetric_avg"], 0.7199096594813187, 1e-4, "1024tok",
+          regen=_STAGE5_REGEN, regen_key="stage5_symmetric_avg"),
     Claim("stage5-verdict-vs-coe", "Delta vs CoE symmetric = +0.004",
           "pathway11_h100/results/stage5_bbh_dom_transfer.json",
-          ["verdict_vs_coe"], 0.003909659481318717, 1e-4, "1024tok"),
+          ["verdict_vs_coe"], 0.003909659481318717, 1e-4, "1024tok",
+          regen=_STAGE5_REGEN, regen_key="stage5_verdict_vs_coe"),
     Claim("stage5-within-math", "MATH within-benchmark AUROC = 0.731",
           "pathway11_h100/results/stage5_bbh_dom_transfer.json",
-          ["within_benchmark_overfit", "math", "auroc"], 0.7305727690509358, 1e-4, "1024tok"),
+          ["within_benchmark_overfit", "math", "auroc"], 0.7305727690509358, 1e-4, "1024tok",
+          regen=_STAGE5_REGEN, regen_key="stage5_within_math"),
 
     # ----- Pathway 9 claims (256-tok labels, many superseded) -----
     Claim("p9-abc44-holdout-raw", "ABC-44 holdout AUROC (raw) = 0.7961",
@@ -388,6 +521,174 @@ CLAIMS: list[Claim] = [
     Claim("scratch-temporal-cos-prefill-final", "Old prefill vs final DoM cosine = 0.046",
           "scratch/pathway10_temporal_and_verifier_results.json",
           ["T1_temporal_dom", "positions", 0, "cos_with_final_token_dom"], 0.046196311712265015, 1e-4, "256tok_NEW"),
+
+    # ----- External anchors registered from triage briefs (2026-04-29 batch) -----
+    # These are paper-cited numbers carried into PAPER_INDEX.md / brief footers
+    # for cross-reference. They are NOT back-checked against any local JSON
+    # (kind="external"); they exist so a future grep `validate_claims.py` will
+    # surface their provenance and so the claims-gate count reflects the briefs
+    # the project has chosen to graph. If we ever replicate one of these, swap
+    # kind="external" → "internal" and add file/path/regen.
+
+    # 2205.14334 — Lin et al., teaching language models to express calibration
+    Claim("ext-2205.14334-verb-mse", "2205.14334 Tbl1: verbalized finetune MSE 22.0 (Multi-answer, GPT-3-175B)",
+          "", [], 22.0, labels="external_anchor", kind="external",
+          note="Lin et al. 2205.14334 Table 1"),
+    Claim("ext-2205.14334-indirect-logit-mse", "2205.14334 Tbl1: indirect-logit finetune MSE 11.7 (Multiply-divide)",
+          "", [], 11.7, labels="external_anchor", kind="external",
+          note="Lin et al. 2205.14334 Table 1"),
+    Claim("ext-2205.14334-answer-logit-zeroshot-mse", "2205.14334 Tbl1: answer-logit zero-shot MSE 10.4 (Multiply-divide)",
+          "", [], 10.4, labels="external_anchor", kind="external",
+          note="Lin et al. 2205.14334 Table 1"),
+    Claim("ext-2205.14334-add-sub-acc", "2205.14334 §2.2: Add-subtract median accuracy 0.21 (label-shift)",
+          "", [], 0.21, labels="external_anchor", kind="external",
+          note="Lin et al. 2205.14334 §2.2"),
+    Claim("ext-2205.14334-multi-answer-acc", "2205.14334 §2.2: Multi-answer median accuracy 0.65",
+          "", [], 0.65, labels="external_anchor", kind="external",
+          note="Lin et al. 2205.14334 §2.2"),
+
+    # 2210.00069 — Euclidicity (von Rohrscheidt & Rieck)
+    Claim("ext-2210.00069-mnist-misclass", "2210.00069: MNIST Euclidicity mean 0.39 (misclassified)",
+          "", [], 0.39, labels="external_anchor", kind="external",
+          note="von Rohrscheidt & Rieck 2210.00069"),
+    Claim("ext-2210.00069-mnist-correct", "2210.00069: MNIST Euclidicity mean 0.33 (correctly classified)",
+          "", [], 0.33, labels="external_anchor", kind="external",
+          note="von Rohrscheidt & Rieck 2210.00069"),
+
+    # 2311.04897 — Future Lens
+    Claim("ext-2311.04897-fl-top1-t2", "2311.04897 Future Lens: >0.48 top-1 t+2 prediction (linear, GPT-J-6B)",
+          "", [], 0.48, labels="external_anchor", kind="external",
+          note="Pal et al. 2311.04897 — lower-bound; >48% reported"),
+
+    # 2407.12404 — Tan et al., steerability
+    Claim("ext-2407.12404-llama-id-ood", "2407.12404: ρ ID↔OOD steerability = 0.891 (Llama)",
+          "", [], 0.891, labels="external_anchor", kind="external",
+          note="Tan et al. 2407.12404"),
+    Claim("ext-2407.12404-qwen-id-ood", "2407.12404: ρ ID↔OOD steerability = 0.694 (Qwen)",
+          "", [], 0.694, labels="external_anchor", kind="external",
+          note="Tan et al. 2407.12404"),
+    Claim("ext-2407.12404-cross-id", "2407.12404: ρ cross-model (Llama↔Qwen) ID = 0.769",
+          "", [], 0.769, labels="external_anchor", kind="external",
+          note="Tan et al. 2407.12404"),
+    Claim("ext-2407.12404-cross-ood", "2407.12404: ρ cross-model (Llama↔Qwen) OOD = 0.586",
+          "", [], 0.586, labels="external_anchor", kind="external",
+          note="Tan et al. 2407.12404"),
+
+    # 2501.09929 — FGAA (fine-grained activation addition)
+    Claim("ext-2501.09929-gemma2b-fgaa-coh", "2501.09929: FGAA behavioral-coherence 0.4702 (Gemma-2-2B)",
+          "", [], 0.4702, labels="external_anchor", kind="external",
+          note="Soo et al. 2501.09929 — vs CAA 0.2201"),
+    Claim("ext-2501.09929-fgaa-inflection", "2501.09929: FGAA capability inflection α≈40 on MMLU/MMLU-Pro",
+          "", [], 40, labels="external_anchor", kind="external",
+          note="Soo et al. 2501.09929"),
+
+    # 2501.17148 — AxBench (Wu et al.)
+    Claim("ext-2501.17148-diffmean-auroc", "2501.17148 AxBench: DiffMean mean AUROC 0.942 (4 Gemma residual sites)",
+          "", [], 0.942, labels="external_anchor", kind="external",
+          note="Wu et al. 2501.17148 Table 1"),
+    Claim("ext-2501.17148-diffmean-steer", "2501.17148 AxBench: DiffMean mean steering 0.239 / 2.0",
+          "", [], 0.239, labels="external_anchor", kind="external",
+          note="Wu et al. 2501.17148 Table 2"),
+    Claim("ext-2501.17148-ssv-steer", "2501.17148 AxBench: SSV mean steering 0.026 / 2.0",
+          "", [], 0.026, labels="external_anchor", kind="external",
+          note="Wu et al. 2501.17148 Table 2"),
+    Claim("ext-2501.17148-reft-steer", "2501.17148 AxBench: ReFT-r1 mean steering 0.543 / 2.0",
+          "", [], 0.543, labels="external_anchor", kind="external",
+          note="Wu et al. 2501.17148 Table 2"),
+    Claim("ext-2501.17148-reft-winrate", "2501.17148 AxBench: ReFT-r1 winrate vs SAEs 0.818",
+          "", [], 0.818, labels="external_anchor", kind="external",
+          note="Wu et al. 2501.17148 Table 3"),
+    Claim("ext-2501.17148-gemma-l10-auroc", "2501.17148 AxBench: Gemma-2-2B DiffMean L10 AUROC 0.948",
+          "", [], 0.948, labels="external_anchor", kind="external",
+          note="Wu et al. 2501.17148 Table 1"),
+
+    # 2504.10063 — TOHA (Topology of Hallucination)
+    Claim("ext-2504.10063-qwen-squad", "2504.10063 TOHA: AUROC 0.77 ± 0.02 on Qwen2.5-7B SQuAD",
+          "", [], 0.77, labels="external_anchor", kind="external",
+          note="Wu et al. 2504.10063 Table 2"),
+    Claim("ext-2504.10063-mistral-squad", "2504.10063 TOHA: AUROC 0.89 ± 0.01 on Mistral-7B SQuAD",
+          "", [], 0.89, labels="external_anchor", kind="external",
+          note="Wu et al. 2504.10063 Table 1"),
+    Claim("ext-2504.10063-mistral-xsum", "2504.10063 TOHA: AUROC 0.96 ± 0.01 on Mistral-7B XSum",
+          "", [], 0.96, labels="external_anchor", kind="external",
+          note="Wu et al. 2504.10063 Table 1"),
+
+    # 2507.16806 — RLCR (calibrated reasoning)
+    Claim("ext-2507.16806-base-ece", "2507.16806 Tbl1b: base Qwen-2.5-7B ECE 0.39 (Math avg)",
+          "", [], 0.39, labels="external_anchor", kind="external",
+          note="Damani et al. 2507.16806 Table 1b"),
+    Claim("ext-2507.16806-base-brier", "2507.16806 Tbl1b: base Qwen-2.5-7B Brier 0.40 (Math avg)",
+          "", [], 0.40, labels="external_anchor", kind="external",
+          note="Damani et al. 2507.16806 Table 1b"),
+    Claim("ext-2507.16806-rlvr-ece", "2507.16806 Tbl1b: RLVR ECE 0.26 (Math avg)",
+          "", [], 0.26, labels="external_anchor", kind="external",
+          note="Damani et al. 2507.16806 Table 1b"),
+    Claim("ext-2507.16806-rlcr-ece", "2507.16806 Tbl1b: RLCR ECE 0.10 (Math avg)",
+          "", [], 0.10, labels="external_anchor", kind="external",
+          note="Damani et al. 2507.16806 Table 1b"),
+    Claim("ext-2507.16806-rlvr-probe-auroc", "2507.16806 Tbl1b: RLVR+Probe Math AUROC 0.65",
+          "", [], 0.65, labels="external_anchor", kind="external",
+          note="Damani et al. 2507.16806 Table 1b — F-2 comparison anchor"),
+
+    # 2509.24202 — LC+ (Logit Confidence Plus)
+    Claim("ext-2509.24202-lcplus-min", "2509.24202 LC+ AUROC 0.7591 (SimpleQA, gpt-5-mini)",
+          "", [], 0.7591, labels="external_anchor", kind="external",
+          note="2509.24202 Table 2 — lower bound of reported range"),
+    Claim("ext-2509.24202-lcplus-max", "2509.24202 LC+ AUROC 0.8083 (SimpleQA, gpt-5-mini)",
+          "", [], 0.8083, labels="external_anchor", kind="external",
+          note="2509.24202 Table 2 — upper bound of reported range"),
+    Claim("ext-2509.24202-lc-sft-auroc", "2509.24202 LC (SFT) AUROC 0.7331 (NQ-Open Qwen3-8B)",
+          "", [], 0.7331, labels="external_anchor", kind="external",
+          note="2509.24202 Table 4"),
+
+    # 2509.24248 — SpecExit
+    Claim("ext-2509.24248-genlen-reduction", "2509.24248 SpecExit: 0.66 generation-length reduction (MATH-500)",
+          "", [], 0.66, labels="external_anchor", kind="external",
+          note="2509.24248 Table 1, Qwen3-4B-Thinking-2507"),
+    Claim("ext-2509.24248-speedup", "2509.24248 SpecExit: 2.5× E2E latency speedup vs EAGLE3",
+          "", [], 2.5, labels="external_anchor", kind="external",
+          note="2509.24248"),
+
+    # 2510.18147 — F-8 stability under GRPO
+    Claim("ext-2510.18147-rho", "2510.18147: ρ = 0.88 (geometry↔correctness alignment)",
+          "", [], 0.88, labels="external_anchor", kind="external",
+          note="2510.18147"),
+    Claim("ext-2510.18147-grpo-from", "2510.18147: pre-GRPO accuracy 64.7%",
+          "", [], 64.7, labels="external_anchor", kind="external",
+          note="2510.18147"),
+    Claim("ext-2510.18147-grpo-to", "2510.18147: post-GRPO accuracy 76.2%",
+          "", [], 76.2, labels="external_anchor", kind="external",
+          note="2510.18147"),
+    Claim("ext-2510.18147-beta-pos", "2510.18147: β = +6.66",
+          "", [], 6.66, labels="external_anchor", kind="external",
+          note="2510.18147"),
+    Claim("ext-2510.18147-beta-neg", "2510.18147: β = -0.63",
+          "", [], -0.63, labels="external_anchor", kind="external",
+          note="2510.18147"),
+
+    # 2601.19375 — SS HarmBench / Sparse Safety
+    Claim("ext-2601.19375-ss-asr-qwen", "2601.19375 SS HarmBench ASR 74.04% (Qwen2.5-1.5B)",
+          "", [], 74.04, labels="external_anchor", kind="external",
+          note="2601.19375"),
+    Claim("ext-2601.19375-sas-asr-qwen", "2601.19375 SAS HarmBench ASR 13.46% (Qwen2.5-1.5B; SS is ~5.5×)",
+          "", [], 13.46, labels="external_anchor", kind="external",
+          note="2601.19375"),
+    Claim("ext-2601.19375-perp-violations", "2601.19375 SS perplexity-threshold violations: 0 across 8 models",
+          "", [], 0, labels="external_anchor", kind="external",
+          note="2601.19375"),
+
+    # 2604.24712 — Lopez-Vazquez paraphrase / mutation thresholds
+    # Forward-looking: these become live readbacks against
+    # P11-FE71/72/73 result JSONs once those experiments run.
+    Claim("fwd-h71-dom-stability", "H-71 threshold: prefill L19 DoM AUROC ≥ 0.733 under LV paraphrase",
+          "", [], 0.733, labels="forward_looking", kind="forward_looking",
+          note="from triage-2026-04-29-2604.24712.md; ≤0.04 drop from 0.7731. Live after P11-FE71 result JSON."),
+    Claim("fwd-h72-bucket-migration", "H-72 threshold: D→{A,B} migration ≥ 33%, A→D ≤ 11% under LV mutation",
+          "", [], 0.33, labels="forward_looking", kind="forward_looking",
+          note="from triage-2026-04-29-2604.24712.md. Live after P11-FE72 result JSON."),
+    Claim("fwd-h73-namedcue-acc-gain", "H-73 threshold: K=1 accuracy on named-cue subset ≥ +2pp under LV neutralization",
+          "", [], 2.0, labels="forward_looking", kind="forward_looking",
+          note="from triage-2026-04-29-2604.24712.md; expressed in pp. Live after P11-FE73-adjacent result JSON."),
 ]
 
 
@@ -397,7 +698,93 @@ def _load(path: str) -> Any:
     return json.load(open(ROOT / path))
 
 
+# Cache regen-script outputs by command string — a single script that prints
+# many key=value lines (e.g. recompute_pr_ratios.py emits ~20) is shared across
+# all Claims that reference it, so we don't re-spawn the interpreter per claim.
+_REGEN_CACHE: dict[str, dict[str, Any]] = {}
+
+
+def _exec_regen(cmd: str) -> dict[str, Any]:
+    """Run cmd once, return {"status": "ok"|"missing"|"exit_<n>"|"timeout"|"error",
+    "values": {key: float}, "stderr": str}."""
+    if cmd in _REGEN_CACHE:
+        return _REGEN_CACHE[cmd]
+    try:
+        proc = subprocess.run(
+            shlex.split(cmd), cwd=ROOT, capture_output=True, text=True, timeout=600,
+        )
+    except subprocess.TimeoutExpired:
+        out = {"status": "timeout", "values": {}, "stderr": ""}
+        _REGEN_CACHE[cmd] = out
+        return out
+    except Exception as exc:  # noqa: BLE001
+        out = {"status": f"error:{exc}", "values": {}, "stderr": ""}
+        _REGEN_CACHE[cmd] = out
+        return out
+
+    values: dict[str, Any] = {}
+    for line in proc.stdout.splitlines():
+        line = line.strip()
+        if "=" not in line:
+            continue
+        k, _, v = line.partition("=")
+        try:
+            values[k.strip()] = float(v.strip())
+        except ValueError:
+            values[k.strip()] = v.strip()  # keep raw for boolean/str compares
+
+    if proc.returncode == 0:
+        status = "ok"
+    else:
+        msg = (proc.stderr or proc.stdout).strip().splitlines()
+        first = msg[0] if msg else ""
+        status = "missing" if "MISSING_REGEN_INPUT" in first else f"exit_{proc.returncode}"
+
+    out = {"status": status, "values": values, "stderr": proc.stderr}
+    _REGEN_CACHE[cmd] = out
+    return out
+
+
+def _run_regen(c: Claim) -> None:
+    cached = _exec_regen(c.regen)
+    status = cached["status"]
+    if status == "missing":
+        c.regen_result = "REGEN_SKIP_NO_DATA"
+        return
+    if status == "timeout":
+        c.regen_result = "REGEN_TIMEOUT"
+        return
+    if status.startswith("error:"):
+        c.regen_result = f"REGEN_RUN_ERROR:{status[6:]}"
+        return
+    if status.startswith("exit_"):
+        c.regen_result = f"REGEN_EXIT_{status[5:]}"
+        return
+
+    if c.regen_key not in cached["values"]:
+        c.regen_result = f"REGEN_KEY_MISSING:{c.regen_key}"
+        return
+    found = cached["values"][c.regen_key]
+    c.regen_actual = found
+    tol = c.regen_tol or c.tol
+    if isinstance(c.expected, (int, float)) and isinstance(found, (int, float)):
+        if math.isclose(found, c.expected, abs_tol=tol):
+            c.regen_result = "REGEN_PASS"
+        else:
+            c.regen_result = f"REGEN_FAIL(Δ={found - c.expected:+.5g})"
+    elif c.expected == found:
+        c.regen_result = "REGEN_PASS"
+    else:
+        c.regen_result = f"REGEN_FAIL(got={found!r})"
+
+
 def _check(c: Claim) -> None:
+    if c.kind == "external":
+        c.result = "REGISTERED"
+        return
+    if c.kind == "forward_looking":
+        c.result = "PENDING_FE"
+        return
     full = ROOT / c.file
     if not full.exists():
         c.result = "MISSING_FILE"
@@ -426,25 +813,53 @@ def _check(c: Claim) -> None:
     else:
         c.result = f"FAIL(got={val!r})"
 
+    if c.regen:
+        _run_regen(c)
+
 
 def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--no-regen", action="store_true",
+                    help="Skip Tier-1 regen scripts (Tier-0 JSON readback only).")
+    args, _ = ap.parse_known_args()
+
+    if args.no_regen:
+        for c in CLAIMS:
+            c.regen = ""  # forces _check to skip the regen branch
+
     for c in CLAIMS:
         _check(c)
 
     # Summary counts
     pass_n = sum(1 for c in CLAIMS if c.result == "PASS")
     fail_n = sum(1 for c in CLAIMS if c.result.startswith("FAIL"))
-    missing = sum(1 for c in CLAIMS if "MISSING" in c.result or "ERROR" in c.result)
+    missing = sum(1 for c in CLAIMS
+                  if c.result.startswith("MISSING") or c.result.startswith("LOAD_ERROR")
+                  or c.result.startswith("KEY_MISSING"))
+    registered = sum(1 for c in CLAIMS if c.result == "REGISTERED")
+    pending_fe = sum(1 for c in CLAIMS if c.result == "PENDING_FE")
     tok256 = sum(1 for c in CLAIMS if c.labels.startswith("256tok"))
 
+    # Regen tier counts (Tier-1 reproducibility, not just JSON drift)
+    has_regen = [c for c in CLAIMS if c.regen]
+    regen_pass = sum(1 for c in has_regen if c.regen_result == "REGEN_PASS")
+    regen_fail = sum(1 for c in has_regen if c.regen_result.startswith("REGEN_FAIL"))
+    regen_skip = sum(1 for c in has_regen if c.regen_result == "REGEN_SKIP_NO_DATA")
+    regen_err = len(has_regen) - regen_pass - regen_fail - regen_skip
+
     print(f"# validate_claims.py — {len(CLAIMS)} claims")
-    print(f"PASS:   {pass_n}")
-    print(f"FAIL:   {fail_n}")
-    print(f"MISSING/ERROR: {missing}")
+    print(f"PASS:           {pass_n}")
+    print(f"FAIL:           {fail_n}")
+    print(f"MISSING/ERROR:  {missing}")
+    print(f"REGISTERED:     {registered}  (external paper anchors, no project readback)")
+    print(f"PENDING_FE:     {pending_fe}  (forward-looking thresholds, become live after FE result JSON lands)")
+    print(f"REGEN (Tier-1): {regen_pass} pass / {regen_fail} fail / {regen_skip} skip-no-data"
+          f" / {regen_err} other (of {len(has_regen)} annotated)")
     print(f"(of which: {tok256} use the superseded 256-tok label scheme and should be re-baselined against 1024-tok if cited as current)\n")
 
-    hdr = ("ID", "labels", "result", "expected", "actual", "description", "file")
-    widths = (28, 18, 22, 14, 16, 56, 70)
+    hdr = ("ID", "labels", "result", "regen", "expected", "actual", "description", "file")
+    widths = (28, 18, 22, 22, 14, 16, 48, 60)
     line = "  ".join(h.ljust(w) for h, w in zip(hdr, widths))
     print(line)
     print("-" * len(line))
@@ -460,15 +875,18 @@ def main() -> int:
             exp_s = f"{exp:.6g}"
         else:
             exp_s = str(exp)[:14]
-        desc = c.description[:56]
-        path_s = c.file[:70]
-        row = (c.cid[:28], c.labels[:18], c.result[:22], exp_s[:14],
+        desc = c.description[:48]
+        path_s = c.file[:60]
+        regen_s = (c.regen_result or "—")[:22]
+        row = (c.cid[:28], c.labels[:18], c.result[:22], regen_s, exp_s[:14],
                actual_s[:16], desc, path_s)
         print("  ".join(r.ljust(w) for r, w in zip(row, widths)))
 
-    # Detail section for failures and notes
+    # Detail section for failures and notes. REGISTERED / PENDING_FE are
+    # bookkeeping states, not failures — exclude from the "issues" surface.
     had_notes = [c for c in CLAIMS if c.note]
-    any_issue = [c for c in CLAIMS if c.result != "PASS"]
+    any_issue = [c for c in CLAIMS
+                 if c.result not in ("PASS", "REGISTERED", "PENDING_FE")]
 
     if any_issue:
         print("\n## Issues requiring attention\n")
@@ -480,12 +898,33 @@ def main() -> int:
             if c.note:
                 print(f"    note: {c.note}")
 
+    # Regen issue surface — divergence between Tier-0 (json) and Tier-1 (regen)
+    # is the high-signal failure mode this whole layer was added to catch.
+    regen_issue = [c for c in has_regen if c.regen_result.startswith("REGEN_FAIL")
+                   or c.regen_result.startswith("REGEN_EXIT")
+                   or c.regen_result.startswith("REGEN_PARSE")
+                   or c.regen_result.startswith("REGEN_KEY")
+                   or c.regen_result == "REGEN_TIMEOUT"]
+    if regen_issue:
+        print("\n## Tier-1 regen issues (committed JSON ↔ recomputation drift)\n")
+        for c in regen_issue:
+            print(f"- [{c.cid}] {c.regen_result}: {c.description}")
+            print(f"    regen: {c.regen}")
+            print(f"    expected: {c.expected!r}  regen_actual: {c.regen_actual!r}")
+
     if had_notes:
         print("\n## Claims with superseded/outdated notes\n")
         for c in had_notes:
             print(f"- [{c.cid}] labels={c.labels}: {c.note}")
 
-    return 0 if fail_n == 0 and missing == 0 else 1
+    # Tier-1 regen failures are real failures (committed-JSON ↔ regen drift).
+    # SKIP_NO_DATA is advisory and does not flip exit code.
+    regen_hard_fail = sum(1 for c in has_regen if c.regen_result.startswith("REGEN_FAIL")
+                          or c.regen_result.startswith("REGEN_EXIT")
+                          or c.regen_result.startswith("REGEN_PARSE")
+                          or c.regen_result.startswith("REGEN_KEY")
+                          or c.regen_result == "REGEN_TIMEOUT")
+    return 0 if fail_n == 0 and missing == 0 and regen_hard_fail == 0 else 1
 
 
 if __name__ == "__main__":

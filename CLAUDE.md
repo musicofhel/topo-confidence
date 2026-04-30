@@ -90,13 +90,15 @@ cd ~/topo-confidence/research-graph && python query.py pending
 # Deep pass — fresh subagent per paper, headlines-only context, refutations-first:
 /paper-triage <arxiv-id>          # writes briefs/triage-YYYY-MM-DD-<arxiv-id>.md
 
-# Loop the deep pass over every pending paper (overnight job, sequential):
+# Loop the deep pass over every pending paper (overnight job, parallel-3 default).
+# Each worker writes a brief AND auto-promotes it inline (flock-serialized) —
+# no human review queue, the system runs end-to-end:
 bash triage_pending.sh
 
-# Promote a reviewed brief into HYPOTHESES.md / PAPER_INDEX.md / graph:
+# Manually re-promote a single brief (only needed if auto-promote logged
+# PROMOTE_FAILED, e.g. claims gate fired and you fixed validate_claims.py):
 python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --dry-run
-python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md
-python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --update-existing  # idempotent re-promote
+python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --update-existing
 ```
 
 `promote_brief.py` parses YAML FE blocks, MERGEs `:FutureExperiment` nodes (with
@@ -108,7 +110,7 @@ entry), writes `(:Method)-[:USED_IN]->(:Paper)` and
 `(:Dataset)-[:USED_IN]->(:Paper)` edges, regenerates `NEXT_EXPERIMENTS.md`, and
 sets the paper to `status='graphed'`. **Refuses to promote** if the brief
 declares new quantitative claims and `validate_claims.py` hasn't been updated
-since the brief was written — protects the 91/91 invariant.
+since the brief was written — protects the claims invariant (91 internal PASS / 41 external REGISTERED / 3 PENDING_FE = 135 tracked, 91/91 internal PASS).
 
 The `/paper-triage` skill spawns a fresh subagent per paper (per-paper context
 isolation) to defend against the confirmation-bias failure mode documented in
@@ -122,7 +124,7 @@ brief footer.
 python validate_claims.py > validation_report.txt
 ```
 
-91 quantitative claims back-checked against committed JSONs. **91/91 PASS as of 2026-04-24.** If you've changed any number in the narrative docs, you must update the matching `Claim` entry in `validate_claims.py` and re-run.
+135 claims tracked. **91 internal back-checked against committed JSONs (91/91 PASS), 41 external paper anchors registered (REGISTERED, no readback), 3 forward-looking H-N thresholds (PENDING_FE, become live when their FE result JSON lands).** Tier-1 regen recomputes 68 of the 91 internals from cached intermediates (68/68 REGEN_PASS). If you change any number in the narrative docs, update the matching `Claim` entry and re-run; if you cite a new external number, add a `kind="external"` entry.
 
 ## What the project is, in two sentences
 
@@ -177,7 +179,7 @@ Full chronology in PROJECT_RECORD §1a. One-liner per pathway:
 
 - **Numbers come from JSONs, not narrative docs.** If you see a discrepancy, the JSON wins and the narrative doc gets updated.
 - **Label scheme matters.** Tag every number you cite with `1024tok` (current canonical), `256tok_NEW`, or `256tok_manifest`. The 256-tok numbers are not directly comparable to 1024-tok — see PROJECT_RECORD §1d.
-- **Don't add a new claim without updating `validate_claims.py`.** The 91/91 invariant is load-bearing.
+- **Don't add a new claim without updating `validate_claims.py`.** The 91/91 internal-PASS invariant is load-bearing; external paper-cited numbers go in as `kind="external"` entries.
 - **NPZ caches are gitignored.** Regeneration commands are in DATA_MANIFEST.md. Don't assume a cache exists on a fresh machine.
 
 ## RunPod

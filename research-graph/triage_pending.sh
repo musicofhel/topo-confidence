@@ -59,7 +59,8 @@ printf '%s\n' "$ids" \
 
 echo
 echo "==> dispatcher exited."
-echo "    Brief count: $(ls briefs/triage-*.md 2>/dev/null | wc -l)"
-echo "    Review briefs in $(pwd)/briefs/, then promote keepers:"
-echo "      python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --dry-run"
-echo "      python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md"
+echo "    Brief count:    $(ls briefs/triage-*.md 2>/dev/null | wc -l)"
+echo "    Promote logs:   briefs/*.promote.log"
+echo "    Promotes happen inline per worker (auto-promote enabled)."
+echo "    Any PROMOTE_FAILED above? re-run manually after fixing:"
+echo "      python promote_brief.py briefs/triage-YYYY-MM-DD-<arxiv-id>.md --update-existing"

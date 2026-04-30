@@ -19,7 +19,7 @@ Parses a brief at ~/topo-confidence/research-graph/briefs/triage-<date>-<arxiv-i
   5. Calls bridge.py resolve for the source arxiv id (and any extra paper
      stubs declared via triggered-by).
   6. Refuses if "## New claims" is non-empty AND validate_claims.py hasn't
-     been edited since the brief was last modified — protects the 91/91
+     been edited since the brief was last modified — protects the claims
      invariant.
   7. Calls generate_next_experiments.py to refresh NEXT_EXPERIMENTS.md.
   8. Sets :Paper {status:'graphed'} for the arxiv id.
@@ -315,7 +315,8 @@ def renumber(parsed: dict[str, Any]) -> dict[str, dict[str, str]]:
 
 
 # ---------------------------------------------------------------------------
-# Validate-claims gate (protects 91/91 invariant)
+# Validate-claims gate (protects the claims invariant: 91 internal PASS,
+# 41 external REGISTERED, 3 PENDING_FE — see CLAUDE.md)
 # ---------------------------------------------------------------------------
 
 def assert_claims_gate(parsed: dict[str, Any], brief_path: Path) -> None:

@@ -44,7 +44,6 @@ echo "===== $arxiv_id ====="
 if timeout "$TIMEOUT_SECONDS" claude -p --dangerously-skip-permissions "$prompt" < /dev/null > "$log" 2>&1; then
   if [[ -f "$brief" ]]; then
     echo "  ok  $brief"
-    exit 0
   else
     echo "  WARN $arxiv_id — claude exited 0 but no brief written; see $log"
     exit 2
@@ -57,4 +56,25 @@ else
     echo "  FAIL $arxiv_id — exit $rc; see $log"
   fi
   exit "$rc"
+fi
+
+# Auto-promote — no human review queue, the system runs end-to-end.
+# flock serializes sibling workers since promote_brief.py mutates
+# HYPOTHESES.md / PAPER_INDEX.md / NEXT_EXPERIMENTS.md and queries
+# Neo4j Next-ID + max FE-N during the renumber step.
+# --update-existing makes the call idempotent across reruns.
+promote_log="${brief}.promote.log"
+(
+  flock -x 9
+  python promote_brief.py "$brief" --update-existing
+) 9>".promote.lock" > "$promote_log" 2>&1
+prc=$?
+if [[ "$prc" -eq 0 ]]; then
+  echo "  promoted $arxiv_id"
+  exit 0
+else
+  # Brief is the durable artifact; promote failure (e.g. claims gate, parse
+  # error) is recoverable by re-running promote_brief.py manually after a fix.
+  echo "  PROMOTE_FAILED $arxiv_id exit=$prc — brief preserved; see $promote_log"
+  exit 0
 fi
