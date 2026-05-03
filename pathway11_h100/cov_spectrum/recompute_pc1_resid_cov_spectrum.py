@@ -46,6 +46,7 @@ ROOT = Path("/home/musicofhel/topo-confidence")
 NPZ_DIR = ROOT / "pathway8_layerwise/data/math500"
 PREFILL_CACHE = ROOT / "pathway11_h100/prefill_inversion/cache/m15b_prefill.npz"
 OUT_JSON = ROOT / "pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json"
+EIGVAL_CACHE = ROOT / "pathway11_h100/cov_spectrum/eigval_cache.npz"
 
 LAYER = 19
 N_PROBLEMS = 500
@@ -92,22 +93,13 @@ def fit_lr_oof_auroc(X: np.ndarray, y: np.ndarray) -> tuple[float, float, float]
     return auroc_oof, float(np.mean(fold_aurocs)), float(np.std(fold_aurocs))
 
 
-def main() -> int:
-    files = sorted(NPZ_DIR.glob("problem_*.npz"))
-    if len(files) != N_PROBLEMS:
-        print(f"MISSING_REGEN_INPUT expected {N_PROBLEMS} in {NPZ_DIR}, "
-              f"got {len(files)}", file=sys.stderr)
-        return 2
-
-    pc1, pc1_var_share = derive_fe291_pc1()
-    print(f"derived FE291 PC1: ‖pc1‖={np.linalg.norm(pc1):.6f}, "
-          f"var_share={pc1_var_share:.4f}", flush=True)
-
-    correct = np.zeros(N_PROBLEMS, dtype=bool)
-    cloud_T = np.zeros(N_PROBLEMS, dtype=np.int64)
-    K_MAX = max(TOP_K_GRID)
-    eigval_mat = np.zeros((N_PROBLEMS, K_MAX), dtype=np.float64)
-
+def _extract_eigvals(files, pc1: np.ndarray, K_MAX: int):
+    """Cold-pass: load every per-problem NPZ, project out PC1, extract top-K
+    eigvals of the residualized cov."""
+    n = len(files)
+    correct = np.zeros(n, dtype=bool)
+    cloud_T = np.zeros(n, dtype=np.int64)
+    eigval_mat = np.zeros((n, K_MAX), dtype=np.float64)
     t0 = time.time()
     for i, f in enumerate(files):
         d = np.load(f)
@@ -119,7 +111,6 @@ def main() -> int:
         cloud = s - np.outer(proj_coef, pc1)
 
         eigs = cloud_eigvals(cloud)
-        # Pad with zeros if T_i - 1 < K_MAX (rank-limited)
         if len(eigs) >= K_MAX:
             eigval_mat[i] = eigs[:K_MAX]
         else:
@@ -127,12 +118,60 @@ def main() -> int:
 
         if (i + 1) % 50 == 0:
             elapsed = time.time() - t0
-            eta = elapsed / (i + 1) * (N_PROBLEMS - i - 1)
-            print(f"  {i+1}/{N_PROBLEMS}  T_i={s.shape[0]:>4}  "
+            eta = elapsed / (i + 1) * (n - i - 1)
+            print(f"  {i+1}/{n}  T_i={s.shape[0]:>4}  "
                   f"top1={eigs[0]:.3f}  elapsed={elapsed:.0f}s  eta={eta:.0f}s",
                   flush=True)
     elapsed_total = time.time() - t0
     print(f"eigval extraction done in {elapsed_total:.0f}s", flush=True)
+    return eigval_mat, correct, cloud_T, elapsed_total
+
+
+def _save_cache(eigval_mat: np.ndarray, correct: np.ndarray, cloud_T: np.ndarray,
+                pc1_var_share: float, elapsed_seconds: float) -> None:
+    EIGVAL_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(EIGVAL_CACHE,
+             eigval_mat=eigval_mat,
+             correct=correct,
+             cloud_T=cloud_T,
+             pc1_var_share=np.float64(pc1_var_share),
+             elapsed_seconds=np.float64(elapsed_seconds))
+    print(f"saved eigval cache to {EIGVAL_CACHE.relative_to(ROOT)}", flush=True)
+
+
+def main() -> int:
+    files = sorted(NPZ_DIR.glob("problem_*.npz"))
+    if len(files) != N_PROBLEMS:
+        print(f"MISSING_REGEN_INPUT expected {N_PROBLEMS} in {NPZ_DIR}, "
+              f"got {len(files)}", file=sys.stderr)
+        return 2
+
+    pc1, pc1_var_share = derive_fe291_pc1()
+    print(f"derived FE291 PC1: ‖pc1‖={np.linalg.norm(pc1):.6f}, "
+          f"var_share={pc1_var_share:.4f}", flush=True)
+
+    K_MAX = max(TOP_K_GRID)
+
+    if EIGVAL_CACHE.exists():
+        cache = np.load(EIGVAL_CACHE)
+        if (cache["eigval_mat"].shape == (N_PROBLEMS, K_MAX)
+                and float(cache["pc1_var_share"]) == pc1_var_share):
+            eigval_mat = cache["eigval_mat"]
+            correct = cache["correct"]
+            cloud_T = cache["cloud_T"]
+            elapsed_total = float(cache["elapsed_seconds"])
+            print(f"loaded eigval cache from {EIGVAL_CACHE.relative_to(ROOT)} "
+                  f"(skip {N_PROBLEMS}-problem extraction; original took "
+                  f"{elapsed_total:.0f}s)", flush=True)
+        else:
+            print(f"cache shape/PC1 mismatch — re-extracting", flush=True)
+            eigval_mat, correct, cloud_T, elapsed_total = _extract_eigvals(
+                files, pc1, K_MAX)
+            _save_cache(eigval_mat, correct, cloud_T, pc1_var_share, elapsed_total)
+    else:
+        eigval_mat, correct, cloud_T, elapsed_total = _extract_eigvals(
+            files, pc1, K_MAX)
+        _save_cache(eigval_mat, correct, cloud_T, pc1_var_share, elapsed_total)
     print(f"cloud T_i: min={cloud_T.min()}, median={int(np.median(cloud_T))}, "
           f"max={cloud_T.max()}", flush=True)
     print(f"correctness rate: {correct.mean():.4f}  ({correct.sum()}/{N_PROBLEMS})",

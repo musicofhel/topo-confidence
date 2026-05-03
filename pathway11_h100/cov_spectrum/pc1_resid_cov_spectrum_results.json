@@ -81,5 +81,5 @@
     "pc1_resid_5ph_null_auroc": 0.7628
   },
   "verdict": "Per-problem cov spectrum (top-20 log-eigvals on PC1-residualized clouds) reaches OOF AUROC 0.7928 \u2014 BEATS supervised DoM (0.7679) by +2.49 pp. F-2's signal is at least partly spectral, not purely directional: per-problem second-order structure (after PC1 removal) carries correctness information beyond the L19 mean shift along PC1+PC9.",
-  "elapsed_seconds": 256.0427062511444
+  "elapsed_seconds": 738.6078197956085
 }

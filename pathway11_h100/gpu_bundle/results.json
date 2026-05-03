@@ -10,7 +10,7 @@
   "layer": 19,
   "n_folds": 5,
   "seed": 42,
-  "elapsed_seconds": 135.2600293159485,
+  "elapsed_seconds": 134.13507747650146,
   "n_problems_without_boxed": 75,
   "f2_prefill_dom_auroc": 0.7731,
   "f2_final_dom_auroc": 0.7186,
