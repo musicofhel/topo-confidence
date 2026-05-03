@@ -23,7 +23,8 @@ linear erasure collapses the signal to chance (`fe101-auroc-erased` =
 0.5000), so the signal is genuinely linear at L19.
 
 The peak is at L21 (0.7718) but L19 sits within the ±0.005 band
-(`fe145-l19-within-band`); the layer choice is not knife-edge.
+(`fe145-l19-within-band` <!-- noclaim:fe145-l19-within-band — name-only reference; the cid's value is the actual L19 gap, not the band threshold -->);
+the layer choice is not knife-edge.
 
 **One-sentence mechanism.** The model "knows" before it generates whether
 this prompt is in its competence — and that knowledge is one direction in
