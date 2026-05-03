@@ -4,7 +4,7 @@
 
 Three weeks of experiments (April 2026, Pathways 1–11) trying to predict whether a language model's chain-of-thought answer is correct from its residual-stream activations alone. The project began as "persistent homology of token clouds predicts correctness," and ended somewhere very different.
 
-> **Read these in order if you're new:** [SYNTHESIS.md](SYNTHESIS.md) (10-min practitioner briefing) → [NOVELTY_AUDIT.md](NOVELTY_AUDIT.md) (what's actually new vs the 220-paper research-graph) → [APPLICATIONS.md](APPLICATIONS.md) (where this is deployable, with honest checklists). The github.io page is a [v1 archive](https://musicofhel.github.io/topo-confidence/) — bounce here for current state.
+> **Read these in order if you're new:** [SYNTHESIS.md](SYNTHESIS.md) (10-min practitioner briefing) → [NOVELTY_AUDIT.md](NOVELTY_AUDIT.md) (what's actually new vs the 220-paper research-graph) → [APPLICATIONS.md](APPLICATIONS.md) (where this is deployable, with honest checklists). The [github.io page](https://musicofhel.github.io/topo-confidence/) mirrors the current headline (0.7731 / 0.7928 / 71.6%) with the v1 "persistent homology" framing preserved in a collapsible archive at the bottom.
 
 ## Where the project actually landed
 
@@ -69,7 +69,7 @@ If you've never seen this project before, read in this order:
 5. **[STATE.md](STATE.md)** — where the most recent session left off. Overwritten each session.
 6. **[PROJECT_RECORD.md](PROJECT_RECORD.md)** — authoritative archive. §1a chronology, §1b provenance table (every claim → JSON), §1d graveyard, §1e queue.
 7. **[FINDINGS.md](FINDINGS.md)** — F-1…F-10 registry with controls.
-8. **[HYPOTHESES.md](HYPOTHESES.md)** — H-1…H-22 prioritized queue with cost estimates.
+8. **[HYPOTHESES.md](HYPOTHESES.md)** — prioritized queue with cost estimates (extended past H-700 by the paper-triage cascade).
 9. **[PERSPECTIVES.md](PERSPECTIVES.md)** — reflective notes on what surprised, what was wrong.
 10. **[DATA_MANIFEST.md](DATA_MANIFEST.md)** — cached activation inventory (~79 GB, gitignored).
 11. **[PAPER_INDEX.md](PAPER_INDEX.md)** — external papers that informed the work, with our REPLICATED / CONTRADICTED status.
