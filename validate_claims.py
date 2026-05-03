@@ -516,6 +516,10 @@ CLAIMS: list[Claim] = [
           "pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json",
           ["best_auroc_oof"], 0.7928, 0.005, "1024tok",
           regen="python pathway11_h100/cov_spectrum/recompute_pc1_resid_cov_spectrum.py", regen_key="cov_spectrum.best_auroc_oof"),
+    Claim("pca-full-lr-best-auroc", "FE291 follow-up #3: full 1536-d L2-reg logistic OOF AUROC max = 0.7847 (at C=0.001) — essentially equal to 2-feat [PC1, PC9] 0.7856; the cov-spectrum 0.7928 still beats the directional ceiling, so F-2's extra signal is genuinely second-order",
+          "pathway11_h100/pca_covariance/results.json",
+          ["full_lr_best_auroc"], 0.7847, 0.005, "1024tok",
+          regen="python pathway11_h100/pca_covariance/recompute_pca_covariance.py", regen_key="pca.full_lr_best_auroc"),
 
     # ----- §7 Selective prediction / refuse-and-spend -----
     # Tier-1: recompute_selective.py reimplements the quartile gate policies

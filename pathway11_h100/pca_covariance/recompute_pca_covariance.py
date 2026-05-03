@@ -131,6 +131,30 @@ def main():
     pc1_pc9_oof_auroc = float(roc_auc_score(y, proba2))
     print(f"pc1_pc9_oof_auroc={pc1_pc9_oof_auroc:.10f}", file=sys.stderr)
 
+    # Full 1536-d L2-regularized OOF logistic — the directional ceiling.
+    # Compares against the spectral cov-spectrum probe (0.7928 at top-20
+    # log-eigvals on PC1-residualized clouds, session #3). If full ≤ 2-feat,
+    # F-2 is exactly two named directions. If full ≈ cov-spectrum, the
+    # spectral lift is just an L2 re-weight of the directional signal.
+    # If full ≪ cov-spectrum, F-2's extra signal is genuinely second-order.
+    full_lr_C_grid = [0.001, 0.01, 0.1, 1.0]
+    full_lr_aurocs = {}
+    for C in full_lr_C_grid:
+        proba_full = np.zeros(n, dtype=float)
+        skf_full = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=SEED)
+        for tr, te in skf_full.split(X, y):
+            mu_tr = X[tr].mean(axis=0)
+            sd_tr = X[tr].std(axis=0) + 1e-12
+            Xtr = (X[tr] - mu_tr) / sd_tr
+            Xte = (X[te] - mu_tr) / sd_tr
+            clf_full = LogisticRegression(C=C, max_iter=5000, solver="lbfgs")
+            clf_full.fit(Xtr, y[tr])
+            proba_full[te] = clf_full.predict_proba(Xte)[:, 1]
+        full_lr_aurocs[C] = float(roc_auc_score(y, proba_full))
+        print(f"full_lr_oof_auroc_C{C}={full_lr_aurocs[C]:.10f}", file=sys.stderr)
+    full_lr_best_C = max(full_lr_aurocs, key=full_lr_aurocs.get)
+    full_lr_best_auroc = full_lr_aurocs[full_lr_best_C]
+
     # Decompose DoM in PC basis: c_i = <dom_full_unit, v_i>.
     coeffs = (V.T @ dom_full_unit)  # shape (rank,)
     energy = coeffs ** 2  # sums to 1 since V is orthonormal full basis
@@ -176,6 +200,9 @@ def main():
         "cast_pc1_dom_cosine": cast_pc1_dom_cosine,
         "cast_pc1_global_pc1_cosine": cast_pc1_global_pc1_cosine,
         "pc1_pc9_oof_auroc": pc1_pc9_oof_auroc,
+        "full_lr_oof_auroc_by_C": {str(C): a for C, a in full_lr_aurocs.items()},
+        "full_lr_best_C": full_lr_best_C,
+        "full_lr_best_auroc": full_lr_best_auroc,
     }
     OUT.write_text(json.dumps(out, indent=2))
     print(f"wrote {OUT}", file=sys.stderr)
@@ -192,6 +219,9 @@ def main():
     print(f"pca.cast_pc1_auroc={cast_pc1_auroc:.10f}")
     print(f"pca.cast_pc1_dom_cosine={cast_pc1_dom_cosine:.10f}")
     print(f"pca.pc1_pc9_oof_auroc={pc1_pc9_oof_auroc:.10f}")
+    for C, a in full_lr_aurocs.items():
+        print(f"pca.full_lr_oof_auroc_C{C}={a:.10f}")
+    print(f"pca.full_lr_best_auroc={full_lr_best_auroc:.10f}")
     return 0
 
 

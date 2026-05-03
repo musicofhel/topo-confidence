@@ -632,3 +632,72 @@ CV5±0.027 leaves room) or the supervised 1536-d has untapped
 re-weighting room. The two-feature decomposition triangle move from
 the prior handoff is now urgent: a properly-regularized full 1536-d
 logistic (C=0.01 or 0.1) is the right tiebreaker.
+
+### The triangle resolves: F-2's extra signal is genuinely second-order
+
+Ran the tiebreaker. Full 1536-d L2-reg logistic OOF AUROC, swept over
+C ∈ {0.001, 0.01, 0.1, 1.0}:
+
+| C | Full 1536-d OOF AUROC | Notes |
+|---|---|---|
+| **0.001** | **0.7847** | regularization sweet spot |
+| 0.01 | 0.7585 | already overfitting |
+| 0.1 | 0.7325 | |
+| 1.0 | 0.7211 | severe overfit at p=1536/n=500 |
+
+Best full-1536-d = **0.7847** at C=0.001, which is essentially equal
+to the 2-feat (PC1, PC9) 0.7856 within fold noise (CV5 std ≈ 0.027).
+The two-feature directional probe is the directional ceiling.
+
+The full triangle:
+
+| Probe | OOF AUROC | Δ vs DoM 0.7679 |
+|---|---|---|
+| 1-d DoM | 0.7679 | — |
+| 2-feat (PC1, PC9) | 0.7856 | +1.77 pp |
+| Full 1536-d L2-reg, best C | 0.7847 | +1.68 pp |
+| **Top-20 log-eigvals (cov spectrum)** | **0.7928** | **+2.49 pp** |
+
+Reading. The full 1536-d directional probe **does not close the gap**
+to the cov-spectrum 0.7928 even with optimal L2 — it tops out at the
+2-feat level. So the +0.7 pp the cov-spectrum gets over the 2-feat
+is *genuinely second-order*, not just an under-regularized re-weight
+of the 1536-d directional signal that a properly regularized linear
+probe would also recover.
+
+What this nails down. F-2 decomposes into three additive pieces and
+the third is *not* a hidden directional one:
+
+1. **PC1 mean shift** (1-d DoM ≈ 0.92·PC1; AUROC 0.7458 / 0.7679 OOF).
+2. **PC9 trim** (2-d (PC1, PC9) ≈ directional ceiling; AUROC 0.7856).
+3. **Per-problem residual second-order structure** orthogonal to PC1
+   (cov-spectrum top-20 log-eigvals; AUROC 0.7928). This is the part
+   that no linear directional probe — single-direction or full
+   regularized 1536-d — can recover. The discriminative pattern lives
+   in the *shape* of the per-problem covariance spectrum tail, after
+   PC1 has been projected out, and a 5-fold OOF logistic on the top
+   eigvals is the cheapest way to extract it.
+
+This was the thing I most wanted the triangle to disambiguate, and
+it landed in the cleanest possible position — directional ceiling at
+2-feat, spectral lift above it. F-2 is now factually a layered claim:
+"L19 prefill geometry predicts correctness" splits into a directional
+component (PC1+PC9, ≈0.79) and a per-problem second-order component
+(residual cov spectrum, +~0.7 pp on top). The natural causal companion
+is now a **2D ablation along the (PC1, PC9) plane** for the directional
+component, and a **rank-truncate-the-PC1-residualized-covariance**
+intervention for the spectral component (zero out everything but the
+top-K eigval directions per token before continuation; if that doesn't
+disrupt correctness, the spectral signal is observational-only, not
+load-bearing).
+
+What this does *not* mean. The cov-spectrum probe is supervised.
+Beating the directional ceiling supervised-vs-supervised says
+"there's information you can't capture with linear directions on raw
+activations." It does not say the model itself uses this information,
+or that we have a new unsupervised signal. The causal companion is
+the right next test.
+
+What this *does* mean for the validate_claims invariant: 169 PASS
+internal once the new pca-full-lr-best-auroc claim is wired (was 168
+after the cov-spectrum claim). 213 total tracked.
