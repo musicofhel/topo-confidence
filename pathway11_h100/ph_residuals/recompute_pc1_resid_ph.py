@@ -36,6 +36,7 @@ ROOT = Path("/home/musicofhel/topo-confidence")
 NPZ_DIR = ROOT / "pathway8_layerwise/data/math500"
 PREFILL_CACHE = ROOT / "pathway11_h100/prefill_inversion/cache/m15b_prefill.npz"
 OUT_JSON = ROOT / "pathway11_h100/ph_residuals/pc1_resid_results.json"
+PH_CACHE = ROOT / "pathway11_h100/ph_residuals/ph_cache.npz"
 
 LAYER = 19
 N_PROBLEMS = 500
@@ -114,6 +115,36 @@ def fit_lr_oof_auroc(X: np.ndarray, y: np.ndarray, n_folds: int, seed: int) -> t
     return auroc_oof, float(np.mean(fold_aurocs)), float(np.std(fold_aurocs))
 
 
+def _extract_ph(files: list[Path], pc1: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+    correct = np.zeros(N_PROBLEMS, dtype=bool)
+    real_ph = np.zeros((N_PROBLEMS, 5), dtype=np.float64)
+    null_ph = np.zeros((N_PROBLEMS, 5), dtype=np.float64)
+    t0 = time.time()
+    for i, f in enumerate(files):
+        d = np.load(f)
+        s = d["states"][LAYER].astype(np.float64)
+        correct[i] = bool(d["correct"])
+        proj_coef = s @ pc1
+        cloud = s - np.outer(proj_coef, pc1)
+        real_ph[i] = compute_5_ph_features(cloud)
+        null_ph[i] = low_rank_gaussian_null(cloud, n_nulls=N_NULLS_PER_PROBLEM, seed=SEED + i)
+        if (i + 1) % 25 == 0:
+            elapsed = time.time() - t0
+            eta = elapsed / (i + 1) * (N_PROBLEMS - i - 1)
+            print(f"  {i+1}/{N_PROBLEMS}  elapsed={elapsed:.0f}s  eta={eta:.0f}s", flush=True)
+    elapsed_total = time.time() - t0
+    print(f"PH compute done in {elapsed_total:.0f}s", flush=True)
+    return real_ph, null_ph, correct, elapsed_total
+
+
+def _save_ph_cache(real_ph: np.ndarray, null_ph: np.ndarray, correct: np.ndarray,
+                    pc1_var_share: float, elapsed_seconds: float) -> None:
+    np.savez(PH_CACHE, real_ph=real_ph, null_ph=null_ph, correct=correct,
+             pc1_var_share=pc1_var_share, elapsed_seconds=elapsed_seconds)
+    print(f"saved PH cache to {PH_CACHE.relative_to(ROOT)} "
+          f"({PH_CACHE.stat().st_size // 1024} KB)", flush=True)
+
+
 def derive_fe291_pc1() -> tuple[np.ndarray, float, float]:
     """Re-derive PC1 from prefill aggregate (matches FE291)."""
     d = np.load(PREFILL_CACHE)
@@ -140,29 +171,24 @@ def main() -> int:
     print(f"derived FE291 PC1: ‖pc1‖={np.linalg.norm(pc1):.6f}, var_share={pc1_var_share:.4f}",
           flush=True)
 
-    correct = np.zeros(N_PROBLEMS, dtype=bool)
-    real_ph = np.zeros((N_PROBLEMS, 5), dtype=np.float64)
-    null_ph = np.zeros((N_PROBLEMS, 5), dtype=np.float64)
-
-    t0 = time.time()
-    for i, f in enumerate(files):
-        d = np.load(f)
-        s = d["states"][LAYER].astype(np.float64)  # (T_i, 1536)
-        correct[i] = bool(d["correct"])
-
-        # Project out PC1: x' = x - (x · pc1) pc1
-        proj_coef = s @ pc1                # (T_i,)
-        cloud = s - np.outer(proj_coef, pc1)  # (T_i, 1536), orthogonal to pc1
-
-        real_ph[i] = compute_5_ph_features(cloud)
-        null_ph[i] = low_rank_gaussian_null(cloud, n_nulls=N_NULLS_PER_PROBLEM, seed=SEED + i)
-
-        if (i + 1) % 25 == 0:
-            elapsed = time.time() - t0
-            eta = elapsed / (i + 1) * (N_PROBLEMS - i - 1)
-            print(f"  {i+1}/{N_PROBLEMS}  elapsed={elapsed:.0f}s  eta={eta:.0f}s", flush=True)
-    elapsed_total = time.time() - t0
-    print(f"PH compute done in {elapsed_total:.0f}s", flush=True)
+    if PH_CACHE.exists():
+        cache = np.load(PH_CACHE)
+        if (cache["real_ph"].shape == (N_PROBLEMS, 5)
+                and cache["null_ph"].shape == (N_PROBLEMS, 5)
+                and abs(float(cache["pc1_var_share"]) - pc1_var_share) < 1e-9):
+            real_ph = cache["real_ph"]
+            null_ph = cache["null_ph"]
+            correct = cache["correct"]
+            elapsed_total = float(cache["elapsed_seconds"])
+            print(f"loaded PH cache from {PH_CACHE.relative_to(ROOT)} "
+                  f"(skipped ~{elapsed_total:.0f}s of PH compute)", flush=True)
+        else:
+            print("PH cache shape/PC1 mismatch — re-extracting", flush=True)
+            real_ph, null_ph, correct, elapsed_total = _extract_ph(files, pc1)
+            _save_ph_cache(real_ph, null_ph, correct, pc1_var_share, elapsed_total)
+    else:
+        real_ph, null_ph, correct, elapsed_total = _extract_ph(files, pc1)
+        _save_ph_cache(real_ph, null_ph, correct, pc1_var_share, elapsed_total)
 
     feature_comparison = {}
     print("\nFeature comparison (PC1-residualized real vs full-cov null):")

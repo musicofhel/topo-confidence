@@ -1,0 +1,40 @@
+derived FE291 PC1: ‖pc1‖=1.000000, var_share=0.1474
+  25/500  elapsed=127s  eta=2420s
+  50/500  elapsed=254s  eta=2285s
+  75/500  elapsed=382s  eta=2165s
+  100/500  elapsed=489s  eta=1957s
+  125/500  elapsed=605s  eta=1816s
+  150/500  elapsed=712s  eta=1662s
+  175/500  elapsed=823s  eta=1528s
+  200/500  elapsed=927s  eta=1391s
+  225/500  elapsed=1044s  eta=1277s
+  250/500  elapsed=1157s  eta=1157s
+  275/500  elapsed=1267s  eta=1037s
+  300/500  elapsed=1380s  eta=920s
+  325/500  elapsed=1490s  eta=802s
+  350/500  elapsed=1602s  eta=687s
+  375/500  elapsed=1711s  eta=570s
+  400/500  elapsed=1822s  eta=455s
+  425/500  elapsed=1934s  eta=341s
+  450/500  elapsed=2045s  eta=227s
+  475/500  elapsed=2152s  eta=113s
+  500/500  elapsed=2264s  eta=0s
+PH compute done in 2264s
+saved PH cache to pathway11_h100/ph_residuals/ph_cache.npz (40 KB)
+
+Feature comparison (PC1-residualized real vs full-cov null):
+  H0_max_lifetime      real=  50.283±4.149  null=  53.547±2.535  diff=-3.264
+  H0_entropy           real=   4.548±0.021  null=   4.592±0.000  diff=-0.044
+  H1_pers_entropy      real=   3.814±0.139  null=   4.157±0.075  diff=-0.343
+  H1_n_features        real=  63.706±7.872  null=  87.396±6.048  diff=-23.690
+  H1_max_lifetime      real=   8.522±1.339  null=   5.300±0.390  diff=+3.222
+  real_ph_pc1resid  : oof=0.6907, cv5=0.6964±0.0191
+  null_ph_pc1resid  : oof=0.7627, cv5=0.7670±0.0598
+  diff_ph_pc1resid  : oof=0.5894, cv5=0.6027±0.0959
+
+VERDICT: Inverted gap on PC1 residuals (real=0.691 < null=0.763, gap=-0.072). Residualization weakens topology signal below null.
+
+Saved pathway11_h100/ph_residuals/pc1_resid_results.json
+pc1_resid.auroc_real_ph_pc1resid=0.6906534723
+pc1_resid.auroc_null_ph_pc1resid=0.7626619270
+pc1_resid.gap_real_minus_null=-0.0720084546

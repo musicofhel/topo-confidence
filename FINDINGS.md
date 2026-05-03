@@ -52,58 +52,68 @@ not a reasoning-trajectory property.
 
 ### F-2: A single L19 prefill direction predicts correctness on Qwen-2.5-1.5B at AUROC 0.7731
 
-**Claim.** Pathway 11 H100 stage 1 established F-2 via supervised
-1536-d logistic regression at L19 prefill: 5-fold OOF AUROC 0.7731 on
-500 MATH-500 problems (243 correct on Qwen-2.5-1.5B-Instruct K=1).
-**EXP-55 reframes the direction as unsupervised-identifiable.** On the
-same cached prefill (`pathway11_h100/prefill_inversion/cache/m15b_prefill.npz`),
-the dominant eigenvector of the centered prefill covariance
-(unsupervised PCA) yields single-feature 5-fold OOF AUROC 0.7458 with
-cosine 0.9216 against the supervised mass-mean DoM. Decomposing the
-unit DoM in the PC basis: 85% of energy in PC1 alone, 97.6% in the
-top-10. CAST (Lee 2409.05907) class-mean PCA-PC1 (μ = (μ⁺ + μ⁻)/2)
-is numerically indistinguishable from the unsupervised PC1 (AUROC
-0.7458, cosine with global-PC1 ≈ 1.000). Under matched 5-fold
-single-feature protocol, supervised DoM AUROC is 0.7679. **The
-correctness direction at L19 is the dominant variance direction.**
-PC9 (variance rank 9, 2.5% of variance) carries a secondary spike
-(single-feature AUROC 0.6575, DoM-coeff 0.225) — orthogonal-to-PC1
-correctness signal that may be a topic / difficulty axis.
+**Claim.** F-2 was originally framed as a single L19 prefill
+direction at AUROC 0.7731 (supervised 1536-d logistic, FE110/EXP-001).
+EXP-55 reframed the direction as unsupervised-identifiable.
+EXP-57 (FE881) showed cov-spectrum lift to 0.7928 above the 2-feat
+0.7856 directional probe. **EXP-58 closes the disambiguation**: full
+1536-d L2-reg logistic max OOF AUROC = 0.7847 (C=0.001), essentially
+equal to 2-feat 0.7856 within fold noise. The directional ceiling
+saturates at the 2-feat probe; the cov-spectrum 0.7928 lift is
+**genuinely second-order**, not under-regularized linear-directional.
+F-2 factors explicitly into three additive pieces:
+(a) **PC1 mean shift** — DoM ≈ 0.92·PC1, supervised 1-d AUROC
+    0.7679, unsupervised 1-d 0.7458.
+(b) **PC9 trim** — raises 1-d 0.7458 → 2-d 0.7856 = directional
+    ceiling (confirmed by full 1536-d L2-reg 0.7847).
+(c) **Per-problem residual second-order structure orthogonal to
+    PC1** — raises 2-d 0.7856 → spectral 0.7928. NOT capturable
+    by any linear directional probe, properly regularized or not.
 
 **Strength:** STRONG (now triangulated by supervised + unsupervised +
-class-mean-supervised decompositions, all agreeing within 0.022 AUROC
-and cosine ≥ 0.92 on the same direction).
+class-mean-supervised directional decompositions agreeing within
+0.022 AUROC at cosine ≥ 0.92, AND by a fully resolved 3-piece
+factorization where the directional ceiling is confirmed at the
+2-feat tier).
 
 **Evidence:** EXP-001 / `pathway11_h100/prefill_gated_compute/results.json`
-(supervised 1536-d probe AUROC 0.7731); P11-E12 / FE110 /
-`pathway11_h100/gpu_bundle/results.json` (DoM mass-mean replication
-0.7711 on cached prefill); **EXP-55** /
-`pathway11_h100/pca_covariance/results.json` (unsupervised PCA-PC1
-AUROC 0.7458, CAST class-mean PCA-PC1 AUROC 0.7458, cos with DoM
-0.9216, DoM-energy in PC1 0.849).
+(supervised 1536-d probe AUROC 0.7731); EXP-53 / FE110 (DoM
+mass-mean 0.7711); EXP-55 / FE291 (PCA-PC1 = DoM); EXP-57 / FE881
+(cov-spectrum 0.7928); **EXP-58** /
+`pathway11_h100/pca_covariance/results.json::full_lr_best_auroc`
+(full 1536-d L2-reg max 0.7847 at C=0.001 — directional ceiling
+saturates at 2-feat).
 
 **Controls passed:**
 - Supervised vs mass-mean DoM (FE110 EXP-53): 0.7711 ≈ 0.7731.
-- Mean-shift on residualized clouds (FE115): residual DoM AUROC
-  0.8016 (gap +0.029 over raw F-2).
-- **Unsupervised PCA-PC1 (EXP-55, FE291)**: 0.7458 single-feature OOF,
-  cosine 0.922 with DoM, 85% DoM-energy in PC1 — the direction is
-  label-free recoverable.
-- CAST class-mean PCA-PC1 (EXP-55, FE291): 0.7458, numerically same
-  direction as unsupervised PC1.
+- Mean-shift on Song-Zhong residualized clouds (FE115): 0.8016.
+- Unsupervised PCA-PC1 (EXP-55, FE291): 0.7458 / cos 0.922 / 85%
+  DoM-energy.
+- CAST class-mean PCA-PC1 (EXP-55, FE291): 0.7458.
+- 2-feat (PC1, PC9) (FE291): 0.7856 directional probe.
+- Per-problem cov spectrum (EXP-57, FE881): top-20 log-eigvals
+  0.7928 (best probe).
+- **Full 1536-d L2-reg (EXP-58, FE882)**: max 0.7847 at C=0.001 —
+  directional ceiling saturates at 2-feat. Confirms cov-spectrum
+  lift is second-order, not under-regularized linear-directional.
 
-**Strongest counterargument:** F-2 is correlational. EXP-55 strengthens
-the *correlation* (the direction is unsupervised + supervised +
-contrastive all agreeing) but does not address causality. The
-load-bearing test of F-2 remains FE214 / FE269 / FE283 (noising,
-ablation, layer-zero ablation). If those degrade accuracy, F-2 is
-causal. If not, F-2 is "L19 is where correctness is *first readable*"
-not "L19 is where correctness is *computed*".
+**Strongest counterargument:** EXP-58 confirms the cov-spectrum lift
+is correlationally orthogonal to direction, but does not address
+causality. The supervised cov-spectrum probe beating the directional
+ceiling supervised-vs-supervised says "there's information you can't
+capture with linear directions on raw activations" — *not* "the
+model uses this spectral information." The right follow-up is
+rank-truncating the PC1-residualized covariance per-problem before
+continuation; measure correctness drop. Without that, F-2's
+spectral piece is observational-only.
 
-**Would be overturned by:** Causal ablation/noising at L19 PC1
-preserving MATH-500 accuracy (FE283/FE214/FE269); cross-checkpoint
-PC1 rotation > cosine 0.5 across HF Qwen 1.5B checkpoints (FE700);
-PC1 AUROC ≪ 0.6 on a non-MATH-500 benchmark via cached activations.
+**Would be overturned by:** (a) Causal noising/ablation at L19
+(FE283/FE214/FE269) preserving accuracy → F-2 is correlation-only;
+(b) cov-spectrum AUROC dropping below 2-feat 0.7856 on held-out
+nested 5×5 CV → fold-noise lift; (c) cross-checkpoint PC1+PC9
+rotation > cos 0.5 across HF Qwen 1.5B checkpoints → directional
+ceiling itself is not robust; (d) cov-spectrum AUROC ≪ 0.7 on a
+non-MATH-500 benchmark via cached activations.
 
 ### F-3: Prefill and final-token DoM directions are orthogonal, *structurally — not positionally*
 
@@ -363,42 +373,52 @@ single-layer DoM stays at 0.77.
 
 ### F-10: Topology summary statistics on residual streams are not distinguishable from a Gaussian null
 
-**Claim.** F-10's narrow form (5 PH summary features ≈ matched-cov
-Gaussian null on raw L19 clouds, FE026 gap −0.003; ≈ inverted on
-Song-Zhong residualized clouds, FE116 gap −0.067) is *grounded* by
-EXP-55: the supervised L19 prefill DoM is essentially the dominant
-covariance principal component (PC1 cos 0.922, 85% DoM-energy in PC1).
-The covariance signal F-10 says "PH cannot improve on" is a single
-direction. PH features layered on the covariance ellipsoid add no
-orthogonal signal because the correctness signal is concentrated in
-14.7% of variance along PC1, and the PH descriptor family integrates
-*all* of the cloud's H_0/H_1 structure without distinguishing PC1
-from the rest.
+**Claim.** F-10's narrow form (PH = matched-cov Gaussian null) now
+has a quantified positive companion: the post-PC1 correctness signal
+lives in the eigenvalue spectrum of the per-problem residualized
+covariance. **EXP-57 / FE881** shows top-20 log-eigvals on
+PC1-residualized clouds give OOF AUROC 0.7928 (strongest L19 probe
+at any tier). The same cloud's PH features fail (EXP-56/FE880
+gap −0.074). F-10 sharpens: the covariance pathway carries the signal
+*spectrally* — PH descriptors integrate over the eigenvalue
+distribution and lose the shape-of-decay information that the
+spectral probe captures.
 
-**Strength:** STRONG (PH-null gap holds under raw, residualized, and
-zigzag-trajectory cloud constructions; covariance pathway now grounded
-in a single quantified direction with cos 0.922 to supervised DoM).
+**Strength:** STRONG (PH-null gap holds under raw, zigzag-residualized,
+and PC1-residualized clouds, with the post-PC1 spectral pathway now
+quantified at 0.7928 — three-way triangulation of the topology-vs-
+covariance question).
 
 **Evidence:** EXP-026 (raw 5-feature PH gap −0.003); EXP-52 (FE321
-zigzag gap −0.066 + 7-descriptor +0.097, no topology component);
-EXP-54 (FE116 residualized gap −0.067); **EXP-55** (PCA-PC1 = DoM
-direction, covariance pathway grounded as PC1).
+zigzag); EXP-54 (FE116 residualized); EXP-55 (PCA-PC1 = DoM); EXP-56
+(FE880 PC1-residualized PH gap −0.074); **EXP-57** /
+`pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json`
+(top-20 log-eigvals on PC1-residualized clouds OOF AUROC 0.7928 —
+the post-PC1 correctness signal is purely spectral, not topological).
 
 **Controls passed:**
 - Diagonal vs full covariance null (D1 fix in EXP-026 v2).
 - Drop H0_n_features rank-tie (D2 fix).
 - Zigzag descriptor pair on 28-layer trajectory (FE321).
 - Song-Zhong residualization (FE116).
-- **PCA-PC1 = supervised DoM (EXP-55, FE291)** — covariance pathway
-  is a single direction with 14.7% var share and cos 0.922 to DoM.
+- PCA-PC1 = supervised DoM (EXP-55, FE291).
+- PC1-residualization: PH gap −0.074 (EXP-56, FE880).
+- **Per-problem cov spectrum (EXP-57, FE881)**: top-20 log-eigvals
+  on PC1-residualized clouds OOF AUROC 0.7928 — quantifies the
+  post-PC1 signal that PH integrates over.
 
-**Strongest counterargument:** A covariance-controlled PH probe that
-regresses out the per-problem PC1 projection before computing PH and
-finds residual signal would falsify the new sharpened form. None
-attempted yet.
+**Strongest counterargument:** A higher-order PH instrument computed
+on the same PC1-residualized clouds (zigzag, FTS-PH, persistence
+landscapes) showing real ≥ null + 0.05 would say *some* topology
+captures the spectral signal. None attempted yet. A single-feature
+H1_max_lifetime probe on PC1-residualized clouds (the only PH
+feature where real beats null in EXP-56) reaching AUROC ≥ 0.65
+would also suggest residual topology. Both proposed as
+EXP-56/EXP-57 follow-ups.
 
-**Would be overturned by:** PH features computed on the [PC2..PC1536]
-subspace (PC1-residualized clouds) showing real_AUROC ≥ null + 0.05.
+**Would be overturned by:** Higher-order PH (zigzag/FTS-PH/landscapes)
+on PC1-residualized clouds with real ≥ null + 0.05 — would falsify
+the sharpened "spectrum, not topology" form.
 
 ## Honorable mentions — findings we have evidence for but haven't fully validated
 

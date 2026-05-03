@@ -16,64 +16,64 @@
   "seed": 42,
   "feature_comparison": {
     "H0_max_lifetime": {
-      "real_mean": 50.291893867492675,
-      "real_std": 4.144948981488146,
-      "null_mean": 53.549424949645996,
-      "null_std": 2.5364110145523835,
-      "diff_mean": -3.2575310821533208
+      "real_mean": 50.2830375213623,
+      "real_std": 4.149071184032812,
+      "null_mean": 53.54685469818115,
+      "null_std": 2.5346674278586936,
+      "diff_mean": -3.263817176818847
     },
     "H0_entropy": {
-      "real_mean": 4.54759225890167,
-      "real_std": 0.020653065260781648,
-      "null_mean": 4.591686563891143,
-      "null_std": 0.0003327783614680705,
-      "diff_mean": -0.04409430498947309
+      "real_mean": 4.547573268730768,
+      "real_std": 0.020652123530765214,
+      "null_mean": 4.591686169208611,
+      "null_std": 0.00033233515967265504,
+      "diff_mean": -0.044112900477842665
     },
     "H1_pers_entropy": {
-      "real_mean": 3.8142459568677114,
-      "real_std": 0.1392507534749565,
-      "null_mean": 4.157213638434491,
-      "null_std": 0.07530076343456087,
-      "diff_mean": -0.34296768156677926
+      "real_mean": 3.8139995195485525,
+      "real_std": 0.1391779465865004,
+      "null_mean": 4.157392739622105,
+      "null_std": 0.07473388071164373,
+      "diff_mean": -0.3433932200735521
     },
     "H1_n_features": {
-      "real_mean": 63.712,
-      "real_std": 7.873058871874387,
-      "null_mean": 87.41,
-      "null_std": 6.073916364257908,
-      "diff_mean": -23.697999999999993
+      "real_mean": 63.706,
+      "real_std": 7.872201979116135,
+      "null_mean": 87.396,
+      "null_std": 6.048271157942573,
+      "diff_mean": -23.689999999999998
     },
     "H1_max_lifetime": {
-      "real_mean": 8.529345375061036,
-      "real_std": 1.3420510665789096,
-      "null_mean": 5.299336848449707,
-      "null_std": 0.38997426239708216,
-      "diff_mean": 3.2300085266113285
+      "real_mean": 8.521678791046142,
+      "real_std": 1.339136445578659,
+      "null_mean": 5.299565972900391,
+      "null_std": 0.38959314877603823,
+      "diff_mean": 3.2221128181457512
     }
   },
   "classifiers": {
     "real_ph_pc1resid": {
-      "auroc_oof": 0.6883957022305487,
-      "auroc_cv_mean": 0.6945263682396036,
-      "auroc_cv_std": 0.02099612756791185
+      "auroc_oof": 0.6906534723223008,
+      "auroc_cv_mean": 0.696367874072706,
+      "auroc_cv_std": 0.019092158080987572
     },
     "null_ph_pc1resid": {
-      "auroc_oof": 0.7628220524891516,
-      "auroc_cv_mean": 0.765762555022009,
-      "auroc_cv_std": 0.057157177486817506
+      "auroc_oof": 0.7626619269507294,
+      "auroc_cv_mean": 0.7669626504447933,
+      "auroc_cv_std": 0.05977320501391005
     },
     "diff_ph_pc1resid": {
-      "auroc_oof": 0.5732494275512001,
-      "auroc_cv_mean": 0.5846141341151846,
-      "auroc_cv_std": 0.0741510049514789
+      "auroc_oof": 0.5894381194856768,
+      "auroc_cv_mean": 0.6027082948564042,
+      "auroc_cv_std": 0.09585247545768945
     }
   },
-  "auroc_real_ph_pc1resid": 0.6883957022305487,
-  "auroc_null_ph_pc1resid": 0.7628220524891516,
-  "auroc_diff_ph_pc1resid": 0.5732494275512001,
-  "gap_real_minus_null": -0.07442635025860289,
+  "auroc_real_ph_pc1resid": 0.6906534723223008,
+  "auroc_null_ph_pc1resid": 0.7626619269507294,
+  "auroc_diff_ph_pc1resid": 0.5894381194856768,
+  "gap_real_minus_null": -0.07200845462842864,
   "f10_raw_real": 0.69,
   "f10_raw_null": 0.693,
-  "verdict": "Inverted gap on PC1 residuals (real=0.688 < null=0.763, gap=-0.074). Residualization weakens topology signal below null.",
-  "elapsed_seconds": 2256.267732858658
+  "verdict": "Inverted gap on PC1 residuals (real=0.691 < null=0.763, gap=-0.072). Residualization weakens topology signal below null.",
+  "elapsed_seconds": 2263.6981179714203
 }

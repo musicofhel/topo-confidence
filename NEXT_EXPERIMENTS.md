@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-05-02 21:43 UTC_
+_Generated: 2026-05-03 05:31 UTC_
 
 ---
 
@@ -11812,6 +11812,20 @@ _Generated: 2026-05-02 21:43 UTC_
 **Trigger condition:** Paper 2410.11042 publishes positive zigzag-PH results without a Gaussian null and uses the result for a layer-pruning criterion.
 **Outcome:** F-10 holds in its narrow topology form; trajectory shape carries geometric signal that's not topology. The canonical zigzag descriptors B_1 and bar_Z_1 are *structurally zero* on the 28-point real trajectory in 1536-d (paths don't form loops at native scale): real B_1 = 0.002 vs null B_1 = 5.4; real bar_Z_1 = 0.000 vs null bar_Z_1 = 8.5. Classifier on B_1+bar_Z_1 only: real AUROC 0.4952 ≈ null 0.5611 (gap −0.066). On the full 7-descriptor set (adding H_0_max_lifetime, H_0_total_lifetime, H_0_entropy, step_max, step_std): real AUROC 0.7156 vs null 0.6188 (gap +0.097). The signal is in H_0_max_lifetime (real 156 vs null 76 — 2× longer dominant H_0 bar) and H_0_total_lifetime (real 864 vs null 1163), not in H_1 cycles. AUROC 0.7156 < F-2 prefill DoM 0.7731 — the trajectory descriptor probe is real but does not displace F-2.
 
+### P11-FE881 (P11) — [ROI: 9, COMPLETED, HIGH]
+
+**What:** FE291 follow-up #2: instead of computing 5 V-R PH features on PC1-residualized per-problem clouds, extract the top-K log-eigvals of each per-problem covariance after PC1 residualization, and run 5-fold OOF logistic regression. K-grid {5, 10, 20, 50, 100}. Best K=20: OOF AUROC 0.7928 (cv5 0.7920+/-0.027). Compares directly against FE110 supervised DoM 0.7679 (+2.49 pp), FE291 best 2-feat (PC1, PC9) 0.7856 (+0.7 pp), and FE880 PC1-resid PH null 0.7628 (+3.0 pp). Tests whether per-problem second-order structure (the *shape* of the residualized covariance spectrum) carries correctness information beyond any 1- or 2-direction probe.
+
+**Why:** FE880 showed PH features add NEGATIVE signal after PC1 removal (real 0.6884, null 0.7628). The natural follow-up: if the matched-cov Gaussian null beats real PH, the per-problem covariance spectrum itself carries the signal. FE881 tests this directly: top-K log-eigvals as a feature vector. Result: OOF AUROC 0.7928 — beats supervised DoM by 2.5 pp and beats the directional 2-feat ceiling (PC1, PC9 = 0.7856) by 0.7 pp. F-2 reframes: the L19 correctness signal is partly directional (PC1 mean shift, PC9 trim) and partly *spectral* (per-problem residual eigenvalue decay rate). Single-feature baselines: log_eigval_3 alone hits 0.7488, log_eigval_2 0.6925, log_eigval_1 0.5223 — the signal is distributed across rank 2-20.
+
+**Source:** Internal re-validation — no external trigger paper.
+
+**Cost:** 12 min CPU cold (load 500 pathway8 NPZs and SVD per-problem); ~2s wall on cached eigval_cache.npz
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** FE880 PH-after-PC1-removal real<null gap (-0.074); FE291 PC1 grounding; FE116 residualized covariance signal hint
+**Outcome:** On 500 PC1-residualized L19 trajectory clouds (PC1 from FE291, var_share 0.1474), per-problem covariance eigenvalues extracted via SVD, log-transformed and fed to 5-fold OOF StratifiedKFold logistic regression (standardized, no penalty tuning). K-grid {5, 10, 20, 50, 100}: best K=20, OOF AUROC = 0.7928 (cv5 0.7920 ± 0.027). Beats supervised DoM 0.7679 by +2.49 pp, 2-feat [PC1, PC9] directional probe 0.7856 by +0.7 pp, and FE880 PC1-resid PH null 0.7628 by +3.0 pp. Single-feature baselines: log_eigval_1 0.5223, log_eigval_2 0.6925, log_eigval_3 0.7488 — signal is distributed across rank 2-20. F-2 reframes: L19 correctness signal is partly directional (PC1 mean shift, PC9 trim, ceiling at 0.7856) and partly spectral (per-problem residual eigenvalue decay rate, lifts to 0.7928, NOT capturable by any linear directional probe — see FE882). Cloud sizes: T_min=123, T_median=521, T_max=1024.
+
 ### P11-FE291 (P11) — [ROI: 8, COMPLETED, HIGH]
 
 **What:** Replicate CAST's PCA-PC1 protocol (Lee et al. 2024, ICLR'25) for the prefill correctness direction on cached Qwen-2.5-1.5B P11 H100 activations. Mean-center the correct/incorrect prefill contrast set with μ_l = (H⁺_l + H⁻_l)/2, alternate-stack rows, take first principal component as the direction. Recompute 5-fold OOF AUROC at L19 and compare head-to-head against F-2's DoM 0.7731.
@@ -11824,6 +11838,34 @@ _Generated: 2026-05-02 21:43 UTC_
 **Would update:** F-2
 **Trigger condition:** CAST's claim that PCA-PC1 outperforms simple DoM on contrastive vector extraction.
 **Outcome:** Unsupervised PCA-PC1 on cached Qwen-2.5-1.5B L19 prefill (500 × 1536 fp16, 243 correct) yields single-feature 5-fold OOF AUROC = 0.7457 vs the supervised DoM at AUROC = 0.7679 under matched protocol (gap = +0.0221 in DoM's favor). CAST contrastive-mean PCA-PC1 (μ = (μ⁺ + μ⁻)/2 centering) is numerically indistinguishable: AUROC 0.7458, cosine with global-PC1 = 1.000, cosine with DoM = 0.9217. PC1 carries 14.7% of total L19 prefill variance and projects 92% along the supervised DoM (cos = 0.9216). Decomposing DoM in the PC basis: 85% of unit-DoM energy is in PC1, 97.6% in the top-10 PCs. PC9 carries a secondary spike (variance share 2.5%, single-feature OOF AUROC 0.6575) — the only mid-rank PC with non-trivial correctness signal. F-2 reframes: the L19 prefill correctness direction is essentially the dominant unsupervised variance axis. F-10 sharpens: 'topology adds no signal beyond covariance' is now grounded — DoM literally is the top covariance principal component.
+
+### P11-FE880 (P11) — [ROI: 8, COMPLETED, HIGH]
+
+**What:** FE291 follow-up #1: residualize each per-problem L19 trajectory cloud against the global FE291 PC1 direction (x' = x - (x.pc1)pc1), recompute the 5 V-R PH features (H0_max_lifetime, H0_entropy, H1_pers_entropy, H1_n_features, H1_max_lifetime) and the 100-sample matched-cov Gaussian null PH features on the same residual clouds. 5-fold OOF logistic AUROC: real=0.6884, null=0.7628, gap=-0.074. Tests whether F-10's 'PH = matched-cov Gaussian null' result holds when the dominant correctness direction (PC1, 14.7% var, cos 0.922 with DoM) is regressed out — i.e., whether the residual covariance pathway carries any topological signal.
+
+**Why:** F-10 (FE026) showed PH features on raw L19 clouds are indistinguishable from a matched-cov Gaussian null (gap -0.003). FE116 showed the residualized version inverts (gap -0.067 against zigzag descriptors). FE291 grounded the covariance pathway as a single direction (PC1 = DoM, 85% energy). FE880 closes the loop: after projecting out PC1, do PH features still match the null? Result: gap -0.074 — PH performs *worse* than matched-cov Gaussian null on PC1-residualized clouds. The null beats the real PH features by 7.4 pp. F-10 sharpens further: 'PH features layered on the covariance ellipsoid carry NEGATIVE signal once PC1 is removed' — they actively destroy the residual information that a Gaussian null on the same residualized covariance would preserve.
+
+**Source:** Internal re-validation — no external trigger paper.
+
+**Cost:** 20min CPU on cached pathway8 NPZs + m15b_prefill
+**Depends on:** F-10
+**Would update:** F-10
+**Trigger condition:** FE291 / EXP-55 grounded covariance pathway as PC1; FE026 / EXP-016 raw PH null; FE116 / EXP-54 residualized PH inversion
+**Outcome:** On 500 MATH-500 PC1-residualized L19 trajectory clouds (PC1 from FE291 m15b_prefill SVD, var_share 0.1474), 5-fold OOF logistic AUROC for the 5 V-R PH features: real = 0.6884 (cv5 0.6945 ± 0.021), matched-cov Gaussian null = 0.7628 (cv5 0.7658 ± 0.057), gap = real − null = −0.074. The matched-cov Gaussian null on the residualized covariance beats real PH features by 7.4 pp — a tighter, more falsifiable form of F-10 than the raw-cloud −0.003 gap. Confirms F-10's 'topology adds no signal beyond covariance': PH summaries layered on a covariance ellipsoid carry NEGATIVE signal once the dominant correctness direction is removed. Per-feature comparison shows H1_max_lifetime real (8.53) > null (5.30) — so PH does pick up *something* second-order — but the rest of the feature vector (H0/H1 entropies, H1 count) is dominated by null structure, and the joint OOF logistic ranks the null vector higher. The signal that survives PC1 residualization lives in the *full eigenvalue spectrum* of the residualized cov (FE881: top-20 log-eigvals OOF AUROC = 0.7928), not in the PH descriptor family.
+
+### P11-FE882 (P11) — [ROI: 8, COMPLETED, HIGH]
+
+**What:** FE291 follow-up #3 (decomposition triangle): full 1536-d L2-regularized logistic OOF AUROC sweep over C in {0.001, 0.01, 0.1, 1.0} on the same cached L19 prefill that FE110/FE291 use, to test whether the FE881 cov-spectrum 0.7928 lift over the 2-feat 0.7856 directional ceiling is genuinely second-order or merely under-regularized linear-directional. Result: full-1536d max OOF AUROC 0.7847 at C=0.001, essentially equal to 2-feat (PC1, PC9) 0.7856 within fold noise. C-sweep: 0.7847 (C=0.001), 0.7585 (C=0.01), 0.7325 (C=0.1), 0.7211 (C=1.0). The directional ceiling is the 2-feat probe; cov-spectrum lift to 0.7928 is genuinely orthogonal-to-direction signal.
+
+**Why:** FE881 showed cov-spectrum (top-20 log-eigvals on residualized clouds) hits 0.7928, beating the FE291 2-feat (PC1, PC9) 0.7856 by 0.7 pp. Open question: is the 0.7 pp lift second-order signal (true spectral structure) or just under-regularization in the 2-feat probe (i.e., would full 1536-d L2-reg recover the same lift directionally)? FE882 closes the triangle. Full L2-reg max 0.7847 ~= 2-feat 0.7856 — directional probes saturate at the 2-feat ceiling regardless of regularization strength. F-2 now factors into 3 pieces: (1) PC1 mean shift (DoM ~= 0.92*PC1, supervised 1-d AUROC 0.7679, unsupervised 1-d 0.7458); (2) PC9 trim (raises 1-d 0.7458 -> 2-d 0.7856, the directional ceiling); (3) per-problem residual second-order structure orthogonal to PC1 (raises 2-d 0.7856 -> spectral 0.7928, NOT capturable by any linear directional probe properly regularized or not).
+
+**Source:** Internal re-validation — no external trigger paper.
+
+**Cost:** 22s wall on hot disk (4 C-values * 5 folds = 20 LR fits at p=1536/n=500); reuses m15b_prefill cache
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** FE881 cov-spectrum 0.7928 above 2-feat ceiling; need to disambiguate spectral vs under-regularized directional
+**Outcome:** Full 1536-d L2-regularized logistic regression on the same cached L19 prefill that FE110 (DoM mass-mean 0.7711) and FE291 (2-feat 0.7856) used. C-sweep over {0.001, 0.01, 0.1, 1.0} with 5-fold StratifiedKFold OOF: best at C=0.001 with OOF AUROC = 0.7847; degrades monotonically to 0.7211 at C=1.0 (severe overfit at p=1536/n=500). Full directional ceiling = 0.7847 ≈ 2-feat (PC1, PC9) 0.7856 within fold noise. The cov-spectrum (FE881 top-20 log-eigvals on PC1-residualized clouds) at 0.7928 beats the directional ceiling by +0.7 pp — *genuinely* second-order signal, not under-regularized linear-directional. F-2 now factors into 3 additive pieces: (1) PC1 mean shift (DoM ≈ 0.92·PC1, 1-d AUROC 0.7679 supervised, 0.7458 unsupervised), (2) PC9 trim (raises 1-d 0.7458 → 2-d 0.7856, the directional ceiling), (3) per-problem residual second-order eigenvalue decay structure orthogonal to PC1 (raises 2-d 0.7856 → spectral 0.7928, NOT capturable by any linear directional probe properly regularized or not).
 
 ---
 

@@ -31,19 +31,21 @@ Mid-pipeline-rebuild. Three things landed since the 2026-04-24 STATE:
 
 ## Last experiment completed
 
-EXP-55 (P11-FE291 CAST PCA-PC1 vs supervised DoM at L19). The
-unsupervised dominant variance direction at L19 prefill is the
-supervised correctness direction: PC1 AUROC 0.7458 vs DoM AUROC 0.7679
-(gap +0.022), cosine 0.922. CAST class-mean PCA-PC1 numerically
-matches unsupervised PC1 (Δ AUROC 0.0001). 85% of supervised DoM
-energy lies along PC1, 97.6% in the top-10 PCs. PC1 carries 14.7%
-of L19 prefill variance. **F-2 strengthens** (correctness signal
-dominates the variance budget — label-free recovery) and narrows
-(no hidden supervised structure). **F-10 sharpens** (topology adds
-no signal beyond covariance, now grounded: DoM ≈ top covariance
-eigenvector). PC9 is a small secondary correctness direction
-(AUROC 0.658, var share 2.5%, DoM-coeff 0.225) worth a follow-up
-two-feature probe.
+EXP-58 (P11-FE882 decomposition triangle: full 1536-d L2-reg
+directional ceiling). Full 1536-d L2-reg logistic OOF AUROC sweep
+over C ∈ {0.001, 0.01, 0.1, 1.0}: max **0.7847 at C=0.001**, then
+degrades to 0.7211 at C=1.0 (severe overfit at p=1536/n=500). The
+directional ceiling at L19 is the 2-feat (PC1, PC9) probe at 0.7856
+— full 1536-d L2-reg recovers 0.7847 ≈ 2-feat within fold noise.
+The cov-spectrum (FE881 top-20 log-eigvals) 0.7928 lift above
+0.7856/0.7847 is **genuinely second-order**, not under-regularized
+linear-directional. F-2 now factors into 3 explicit additive pieces:
+(1) PC1 mean shift, (2) PC9 trim (raises 1-d → 2-d 0.7856 directional
+ceiling), (3) per-problem residual second-order eigenvalue decay
+structure orthogonal to PC1 (raises 2-d → spectral 0.7928, NOT
+capturable by any linear direction probe). The causal companion
+test (rank-truncate PC1-residualized covariance per-problem before
+continuation) is the right next move.
 
 ## Queued — next session
 
