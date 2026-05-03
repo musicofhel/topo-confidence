@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>topo-confidence (v1 archive) — see README for current findings</title>
-<meta name="description" content="Archived v1 framing of the topo-confidence research project (April 2026). The 0.796 MATH-500 AUROC headline shown on this page was overturned by a token-truncation correction; current findings (prefill-DoM AUROC 0.7731 on Qwen-2.5-1.5B; persistent homology at the Gaussian null) are in the GitHub README.">
+<title>topo-confidence — selective prediction via prefill residual-stream geometry on Qwen-2.5-1.5B</title>
+<meta name="description" content="Hidden-state geometry as a window into LLM reasoning. A single L19 prefill direction predicts MATH-500 correctness on Qwen-2.5-1.5B at OOF AUROC 0.7731 — and decomposes into directional + per-problem cov-spectrum pieces lifting to 0.7928. Selective prediction at 50% coverage hits 71.6% answered accuracy. The v1 'persistent homology' framing was overturned (PH = matched-cov Gaussian null, F-10) and is preserved as an archive on this page.">
 <style>
 :root {
   --bg: #0a0e17;
@@ -569,28 +569,19 @@ footer a { color: var(--accent); }
 </head>
 <body>
 
-<!-- Supersession banner -->
-<div style="background: #1a1306; border-bottom: 2px solid #fb923c; padding: 18px 0; color: #fed7aa;">
-  <div class="container" style="max-width: 960px; margin: 0 auto; padding: 0 24px; font-size: 0.92rem; line-height: 1.6;">
-    <strong style="color: #fb923c; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.78rem;">Historical snapshot — v1 framing</strong><br>
-    This page reflects the project as of April 19, 2026. The headline <strong>0.796 MATH-500 AUROC</strong> was later shown to be a <code>max_new_tokens=256</code> truncation artifact; at 1024 tokens the corrected baseline is 48.6%, not 20.8%, and the topology-specific signal sits at the Gaussian null (PH AUROC 0.690 vs null 0.693). The current finding is a single L19 prefill direction (DoM) at AUROC 0.7731 on Qwen-2.5-1.5B, enabling 71.6% selective-prediction accuracy at 50% coverage.
-    <br><br>
-    Read the current state in <a href="https://github.com/musicofhel/topo-confidence" style="color: #fb923c; text-decoration: underline;">README.md</a>, <code>QUICKSTART.md</code>, <code>FINDINGS.md</code>, and <code>PROJECT_RECORD.md</code>. The page below is preserved unchanged as a record of the v1 framing.
-  </div>
-</div>
-
 <!-- Hero -->
 <div class="hero">
   <div class="container">
     <h1>topo-confidence</h1>
-    <p class="tagline">Know when your LLM is wrong &mdash; from a single forward pass. Persistent homology on hidden-state geometry predicts correctness where output probabilities fail.</p>
+    <p class="tagline">Selective prediction via prefill residual-stream geometry. A single L19 direction on Qwen-2.5-1.5B predicts MATH-500 correctness at OOF AUROC <strong>0.7731</strong>; the per-problem cov-spectrum lifts it to <strong>0.7928</strong>; refuse-and-spend at 50% coverage answers <strong>71.6%</strong> correctly.</p>
     <div class="hero-buttons">
       <a href="https://github.com/musicofhel/topo-confidence" class="btn btn-primary">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         GitHub
       </a>
-      <a href="#install" class="btn btn-secondary">Get started</a>
-      <a href="#results" class="btn btn-secondary">See results</a>
+      <a href="https://github.com/musicofhel/topo-confidence/blob/main/SYNTHESIS.md" class="btn btn-secondary">Read SYNTHESIS</a>
+      <a href="https://github.com/musicofhel/topo-confidence/blob/main/NOVELTY_AUDIT.md" class="btn btn-secondary">Read NOVELTY_AUDIT</a>
+      <a href="https://github.com/musicofhel/topo-confidence/blob/main/APPLICATIONS.md" class="btn btn-secondary">Read APPLICATIONS</a>
     </div>
   </div>
 </div>
@@ -600,396 +591,242 @@ footer a { color: var(--accent); }
   <div class="container">
     <div class="stat-row">
       <div class="stat">
-        <div class="number accent">0.796</div>
-        <div class="label">AUROC (MATH-500)</div>
+        <div class="number accent" title="prefill-dom-auroc">0.7731</div>
+        <div class="label">Prefill L19 DoM AUROC<br><span style="font-size:0.78rem;opacity:0.7;">Qwen-2.5-1.5B, MATH-500 K=1, OOF 5-fold</span></div>
       </div>
       <div class="stat">
-        <div class="number green">+0.057</div>
-        <div class="label">vs best baseline</div>
+        <div class="number green" title="pca-pc1resid-cov-spectrum-top20-auroc">0.7928</div>
+        <div class="label">Cov-spectrum probe<br><span style="font-size:0.78rem;opacity:0.7;">top-20 log-eigvals, PC1-residualized</span></div>
       </div>
       <div class="stat">
-        <div class="number orange">0 R&rarr;W</div>
-        <div class="label">at tau=0.3 gating</div>
+        <div class="number orange" title="refuse-prefill-acc">71.6%</div>
+        <div class="label">Selective acc @ 50% coverage<br><span style="font-size:0.78rem;opacity:0.7;">avg K=2.5; vs 48.6% unconditional K=1</span></div>
       </div>
     </div>
-    <p class="explainer">44 topological features from a single forward pass on the prompt. No generation, no sampling, no output parsing. The only single-pass method that competes with 32-pass self-consistency baselines on mathematical reasoning.</p>
+    <p class="explainer">All numbers 1024-tok labels, registered in <code>validate_claims.py</code> (172/172 internal PASS). Hover a number to see its claim ID. The "topology" framing was overturned during the program — see archive section below.</p>
   </div>
 </div>
 
-<!-- How it works -->
+<!-- Decomposition triangle -->
 <section>
   <div class="container">
-    <h2>How it works</h2>
-    <div class="pipeline">
-      <div class="pipeline-step">
-        <div class="step-label">Step 1</div>
-        <div class="step-text">Forward pass</div>
-      </div>
-      <div class="pipeline-arrow">&rarr;</div>
-      <div class="pipeline-step">
-        <div class="step-label">Step 2</div>
-        <div class="step-text">Extract hidden states</div>
-      </div>
-      <div class="pipeline-arrow">&rarr;</div>
-      <div class="pipeline-step highlight">
-        <div class="step-label">Step 3</div>
-        <div class="step-text">PCA + Ripser (PH)</div>
-      </div>
-      <div class="pipeline-arrow">&rarr;</div>
-      <div class="pipeline-step">
-        <div class="step-label">Step 4</div>
-        <div class="step-text">44 topo features</div>
-      </div>
-      <div class="pipeline-arrow">&rarr;</div>
-      <div class="pipeline-step">
-        <div class="step-label">Step 5</div>
-        <div class="step-text">P(correct)</div>
-      </div>
-    </div>
-    <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; max-width: 640px; margin: 0 auto;">Each prompt's hidden states at the final transformer layer form a point cloud in R<sup>d</sup>. Persistent homology extracts topological structure &mdash; connected components (H0) and loops (H1). Layer-wise dynamics (cosines, PCA spectrum, SVD ratios) capture how representations evolve across depth. Together: 44 features that predict correctness.</p>
-  </div>
-</section>
-
-<!-- Feature tiers -->
-<section>
-  <div class="container">
-    <h2>44 features in 3 tiers</h2>
-    <div class="tier-grid">
-      <div class="tier-card">
-        <div class="tier-letter">A</div>
-        <div class="tier-count">9 features</div>
-        <div class="tier-auroc" style="color: var(--accent);">0.704</div>
-        <div class="tier-desc">Persistent homology + geometry. H0/H1 entropy, lifetimes, centroid distances, token norms. The irreplaceable anchor.</div>
-      </div>
-      <div class="tier-card">
-        <div class="tier-letter">B</div>
-        <div class="tier-count">30 features</div>
-        <div class="tier-auroc" style="color: var(--accent);">0.761</div>
-        <div class="tier-desc">Layer dynamics. Inter-layer cosines, PCA spectrum ratios, SVD decay. The biggest AUROC boost (+0.057 over A alone).</div>
-      </div>
-      <div class="tier-card">
-        <div class="tier-letter">C</div>
-        <div class="tier-count">5 features</div>
-        <div class="tier-auroc" style="color: var(--accent);">0.732</div>
-        <div class="tier-desc">Depth-2 cross-tier products. Interactions between PH and layer features. Small but consistent lift.</div>
-      </div>
-    </div>
-    <p style="color: var(--text-muted); font-size: 0.88rem; text-align: center; margin-top: 8px;">Combined A+B+C = <strong style="color: var(--accent);">0.796 AUROC</strong>. Adding Tier D (34 depth-3+ features) <em>hurts</em> performance (0.765). No single feature is critical &mdash; the signal is distributed across tiers.</p>
-
-    <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 1.1rem;">Top features by leave-one-out importance</h3>
+    <h2>The decomposition triangle</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">F-2's signal factors into three additive pieces: a directional component (PC1 mean shift + PC9 trim) that saturates at the 2-feature ceiling, plus a per-problem second-order spectral component that lifts above it. Anchor tier in <strong>bold</strong>.</p>
     <table class="results-table">
       <thead>
         <tr>
-          <th>Feature</th>
-          <th>Tier</th>
-          <th>LOO Impact</th>
+          <th>Probe</th>
+          <th>OOF AUROC</th>
+          <th>&Delta; vs DoM 0.7679</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="feat-name">cos_l23_l26</td>
-          <td>B</td>
-          <td class="negative">-0.041</td>
+          <td>1-d DoM (matched protocol)</td>
+          <td class="strong">0.7679</td>
+          <td>&mdash;</td>
         </tr>
         <tr>
-          <td class="feat-name">last5_centroid_dist</td>
-          <td>A</td>
-          <td class="negative">-0.035</td>
+          <td>2-feat (PC1, PC9)</td>
+          <td class="strong">0.7856</td>
+          <td class="positive">+1.77 pp</td>
         </tr>
         <tr>
-          <td class="feat-name">H1_persistence_entropy</td>
-          <td>A</td>
-          <td class="negative">-0.030</td>
+          <td>Full 1536-d L2-reg (best C=0.001)</td>
+          <td>0.7847</td>
+          <td class="positive">+1.68 pp &asymp; 2-feat</td>
         </tr>
-        <tr>
-          <td class="feat-name">cos_l9_l28</td>
-          <td>B</td>
-          <td class="negative">-0.028</td>
-        </tr>
-        <tr>
-          <td class="feat-name">cos_l17_l27</td>
-          <td>B</td>
-          <td class="negative">-0.028</td>
+        <tr style="background: rgba(129,140,248,0.08);">
+          <td><strong>Top-20 log-eigvals of PC1-residualized cov</strong></td>
+          <td class="strong" style="color: var(--accent);"><strong>0.7928</strong></td>
+          <td class="positive"><strong>+2.49 pp</strong></td>
         </tr>
       </tbody>
     </table>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">LOO impact = AUROC drop when feature is removed. Negative = feature helps the model.</p>
+    <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 12px;">The full 1536-d L2-reg ceiling sits at 0.7847 &asymp; 2-feat 0.7856 within fold noise &mdash; so the directional ceiling at L19 saturates at two features. The cov-spectrum lift to 0.7928 is therefore <em>genuinely second-order</em>, not an under-regularized linear-directional artifact. Unsupervised PCA-PC1 recovers DoM (cosine 0.9216) &mdash; the dominant correctness direction is unsupervised-identifiable.</p>
   </div>
 </section>
 
-<!-- Cross-benchmark results -->
-<section id="results">
-  <div class="container">
-    <h2>Cross-benchmark results (deconfounded)</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">All results corrected for answer extraction bugs, PCA leakage, and token truncation confounds (Phase 6.5, April 2026). Numbers you can trust.</p>
-
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Configuration</th>
-          <th>Accuracy</th>
-          <th>Topo AUROC</th>
-          <th>Best Baseline</th>
-          <th>Gap</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Qwen2.5-1.5B &times; MATH-500</td>
-          <td>104/500 (20.8%)</td>
-          <td class="strong">0.796</td>
-          <td>vote_margin 0.767</td>
-          <td class="positive">+0.057</td>
-          <td><span class="badge badge-green">Established</span></td>
-        </tr>
-        <tr>
-          <td>Qwen2.5-7B &times; MATH-500</td>
-          <td>348/500 (69.6%)</td>
-          <td class="strong">0.739</td>
-          <td>first_token 0.637</td>
-          <td class="positive">+0.102</td>
-          <td><span class="badge badge-green">Genuine</span></td>
-        </tr>
-        <tr>
-          <td>Qwen2.5-1.5B &times; GSM8K</td>
-          <td>871/1319 (66.0%)</td>
-          <td>0.615</td>
-          <td>neg_entropy 0.741</td>
-          <td class="negative">-0.126</td>
-          <td><span class="badge badge-red">Baseline wins</span></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="correction-banner">
-      <strong>Transparency note:</strong> Initial AUROC was reported as 0.948. After fixing answer extraction false negatives (+47 problems), PCA holdout leakage, and a token truncation confound (max_new_tokens=256 truncated 64% of GSM8K and 90% of 7B outputs), the corrected number is 0.796. Topo features show genuine signal on MATH-500 but do not generalize to GSM8K.
-    </div>
-
-    <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 1.1rem;">Transfer experiments</h3>
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Source &rarr; Target</th>
-          <th>Transfer AUROC</th>
-          <th>Interpretation</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1.5B MATH &rarr; GSM8K</td>
-          <td>0.504</td>
-          <td style="color: var(--text-muted);">Chance level &mdash; no transfer</td>
-        </tr>
-        <tr>
-          <td>1.5B MATH &rarr; 7B MATH</td>
-          <td class="positive">0.611</td>
-          <td style="color: var(--text-muted);">Weak cross-model transfer</td>
-        </tr>
-        <tr>
-          <td>GSM8K &rarr; 7B MATH</td>
-          <td class="positive">0.608</td>
-          <td style="color: var(--text-muted);">Weak cross-config transfer</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- Baseline comparison -->
+<!-- What was overturned -->
 <section>
   <div class="container">
-    <h2>vs. baselines (MATH-500 holdout)</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">Topo-confidence is the only single-pass method that competes with 32-pass self-consistency baselines. Single-pass logprob methods (entropy, first token prob) are near chance on this task.</p>
-    <div class="bar-chart">
-      <div class="bar-row">
-        <span class="bar-label">Topo-confidence (1 pass)</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 79.6%;">0.796</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Vote margin (32 pass)</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 76.7%;">0.767</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">P(majority) (32 pass)</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 70.8%; opacity: 0.8;">0.708</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Neg agreement entropy (32 pass)</span>
-        <div class="bar-track"><div class="bar-fill orange" style="width: 61.7%;">0.617</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Inv answer diversity (32 pass)</span>
-        <div class="bar-track"><div class="bar-fill orange" style="width: 59.3%;">0.593</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Mean max token prob (1 pass)</span>
-        <div class="bar-track"><div class="bar-fill muted" style="width: 51.4%;">0.514</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Neg mean entropy (1 pass)</span>
-        <div class="bar-track"><div class="bar-fill muted" style="width: 50.8%;">0.508</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">First token prob (1 pass)</span>
-        <div class="bar-track"><div class="bar-fill muted" style="width: 47.2%;">0.472</div></div>
-      </div>
+    <h2>What was overturned</h2>
+    <div class="correction-banner" style="background: rgba(248,113,113,0.08); border-left: 3px solid var(--red); padding: 16px 20px; margin-bottom: 24px;">
+      <strong style="color: var(--red);">Truncation-artifact retraction.</strong> The original headline &mdash; <code>ABC-44 AUROC 0.796 on MATH-500</code> &mdash; ran against labels generated with <code>max_new_tokens=256</code>. The 1.5B model only emitted 104/500 correct answers under that truncation, vs 243/500 (48.6%) at 1024 tokens. Every downstream cross-scale and cross-benchmark claim derived from the 256-tok labels was 2.3&times; off. Full graveyard at <a href="https://github.com/musicofhel/topo-confidence/blob/main/PROJECT_RECORD.md">PROJECT_RECORD.md &sect;1d</a>.
     </div>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">Holdout n=100, Qwen2.5-1.5B-Instruct on MATH-500. 95% CI for topo: [0.671, 0.907].</p>
+    <ul style="color: var(--text); font-size: 0.95rem; line-height: 1.85; padding-left: 24px;">
+      <li><strong>Persistent homology &ne; topology.</strong> PH features on raw L19 clouds match a rank-matched Gaussian null (real 0.6907 vs null 0.7627; F-10). On PC1-residualized clouds, PH <em>strengthens</em> against the matched-cov null in the wrong direction by 12.4 pp &mdash; F-10 holds (FE880, 2026-05-02).</li>
+      <li><strong>Cross-scale &laquo;7B is a stronger verifier&raquo;</strong> &mdash; 256-tok artifact. At 1024 tokens, 7B&rarr;1.5B transfer 0.717 vs 1.5B self 0.719: no asymmetry.</li>
+      <li><strong>Fixed-vector steering.</strong> The correctness axis rotates through generation; cos(prefill_DoM, final_DoM) = 0.046. Final-token-fit vectors injected at position 15 are geometrically random.</li>
+      <li><strong>CoE-60 &gt; single-layer DoM</strong> &mdash; on 1024-tok labels, +0.004 in favor of DoM (cross-domain transfer). CoE is redundant.</li>
+      <li><strong>Monotonic prefill compute gating.</strong> The B-bucket (K=8-recoverable) lives at <em>middle</em> prefill score, not bottom. Negative-sequence-length gating is Pareto-dominant.</li>
+    </ul>
   </div>
 </section>
 
-<!-- Gated majority vote -->
+<!-- v1 archive -->
 <section>
   <div class="container">
-    <h2>Gated majority vote: zero regressions</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 16px;">Use topo-confidence as a gate for majority voting. At tau=0.3, the model <em>never</em> makes a correct answer worse (0 R&rarr;W). The tradeoff is coverage: lower tau means fewer questions answered but higher safety.</p>
+    <details style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px;">
+      <summary style="cursor: pointer; font-size: 1.1rem; font-weight: 600; color: var(--text-muted);">v1 archive (April 2026) &mdash; click to expand</summary>
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.92rem;">
+        <p style="margin-bottom: 16px;"><strong style="color: var(--orange);">Historical snapshot.</strong> The panels below reflect the project's v1 "persistent homology of hidden-state token clouds predicts correctness" framing. The 0.796 MATH-500 AUROC headline was a <code>max_new_tokens=256</code> truncation artifact; current findings supersede this section. Preserved here as a record of the framing the program started from.</p>
+      </div>
 
-    <div class="tau-chart">
-      <div class="tau-bar">
-        <div class="bar" style="height: 0px; background: var(--border);">
-          <span class="bar-val" style="color: var(--text-muted);">0</span>
+      <!-- v1: Headline stats -->
+      <div class="headline" style="margin-top: 0; opacity: 0.8;">
+        <div class="container">
+          <div class="stat-row">
+            <div class="stat">
+              <div class="number accent">0.796</div>
+              <div class="label">v1 AUROC (MATH-500, 256-tok &mdash; superseded)</div>
+            </div>
+            <div class="stat">
+              <div class="number green">+0.057</div>
+              <div class="label">vs best baseline (256-tok)</div>
+            </div>
+            <div class="stat">
+              <div class="number orange">0 R&rarr;W</div>
+              <div class="label">at tau=0.3 gating (256-tok)</div>
+            </div>
+          </div>
+          <p class="explainer">v1 framing: 44 topological features from a single forward pass on the prompt. No generation, no sampling, no output parsing. The only single-pass method that competed with 32-pass self-consistency baselines on mathematical reasoning &mdash; until the 1024-tok rebuild showed the comparator was truncation-confounded.</p>
         </div>
-        <span class="bar-label-bottom">&tau;=0.1</span>
       </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 14px; background: linear-gradient(180deg, #34d399, #059669);">
-          <span class="bar-val" style="color: var(--green);">+1</span>
-          <span class="rw-label">0 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">&tau;=0.2</span>
-      </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 56px; background: linear-gradient(180deg, #34d399, #059669);">
-          <span class="bar-val" style="color: var(--green);">+4</span>
-          <span class="rw-label">0 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">&tau;=0.3</span>
-      </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 84px; background: linear-gradient(180deg, #818cf8, #4f46e5);">
-          <span class="bar-val" style="color: var(--accent);">+6</span>
-          <span class="rw-label">1 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">&tau;=0.4</span>
-      </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 112px; background: linear-gradient(180deg, #818cf8, #4f46e5);">
-          <span class="bar-val" style="color: var(--accent);">+8</span>
-          <span class="rw-label">1 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">&tau;=0.5</span>
-      </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 168px; background: linear-gradient(180deg, #818cf8, #4f46e5);">
-          <span class="bar-val" style="color: var(--accent);">+12</span>
-          <span class="rw-label">1 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">&tau;=0.6</span>
-      </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 154px; background: linear-gradient(180deg, #fb923c, #c2410c);">
-          <span class="bar-val" style="color: var(--orange);">+11</span>
-          <span class="rw-label">2 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">&tau;=0.7</span>
-      </div>
-      <div class="tau-bar">
-        <div class="bar" style="height: 168px; background: linear-gradient(180deg, #fb923c, #c2410c); opacity: 0.7;">
-          <span class="bar-val" style="color: var(--orange);">+12</span>
-          <span class="rw-label">2 R&rarr;W</span>
-        </div>
-        <span class="bar-label-bottom">Ungated</span>
-      </div>
-    </div>
-    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">Net gain = (wrong&rarr;right) - (right&rarr;wrong) from 32-sample majority vote on holdout (n=100). Green bars = zero regressions.</p>
-  </div>
-</section>
 
-<!-- Speed -->
-<section>
-  <div class="container">
-    <h2>Negligible overhead</h2>
-    <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">The entire feature pipeline &mdash; PCA projection, persistent homology via Ripser, 44 features, logistic regression &mdash; adds less than 0.01s per problem. All the cost is in the model forward pass you're already doing.</p>
-    <div class="bar-chart">
-      <div class="bar-row">
-        <span class="bar-label">Model forward pass</span>
-        <div class="bar-track"><div class="bar-fill accent" style="width: 100%;">~4s</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">Topo features (PCA + Ripser)</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 0.18%;">0.007s</div></div>
-      </div>
-      <div class="bar-row">
-        <span class="bar-label">LR prediction</span>
-        <div class="bar-track"><div class="bar-fill green" style="width: 0.005%;"><span style="position:absolute;left:8px;">&lt;0.001s</span></div></div>
-      </div>
-    </div>
-  </div>
-</section>
+      <!-- v1: How it works -->
+      <section>
+        <div class="container">
+          <h2>How it worked (v1)</h2>
+          <div class="pipeline">
+            <div class="pipeline-step">
+              <div class="step-label">Step 1</div>
+              <div class="step-text">Forward pass</div>
+            </div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">
+              <div class="step-label">Step 2</div>
+              <div class="step-text">Extract hidden states</div>
+            </div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step highlight">
+              <div class="step-label">Step 3</div>
+              <div class="step-text">PCA + Ripser (PH)</div>
+            </div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">
+              <div class="step-label">Step 4</div>
+              <div class="step-text">44 topo features</div>
+            </div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">
+              <div class="step-label">Step 5</div>
+              <div class="step-text">P(correct)</div>
+            </div>
+          </div>
+          <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem; max-width: 640px; margin: 0 auto;">Each prompt's hidden states at the final transformer layer formed a point cloud in R<sup>d</sup>. Persistent homology extracted topological structure &mdash; connected components (H0) and loops (H1). Layer-wise dynamics (cosines, PCA spectrum, SVD ratios) captured how representations evolve across depth. Together: 44 features. <strong>F-10 (PH = Gaussian null) overturned this framing.</strong></p>
+        </div>
+      </section>
 
-<!-- Install + Usage -->
-<section id="install">
-  <div class="container">
-    <h2>Get started</h2>
-    <div class="install-box">
-      <span class="prompt">$</span>
-      <span class="cmd">pip install -e .</span>
-    </div>
+      <!-- v1: Feature tiers -->
+      <section>
+        <div class="container">
+          <h2>44 features in 3 tiers (v1, 256-tok)</h2>
+          <div class="tier-grid">
+            <div class="tier-card">
+              <div class="tier-letter">A</div>
+              <div class="tier-count">9 features</div>
+              <div class="tier-auroc" style="color: var(--accent);">0.704</div>
+              <div class="tier-desc">Persistent homology + geometry. H0/H1 entropy, lifetimes, centroid distances, token norms.</div>
+            </div>
+            <div class="tier-card">
+              <div class="tier-letter">B</div>
+              <div class="tier-count">30 features</div>
+              <div class="tier-auroc" style="color: var(--accent);">0.761</div>
+              <div class="tier-desc">Layer dynamics. Inter-layer cosines, PCA spectrum ratios, SVD decay.</div>
+            </div>
+            <div class="tier-card">
+              <div class="tier-letter">C</div>
+              <div class="tier-count">5 features</div>
+              <div class="tier-auroc" style="color: var(--accent);">0.732</div>
+              <div class="tier-desc">Depth-2 cross-tier products. Interactions between PH and layer features.</div>
+            </div>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.88rem; text-align: center; margin-top: 8px;">Combined A+B+C = <strong style="color: var(--accent);">0.796 AUROC</strong> (256-tok). The 256-tok rebuild at 1024 tokens showed the topology-specific signal sits at the matched-cov Gaussian null.</p>
+        </div>
+      </section>
 
-    <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">Python API</h3>
+      <!-- v1: Cross-benchmark results -->
+      <section>
+        <div class="container">
+          <h2>Cross-benchmark results (v1, 256-tok)</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px;">All numbers below are <strong style="color: var(--orange);">256-tok labels</strong> &mdash; superseded by the 1024-tok rebuild.</p>
+
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Configuration</th>
+                <th>Accuracy</th>
+                <th>Topo AUROC</th>
+                <th>Best Baseline</th>
+                <th>Gap</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Qwen2.5-1.5B &times; MATH-500</td>
+                <td>104/500 (20.8%) &mdash; truncation</td>
+                <td class="strong">0.796</td>
+                <td>vote_margin 0.767</td>
+                <td class="positive">+0.057</td>
+              </tr>
+              <tr>
+                <td>Qwen2.5-7B &times; MATH-500</td>
+                <td>348/500 (69.6%)</td>
+                <td class="strong">0.739</td>
+                <td>first_token 0.637</td>
+                <td class="positive">+0.102</td>
+              </tr>
+              <tr>
+                <td>Qwen2.5-1.5B &times; GSM8K</td>
+                <td>871/1319 (66.0%)</td>
+                <td>0.615</td>
+                <td>neg_entropy 0.741</td>
+                <td class="negative">-0.126</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="correction-banner" style="margin-top: 16px;">
+            <strong>Transparency note:</strong> Initial AUROC was reported as 0.948. Phase 6.5 (April 2026) found three confounds: answer-extraction false negatives, PCA holdout leakage, and the <code>max_new_tokens=256</code> truncation. The 1024-tok rebuild later showed the correct 1.5B baseline is 48.6% (243/500), not 20.8%. The PH-specific signal sits at the matched-cov Gaussian null; the surviving signal is a single L19 prefill direction (DoM).
+          </div>
+        </div>
+      </section>
+
+      <!-- v1: Install -->
+      <section id="install">
+        <div class="container">
+          <h2>Get started (v1 reference impl)</h2>
+          <p style="color: var(--text-muted); font-size: 0.92rem;">The <code>topo_confidence</code> Python package (v0.2.0) is the v1-framing reference implementation. The headline result it computes (AUROC 0.796 on MATH-500) is the 256-tok number, kept for reproducibility of the historical claim. Current findings live in the <code>pathway11_h100/</code> directory of the GitHub repo.</p>
+          <div class="install-box" style="margin-top: 16px;">
+            <span class="prompt">$</span>
+            <span class="cmd">pip install -e .</span>
+          </div>
+
 <pre><code><span class="kw">from</span> topo_confidence <span class="kw">import</span> <span class="fn">TopoConfidence</span>
 
 tc = <span class="fn">TopoConfidence</span>(<span class="str">"Qwen/Qwen2.5-1.5B-Instruct"</span>)
 tc.<span class="fn">calibrate</span>(calibration_prompts, calibration_labels)
-
-<span class="cm"># Predict confidence on new problems</span>
-confidences = tc.<span class="fn">predict_confidence</span>([<span class="str">"What is 2+2?"</span>, <span class="str">"Prove the Riemann Hypothesis"</span>])
-
-<span class="cm"># Only answer when confident</span>
-results = tc.<span class="fn">selective_predict</span>(problems, threshold=<span class="num">0.7</span>)</code></pre>
-
-    <h3 style="margin: 28px 0 12px; font-size: 1.1rem;">CLI</h3>
-<pre><code><span class="cm"># Score prompts</span>
-$ topo-confidence score <span class="str">"What is 2+2?"</span>
-
-<span class="cm"># Calibrate on labeled data</span>
-$ topo-confidence calibrate data.jsonl -o calibrated.pkl
-
-<span class="cm"># Selective prediction</span>
-$ topo-confidence selective -c calibrated.pkl -f problems.txt -t <span class="num">0.7</span></code></pre>
+confidences = tc.<span class="fn">predict_confidence</span>([<span class="str">"What is 2+2?"</span>, <span class="str">"Prove the Riemann Hypothesis"</span>])</code></pre>
+        </div>
+      </section>
+    </details>
   </div>
 </section>
-
-<!-- Applications -->
-<section>
-  <div class="container">
-    <h2>Applications</h2>
-    <div class="card-grid">
-      <div class="card">
-        <h3>Topo-gated majority vote</h3>
-        <p>Gate majority voting with topo-confidence. At tau=0.3: zero regressions, 89% sample savings with adaptive sampling.</p>
-      </div>
-      <div class="card">
-        <h3>Model routing</h3>
-        <p>Route low-confidence queries to a stronger model. Single-pass scoring means no generation overhead for the routing decision.</p>
-      </div>
-      <div class="card">
-        <h3>Agentic verification</h3>
-        <p>Per-step confidence without multi-sampling. Know which reasoning steps to trust before committing to an action.</p>
-      </div>
-      <div class="card">
-        <h3>Training data filtering</h3>
-        <p>Select high-confidence synthetic data for fine-tuning. Better signal from the same generation budget.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- Footer -->
 <footer>
   <div class="container">
-    <p>topo-confidence &middot; MIT License &middot; <a href="https://github.com/musicofhel/topo-confidence">GitHub</a> &middot; Built on <a href="https://github.com/musicofhel/att-docs">ATT research</a> &middot; Updated April 2026</p>
+    <p>topo-confidence &middot; MIT License &middot; <a href="https://github.com/musicofhel/topo-confidence">GitHub</a> &middot; Built on <a href="https://github.com/musicofhel/att-docs">ATT research</a> &middot; Updated 2026-05-03</p>
   </div>
 </footer>
 

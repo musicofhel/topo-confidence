@@ -276,6 +276,40 @@ correct at truncated 256 tokens. At 1024 tokens the 1.5B gets **243 / 500
 correct** (48.6%, not 20.8%). Every downstream claim gets re-baselined in
 Pathway 11.
 
+### Pathway 11 follow-on — FE291 PCA cascade (2026-05-02)
+
+After the cheap-wins phase (FE110/115/136/244/319/331/339/254 — corroborators
+and orthogonality probes promoted 2026-04-30 → 2026-05-01), the FE291 PCA
+decomposition kicked off the second-order cascade and resolved with three
+follow-ups that landed as commit `39c264f`:
+
+| EXP | FE | Question | Result |
+|---|---|---|---|
+| EXP-55 | FE291 | PCA structure of L19 prefill activations | DoM ≈ 0.92·PC1; 14.7% var; 2-feat (PC1,PC9) → 0.7856 vs DoM 0.7679 |
+| EXP-56 | FE880 | PH on PC1-residualized point clouds | Real PH 0.6884 vs matched-cov Gaussian null 0.7628 (gap −0.074) — F-10 strengthens |
+| EXP-57 | FE881 | Top-20 log-eigvals of PC1-residualized cov | **0.7928** — strongest L19 probe at any tier |
+| EXP-58 | FE882 | Full 1536-d L2-reg directional ceiling | 0.7847 at C=0.001 ≈ 2-feat 0.7856; cov-spectrum lift is genuinely second-order |
+
+The FE291 cascade gave F-2 a clean factorization into three additive pieces
+(PC1 mean shift, PC9 trim, per-problem residual second-order shape) and
+gave F-10 a pre-registered overturning-condition test that failed by 12.4 pp
+in the wrong direction.
+
+### Synthesis cascade — three practitioner docs (2026-05-03)
+
+No experiments ran. Three documents synthesizing the FE291 cascade landed:
+
+- `SYNTHESIS.md` (375 lines) — practitioner briefing.
+- `NOVELTY_AUDIT.md` (469 lines) — F-N rankings vs research-graph.
+- `APPLICATIONS.md` (387 lines) — deployment surfaces with checklists.
+
+Plus this session (2026-05-03 evening) propagated the synthesis into the
+intent-layer narrative docs (README, QUICKSTART, CLAUDE, STATE,
+PROJECT_RECORD, HYPOTHESES, FINDINGS audit, PERSPECTIVES, NEXT_EXPERIMENTS,
+PAPER_INDEX, RESEARCH_GRAPH) and rewrote `docs/index.html` from a v1 archive
+landing page into a current-state landing page with the v1 panels folded
+under a `<details>` archive section.
+
 ---
 
 ## 1b. Provenance table — every cited number, every source
@@ -668,6 +702,26 @@ program killed them.
 - **Implication.** Every prior baseline framing was 2.3× off. Any paper-like
   narrative using the 20.8% number needs footnoting or rewriting.
 
+### Negative-result-that-strengthened-a-finding (2026-05-02 FE880)
+
+Not a graveyard entry in the usual sense — a pre-registered overturning
+condition for F-10 that was tested and failed in a way that strengthened
+the finding. Logged here so the test-and-result is on file.
+
+- **What.** F-10 says PH = matched-cov Gaussian null on raw L19 clouds.
+  The pre-registered overturning condition was: if PH features on
+  PC1-residualized clouds beat matched-cov Gaussian null by ≥ 0.05, the
+  finding flips ("PH carries non-covariance signal once the dominant
+  direction is removed").
+- **Outcome.** Real PH on PC1-residualized clouds reached AUROC **0.6884**
+  vs matched-cov Gaussian null **0.7628**, gap **−0.074**. The condition
+  failed by 12.4 pp in the wrong direction.
+- **Source.** `pathway11_h100/ph_residuals/pc1_resid_results.json` (FE880,
+  EXP-56, 2026-05-02).
+- **Implication.** F-10 strengthens. PH does not survive PC1 removal —
+  matched-cov Gaussian null on the residualized covariance does. The
+  cov-spectrum probe (FE881, 0.7928) reads what's left after PC1 is gone.
+
 ---
 
 ## 1e. Open questions — next-experiment designs
@@ -883,17 +937,21 @@ Comprehensive file inventory. Organized by pathway. Filter out `.venv/*`,
 | `LICENSE` | 1 KB | — |
 | `runpod_launch.sh` | 3.9 KB | Historical RunPod launcher (Pathway 6.5 era). |
 | `experiments.log` / `experiments_remaining.log` | 16 / 93 KB | Pathway-1 era running log. |
-| `validate_claims.py` | new | Provenance validator (91 claims). |
-| `validation_report.txt` | new | Output of the above. |
+| `validate_claims.py` | 2026-05-03 | Provenance validator (172/172 internal PASS, 216 claims tracked). |
+| `validation_report.txt` | 2026-05-03 | Output of the above. |
+| `SYNTHESIS.md` | 2026-05-03, 18.7 KB | 10-min practitioner briefing. What survived / overturned / new. |
+| `NOVELTY_AUDIT.md` | 2026-05-03, 21.5 KB | F-1..F-10 ranked novel / refines / parallel-discovery vs research-graph. |
+| `APPLICATIONS.md` | 2026-05-03, 17.8 KB | Six deployment surfaces with honest production checklists. |
 | `QUICKSTART.md` | new | Cold-pickup one-pager. |
 | `DATA_MANIFEST.md` | new | Cached-activation inventory. |
 | `PERSPECTIVES.md` | new | Reflective notes. |
-| `EXPERIMENT_LOG.md` | new | Running log (EXP-### entries). |
+| `EXPERIMENT_LOG.md` | new | Running log (EXP-### entries; EXP-58 latest). |
 | `PAPER_INDEX.md` | new | Paper-to-repo bridge. |
-| `HYPOTHESES.md` | new | Priority queue of untested hypotheses. |
+| `HYPOTHESES.md` | new | Priority queue of untested hypotheses (H-1..H-22+). |
 | `STATE.md` | new | Where-was-I snapshot (overwritten). |
-| `FINDINGS.md` | new | Registry of surviving findings. |
+| `FINDINGS.md` | new | Registry of surviving findings (F-1..F-10). |
 | `figures/` | new | Consolidated PNG archive. |
+| `handoff/` | new | Per-session handoff notes. |
 
 ### Pathway 1 (2026-04-04 → 12)
 

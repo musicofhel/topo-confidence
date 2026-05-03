@@ -37,14 +37,14 @@ control) rejected the AR-mechanics null.
 
 **Controls not yet run:**
 - Penultimate-token PR vs last-token (answer-vocabulary concentration null)
-  — see PERSPECTIVES "strongest criticism" section.
+  — H-699; see PERSPECTIVES "strongest criticism" section.
 - Code-generation benchmarks (HumanEval) — H-3.
 - Short-CoT trajectory (20-40 tokens) — H-2.
 
 **Strongest counterargument:** The final-token PR collapse may be driven
 partly by the answer-token vocabulary being small (numbers, boxed LaTeX).
 Mitigation: measure PR on penultimate token and on the residual minus
-answer-token embedding — not yet done.
+answer-token embedding — H-699 (filed 2026-05-03, not yet run).
 
 **Would be overturned by:** A short-CoT run (20-40 tokens) showing flat PR
 across positions would indicate breathing is a long-generation artifact,
@@ -108,12 +108,16 @@ continuation; measure correctness drop. Without that, F-2's
 spectral piece is observational-only.
 
 **Would be overturned by:** (a) Causal noising/ablation at L19
-(FE283/FE214/FE269) preserving accuracy → F-2 is correlation-only;
+(FE283/FE214/FE269 + H-701 rank-truncate-cov-spectrum companion)
+preserving accuracy → F-2 is correlation-only;
 (b) cov-spectrum AUROC dropping below 2-feat 0.7856 on held-out
 nested 5×5 CV → fold-noise lift; (c) cross-checkpoint PC1+PC9
 rotation > cos 0.5 across HF Qwen 1.5B checkpoints → directional
 ceiling itself is not robust; (d) cov-spectrum AUROC ≪ 0.7 on a
-non-MATH-500 benchmark via cached activations.
+non-MATH-500 benchmark via cached activations; (e) cross-architecture
+prefill DoM AUROC ≤ 0.6 on Phi-3 / Llama-3.2-1B (H-698) → F-2 is
+Qwen-specific; (f) PC9 ≈ length axis (H-700) → directional ceiling
+collapses to "DoM + length feature."
 
 ### F-3: Prefill and final-token DoM directions are orthogonal, *structurally — not positionally*
 
@@ -191,7 +195,7 @@ direction on all).
 - Balance-controlled (n=134 vs 134): 7B ratio 0.381, 1.5B 0.511.
 
 **Controls not yet run:**
-- Answer-vocabulary null (see F-1 controls).
+- Answer-vocabulary null (see F-1 controls; H-699).
 - Is "tighter final PR" predictive *within* the correct group of confidence
   (e.g., K=8 majority-correct vs K=1-only-correct)? — H-9 adjacent.
 

@@ -2,50 +2,41 @@
 
 *Overwritten at the end of every session. Not appended. For append-only history see `EXPERIMENT_LOG.md`.*
 
-**Date:** 2026-05-01
+**Date:** 2026-05-03
 
 ## Where the project actually is
 
-Mid-pipeline-rebuild. Three things landed since the 2026-04-24 STATE:
+Synthesis cascade complete. Three practitioner-facing docs landed
+2026-05-03 and have now been propagated through the intent-layer narrative
+docs (this session). Branch `max-depth-retriage-2026-04-28` is pushed.
+`validate_claims.py` invariant: **172/172 internal PASS, 127/127 Tier-1
+regen PASS, 216 claims tracked total** (172 internal + 41 external + 3
+PENDING_FE). No experiments ran this session — narrative-doc work only.
 
-1. **Max-depth research-graph re-triage (commit `509cead` on branch
-   `max-depth-retriage-2026-04-28`).** All 221 papers reach `status='graphed'`,
-   queue empty (`pending_triage = 0`). 24 new structured briefs promoted
-   through `promote_brief.py` end-to-end (FE/H/PAPER_INDEX nodes + queue
-   regen). The "two-stage cheap+deep" framing was dropped — every admitted
-   paper now gets the same maximum-depth pass.
-2. **`validate_claims.py` extended with `kind` field.** Three Claim modes:
-   - `internal` — back-checked against committed JSONs (PASS/FAIL)
-   - `external` — paper-cited anchor, registered without readback (REGISTERED)
-   - `forward_looking` — H-N acceptance threshold, becomes live when the
-     corresponding FE result JSON lands (PENDING_FE)
-   Current state (post-2026-05-01 Phase 2/3 cheap-wins promote chain):
-   **178 claims = 134 PASS / 41 REGISTERED / 3 PENDING_FE / 0 FAIL.**
-   Tier-1 regen annotates 105 of the 134 internals with cached-intermediate
-   recompute commands (FE749 spectral α excluded — regen takes ~2h45m,
-   exceeds the 600s per-claim timeout; readback only on Tier-0).
-3. **13 new Tier-1 regen scripts** under `pathway11_h100/`. CLAUDE.md, working
-   norms, and the claims-gate description in `promote_brief.py` updated to
-   reflect the claims invariant (now 134/41/3 = 178 after this session's
-   Phase 2/3 promote chain; was 91/41/3 = 135 before).
+The FE291 PCA cascade (FE880, FE881, FE882) landed 2026-05-02 as
+commit 39c264f. The synthesis docs distill those + every prior finding
+into one practitioner briefing.
 
-## Last experiment completed
+## Last documents completed
 
-EXP-58 (P11-FE882 decomposition triangle: full 1536-d L2-reg
-directional ceiling). Full 1536-d L2-reg logistic OOF AUROC sweep
-over C ∈ {0.001, 0.01, 0.1, 1.0}: max **0.7847 at C=0.001**, then
-degrades to 0.7211 at C=1.0 (severe overfit at p=1536/n=500). The
-directional ceiling at L19 is the 2-feat (PC1, PC9) probe at 0.7856
-— full 1536-d L2-reg recovers 0.7847 ≈ 2-feat within fold noise.
-The cov-spectrum (FE881 top-20 log-eigvals) 0.7928 lift above
-0.7856/0.7847 is **genuinely second-order**, not under-regularized
-linear-directional. F-2 now factors into 3 explicit additive pieces:
-(1) PC1 mean shift, (2) PC9 trim (raises 1-d → 2-d 0.7856 directional
-ceiling), (3) per-problem residual second-order eigenvalue decay
-structure orthogonal to PC1 (raises 2-d → spectral 0.7928, NOT
-capturable by any linear direction probe). The causal companion
-test (rank-truncate PC1-residualized covariance per-problem before
-continuation) is the right next move.
+- `SYNTHESIS.md` (2026-05-03, 375 lines) — 10-min practitioner briefing.
+  What survived (DoM 0.7731, selective 71.6%, decomposition triangle),
+  what was overturned (PH=null, 256-tok artifacts, fixed-vector steering,
+  CoE redundant), what is new (cov-spectrum 0.7928, F-10 strengthening,
+  CAST PC1 ≈ supervised DoM), 8 honest open questions.
+- `NOVELTY_AUDIT.md` (2026-05-03, 469 lines) — F-1..F-10 ranked novel /
+  refines-prior-work / parallel-discovery against the 220-paper
+  research-graph. Cov-spectrum probe ranked #1 novel; F-2 AUROC
+  parallel-discovery on Qwen-VL-7B (Zhu 2509.12886).
+- `APPLICATIONS.md` (2026-05-03, 387 lines) — 6 deployment surfaces with
+  honest "what would have to be true for production" checklists.
+  Selective serving for small-model APIs ranked first to ship.
+- `handoff/2026-05-03-intent-layer-and-githubio-update.md` — the queued
+  next-session plan that drove this session's work.
+
+The last experiment was EXP-58 (P11-FE882 decomposition triangle: full
+1536-d L2-reg directional ceiling, 0.7847 at C=0.001) on 2026-05-02.
+Cov-spectrum 0.7928 above 0.7856/0.7847 is genuinely second-order.
 
 ## Queued — next session
 
@@ -114,14 +105,21 @@ The cheap-wins plan does NOT require pod resumption — all CPU and 2060-local.
 
 ## Open threads for next session
 
-1. **Kickoff**: Phase -1 re-validation in PLAN_cheap_wins.md. Block on any
-   failure, fix root cause, then proceed.
-2. **First cheap-win lands through `promote_result.py`** — built and
-   dry-run smoke-tested 2026-04-30. Run end-to-end (without --dry-run) on
-   the first real FE result so any remaining rough edges surface
-   immediately.
-3. **`pathway11_h100/` is NOT in the GitHub remote** — back up if the local
+1. **Causal companion test for F-2.** The rank-truncate-PC1-residualized-cov
+   ablation (the natural follow-up to the cov-spectrum 0.7928 result) is
+   not yet a `:FutureExperiment` node — file as one. Top priority on the
+   queue once the next experiment session starts.
+2. **Cross-architecture replication of F-2.** Phi-3-mini and Llama-3.2-1B
+   1024-tok caches exist in `pathway11_h100/exp1_cross_model/`; the prefill
+   DoM AUROC has not been computed for them yet. Cheap (~1h CPU each).
+3. **12 untriaged Discord-admitted papers** in research-graph Neo4j
+   (status NULL, missed by `query.py pending` CLI filter). Reconciliation
+   procedure documented in
+   `handoff/2026-05-03-findings-synthesis-and-applications.md` "Open queue
+   item 1".
+4. **`pathway11_h100/` is NOT in the GitHub remote** — back up if the local
    disk is at risk.
-4. **Branch state**: `max-depth-retriage-2026-04-28` is pushed but not merged
-   to main. Decide whether to merge before starting Phase 1 work or keep the
+5. **Branch state**: `max-depth-retriage-2026-04-28` is pushed (head
+   1bd0c1b after synthesis cascade). Not merged to main. Decide whether
+   to merge before starting Phase 1 / causal-companion work or keep the
    branch live.

@@ -4,9 +4,11 @@
 
 Three weeks of experiments (April 2026, Pathways 1–11) trying to predict whether a language model's chain-of-thought answer is correct from its residual-stream activations alone. The project began as "persistent homology of token clouds predicts correctness," and ended somewhere very different.
 
+> **Read these in order if you're new:** [SYNTHESIS.md](SYNTHESIS.md) (10-min practitioner briefing) → [NOVELTY_AUDIT.md](NOVELTY_AUDIT.md) (what's actually new vs the 220-paper research-graph) → [APPLICATIONS.md](APPLICATIONS.md) (where this is deployable, with honest checklists). The github.io page is a [v1 archive](https://musicofhel.github.io/topo-confidence/) — bounce here for current state.
+
 ## Where the project actually landed
 
-The original "topology" framing was overturned. Persistent-homology features on trained-model residual streams sit at the rank-matched Gaussian null (AUROC 0.690 vs null 0.693, [F-10](FINDINGS.md)). What remained, after correcting label and truncation bugs, is a much simpler signal:
+The original "topology" framing was overturned. Persistent-homology features on trained-model residual streams sit at the rank-matched Gaussian null (AUROC 0.690 vs null 0.693, [F-10](FINDINGS.md)) — and *strengthen* on PC1-residualized clouds (real PH 0.6884 vs matched-cov Gaussian null 0.7628, gap −0.074: pre-registered overturning condition tested directly and failed by 12.4 pp in the wrong direction). What remained, after correcting label and truncation bugs, is a much simpler signal:
 
 | Quantity | Value | Source |
 |---|---|---|
@@ -17,6 +19,19 @@ The original "topology" framing was overturned. Persistent-homology features on 
 | Unconditional baseline at K=1 | 48.6% | [F-8](FINDINGS.md) |
 
 **Headline.** A *single direction* in the prefill-position L19 residual stream — fit by logistic regression on K=1 correctness labels — predicts whether the model will get the answer right *better than the final-token activations after the model has reasoned*. Refusing the bottom half by this score and spending the saved compute on the top half gives 71.6% accuracy on what's answered, vs 48.6% unconditional.
+
+### The decomposition triangle
+
+The L19 prefill correctness signal factors cleanly into three additive pieces (see [SYNTHESIS.md §1.5](SYNTHESIS.md)):
+
+| Probe | OOF AUROC | Δ vs DoM 0.7679 |
+|---|---|---|
+| 1-d DoM (matched protocol) | 0.7679 | — |
+| 2-feat (PC1, PC9) | 0.7856 | +1.77 pp |
+| Full 1536-d L2-reg (best C=0.001) | 0.7847 | +1.68 pp ≈ 2-feat |
+| **Top-20 log-eigvals of PC1-residualized cov** | **0.7928** | **+2.49 pp** |
+
+The directional ceiling saturates at 2 features; the cov-spectrum lift is *genuinely second-order*, not under-regularized linear-directional. CAST PC1 ≈ supervised DoM (cosine 0.9216), so the dominant correctness direction is unsupervised-identifiable.
 
 ## Findings that survived controls
 
@@ -47,16 +62,19 @@ Full graveyard at [PROJECT_RECORD §1d](PROJECT_RECORD.md). The big ones:
 
 If you've never seen this project before, read in this order:
 
-1. **[QUICKSTART.md](QUICKSTART.md)** (~480 words) — the orientation document. What we found, what we were wrong about, where the data lives.
-2. **[STATE.md](STATE.md)** — where the most recent session left off. Overwritten each session.
-3. **[PROJECT_RECORD.md](PROJECT_RECORD.md)** — authoritative archive. §1a chronology, §1b provenance table (every claim → JSON), §1d graveyard, §1e queue.
-4. **[FINDINGS.md](FINDINGS.md)** — F-1…F-10 registry with controls.
-5. **[HYPOTHESES.md](HYPOTHESES.md)** — H-1…H-14 prioritized queue with cost estimates.
-6. **[PERSPECTIVES.md](PERSPECTIVES.md)** — reflective notes on what surprised, what was wrong.
-7. **[DATA_MANIFEST.md](DATA_MANIFEST.md)** — cached activation inventory (~79 GB, gitignored).
-8. **[PAPER_INDEX.md](PAPER_INDEX.md)** — external papers that informed the work, with our REPLICATED / CONTRADICTED status.
+1. **[SYNTHESIS.md](SYNTHESIS.md)** — 10-min practitioner briefing. What survived, what was overturned, what is new.
+2. **[NOVELTY_AUDIT.md](NOVELTY_AUDIT.md)** — F-N findings ranked novel / refines-prior-work / parallel-discovery against the 220-paper research-graph.
+3. **[APPLICATIONS.md](APPLICATIONS.md)** — deployable settings with honest "what would have to be true for production" checklists.
+4. **[QUICKSTART.md](QUICKSTART.md)** (~480 words) — the orientation document. What we found, what we were wrong about, where the data lives.
+5. **[STATE.md](STATE.md)** — where the most recent session left off. Overwritten each session.
+6. **[PROJECT_RECORD.md](PROJECT_RECORD.md)** — authoritative archive. §1a chronology, §1b provenance table (every claim → JSON), §1d graveyard, §1e queue.
+7. **[FINDINGS.md](FINDINGS.md)** — F-1…F-10 registry with controls.
+8. **[HYPOTHESES.md](HYPOTHESES.md)** — H-1…H-22 prioritized queue with cost estimates.
+9. **[PERSPECTIVES.md](PERSPECTIVES.md)** — reflective notes on what surprised, what was wrong.
+10. **[DATA_MANIFEST.md](DATA_MANIFEST.md)** — cached activation inventory (~79 GB, gitignored).
+11. **[PAPER_INDEX.md](PAPER_INDEX.md)** — external papers that informed the work, with our REPLICATED / CONTRADICTED status.
 
-Smoke test: `python validate_claims.py` — 91 quantitative claims back-checked against committed JSONs. Should print 91/91 PASS.
+Smoke test: `python validate_claims.py` — 216 claims tracked (172 internal back-checked against committed JSONs / 41 external paper anchors REGISTERED / 3 PENDING_FE). Should print 172/172 internal PASS.
 
 ## What's next
 
@@ -91,14 +109,16 @@ The current findings (prefill DoM, breathing, gated compute) live in the pathway
 ## Repo layout
 
 ```
-QUICKSTART.md, STATE.md          # Read first
+SYNTHESIS.md                     # 10-min practitioner briefing (read first)
+NOVELTY_AUDIT.md, APPLICATIONS.md # F-N novelty rankings + deployment surfaces
+QUICKSTART.md, STATE.md          # Project orientation, current session state
 PROJECT_RECORD.md                # Authoritative archive
 FINDINGS.md, HYPOTHESES.md       # Live claims and queue
 PERSPECTIVES.md                  # Reflective notes
 DATA_MANIFEST.md                 # ~79 GB cached NPZ inventory
-EXPERIMENT_LOG.md                # EXP-001…EXP-042 append-only log
+EXPERIMENT_LOG.md                # EXP-001…EXP-058 append-only log
 PAPER_INDEX.md                   # External-paper bridge
-validate_claims.py               # Provenance smoke test (91/91 PASS)
+validate_claims.py               # Provenance smoke test (172/172 internal PASS)
 
 topo_confidence/                 # Pip-installable package (v1 framing)
 pathway1/ … pathway11_h100/      # Per-pathway code, results JSONs, NPZ caches

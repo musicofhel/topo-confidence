@@ -8,6 +8,9 @@ Always read these before answering questions about project state — they are ke
 
 | File | What it has | When to read |
 |---|---|---|
+| [SYNTHESIS.md](SYNTHESIS.md) | 10-min practitioner briefing. What survived, what was overturned, what is new | When you need the one-page summary |
+| [NOVELTY_AUDIT.md](NOVELTY_AUDIT.md) | F-1…F-10 ranked novel / refines-prior-work / parallel-discovery vs the 220-paper research-graph | When asked what's new |
+| [APPLICATIONS.md](APPLICATIONS.md) | Six deployment surfaces with honest "what would have to be true for production" checklists | When asked where to ship this |
 | [STATE.md](STATE.md) | Where the most recent session left off, pod status, top 3 next experiments | First, every session |
 | [QUICKSTART.md](QUICKSTART.md) | ~480-word orientation: what we found, what was wrong, where data lives | If you're cold on the project |
 | [PROJECT_RECORD.md](PROJECT_RECORD.md) | Authoritative archive. §1a chronology, §1b provenance table, §1c reproducibility, §1d graveyard, §1e queue, §1f literature, §1g file inventory | When any claim needs verification |
@@ -15,7 +18,7 @@ Always read these before answering questions about project state — they are ke
 | [HYPOTHESES.md](HYPOTHESES.md) | H-1…H-22 prioritized queue with cost estimates | When proposing next experiments |
 | [PERSPECTIVES.md](PERSPECTIVES.md) | Reflective notes — what surprised, what was wrong | For framing/narrative |
 | [DATA_MANIFEST.md](DATA_MANIFEST.md) | NPZ schema, sizes, regeneration commands | Before claiming a cache exists |
-| [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) | EXP-001…EXP-042 append-only log | When tracing where a number came from |
+| [EXPERIMENT_LOG.md](EXPERIMENT_LOG.md) | EXP-001…EXP-058 append-only log | When tracing where a number came from |
 | [PAPER_INDEX.md](PAPER_INDEX.md) | External papers, REPLICATED / CONTRADICTED / TO TEST | Before citing literature |
 | [RESEARCH_GRAPH.md](RESEARCH_GRAPH.md) | Neo4j knowledge graph linking findings to literature | Before claiming novelty / planning experiments / citing prior work |
 | [NEXT_EXPERIMENTS.md](NEXT_EXPERIMENTS.md) | Auto-generated priority queue from `:FutureExperiment` nodes | When picking what to work on next |
@@ -27,6 +30,13 @@ links this project's findings (F-1…F-10) to 220+ external papers via typed edg
 (CORROBORATED_BY, CONTRADICTED_BY, EXTENDED_BY, METHOD_DIFFERS, EXPLAINS,
 USED_IN). It is separate from link-forge (`bolt://localhost:7687`); Paper nodes
 here are arxiv stubs that resolve to link-forge for full metadata.
+
+**ID drift caveat.** The graph carries F-1..F-13 IDs that have drifted from
+FINDINGS.md's F-1..F-10 (next ID F-11). Mapping per `NOVELTY_AUDIT.md`: graph
+F-7 = FINDINGS F-10 (PH-null); graph F-11 = FINDINGS F-8 (selective);
+graph F-13 = ND-10 (256-tok truncation artifact). When in doubt, FINDINGS.md
+is authoritative — use the graph for literature/novelty queries, not for
+canonical F-N IDs. Re-seeding the graph to align is queued cleanup.
 
 ```bash
 # Before claiming a finding is novel:
@@ -128,7 +138,7 @@ python validate_claims.py > validation_report.txt
 
 ## What the project is, in two sentences
 
-Three weeks of experiments testing whether residual-stream geometry predicts LLM correctness. The "topological homology" framing was overturned (PH = Gaussian null, F-10); what survived is a single L19 prefill direction (DoM) that predicts correctness at AUROC 0.7731 on Qwen-2.5-1.5B and enables 71.6% selective-prediction accuracy at 50% coverage.
+Three weeks of experiments testing whether residual-stream geometry predicts LLM correctness. The "topological homology" framing was overturned (PH adds negative signal beyond covariance, F-10); what survived is a single L19 prefill direction (DoM ≈ PC1) that predicts correctness at AUROC 0.7731, factors cleanly into directional + spectral pieces with the cov-spectrum probe lifting to 0.7928, and powers a selective-prediction stack that hits 71.6% answered accuracy at 50% coverage — open-ended for cross-architecture, cross-benchmark, and causal validation.
 
 ## Headline numbers (1024-tok labels, the only ones that aren't truncation-confounded)
 
@@ -140,6 +150,10 @@ Three weeks of experiments testing whether residual-stream geometry predicts LLM
 | Final-token L19 DoM AUROC (1.5B) | 0.7186 | same |
 | cos(prefill_DoM, final_DoM) | 0.046 | `scratch/pathway10_temporal_and_verifier_results.json` |
 | Selective-prediction acc at coverage 0.5 | 71.6% on answered, K=2.5 avg | same |
+| 2-feat (PC1, PC9) AUROC | 0.7856 | `pathway11_h100/pca_covariance/results.json` (FE291) |
+| Cov-spectrum top-20 log-eigvals (PC1-residualized) AUROC | **0.7928** | `pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json` (FE881) |
+| Full 1536-d L2-reg ceiling (best C=0.001) | 0.7847 | `pathway11_h100/pca_covariance/results.json` (FE882) |
+| cos(DoM, PC1) — CAST PC1 ≈ supervised DoM | 0.9216 | FE291 |
 
 The 0.796 ABC-44 number, the 20.8% baseline, and any cross-scale "7B is a stronger verifier" claim are all 256-tok truncation artifacts — superseded.
 

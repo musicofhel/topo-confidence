@@ -701,3 +701,58 @@ the right next test.
 What this *does* mean for the validate_claims invariant: 169 PASS
 internal once the new pca-full-lr-best-auroc claim is wired (was 168
 after the cov-spectrum claim). 213 total tracked.
+
+
+
+## Late additions (2026-05-03): the synthesis cascade
+
+Three docs landed: SYNTHESIS, NOVELTY_AUDIT, APPLICATIONS. Three weeks of
+experiments compressed into 1,231 lines that an outside ML engineer could
+read in 30 minutes and walk away with a reasonable picture of what's true,
+what's new, and what's deployable.
+
+What surprised in writing them.
+
+The novelty audit was the hardest. Walking each F-N through
+`research-graph/query.py novelty` with the 220-paper graph already loaded
+forced an honest accounting: F-2 is a **parallel discovery** — Zhu's
+"The LLM Already Knows" (2509.12886) found the same prefill direction on
+Qwen-VL-7B at AUROC 0.85, ours at 0.7731 on Qwen-2.5-1.5B. We didn't cite
+it as parallel; we cited it as motivating. The paper had been sitting in
+the graph for weeks. The synthesis exposed it. Lesson: novelty audits
+don't *discover* parallelism — they *force you to admit* it. The graph
+was already telling us; we'd just been reading it as supportive instead
+of as parallel discovery.
+
+What the synthesis makes possible. The decomposition triangle table —
+DoM 0.7679 → 2-feat 0.7856 → cov-spectrum 0.7928 → full-1536-d 0.7847 —
+is the cleanest result of the program. It belongs *first* in any
+external presentation, not buried in an evidence section. Putting it in
+the README headline (after this session's intent-layer pass) was the
+right move; visitors landing on the repo see the factorization before
+they see the framing.
+
+What the synthesis closes. Three open questions that the FE291 cascade
+resolved and that the synthesis surfaces explicitly: (a) the cov-spectrum
+lift is genuinely second-order (FE882 closed it); (b) F-10 strengthens
+on residualization (FE880 closed it); (c) CAST PC1 ≈ supervised DoM
+(FE291 closed it, now framed as "the supervised correctness direction
+is unsupervised-identifiable"). Each one was implicit in the result JSONs;
+the synthesis makes them explicit.
+
+What the synthesis doesn't close. Eight open questions, four of which
+were filed as new H-N entries in this pass (H-698 cross-arch, H-699
+penultimate-token PR, H-700 PC9 mechanism, H-701 rank-truncate-cov-
+spectrum causal companion). The other four — answer-vocab null, 7B PR
+inversion mechanism, short-CoT breathing, the 12 untriaged Discord
+papers — are queued in HYPOTHESES + handoffs. None block the synthesis
+from being a faithful current-state snapshot.
+
+What this means for the program's narrative arc. Three weeks ago the
+project was named topo-confidence and the headline was "persistent
+homology of token clouds predicts correctness at AUROC 0.796." Today
+the headline is "L19 prefill direction (DoM ≈ PC1) predicts at 0.7731
++ a cov-spectrum lift to 0.7928, and PH adds *negative* signal beyond
+covariance." The name no longer describes the result. That's not an
+embarrassment — that's the program working. The synthesis is the artifact
+that makes the renaming honest.

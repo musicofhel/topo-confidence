@@ -11,6 +11,29 @@ The two databases never write to each other; the bridge resolves Paper stubs
 in this graph (just an arxiv_id + relevance note) to full metadata in
 link-forge on demand.
 
+### Known F-N ID drift (2026-05-03)
+
+The graph carries Finding IDs F-1..F-13 that have drifted from FINDINGS.md's
+F-1..F-10 (next FINDINGS ID = F-11). The drift comes from earlier seed
+revisions that promoted then demoted intermediate findings without
+collapsing the IDs. **FINDINGS.md is authoritative.** Use the graph for
+literature/novelty queries, not for canonical F-N IDs.
+
+Mapping (per `NOVELTY_AUDIT.md` §header):
+
+| Graph F-N | FINDINGS.md F-N | Topic |
+|---|---|---|
+| F-1..F-6, F-8..F-9 | F-1..F-6, F-8..F-9 | Aligned |
+| F-7 | **F-10** | PH = Gaussian null |
+| F-11 | **F-8** | Selective prediction |
+| F-12 | (subsumed) | — |
+| F-13 | **ND-10** (PROJECT_RECORD §1d) | 256-tok truncation artifact |
+
+Re-seeding the graph to align is queued cleanup (out of scope for the
+2026-05-03 intent-layer pass). When `query.py novelty` returns a
+`(:Finding {id:"F-13"})` neighbour, treat it as the truncation-artifact
+graveyard entry; the others map to FINDINGS.md as above.
+
 ## Quick start
 
 ```bash

@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-698.**
+**Numbering continues monotonically. Next ID: H-702.**
 
 ## Cost + time summary (at a glance)
 
@@ -7587,6 +7587,83 @@ H-12 stays parked.
 **Requires:** H100 access OR cached attention from P11; bond-labeler (depends on FE20).
 **Would change:** *Confirm* (paper's energy ordering replicates in our pipeline): gives us a third axis to project the prefill-DoM direction onto (covalent vs hydrogen vs van-der-Waals) and clean attribution candidate for H-13 (head-level circuit attribution). *Reject* (no energy ordering or different ordering on Qwen-1.5B/7B than on the paper's R1/OSS/QwQ models): bounds the bond-mechanism story to large reasoning models and reduces the threat to F-2/F-7.
 **Blocks:** H-13 (head-level attribution) gets a cleaner target if confirmed.
+
+---
+
+## Synthesis-cascade follow-ups (2026-05-03)
+
+Four explicit hypotheses derived from SYNTHESIS §4 ("What we still don't
+know"). All four are within reach with cached caches; none has run.
+
+### H-698: Cross-architecture replication of F-2 (prefill DoM AUROC on Phi-3-mini and Llama-3.2-1B)
+**Priority:** HIGH
+**Motivated by:** SYNTHESIS §4 Q2; F-2 pending_controls
+**Test:** Run the F-2 OOF 5-fold prefill DoM probe on the cached Phi-3-mini
+and Llama-3.2-1B 1024-tok L19 prefill activations in
+`pathway11_h100/exp1_cross_model/`. Report AUROC + 95% CI per architecture
+and the 0.05 effect-size band against Qwen-2.5-1.5B's 0.7731.
+**Requires:** ~1h CPU per architecture; cached caches on disk; no new GPU.
+**Would change:** *Confirm* (≥ 0.65 AUROC each, within 0.05 of Qwen's 0.7731):
+F-2 graduates from one-model finding to cross-architecture pattern. Unblocks
+APPLICATIONS App 1's non-Qwen production checklist. *Reject* (< 0.6 or large
+gap): F-2 is Qwen-specific; APPLICATIONS Apps 1, 3, 4 lose their cross-arch
+deployment pathway.
+**Blocks:** APPLICATIONS App 1 production checklist; F-2 cross-arch pending
+control.
+
+### H-699: Penultimate-token PR-null test for F-1 / F-4 answer-vocabulary confound
+**Priority:** HIGH
+**Motivated by:** SYNTHESIS §4 Q5; PERSPECTIVES "strongest criticism"
+**Test:** Compute participation ratio at the penultimate token (immediately
+before `\boxed{}` answer) on cached MATH-500 1024-tok generations. Compare
+PR distribution to (a) the final-token answer-position PR (F-4 collapse),
+(b) random-token control. Three subgroups: large-answer (≥ 4 char),
+small-answer (1 char), single-token answer. If penultimate PR shows the
+F-1 breathing peak but final-token PR collapse is answer-vocabulary-driven,
+F-4 is partially deflated.
+**Requires:** ~1h CPU; cached generations on disk.
+**Would change:** *Confirm* (penultimate PR ≈ peak, final PR explained by
+answer-token unembed): F-4 weakens; the "correct trajectories collapse
+harder" claim is partially answer-vocabulary. *Reject* (PR collapse pre-dates
+the answer token): F-4 strengthens.
+**Blocks:** F-4 strongest-criticism control; nothing else.
+
+### H-700: PC9 is a length axis, not a difficulty axis
+**Priority:** MEDIUM
+**Motivated by:** SYNTHESIS §4 Q6; FE291 (PC9 single-feature AUROC 0.658
+at variance share 2.5%)
+**Test:** Project per-problem L19 prefill activations onto PC9. Spearman-
+correlate the projection with (a) generation length in tokens
+(`fe448-length-auroc` reference 0.7986), (b) MATH-500 official difficulty
+level 1–5, (c) within-topic accuracy rate. PC9-as-length predicts |ρ| ≥ 0.6
+on (a). PC9-as-difficulty predicts |ρ| ≥ 0.4 on (b) but weak on (a).
+**Requires:** 30 min CPU; cached caches.
+**Would change:** *PC9 is length:* the decomposition triangle's directional
+ceiling collapses to "DoM + length feature," and the cov-spectrum lift
+(0.7928) becomes the only F-2 result not explained by length confounding.
+*PC9 is difficulty:* F-2 factors into "competence direction (PC1) + abstract
+difficulty axis (PC9) + per-problem second-order shape," strengthening the
+mechanistic story.
+**Blocks:** F-2 mechanism; PERSPECTIVES "decomposition triangle" framing.
+
+### H-701: Rank-truncate-cov-spectrum causal companion test
+**Priority:** CRITICAL
+**Motivated by:** SYNTHESIS §4 Q1 (load-bearing causal test for F-2)
+**Test:** For each MATH-500 problem, truncate the L19 prefill covariance to
+its top-r eigenvectors after PC1 residualization (sweep r ∈ {1, 5, 10, 20,
+all}). Reconstruct activations, run continuation, measure correctness.
+This is distinct from FE214 (which noises raw activations) — it surgically
+removes the second-order *spectral* information that the cov-spectrum
+probe (FE881, 0.7928) reads. If correctness drops monotonically with
+truncation, the cov-spectrum is causally implicated, not merely correlational.
+**Requires:** 1 H100-day; cached caches + custom forward hook at L19; not
+yet a `:FutureExperiment` node — file alongside FE214/FE269/FE283.
+**Would change:** *Confirm* (correctness drops with r): the cov-spectrum
+0.7928 lift is causally load-bearing; APPLICATIONS App 3 ("cov-spectrum
+probe") graduates from filter to mechanism. *Reject* (no drop): cov-spectrum
+is a passive geometric correlate; F-2 remains directional + a per-problem
+second-order shape readout that the model doesn't itself use.
+**Blocks:** F-2 causal upgrade; APPLICATIONS App 3 production checklist.
 
 ---
 
