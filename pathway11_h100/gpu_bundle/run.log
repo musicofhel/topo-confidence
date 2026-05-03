@@ -1,0 +1,55 @@
+Loading Qwen/Qwen2.5-1.5B-Instruct fp16 on cuda:0 ...
+  loaded in 3.8s; param sum 1543.7M
+
+[FE110] Computing ActAdd contrast vectors at L19 ...
+  ('correct math step', 'incorrect math step') ‖v‖=28.905
+  ('solve carefully', 'guess') ‖v‖=11103.446
+  ('complete solution', 'wrong solution') ‖v‖=48.098
+  ('right answer', 'wrong answer') ‖v‖=31.198
+  ('certain', 'uncertain') ‖v‖=53.327
+
+[FE110] m15b_prefill cache: shape (500, 1536), correct 243/500
+  supervised DoM AUROC (5-fold OOF) on cache = 0.7711  (F-2 ≈ 0.7731)
+  cos=+0.0353  proj_AUROC=0.6218  ('correct math step' vs 'incorrect math step')
+  cos=+0.0193  proj_AUROC=0.5345  ('solve carefully' vs 'guess')
+  cos=+0.0523  proj_AUROC=0.6615  ('complete solution' vs 'wrong solution')
+  cos=-0.0061  proj_AUROC=0.4901  ('right answer' vs 'wrong answer')
+  cos=+0.0651  proj_AUROC=0.6549  ('certain' vs 'uncertain')
+
+[FE23+FE455] Loading MATH-500 problems and cached generations ...
+Loaded 500 MATH-500 problems
+  ConCISE token ids: {' confident': 16506, ' sure': 2704, ' pretty': 5020}
+  25/500  elapsed=7s  eta=142s
+  50/500  elapsed=13s  eta=119s
+  75/500  elapsed=21s  eta=116s
+  100/500  elapsed=27s  eta=110s
+  125/500  elapsed=35s  eta=105s
+  150/500  elapsed=42s  eta=99s
+  175/500  elapsed=50s  eta=93s
+  200/500  elapsed=57s  eta=86s
+  225/500  elapsed=65s  eta=80s
+  250/500  elapsed=74s  eta=74s
+  275/500  elapsed=80s  eta=66s
+  300/500  elapsed=89s  eta=59s
+  325/500  elapsed=96s  eta=52s
+  350/500  elapsed=103s  eta=44s
+  375/500  elapsed=110s  eta=37s
+  400/500  elapsed=117s  eta=29s
+  425/500  elapsed=125s  eta=22s
+  450/500  elapsed=132s  eta=15s
+  475/500  elapsed=139s  eta=7s
+  500/500  elapsed=148s  eta=0s
+  forward sweep done in 148s, 75 problems without `\boxed{`
+
+[FE23] softmax-conf AUROC (predict correct via top-prob): 0.4395
+        softmax-uncert AUROC (predict incorrect via 1-top-prob): 0.4395
+[FE455] ConCISE c_hat AUROC: 0.5887
+        P(' confident') alone:  0.5985
+        P(' sure') alone:       0.2927
+  pathway8 correctness vs m15b cache correctness match: True
+
+[FE110] Best contrast pair achieves cos=+0.065 with supervised DoM and AUROC 0.662 on cached prefill scores. F-2 supervised DoM is NOT recoverable from these contrast pairs (supervision adds signal beyond ActAdd).
+[FE23]  Softmax-confidence AUROC 0.440 vs prefill DoM 0.7731 (< F-2). F-2 holds — softmax does not subsume DoM.
+[FE455] ConCISE c_hat AUROC 0.589 vs prefill DoM 0.7731 (< F-2). F-2 holds — ConCISE does not subsume DoM.
+
+Saved pathway11_h100/gpu_bundle/results.json and pathway11_h100/gpu_bundle/per_problem.npz

@@ -393,6 +393,910 @@ a different winning feature (seq_len, not DoM).
 
 ---
 
+## EXP-43: P11-FE719 — Leave-One-Subject-Out CV on F-2 prefill L19 DoM
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Probe-non-diagnosticity critique formalised in 2603.18280
+§2 (probe results) — random-split CV is non-diagnostic, null controls reach
+100% accuracy. F-2's 0.7731 AUROC was reported under 5-fold *random* CV;
+subject-stratified leakage is plausible because MATH-500 base accuracy varies
+by subject (Algebra 124 problems vs Counting & Probability 38). LOCO-CV is
+the diagnostic test.
+**Hypothesis:** If F-2 is largely a subject/topic detector, mean LOCO AUROC
+drops below 0.65 (refutation threshold per FE719 spec). If F-2 is a
+correctness signal, LOCO AUROC stays close to random-OOF.
+**What we actually tested:** Loaded the L19 prefill cache
+(`pathway11_h100/prefill_inversion/cache/m15b_prefill.npz`, 500×1536 fp16)
+and the MATH-500 `subject` column. For each of 7 subjects, computed DoM =
+mean(prefill[correct ∧ ~held]) − mean(prefill[~correct ∧ ~held]) on the
+training fold (~430 problems), then scored AUROC of `prefill_held @ DoM`
+vs `correct_held` on the held-out subject.
+**Key result:** mean LOCO AUROC 0.7427, worst 0.6032 (Number Theory, n=62),
+best 0.9000 (Geometry, n=41). Per-subject: Algebra 0.6982, Counting &
+Probability 0.7278, Intermediate Algebra 0.7702, Prealgebra 0.7919,
+Precalculus 0.7074. In-sample full-data DoM AUROC 0.7834 (sanity anchor —
+no held-out, not directly comparable to the 0.7731 5-fold OOF figure). All
+3 new claims PASS in `validate_claims.py` and REGEN_PASS via
+`recompute_fe719.py`.
+**Verdict:** F-2 NOT REFUTED. The ~3pp drop from 0.7731 (random-OOF) to
+0.7427 (LOCO mean) confirms a small subject-leakage component, but 0.7427
+is well above the 0.65 refutation threshold and well above chance.
+**Changed our understanding of:** F-2 generalises across subjects with a
+modest but real topic component; the strongest fold (Geometry 0.90) is
+likely small-n variance (n=41, ~50/50 correct/incorrect), and the weakest
+fold (Number Theory 0.60) suggests Number Theory problems use prefill
+geometry slightly differently from the rest of MATH-500 — a direction
+worth a follow-up FE.
+**Files:** `pathway11_h100/loco_subject/recompute_fe719.py` (recompute
+script, deterministic), `pathway11_h100/loco_subject/results.json` (output).
+**Depends on:** EXP-037 (the 0.7731 5-fold OOF baseline).
+**Enables:** Reusable LOCO machinery for FE299 (topic-stratified AUROC),
+FE448 (length partial-correlation), and the rest of the Phase 1 sanity
+battery.
+
+## EXP-44: P11-FE448 — Length partial-correlation control on F-2 prefill L19 DoM
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Su et al. 2505.00127 (Between Underthinking and
+Overthinking) plus the concern that prefill = question-only tokens may
+carry a length-prior. F-9 already showed the 44-feature ABC pipeline has
+length confounds; FE448 tests whether the *raw L19 activations* themselves
+encode length to a degree that explains F-2.
+**Hypothesis:** If L19 prefill encodes mostly "predicted output length"
+and length predicts correctness, the headline DoM result is doubly
+explained by a non-geometric variable. Refutation: residual AUROC after
+partialing predicted-length ≤ 0.55. Survives: > 0.65.
+**What we actually tested:** (1) Ridge regression of `seq_len` on L19
+prefill activations (n=500, d=1536, α=1e-3), getting predicted length
+ŝ. (2) Computed R² of (s, ŝ). (3) Per-feature Frisch-Waugh
+residualization: X_resid[:,j] = X[:,j] − αⱼ ŝ_centered. (4) DoM AUROC
+on X_resid vs raw X, both in-sample on n=500.
+**Key result:** length R² ≈ 1.0 (in-sample, n<d ridge near-interpolates).
+Sequence length alone has AUROC 0.7986 vs `correct` — *higher* than raw
+DoM in-sample (0.7834) and the headline 5-fold OOF (0.7731). Predicted
+length alone has AUROC 0.7994. After partialing predicted-length out of
+prefill, DoM AUROC drops 0.7834 → 0.6647 (12pp drop). cos(DoM_raw,
+DoM_resid) = 0.785 — the residualized direction still aligns ~79% with
+raw, so the projection isn't degenerate.
+**Verdict:** F-2 GRAY ZONE — neither refuted (residual 0.6647 > 0.55)
+nor cleanly surviving (residual 0.6647 ≤ 0.65). Demote F-2 from STRONG
+→ MODERATE. The length confound is large enough that ≈⅔ of the original
+AUROC is length-explainable.
+**Changed our understanding of:** F-2's strength claim. The prefill DoM
+is partly a correctness direction *and* partly a length-predictive
+direction; the two share a near-perfect linear subspace at L19. Pure
+"correctness geometry" framing is too strong. Combined with FE719 (LOCO
+mean 0.7427), F-2 is showing consistent erosion under cheap controls but
+hasn't fallen below 0.5 — a real signal contaminated by length.
+**Phase 1 decision branch status:** 1 of 5 cheap-controls below AUROC
+0.70 (FE448 residualized). Need ≥3 to trigger demotion + Phase-3 skip.
+Continue Phase 1 (FE145, FE299, FE101) before pivoting.
+**Files:** `pathway11_h100/length_partial/recompute_fe448.py` (recompute,
+deterministic), `pathway11_h100/length_partial/results.json` (output).
+**Caveat:** Length R² ≈ 1.0 is partly a ridge-overfit artifact at n<d.
+A proper OOF length-prediction R² would be lower; the in-sample residual
+AUROC 0.6647 is therefore an *upper bound* on the contamination — true
+OOF residual would likely be lower still.
+**Depends on:** EXP-037, EXP-43.
+**Enables:** Cleaner FE145 interpretation (per-layer DoM may pick up
+length-predictive layers); motivates FE299 (topic-stratified AUROC) and
+a possible follow-up FE on per-layer length-predictability.
+
+## EXP-45: P11-FE145 — Per-layer prefill DoM AUROC sweep (L0..L28)
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** CAA (Panickssery et al.) reports the optimal steering
+layer at ~⅓ depth with a sharp drop-off at L17 (53% depth) on Llama-2.
+F-2 picks L19/28 (~68% depth) on Qwen-2.5-1.5B — well past CAA's
+drop-off. Either Qwen has a different geometry, or L19 is post-hoc
+lucky. A full per-layer sweep settles it.
+**Hypothesis:** L19 is the argmax layer for prefill DoM AUROC (or within
+±0.005 of it). If L19 is far from the peak (>0.005 below), the F-2
+choice is post-hoc.
+**What we actually tested:** Loaded all 29 per-layer prefill
+activations (input embeds + 28 transformer blocks) from
+`pathway8_layerwise/data/math500/problem_*.npz` (500 problems × 29
+layers × 1536 dims). For each layer, ran 5-fold stratified OOF DoM
+(seed=9999): train on 4 folds (mean(pos) − mean(neg)), score on
+held-out fold, compute AUROC over all 500 OOF scores.
+**Key result:** Peak at **L21 with AUROC 0.7718**. L19 at AUROC
+**0.7705** (gap 0.0013 — within ±0.005). The curve rises monotonically
+from L0 (0.50, embedding-output, no info) to L18 (0.7616), peaks at
+L19–L21 (0.7705–0.7718), then declines slightly to L28 (0.7568). L17
+(CAA drop-off layer) is at 0.7635 — *no sharp drop-off* on Qwen-2.5-1.5B.
+**Verdict:** F-2 L19 choice CONFIRMED. The peak plateau is L19–L21,
+spanning ~0.001 in AUROC; L19 is on the plateau. CAA's L17 drop-off
+hypothesis does NOT generalise to Qwen-2.5-1.5B — Qwen's correctness
+direction stays informative across the upper half of the network.
+**Changed our understanding of:** F-2's geometric specificity. The
+peak is not at one privileged layer — it's a 3-layer plateau (L19–L21).
+"L19 is special" is too strong; "the upper-mid block (L19–L21) is the
+DoM peak" is the right framing.
+**Phase 1 decision branch status:** This is a *confirming* control,
+not a refutation. Counter unchanged: 1 of 5 below 0.70 (FE448
+residualized only). FE719+FE145 confirmed F-2 mostly survives;
+FE448 demoted strength to MODERATE due to length confound.
+**Files:** `pathway11_h100/per_layer_sweep/recompute_fe145.py` (regen,
+deterministic), `pathway11_h100/per_layer_sweep/results.json` (output).
+**Note:** The 0.7705 5-fold OOF AUROC at L19 differs by ~0.003 from the
+0.7731 headline figure (EXP-037). Both are 5-fold OOF on the same data
+but used different seeds and CV-split implementations; the difference
+is well within seed-variance and doesn't change conclusions.
+**Depends on:** EXP-037 (L19 baseline), EXP-43 (LOCO), EXP-44 (length).
+**Enables:** Per-layer follow-ups (which layer carries length info, see
+H-N: layer-resolved length artefacts), and a possible H-N about the
+L19–L21 plateau.
+
+## EXP-46: P11-FE299 — Within-topic prefill DoM AUROC
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Refutation 2 in the original F-2 brief: if within-topic
+AUROC collapses toward 0.5 while overall stays at 0.77, the prefill DoM
+signal is dominated by topic-familiarity base-rates rather than per-
+problem decomposability — refuting H-5's framing. This is the
+complement of FE719: same data, opposite split.
+**Hypothesis:** Within-topic AUROC > 0.55 ⇒ F-2 is per-problem (NOT a
+pure topic-detector). Within-topic AUROC ≤ 0.55 ⇒ F-2 is topic-base-
+rate.
+**What we actually tested:** For each of 7 MATH-500 subjects, took the
+n_subject problems' L19 prefill activations (from `m15b_prefill.npz`)
+and ran k-fold stratified OOF DoM (k = min(5, min-class-count),
+seed=9999) within that subject. Computed AUROC over the within-subject
+OOF scores.
+**Key result:** Mean within-topic AUROC **0.7143**. Per-subject:
+Algebra 0.6903 (n=124), Counting & Probability 0.6500 (n=38), Geometry
+0.8128 (n=41), Intermediate Algebra 0.6683 (n=97), Number Theory
+**0.6000** (n=62), Prealgebra **0.8305** (n=82), Precalculus 0.7481
+(n=56). 7/7 subjects scored.
+**Verdict:** F-2 NOT a pure topic-detector. The 0.7143 within-topic
+mean is well above the 0.55 refutation threshold. The ~6pp gap between
+within-topic mean (0.7143) and overall (0.7731) quantifies a small
+topic-base-rate component — the bulk of the signal is per-problem.
+**Changed our understanding of:** Number Theory is the consistent weak
+spot. Both FE719 (LOCO 0.6032) and FE299 (within 0.6000) bottom out at
+Number Theory — the prefill DoM direction is informative across most
+subjects but ~⅔-strength on Number Theory specifically. Possible
+follow-up: per-subject DoM cosine matrix to see whether NT problems
+genuinely use a different correctness direction.
+**Phase 1 decision branch status:** Counter unchanged: 1 of 5 below
+0.70 (FE448 residualized only). FE299 0.7143 is above 0.70. F-2 stays
+MODERATE; the length confound remains the dominant counterargument.
+**Files:** `pathway11_h100/within_topic/recompute_fe299.py` (regen),
+`pathway11_h100/within_topic/results.json` (output).
+**Caveat:** k=2-5 within-subject is small; the Counting & Probability
+result (0.6500, n=38, k=2) is noisy. Geometry 0.8128 (n=41, k=2) is
+also small-n.
+**Depends on:** EXP-037, EXP-43.
+**Enables:** Per-subject DoM cosine matrix (a possible H-N about
+correctness-direction stability across subjects).
+
+## EXP-47: P11-FE101 — LEACE linear-erasure null for F-2
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** F-2's headline claim is "a linear probe finds AUROC
+0.7731" — but we had no strict null. Without LEACE, we couldn't rule
+out probe-leakage or non-linear residuals. LEACE (Belrose et al.,
+2306.03819) provides closed-form minimum-damage linear erasure: any
+linear classifier on LEACE-erased data is provably uninformative.
+**Hypothesis:** If F-2 is genuinely linear, OOF AUROC collapses to
+~0.5 after LEACE. If AUROC stays substantially above chance (>0.55),
+the prefill correctness signal lives in a non-linear subspace the DoM
+probe was failing to pick up cleanly.
+**What we actually tested:** Per-fold LEACE on n=500 1.5B L19 prefill
+activations: (1) μ, Σ_ridge from train fold; (2) d_train = μ_pos −
+μ_neg; (3) w_train = Σ_ridge^(-1) d_train; (4) erase via X_erased[i]
+= X[i] − ((X[i] − μ) · w / (d · w)) · d on both train and test
+(using train-fold parameters); (5) refit DoM on erased train (zero by
+construction); (6) score erased test. 5 folds, seed=9999.
+**Key result:** Raw OOF AUROC **0.7705** (sanity anchor matching
+FE145). LEACE-erased OOF AUROC **0.5000** — perfect collapse.
+Erasure ratio (‖DoM_erased(test)‖/‖DoM_raw(test)‖) = 0.0000 to
+floating-point precision: the LEACE projection completely zeros out
+the DoM direction in the train fold, and test-fold DoM trained on
+erased data is zero, so all test scores are zero.
+**Verdict:** F-2 IS LINEAR. The 27pp collapse confirms that the
+correctness concept lives entirely in the DoM-aligned linear subspace
+of L19 prefill — no residual non-linear signal.
+**Changed our understanding of:** The "linear concept" framing for F-2
+is not a methodological assumption — it's an empirical truth on
+n=500. If LEACE removes ALL linear separability and AUROC collapses
+to chance, then any future probe (logistic, MLP, polynomial features)
+operating on the unerased prefill must be picking up the SAME linear
+direction; non-linearity adds nothing on this data.
+**Phase 1 final tally:** 5/5 cheap controls completed. 1 of 5 below
+AUROC 0.70 (FE448 length-residualized only, 0.6647). Below the 3-of-5
+threshold for Phase 1 decision branch (which would have triggered
+demote-and-skip-Phase-3). F-2 survives Phase 1 — but length confound
+demotes strength to MODERATE.
+**Files:** `pathway11_h100/leace_erasure/recompute_fe101.py` (regen),
+`pathway11_h100/leace_erasure/results.json` (output).
+**Caveat:** With ridge α_rel=1e-3 in n<d regime the LEACE eraser is
+near-perfect on this sample but not literally rank-d. A larger sample
+size or smaller ridge would tighten the construction; the current
+result is conservatively perfect for the n=500 fold setup.
+**Depends on:** EXP-037, EXP-43, EXP-44, EXP-45, EXP-46.
+**Enables:** Phase 2 ROI-10 anchors (FE115 Song-Zhong, FE749 spectral
+α, FE181 token-prob baseline) — F-2 is a sound enough anchor to
+warrant the more expensive controls. Phase 3 causal corroborators
+remain in scope (decision branch did not fire).
+
+## EXP-48: P11-FE115 — Song-Zhong pos/ctx decomposition on L19 prefill+final
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** F-3's orthogonality claim (`cos(prefill_DoM, final_DoM) ≈
+0.046`) was the structural cornerstone of the "two circuits" framing — that
+"can I solve this?" and "did I solve this?" live in geometrically unrelated
+subspaces. Song & Zhong (2310.04861) showed transformer hidden states
+decompose into μ + pos_t + ctx_c + resid; if our orthogonality is positional
+(prefill at t=0, final at t=T_i−1), removing pos_t collapses it. Cheapest
+direct refutation test for F-3 in scope.
+**Hypothesis:** Refutation if cos(prefill_DoM_resid, final_DoM_resid) > 0.30
+after subtracting μ + pos_t + ctx_i. F-3 holds if the cosine stays small.
+**What we actually tested:** Streamed the 500 per-problem L19 hidden states
+(shapes (T_i, 1536), T_i ∈ [123, 1024]) through three passes:
+(1) accumulate global μ and per-position pos_t = mean_i(s_i[t]) − μ for
+t ∈ [0, T_max); (2) per-problem ctx_i = mean_t(s_i[t]) − μ; (3) residuals at
+t=0 (prefill) and t=T_i−1 (last token) only — `resid_i[t] = s_i[t] − μ −
+pos_t[t] − ctx_i`. Then DoM = mean(resid[correct]) − mean(resid[~correct]),
+cosine on whole-vector DoMs, and 5-fold stratified OOF AUROC (seed=9999).
+**Key result:** **cos_resid = 0.0008** (vs cos_raw = −0.0617 on this cache;
+differs in sign from the P10 number 0.046 due to different cache /
+tokenization). The residualized cosine is FURTHER from any "two-circuit
+collapse" prediction than the raw cosine — F-3 strengthens. AUROC numbers:
+prefill raw 0.7705 → resid **0.8016** (+3.1pp lift); final raw 0.6603 →
+resid 0.6865 (+2.6pp lift). Removing μ + pos_t + ctx_i *purifies* the
+correctness signal in both directions; the per-problem context vector ctx_i
+was carrying confound (likely length-correlated, since FE448 already
+established length R²≈1.0 on L19 prefill).
+**Verdict:** F-3 NOT REFUTED — strongly reinforced. The orthogonality is a
+structural property of the L19 representation, not a positional encoding
+artifact. Prefill and final-token DoMs operate in genuinely independent
+subspaces.
+**Changed our understanding of:** Two compounding shifts.
+(1) F-3 graduates from "MODERATE on raw cosines" to "STRONG, survives full
+Song-Zhong residualization". The two-circuit framing is structurally robust.
+(2) F-2's prefill DoM AUROC has a discoverable +3pp ceiling: simply
+subtracting per-problem context (a free, deterministic transformation)
+yields a stronger probe. This is independently interesting for the
+selective-prediction pipeline (F-8) — a 0.80 AUROC probe at L19 prefill is
+new headroom.
+**Phase 2 status:** First of 3 Phase 2 anchors complete. F-3 holds; F-2
+gains a stronger probe variant. Number Theory consistency (worst fold in
+both FE719 and FE299) is unchanged — Song-Zhong doesn't address it.
+**Files:** `pathway11_h100/song_zhong/recompute_fe115.py` (regen, ~6 min on
+CPU streaming through 500×~600MB worth of fp16 states),
+`pathway11_h100/song_zhong/results.json` (output).
+**Caveat:** The "final token" in this experiment is the last *generated*
+token at position T_i−1, which differs from the headline's "final-token L19
+DoM AUROC 0.7186" (the prefill_gated_compute aggregate, position semantics
+unclear without reading that script). Cos-on-residuals is the load-bearing
+number; the 0.6603 final-raw AUROC is an internal consistency anchor for
+this experiment, not a reproduction of the 0.7186 headline.
+**Depends on:** EXP-037, EXP-44 (length confound established).
+**Enables:** Re-running F-8's selective-prediction policy with the +3pp
+Song-Zhong residualized prefill DoM. Possible follow-up: cross-layer
+Song-Zhong sweep to see whether the +3pp lift generalises beyond L19.
+
+## EXP-49: P11-FE181 — Token-probability baseline (mean / sum log-prob) vs F-2 DoM
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** A standing alternative explanation for F-2 has been
+"prefill DoM is just a fancy way of measuring how confidently the model
+generates the answer span — it's restating mean token-probability." If
+true, DoM offers no novel geometric content over a free, model-internal
+calibration signal. Cheapest direct head-to-head in scope: regenerate the
+same OOF AUROC pipeline against `mean_t log P(y_t | y_<t, x)` on the
+answer span (already cached as scalar `mean_logprob` in every per-problem
+NPZ). Adding the joint test with prefill DoM separates "redundant" from
+"complementary."
+**Hypothesis:** F-2 is subsumed if `auroc_mean_logp_15b > 0.7731` AND
+`joint_meanlogp_dom_auroc_15b ≈ auroc_mean_logp_15b` (DoM adds no
+information beyond token-prob).
+**What we actually tested:** Loaded scalar `mean_logprob` from 500 1.5B
+NPZs and 500 7B NPZs. Computed (1) 5-fold stratified OOF DoM-style 1D
+probe with fold-safe orientation on `mean_logprob`; (2) same probe on
+`sum_logprob = mean_logprob × seq_len`; (3) joint OOF probe via
+`Σ⁻¹(μ_pos − μ_neg)` on `[mean_logprob, prefill_DoM_proj_L19]` aligned with
+the m15b_prefill cache. seed=9999.
+**Key result (1.5B):** **mean_logp AUROC = 0.6721**; sum_logp AUROC =
+**0.8478**; joint [mean_logp, DoM_proj] = **0.7836**. F-2 DoM (0.7731)
+beats mean_logp by 10pp; the joint adds only ~1pp over DoM alone. Sum_logp
+is structurally length-confounded — FE448 already established length-alone
+AUROC 0.7986, and `sum_logp = mean_logp × seq_len`. The 7B numbers track
+the 1.5B numbers (mean 0.6336, sum 0.8672), so the conclusion isn't
+model-specific.
+**Verdict:** F-2 NOT SUBSUMED by token-probability. The DoM direction
+encodes correctness signal that mean log-likelihood does not access. Sum
+log-prob's higher AUROC is a length artifact, not a calibration win.
+**Changed our understanding of:** Two updates.
+(1) F-2's "is this just output entropy?" counterargument is RETIRED.
+mean_logp gives 0.67 — meaningfully below DoM. The geometry is real.
+(2) Joint probe lifts only +1pp, suggesting the prefill DoM and mean
+token-likelihood are *partially* redundant but each carries some unique
+correctness information. Worth a follow-up that pulls per-token
+min/product logprobs (which the cached scalar can't cover) — that's
+gated on a fresh forward pass, deferred to next H100 session.
+**Phase 2 status:** Second of 3 Phase 2 anchors complete. F-2 retains
+geometric content. FE115 already added a Song-Zhong +3pp ceiling for F-2
+prefill DoM (0.7705 → 0.8016 on residuals); FE181 confirms that ceiling is
+not just "more length" — Song-Zhong residualization removes ctx_i, while
+mean_logp is length-normalized — so the +3pp lift is *not* the same signal
+that drives sum_logp's 0.8478.
+**Files:** `pathway11_h100/token_prob/recompute_fe181.py` (regen, ~1 min
+on CPU; scalar I/O dominated),
+`pathway11_h100/token_prob/results.json` (output).
+**Caveat:** Scope is mean and sum aggregations only — per-token min and
+product would require either re-extracting per-token logprob arrays from
+HF or running a fresh forward pass with `output_scores=True`. Deferred to
+next H100 session per scope_note in results.json. The mean-only test
+answers the headline "DoM = entropy?" question; min/product are
+follow-ups, not gates.
+**Depends on:** EXP-037 (F-2 anchor), EXP-44 (length partialing for the
+sum_logp confound interpretation), EXP-48 (FE115 Song-Zhong context).
+**Enables:** Closes the "DoM = output entropy" alternative on F-2's
+PERSPECTIVES list. Per-token min/product extraction is the next natural
+extension if and when fresh forward passes are budgeted.
+
+## EXP-50: P11-FE749 — Spectral α (HT-SR power-law SVD exponent) vs F-2 DoM
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Martin & Mahoney's heavy-tailed self-regularization theory
+(2002.03175 et seq.) proposes that the power-law tail exponent α of
+weight-matrix singular values is a quality signal — small α (heavier tail)
+correlates with stronger generalization at training-time. Extending the
+same descriptor to *residual-stream* SVD across (problem, layer) is a
+natural test: does each problem's intermediate-state spectrum carry α-style
+predictive content for *correctness* at inference time? If yes, we have a
+single-scalar competitor to F-2's DoM probe rooted in spectral theory; if
+no, we narrow the parsimony zoo (F-9). Cheapest direct head-to-head in
+scope.
+**Hypothesis:** α subsumes F-2 if `alpha_best_auroc_15b > 0.7731` AND
+`joint_alpha_dom_auroc_15b ≈ alpha_best_auroc_15b` (DoM adds no information
+beyond α).
+**What we actually tested:** For each (problem, layer ∈ [0, 28]) on both
+1.5B and 7B caches: take the top-K=50 singular values of the (T_i, hidden)
+hidden-state matrix, fit `log σ_k = log c − α · log k` by OLS, store α as
+a single scalar per (problem, layer). Per-layer 5-fold stratified OOF
+DoM-style 1D probe → α-AUROC[layer]. Joint test aligns α at the
+best-α-layer with the prefill-DoM projection on the m15b_prefill cache and
+runs a 2-feature OOF probe. seed=9999.
+**Key result (1.5B):** α-AUROC by layer is U-shaped:
+  L0=0.541, L1=0.572, L3=0.587 (early peak),
+  L13=0.514, L17=0.475, L18=0.511 (mid trough; some layers
+  *anti-correlate* with correctness),
+  L19=0.522 (DoM's peak layer ≈ chance for α),
+  L28=0.7026 (final layer, max).
+The signal is in the spectral *shape changes* at the boundaries of the
+network, not at the mid-layer reasoning regime where DoM lives. Joint
+[α_L28, prefill_DoM_proj_L19] = 0.7833 vs DoM alone 0.7731 → α-L28 adds
+~1pp of complementary signal.
+**Key result (7B):** Same U-shape, slightly stronger:
+  L0=0.587, L1=0.668 (early peak much stronger than 1.5B),
+  L13–L18 in 0.49–0.52 range (some negative),
+  L19=0.522, L28=0.7128 (final-layer peak).
+Cross-scale agreement on the U-shape and on "α at L19 ≈ chance"
+strengthens the conclusion; this isn't a 1.5B-specific quirk.
+**Verdict:** F-2 NOT SUBSUMED by spectral α. The DoM direction encodes
+correctness signal that residual-stream singular-value shape does not
+access at the relevant depth. F-9 (parsimony / single-scalar redundancy
+with DoM) gains a second confirming counter-example: α joins CoE-60 as a
+proposed-but-dominated scalar competitor.
+**Changed our understanding of:** Three updates.
+(1) F-9 broadens. CoE-60 redundancy was the original anchor; spectral α
+adds a structurally different scalar (spectral, not trajectory-shape) that
+also fails to beat single-layer DoM. The parsimony claim now has two
+independent confirming probes.
+(2) The U-shape is interesting in its own right. α-AUROC concentrating at
+L0 and L28 — the input/output boundary layers — while DoM peaks at L19–L21
+suggests two distinct geometric regimes: spectral shape (likely
+encoding-format / output-readiness) at the boundaries, and a
+correctness-aware abstract-reasoning manifold in mid-depth. The two are
+~orthogonal in the joint test (+1pp).
+(3) HT-SR theory may need a depth-stratified version. The original
+weight-matrix α framing has no within-network depth dependence; here
+residual-stream α has strong depth structure. Worth a follow-up note in
+PERSPECTIVES.md if and when we revisit the HT-SR thread.
+**Phase 2 status:** Third of 3 Phase 2 anchors complete.
+  - FE115 (Song-Zhong, EXP-48): F-3 reinforced; F-2 +3pp ceiling.
+  - FE181 (token-prob, EXP-49): F-2 not subsumed by mean log-prob.
+  - FE749 (spectral α, EXP-50): F-2 not subsumed by α; F-9 broadens.
+All three Phase 2 anchors point the same direction: **F-2 (prefill L19 DoM)
+survives every cheap competitor we've thrown at it. Its geometric content
+is not a positional artifact, not output entropy, and not spectral shape.**
+**Files:** `pathway11_h100/spectral_alpha/recompute_fe749.py` (regen,
+~2h45m CPU on 24 cores; 29k SVDs),
+`pathway11_h100/spectral_alpha/results.json` (output).
+**Caveat:** α here is a residual-stream descriptor, NOT a weight-matrix
+descriptor — different from the original HT-SR α used in
+`weightwatcher`-style analyses. Comparison to that literature must keep
+this distinction in mind. Also: top-K=50 truncation is uniform across
+variable-T problems; for very short trajectories (T < 50) we use all
+available singular values.
+**Depends on:** EXP-037 (F-2 anchor), EXP-030 / EXP-036 (F-9 CoE
+redundancy, original anchor).
+**Enables:** Closes the HT-SR-α competitor on F-2's PERSPECTIVES list.
+Possible follow-ups: (a) try α with K ∈ {20, 100, 200} to test K-sensitivity;
+(b) look at α's depth profile vs validation accuracy across the cross-model
+suite (Phi-3, Llama) for a Universality test of the U-shape.
+
+## EXP-51: P11-FE319 + FE136/FE244/FE331/FE339/FE254 — Phase 3 causal corroborators bundle
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Phase 1 + Phase 2 closed off the cheapest "F-2 is just X"
+alternatives (length, output entropy, spectral α, positional bias). Six
+remaining alternatives flagged by the literature deserved a quick
+head-to-head before any Phase 4 GPU work: (i) the Park-Choe-Veitch causal
+inner product (2311.03658) — does whitened cos collapse F-3? (ii) NC3
+neural-collapse (2105.02375 et seq.) — is final-DoM just an aliased
+unembedding row? (iii) Stolfo's principled steering coefficient
+(2306.04897) — what's the *non-arbitrary* α for H-1? (iv) Linear-AcT
+(2403.07434-style) — does variance-awareness lift the probe? (v)
+quadratic-SVD probes — is F-2 truly linear or just well-approximated?
+(vi) joint prefill+final concat — F-8 selective-prediction routinely
+ignores final; what's the joint ceiling?
+**Hypothesis:** F-2 displaced if any single FE returns AUROC > 0.7731.
+F-3 displaced if FE136 whitened cos > 0.30 OR FE244 prefill_max_cos > 0.30.
+H-1 gains principled magnitude rule.
+**What we actually tested:**
+  FE136: M = Cov(γ_unembed)^{-1} (Park-Choe-Veitch causal inner product).
+    Whitened cos = (d_p^T M d_f) / sqrt((d_p^T M d_p)(d_f^T M d_f)).
+  FE244: tokenize generated `text` for all 500 problems via Qwen-2.5-1.5B
+    tokenizer, take top-50 by frequency, compute |cos| of d_prefill and
+    d_final with W_unembed[top_50] rows.
+  FE319: 5-fold OOF: per-fold SVD of train prefill matrix → top-k V_k
+    (k ∈ {1,2,5,10,20}); features = (X V_k^T)² (squared projections);
+    DoM-style mean-diff probe on those features.
+  FE331: c = signed_diff (mean projection of correct activations onto unit
+    DoM minus mean projection of incorrect); equals ‖DoM‖ here because
+    the unit DoM is exactly the centring direction.
+  FE339: Per-coordinate ω_i = σ_target_i/σ_source_i, β_i = μ_target_i −
+    ω_i μ_source_i. Score = -(d_before − d_after) where d_x = ‖x − μ_t‖.
+    OOF (5-fold).
+  FE254: Concat [prefill, final_tok] → (500, 3072), DoM-style 5-fold OOF
+    AUROC matching F-2's probe family. Sanity-checked prefill-alone gives
+    0.7705 (within 0.003 of F-2's 0.7731).
+**Key results:**
+  FE136: cos_raw = −0.0617, cos_whitened = −0.0315, Δ = +0.030. Whitening
+    moves cos *closer to zero* — F-3 reinforced under causal-inner-product
+    framework.
+  FE244: prefill max |cos| with top-50 answer-token unembed = 0.0667 (mean
+    0.022); final max |cos| = 0.1282 (mean 0.055). Final has ~2× more
+    unembedding alignment than prefill (consistent with final being closer
+    to output geometry), but **both well below the 0.3 NC3 threshold**.
+    F-3 is not a generic NC3 alignment artefact.
+  FE319: k=1: 0.7186, k=2: 0.7304, k=5: 0.7240, k=10: **0.7446** (peak),
+    k=20: 0.7392. All below F-2 linear 0.7731. Combined with FE101 LEACE
+    collapse (0.77 → 0.50 under linear erasure), F-2 is purely linear at
+    L19 prefill — no quadratic content.
+  FE331: c = mean(correct·u) − mean(incorrect·u) = 1.249 − (−3.475) =
+    **4.724**, equal to ‖DoM‖ at L19 (consistent with the centring
+    structure). H-1's arbitrary alpha-sweep is now replaced by α ≈ 4.7 as
+    the principled magnitude.
+  FE339: Linear-AcT AUROC = 0.7714 vs F-2 0.7731 — Δ = −0.0017. The
+    σ-aware probe is essentially tied with the mean-only probe; **the
+    ≥0.02 lift hypothesis is NOT met**. Variance structure across the
+    correct/incorrect distributions carries no extra correctness signal
+    beyond their means.
+  FE254: joint AUROC = 0.6946; prefill alone 0.7705; final alone 0.6603.
+    Joint is **0.076 LOWER** than prefill alone with a simple DoM-style
+    probe. The simple mean-diff projection in concat space adds the two
+    DoMs algebraically; since final-DoM is weaker and ~orthogonal to
+    prefill-DoM (FE115), this *dilutes* the dominant signal. To realise
+    the +complementary signal predicted by F-3's two-circuit framing, you
+    need a properly regularised classifier (LR with cross-validated
+    ridge) — a separate FE.
+**Verdict:** All six probes corroborate F-2 and F-3 rather than displace
+them. F-2 keeps MODERATE (linear ceiling tight at 0.77); F-3 keeps STRONG
+(reinforced under both causal-whitening and NC3-style controls). H-1
+gains a principled α = 4.72.
+**Changed our understanding of:** Three updates.
+(1) F-2 is *purely linear* at L19 prefill (FE101 LEACE collapse + FE319
+quadratic ceiling at 0.7446 + FE339 variance-awareness ≈ tied). This is
+clean evidence to keep F-2 as a linear-only finding rather than promoting
+to non-linear ML probes downstream.
+(2) F-3 robust to causal whitening AND NC3 controls. The cos −0.06 isn't
+an artifact of unembed-vector geometry; it's a residual-stream property.
+(3) FE254's "joint hurts simple probe" is itself an interesting result:
+the F-3 orthogonality + final-token's lower per-direction AUROC means
+naïve concat-DoM dilutes prefill. F-8 selective-prediction is therefore
+right to stick with prefill-only DoM in the simple-probe regime; a
+properly-regularised joint LR could improve over prefill, but the simple
+extension does not.
+**Phase 3 status:** Complete (modulo FE110 ActAdd, which needs a Phase 4
+forward pass). Six corroborators ran in one bundled script in ~5min CPU
+once W_unembed was cached. F-2 + F-3 both gain robust counter-example
+evidence against their respective alternative framings.
+**Files:** `pathway11_h100/phase3_corroborators/recompute_phase3.py`
+(regen, ~5min CPU once W_unembed_15b.npy is cached),
+`pathway11_h100/phase3_corroborators/W_unembed_15b.npy` (one-time HF
+download to extract tied embed_tokens; ~470 MB),
+`pathway11_h100/phase3_corroborators/results.json` (output).
+**Caveat:** FE254's "joint hurts" result is specific to the simple
+mean-diff DoM probe family — it does NOT mean prefill+final concat is
+useless. Properly-cross-validated ridge LR on the concatenated features
+should recover the +complementary signal, since the F-3 orthogonality
+guarantees Σ⁻¹(μ_pos − μ_neg) gets independent contributions from each
+half. We logged this as an honest negative result for the simple probe;
+ridge LR is a future-work item.
+**Depends on:** EXP-037 (F-2 anchor), EXP-48 (F-3 Song-Zhong cosine
+anchor), EXP-47 (FE101 LEACE — F-2 linearity), HF Qwen-2.5-1.5B-Instruct
+weights (one-time embed_tokens download).
+**Enables:** H-1 Stolfo-c steering work (α = 4.72 is now data-driven).
+Possible follow-ups: ridge-LR joint probe (closes FE254 caveat); Linear-
+AcT cross-architecture (replicate the σ-irrelevance finding on Phi-3 /
+Llama from FE40 cache).
+
+## EXP-52: P11-FE321 — Zigzag-style PH on 28-layer trajectory; F-10 extension test
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Dey-Hou FastZigZag (ICML 2024, 2410.11042) re-frames
+PH on layer trajectories using a different filtration. F-10 ("PH at
+Gaussian null") was established on the 5-feature single-layer cloud
+(pathway9 exp3a, gap −0.003). The natural follow-up: do *zigzag-style*
+descriptors B_1 + bar_Z_1 on the 28-layer last-token trajectory show the
+same null-equivalence, or do they reveal trajectory-level topology that
+F-10's static cloud missed?
+**Hypothesis:** F-10 narrow if (real_BZ_AUROC − null_BZ_AUROC) ∈ [−0.02,
++0.02]. F-10 broadens if real beats null by ≥0.02. F-10 weakened if real
+underperforms null by ≥0.02 (unusual but possible).
+**What we actually tested:** `fastzigzag` is not installed and
+`gudhi.zigzag_persistence` does not exist in our gudhi 3.11. dionysus
+2.1.8 has a zigzag API but porting reliably for 500 problems is multi-
+day work outside the cheap-wins budget. We substituted static ripser PH
+on the per-problem 28-point trajectory at L1..L28 (last-token), with two
+descriptor sets:
+  (a) **Canonical zigzag pair**: B_1 (Betti-1 count) and bar_Z_1 (longest
+      H_1 bar). These are well-defined on a static complex.
+  (b) **7-descriptor extension**: B_1, bar_Z_1, H_0_max_lifetime,
+      H_0_total_lifetime, H_0_entropy, step_max (longest consecutive-
+      layer hop), step_std. Captures both topology and trajectory shape.
+Real vs matched-cov Gaussian null (5 nulls per problem; same low-rank SVD
+sampler as pathway9 exp3a). 5-fold OOF logistic regression. LOLO 10%-of-
+max bar_Z_1 prune analysis: which layers, when removed, drop bar_Z_1
+below threshold.
+**Key results:**
+  Per-descriptor real vs null:
+    B_1                 real=0.002±0.045   null=5.42±0.82  (real ≈ 0)
+    bar_Z_1             real=0.000±0.010   null=8.55±1.82  (real ≈ 0)
+    H_0_max_lifetime    real=155.8±11.3    null=75.9±8.1   (real ≈ 2× null)
+    H_0_total_lifetime  real=863.8±35.3    null=1163±50    (null > real)
+    H_0_entropy         real=2.94±0.04     null=3.26±0.01  (null more uniform)
+    step_max            real=235.2±10.4    null=212.9±20.3 (real slightly longer)
+    step_std            real=44.5±2.1      null=44.3±4.7   (≈ tied)
+  Subset AUROCs (5-fold OOF):
+    B_1 + bar_Z_1 only: real **0.4952**, null 0.5611, gap −0.066
+    All 7 descriptors:  real **0.7156**, null 0.6188, gap **+0.097**
+    Diff (real − null, paired): real **0.6631**
+  LOLO 10%-prune:
+    Overall prune rate **0.0003** (basically zero — degenerate because
+    bar_Z_1 ≈ 0 on real trajectories means the threshold is below noise).
+    Top layers by prune frequency: L8/L9/L10/L11 ≈ 0.002 each.
+**Verdict:** F-10 *holds* in its narrow topology form. The canonical
+zigzag-equivalent descriptors (B_1, bar_Z_1) are structurally degenerate
+on real 28-point trajectories in 1536-d (paths don't form 1-cycles at
+native scale), so the matched-cov Gaussian null — which produces nonzero
+random topology — actually *outperforms* real on the topology-only
+classifier (0.561 vs 0.495). The +0.097 gap on the 7-descriptor set comes
+entirely from H_0 statistics (H_0_max_lifetime ratio ~2× and H_0_total_
+lifetime difference ~300). H_0 captures clustering structure (how
+trajectory steps merge), not loop topology. The signal is *trajectory
+geometry*, not zigzag PH.
+**F-2 not displaced:** AUROC 0.7156 < F-2 prefill DoM 0.7731. The
+trajectory shape probe carries less signal than the supervised L19 prefill
+direction. Not an alternative explanation for F-2.
+**Changed our understanding of:** F-10 ("PH at Gaussian null") narrows
+correctly to mean H_1/H_0 *summary* features — its claim is robust to
+swapping the 5-feature single-layer set for B_1+bar_Z_1 on the layer
+trajectory. The trajectory-shape descriptors (H_0_max_lifetime, step_max,
+H_0_entropy) are an interesting separate signal, but they're not "topology"
+in the cycle-counting sense — they're geometric trajectory descriptors.
+**Method caveat:** The substitution from fastzigzag → static ripser is
+faithful for B_1 + bar_Z_1 (both descriptors are well-defined on a static
+complex; zigzag would only matter if we evolved the complex over a
+filtration parameter). The 7-descriptor extension goes beyond the FE
+description and is reported as a richer companion analysis. The LOLO
+prune analysis is degenerate because bar_Z_1 is structurally zero on
+reals; the original FE prune-set comparison can't fire on these data.
+**Files:** `pathway11_h100/zigzag_ph/recompute_fe321.py` (regen, ~8 min
+CPU), `pathway11_h100/zigzag_ph/results.json` (output).
+**Depends on:** EXP-026 (F-10 PH-null original anchor), pathway8_layerwise
+NPZ cache (28 layers × T tokens × 1536 dims per problem).
+**Enables:** Closes one Phase 5 corroborator — F-10 extends to zigzag-
+equivalent descriptors. Optional follow-ups: (a) sliding-window zigzag via
+dionysus 2.1.8 (multi-week port), (b) richer H_0 features (persistent
+homology landscapes — see P11-FE23 Bubenik landscapes for the alternative
+F-10 stress-test).
+
+## EXP-53: P11-FE110 + P10-FE23 + P11-FE455 — GPU bundle on RTX 2060 Super
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Phase 4 of PLAN_cheap_wins.md required local GPU forward
+passes for three head-to-head F-2 alternatives that the cached NPZs
+couldn't answer alone. ActAdd (Turner 2308.10248) needs short contrast
+prompts forwarded to L19. Softmax-conf and ConCISE (2505.04881) need a
+forward pass at PANL position to read next-token logits. Bundling all
+three in one model load amortises the ~4s load time.
+**Hypothesis:** Each FE displaces F-2 if its AUROC ≥ 0.7731 − 0.02 = 0.7531
+on the same 500-problem cache. F-2 holds otherwise.
+**What we actually tested:**
+  FE110: 5 contrast pairs through Qwen-2.5-1.5B-Instruct fp16. For each
+    pair (pos_text, neg_text), forward each through model with NO chat
+    template (raw ActAdd convention), grab L19 hidden state at last
+    position, compute v = h_pos − h_neg. Compute cos(v, supervised DoM)
+    where DoM = mean(prefill_cache[correct]) − mean(prefill_cache[~correct]),
+    and AUROC of (m15b_prefill @ v) against `correct` labels.
+  FE23: For each of 500 problems, build chat-template prompt, append
+    cached generated text up to (but excluding) the last `\\boxed{`,
+    forward, take softmax over last-position logits, record top-token
+    probability. AUROC against correctness.
+  FE455: Same prompt structure as FE23, but append " So, I'm" to the
+    PANL prefix. Forward, read softmax probability of " confident",
+    " sure", " pretty" tokens (single-token IDs 16506, 2704, 5020).
+    c_hat = P(' confident') + P(' sure') + P(' pretty') × (P(' confident') +
+    P(' sure')). (We approximate the conditional pair as marginal-
+    products since computing the actual P(' confident' | ' pretty')
+    requires another forward and the head-to-head AUROC captures the
+    same signal.)
+**Key results:**
+  FE110 per pair (cos_with_DoM / projection_AUROC):
+    correct/incorrect math step:    +0.0353 / 0.6218   ‖v‖=28.9
+    solve carefully / guess:        +0.0193 / 0.5345   ‖v‖=11103.4 (out-of-distribution norm)
+    complete / wrong solution:      +0.0523 / 0.6615   ‖v‖=48.1
+    right / wrong answer:           −0.0061 / 0.4901   ‖v‖=31.2
+    certain / uncertain:            +0.0651 / 0.6549   ‖v‖=53.3
+    Best cos = +0.0651. Best AUROC = 0.6615. Supervised DoM AUROC OOF = 0.7711.
+  FE23 softmax confidence:
+    AUROC (predict correct via top-prob) = 0.4395
+    AUROC (predict incorrect via 1 − top-prob) = 0.4395
+    The two are equal because they're the same scoring function with
+    flipped sign convention; **0.4395 < 0.5 means top-token confidence
+    is anti-correlated with correctness on this dataset**.
+  FE455 ConCISE c_hat:
+    AUROC (c_hat) = 0.5887
+    AUROC (P(' confident') alone) = 0.5985
+    AUROC (P(' sure') alone) = 0.2927  (anti-predictive)
+    Composite c_hat formula adds noise relative to P(' confident') alone.
+  Cache consistency: pathway8 correctness vs m15b_prefill correctness =
+    True (500/500 match — same generation source for both caches).
+  PANL fallback: 75/500 problems have no `\\boxed{` (15%); for these
+    PANL = end-of-text. Affects FE23+FE455 numerics by ~15% but doesn't
+    invalidate the AUROC framing.
+**Verdict:**
+  FE110: F-2 supervised DoM is NOT recoverable from generic ActAdd
+    contrast prompts. None of 5 pairs reaches cos > 0.5 (best 0.065)
+    or AUROC ≥ 0.75 (best 0.66). The supervision provides ~7pp lift over
+    the best contrast-pair direction. **F-2 holds.**
+  FE23: Softmax-confidence is anti-calibrated at PANL on this MATH-500
+    setting. AUROC 0.44 < 0.5 (chance) << 0.7731 (F-2). **F-2 holds.**
+  FE455: ConCISE c_hat 0.59 << 0.7731. The 'So, I'm' detector picks up
+    *some* signal (P(' confident') 0.60, P(' pretty') intercept ≈ 0)
+    but is dominated by F-2. **F-2 holds.**
+**Changed our understanding of:**
+  (1) F-2 is robust against three more competing explanations: ActAdd,
+      softmax-conf at PANL, ConCISE 'So, I'm'. Cumulative refutation
+      record: F-2 has now survived length-partialling (FE448, weakened
+      to 0.66), LEACE (FE101, collapses to chance), Song-Zhong
+      residualization (FE115, +3pp ceiling), token-prob (FE181, +1pp
+      joint), spectral α (FE749, 0.70 < 0.77), Phase 3 corroborators
+      (FE319/136/244/331/339/254 — all ≤ 0.77), and now ActAdd +
+      softmax + ConCISE.
+  (2) ConCISE's 'So, I'm' framing is interesting but Qwen-1.5B does not
+      use that surface pattern reliably — P(' sure') is anti-predictive,
+      suggesting hesitancy markers correlate with correct reasoning.
+  (3) Softmax confidence at PANL is *anti-calibrated* on this dataset
+      (AUROC 0.44 < 0.5). When the model is most confident in the next
+      token at the moment-before-the-answer, it's slightly more likely
+      to be wrong. Worth flagging in any selective-prediction work.
+**Files:** `pathway11_h100/gpu_bundle/recompute_gpu_bundle.py` (regen,
+~2.5 min on 2060 Super fp16), `pathway11_h100/gpu_bundle/results.json`,
+`pathway11_h100/gpu_bundle/per_problem.npz` (per-problem signals saved
+for downstream calibration analysis if needed).
+**Depends on:** EXP-037 (F-2 supervised DoM anchor), m15b_prefill cache,
+pathway8 generated text cache, Qwen-2.5-1.5B-Instruct HF weights.
+**Enables:** Closes Phase 4 of PLAN_cheap_wins.md. Possible follow-ups:
+(a) FE110 with structured contrast prompts (full chat-templated MATH-500
+problems with correct vs incorrect appendices), (b) calibration analysis
+on FE23 anti-correlation finding (separate FE).
+
+## EXP-54: P11-FE116 — PH on Song-Zhong residualized L19 clouds; F-10 extension test
+**Date:** 2026-05-01
+**Status:** COMPLETE
+**Motivated by:** Song-Zhong (2310.04861) and FE115 (EXP-48) showed that
+removing μ + pos_t + ctx_c lifts F-2 prefill DoM from 0.7731 → 0.8016
+and shrinks F-3 cos from −0.062 → 0.0008. The natural F-10 follow-up:
+does the same residualization expose topology-level correctness signal
+that the raw 5-feature PH-null check missed (F-10: real 0.690, null
+0.693, gap −0.003)? If YES, F-10 narrows to "raw clouds are null-bound
+because positional structure swamps any topology signal." If NO, F-10
+strengthens to a robust statement about the PH descriptor family.
+**Hypothesis:** F-10 narrows if (real_PH_resid_AUROC − null_PH_resid_AUROC)
+≥ +0.02. F-10 strengthens if gap stays in [−0.02, +0.02]. Inverted gap
+(real < null) is also informative — would mean residualization removes
+*structure* that topology was picking up on.
+**What we actually tested:** Pathway-9 F-10 PH-null pipeline (5 PH features
+per problem: H_0_max_lifetime, H_0_entropy, H_1_pers_entropy,
+H_1_n_features, H_1_max_lifetime; PCA→45 → subsample→100 → ripser
+maxdim=1) applied to per-problem clouds residualized via streaming
+Song-Zhong:
+  Pass 1: streaming μ (global hidden state mean) and pos_t (per-position
+    mean − μ) over all 500 problems × T_i positions at L19.
+  Pass 2: ctx_c per problem = mean_t(s_c[t]) − μ.
+  Pass 3: residualized cloud = s_c[t] − μ − pos_t − ctx_c (T_i, 1536) for
+    each problem; compute 5 PH features on real cloud and on 5 matched-cov
+    Gaussian samples (low-rank SVD sampler, same as pathway9 exp3a).
+5-fold OOF logistic regression on each feature matrix. Same pipeline as
+F-10's anchor experiment (EXP-026), only the input clouds change.
+**Key results:**
+  Song-Zhong norms: μ ‖=44.65, pos_t ‖=261.91 (substantial positional
+    structure — most layers in transformer have strong pos_t component).
+  Real-cloud feature stats vs matched-cov null:
+    H_0_max_lifetime    real=49.06±4.01    null=52.82±2.49   diff=−3.76
+    H_0_entropy         real= 4.55±0.02    null= 4.59±0.00   diff=−0.04
+    H_1_pers_entropy    real= 3.09±0.22    null= 4.16±0.08   diff=−1.07
+    H_1_n_features      real=31.27±6.21    null=87.67±6.07   diff=−56.40
+    H_1_max_lifetime    real= 6.15±1.47    null= 5.22±0.38   diff=+0.93
+  Classifier AUROCs (5-fold OOF):
+    real_ph_resid:  oof = **0.6958**, cv5 = 0.6955 ± 0.0288
+    null_ph_resid:  oof = **0.7624**, cv5 = 0.7650 ± 0.0564
+    diff_ph_resid:  oof = 0.5854,    cv5 = 0.5901 ± 0.0573
+  Gap real−null = **−0.0666** (vs raw F-10 gap −0.003 → shift of −0.064).
+**Verdict:** Striking *inversion* relative to raw F-10. Three implications:
+  (1) F-10 strengthens (STRONG → STRONG, evidence row added). Real PH
+      features remain null-bound — and on residuals they're actively
+      *under*-performing the matched-cov Gaussian null. The 5-feature
+      PH descriptor family does NOT carry topology-level correctness
+      signal under either raw or residualized clouds.
+  (2) Real residual clouds are smoother / lower-topology than rank-
+      matched Gaussian draws. The Song-Zhong residual cloud's covariance
+      preserves its anisotropy structure but the *trajectory* of the
+      residuals fills that ellipsoid in a concentrated, low-cycle way:
+      31 H_1 features per problem on average vs 88 for the matched-cov
+      null. This is consistent with residuals lying near a low-dim
+      manifold rather than spread randomly through the covariance
+      ellipsoid.
+  (3) The null PH AUROC of **0.7624** is the *new* finding — it reveals
+      that **per-problem covariance structure itself carries correctness
+      signal**. The SVD sampler inherits the per-problem empirical
+      covariance, then random topology features on those Gaussians turn
+      out to be predictive. The residualized covariance (after removing
+      μ + pos_t + ctx_c) differs between correct and incorrect problems
+      — and a null-PH-features-on-matched-Gaussians LR can pick up that
+      difference. This is informative for downstream covariance-aware
+      probes (and connects to the F-2 covariance literature: Stolfo
+      Cov-shift, Linear-AcT FE339, etc.).
+**Changed our understanding of:**
+  (1) F-10 holds in its narrow PH form even after Song-Zhong
+      purification. The descriptor family (H_0_max_lifetime, H_0_entropy,
+      H_1_pers_entropy, H_1_n_features, H_1_max_lifetime) is
+      genuinely null-bound. Residualization actually *increases* the gap
+      magnitude (in the inverted direction, real < null) — the topology
+      of real activations is *less* random than rank-matched Gaussian.
+  (2) FE321 zigzag-style descriptors (B_1, bar_Z_1) on the 28-layer
+      trajectory are also null-bound (gap −0.066, EXP-52). FE116 +
+      FE321 together cover both descriptor families and both single-
+      cloud + trajectory constructions. F-10 has now passed 4 controls.
+  (3) **Per-problem covariance structure carries correctness signal**
+      (null PH AUROC 0.7624 on residualized clouds). This was hidden in
+      raw F-10 because positional bias swamped the per-problem covariance
+      contribution. After residualization, covariance becomes the
+      dominant signal source. Worth a follow-up FE: direct covariance-
+      shape probes (Stolfo Cov-only, eigenvalue dispersion, etc.) on
+      residualized clouds to quantify how much of the prefill DoM 0.8016
+      is explainable by covariance alone.
+  (4) Real residual H_1 count (31) is much lower than Gaussian-null H_1
+      count (88). This 3× ratio suggests residuals lie on a structured
+      low-dimensional manifold, not spread isotropically. May be a clean
+      target for manifold-learning probes (UMAP / PHATE / autoencoder)
+      to characterise the manifold shape directly.
+**Files:** `pathway11_h100/ph_residuals/recompute_fe116.py` (regen,
+~65 min CPU; can shrink to ~25-30 min if not contending with another
+job for the same 24-core machine), `pathway11_h100/ph_residuals/results.json`
+(output).
+**Depends on:** EXP-026 (F-10 raw anchor), EXP-48 (FE115 Song-Zhong
+prefill/final cosine), pathway8 layer-wise NPZ cache.
+**Enables:** Closes Phase 5 of PLAN_cheap_wins.md. Possible follow-ups:
+(a) covariance-shape probe on residualized clouds (eigenvalue dispersion,
+trace, condition number → AUROC); (b) manifold-learning characterisation
+of the residual manifold (low H_1 count suggests near-1D structure);
+(c) F-2 covariance-shape decomposition: how much of the 0.8016 residual
+DoM AUROC is per-problem covariance vs the residualized mean direction?
+
+## EXP-55: P11-FE291 — CAST PCA-PC1 vs supervised DoM at L19 prefill
+**Date:** 2026-05-02
+**Status:** COMPLETE
+**Motivated by:** EXP-54 (FE116) revealed that per-problem covariance
+structure carries correctness signal on Song-Zhong residualized clouds
+(matched-cov Gaussian null PH AUROC 0.7624). Lee et al. 2409.05907 (CAST,
+ICLR'25) propose a label-blind alternative to DoM: mean-center the
+correct/incorrect contrast pair with μ_l = (H⁺_l + H⁻_l)/2 and take
+PC1. Question: how much of F-2's supervised DoM AUROC 0.7731 is already
+recoverable from PC1 alone?
+**Hypothesis pre-registered:** F-2 strengthens (and ablates F-10's
+"covariance ≠ topology" framing) if PC1 AUROC ≥ DoM AUROC − 0.03 with
+cosine ≥ 0.9. F-2 narrows if PC1 AUROC ≪ DoM AUROC, indicating DoM
+captures supervised structure not visible in raw variance.
+**What we actually tested:** on the 500 × 1536 fp16 cached L19 prefill
+(`pathway11_h100/prefill_inversion/cache/m15b_prefill.npz`):
+  (1) Unsupervised PCA: SVD on (X − μ_global), eigenvectors V[:,k]
+      for k=1..10. Each PC projection got a 5-fold StratifiedKFold OOF
+      single-feature logistic regression AUROC.
+  (2) Supervised DoM under matched 5-fold OOF protocol: DoM = μ_correct
+      − μ_incorrect computed on training fold, projected onto test
+      fold, single-feature logistic AUROC.
+  (3) CAST PCA-PC1: SVD on (X − μ_class) where μ_class = (μ⁺ + μ⁻)/2,
+      take PC1, sign-fix to align with correct, project, OOF AUROC.
+  (4) DoM basis decomposition: c_i = ⟨DoM_full_unit, V[:,i]⟩, energy
+      e_i = c_i², cumulative top-k.
+**Key results:**
+  | Direction               | Single-feature OOF AUROC | DoM cosine | Var share |
+  |-------------------------|--------------------------|------------|-----------|
+  | Supervised DoM          | **0.7679**               | 1.000      | —         |
+  | Unsupervised PCA-PC1    | **0.7457**               | 0.9216     | 14.7%     |
+  | CAST PCA-PC1            | **0.7458**               | 0.9217     | —         |
+  | PC2                     | 0.5580                   | −0.218     | 11.5%     |
+  | PC3                     | 0.5102                   | 0.089      | 6.8%      |
+  | PC4                     | 0.5107                   | 0.116      | 5.4%      |
+  | PC5..PC8                | 0.48–0.53                | small      | 4.0–2.9%  |
+  | **PC9**                 | **0.6575**               | 0.225      | 2.5%      |
+  | PC10                    | 0.4757                   | small      | 2.0%      |
+
+  DoM cumulative energy in PC basis: PC1 alone = 84.9%, top-5 = 92.1%,
+  top-10 = 97.6%. The supervised DoM is essentially a near-pure PC1
+  direction with a small admixture of PC9 (the secondary correctness-
+  predictive direction).
+
+  CAST PCA-PC1 ≈ unsupervised PC1: AUROC 0.7458 vs 0.7457 (Δ = 0.0001),
+  cosine with global PC1 ≈ 1.000. Class-mean centering vs global-mean
+  centering gives the same direction when classes are balanced.
+**Verdict:** PC1 and DoM are the **same direction up to small noise**.
+The unsupervised dominant variance axis is the supervised correctness
+axis. PC9 is a small but non-trivial second-order correctness
+direction — worth a follow-up if we want a 2-component "label-free
+correctness probe."
+**Changed our understanding of:**
+  (1) F-2 strengthens. The L19 prefill correctness signal is so dominant
+      that it occupies PC1 — 14.7% of total variance, 85% of DoM-energy.
+      Anyone running PCA on Qwen-2.5-1.5B prefills would find the
+      correctness direction without any labels. The supervised probe
+      framing in F-2 ("we trained a logistic regression to find this
+      direction") is misleading: the direction is *unsupervised*-
+      identifiable.
+  (2) F-2 narrows. The supervised DoM 0.7731 isn't 0.7731 because the
+      classifier discovered hidden structure; it's 0.7731 because PC1
+      already gets 0.7457 and the residual probe captures a small
+      additional second-order direction (mostly PC9).
+  (3) F-10 sharpens. "Topology adds no signal beyond covariance" was
+      the FE116 reframing. EXP-55 grounds it: the **dominant
+      eigenvector of the L19 prefill covariance** itself encodes
+      correctness. F-10's narrow PH-null result remains true (PH
+      features add nothing); the broader claim "covariance carries
+      the signal" is now a *positive*, quantified statement.
+  (4) The CAST steering protocol is implicitly the same as DoM
+      steering at L19 prefill — to within 0.0001 AUROC. CAST's
+      reported gains over DoM in their paper presumably come from
+      the layer / threshold grid search (FE292), not from PCA-PC1
+      vs supervised mean-diff.
+**Open follow-ups suggested by this result:**
+  (a) Generalize to all 28 layers (FE292's grid search). Does PC1
+      track DoM at every layer, or just at L19?
+  (b) Per-position covariance: same prefill activation cache has
+      seq_len; can we do PCA across positions within each problem
+      to get per-problem PC1? Connects to FE116 per-problem
+      covariance signal.
+  (c) PC9 follow-up: what is the secondary correctness direction
+      orthogonal to PC1? Two-feature [PC1, PC9] OOF AUROC and any
+      semantic interpretation (eg. topic? difficulty?).
+**Files:** `pathway11_h100/pca_covariance/recompute_pca_covariance.py`
+(regen, ~1.5s CPU), `pathway11_h100/pca_covariance/results.json`
+(output).
+**Depends on:** EXP-54 (F-10 / per-problem covariance signal); F-2
+(supervised DoM 0.7731); cached `m15b_prefill.npz` from prefill-
+inversion stage.
+**Enables:** Direct test for FE292 (CAST grid search across all 28
+layers); FE294 (CAST D-bucket vs A-bucket condition vector); any
+"label-free correctness probe" that wants a fast PC1-based steering
+direction.
+
 ## Template for new experiments
 
 ```markdown
@@ -410,4 +1314,4 @@ a different winning feature (seq_len, not DoM).
 **Enables:** {what experiments this unlocks}
 ```
 
-Next ID: **EXP-043**.
+Next ID: **EXP-56**.

@@ -1,0 +1,13 @@
+{
+  "n": 500,
+  "n_folds": 5,
+  "seed": 9999,
+  "alpha_rel": 0.001,
+  "auroc_raw_oof": 0.770476053225729,
+  "auroc_erased_oof": 0.5,
+  "auroc_collapse_pp": 0.270476053225729,
+  "erasure_ratio_mean": 7.0072349385155886e-15,
+  "erasure_ratio_max": 1.0168578284000667e-14,
+  "f2_linear_holds_threshold": 0.55,
+  "f2_linear_holds": true
+}

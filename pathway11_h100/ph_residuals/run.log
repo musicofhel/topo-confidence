@@ -1,0 +1,38 @@
+n=500, T_min=123, T_median=521, T_max=1024
+correct: 243/500
+Song-Zhong: μ ‖=44.652, pos_t variance ‖=261.910
+  25/500  elapsed=294s  eta=5581s
+  50/500  elapsed=547s  eta=4920s
+  75/500  elapsed=667s  eta=3779s
+  100/500  elapsed=783s  eta=3134s
+  125/500  elapsed=900s  eta=2701s
+  150/500  elapsed=1050s  eta=2451s
+  175/500  elapsed=1290s  eta=2395s
+  200/500  elapsed=1521s  eta=2281s
+  225/500  elapsed=1733s  eta=2118s
+  250/500  elapsed=1869s  eta=1869s
+  275/500  elapsed=2000s  eta=1636s
+  300/500  elapsed=2150s  eta=1433s
+  325/500  elapsed=2529s  eta=1362s
+  350/500  elapsed=2754s  eta=1180s
+  375/500  elapsed=3097s  eta=1032s
+  400/500  elapsed=3276s  eta=819s
+  425/500  elapsed=3438s  eta=607s
+  450/500  elapsed=3605s  eta=401s
+  475/500  elapsed=3743s  eta=197s
+  500/500  elapsed=3920s  eta=0s
+PH compute done in 3920s
+
+Feature comparison (residualized real vs full-cov null):
+  H0_max_lifetime      real=  49.060±4.008  null=  52.823±2.489  diff=-3.763
+  H0_entropy           real=   4.549±0.019  null=   4.592±0.000  diff=-0.042
+  H1_pers_entropy      real=   3.090±0.215  null=   4.159±0.076  diff=-1.069
+  H1_n_features        real=  31.266±6.205  null=  87.666±6.070  diff=-56.400
+  H1_max_lifetime      real=   6.147±1.470  null=   5.217±0.380  diff=+0.930
+  real_ph_resid     : oof=0.6958, cv5=0.6955±0.0288
+  null_ph_resid     : oof=0.7624, cv5=0.7650±0.0564
+  diff_ph_resid     : oof=0.5854, cv5=0.5901±0.0573
+
+VERDICT: Inverted gap on residuals (real=0.696 < null=0.762, gap=-0.067). Residualization weakens topology signal below null — unusual but consistent with F-10 being null-bound.
+
+Saved pathway11_h100/ph_residuals/results.json

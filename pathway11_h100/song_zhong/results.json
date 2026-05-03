@@ -1,0 +1,16 @@
+{
+  "n": 500,
+  "layer": 19,
+  "n_folds": 5,
+  "seed": 9999,
+  "cos_prefill_final_raw": -0.06172802813097521,
+  "cos_prefill_final_resid": 0.0007849965651562156,
+  "auroc_prefill_raw": 0.770476053225729,
+  "auroc_final_raw": 0.6602616451297817,
+  "auroc_prefill_resid": 0.8015724327873053,
+  "auroc_final_resid": 0.6865382459848521,
+  "auroc_prefill_drop": -0.031096379561576293,
+  "auroc_final_drop": -0.026276600855070442,
+  "f3_cos_threshold": 0.3,
+  "f3_orthogonality_holds": true
+}

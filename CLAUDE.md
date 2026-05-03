@@ -110,7 +110,7 @@ entry), writes `(:Method)-[:USED_IN]->(:Paper)` and
 `(:Dataset)-[:USED_IN]->(:Paper)` edges, regenerates `NEXT_EXPERIMENTS.md`, and
 sets the paper to `status='graphed'`. **Refuses to promote** if the brief
 declares new quantitative claims and `validate_claims.py` hasn't been updated
-since the brief was written — protects the claims invariant (91 internal PASS / 41 external REGISTERED / 3 PENDING_FE = 135 tracked, 91/91 internal PASS).
+since the brief was written — protects the claims invariant (134 internal PASS / 41 external REGISTERED / 3 PENDING_FE = 178 tracked, 134/134 internal PASS).
 
 The `/paper-triage` skill spawns a fresh subagent per paper (per-paper context
 isolation) to defend against the confirmation-bias failure mode documented in
@@ -124,7 +124,7 @@ brief footer.
 python validate_claims.py > validation_report.txt
 ```
 
-135 claims tracked. **91 internal back-checked against committed JSONs (91/91 PASS), 41 external paper anchors registered (REGISTERED, no readback), 3 forward-looking H-N thresholds (PENDING_FE, become live when their FE result JSON lands).** Tier-1 regen recomputes 68 of the 91 internals from cached intermediates (68/68 REGEN_PASS). If you change any number in the narrative docs, update the matching `Claim` entry and re-run; if you cite a new external number, add a `kind="external"` entry.
+178 claims tracked. **134 internal back-checked against committed JSONs (134/134 PASS), 41 external paper anchors registered (REGISTERED, no readback), 3 forward-looking H-N thresholds (PENDING_FE, become live when their FE result JSON lands).** Tier-1 regen annotates 105 of the 134 internals with cached-intermediate recompute commands (FE749 spectral α excluded — its regen takes ~2h45m, exceeds the 600s per-claim timeout; manual: `python pathway11_h100/spectral_alpha/recompute_fe749.py`). If you change any number in the narrative docs, update the matching `Claim` entry and re-run; if you cite a new external number, add a `kind="external"` entry.
 
 ## What the project is, in two sentences
 

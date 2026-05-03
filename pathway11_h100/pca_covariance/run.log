@@ -1,0 +1,14 @@
+loaded prefill X=(500, 1536) dtype=fp64 (cast from fp16) y_correct_rate=0.4860
+pc_1_auroc=0.7457366575
+pc_2_auroc=0.5579894637
+pc_3_auroc=0.5102080031
+pc_4_auroc=0.5106723671
+pc_5_auroc=0.5262205569
+pc_6_auroc=0.4994475669
+pc_7_auroc=0.4797201006
+pc_8_auroc=0.5315367248
+pc_9_auroc=0.6575395110
+pc_10_auroc=0.4756849370
+cast_pc1_auroc=0.7457846952
+cast_pc1_dom_cosine=0.9216957949
+wrote /home/musicofhel/topo-confidence/pathway11_h100/pca_covariance/results.json

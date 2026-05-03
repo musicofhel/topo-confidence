@@ -1,0 +1,82 @@
+{
+  "experiment": "P11-FE116",
+  "depends_on": [
+    "F-10"
+  ],
+  "n_problems": 500,
+  "layer": 19,
+  "n_features": 5,
+  "n_nulls_per_problem": 5,
+  "subsample": 100,
+  "pca_components": 45,
+  "n_folds": 5,
+  "seed": 42,
+  "song_zhong_norms": {
+    "mu_norm": 44.65224823310609,
+    "pos_t_norm": 261.91014429913025
+  },
+  "feature_comparison": {
+    "H0_max_lifetime": {
+      "real_mean": 49.060064323425294,
+      "real_std": 4.007625122537062,
+      "null_mean": 52.82320686950685,
+      "null_std": 2.488972687467264,
+      "diff_mean": -3.7631425460815535
+    },
+    "H0_entropy": {
+      "real_mean": 4.54942215652646,
+      "real_std": 0.018621142915855378,
+      "null_mean": 4.591709241767891,
+      "null_std": 0.0003313051689931514,
+      "diff_mean": -0.042287085241430766
+    },
+    "H1_pers_entropy": {
+      "real_mean": 3.090351608473664,
+      "real_std": 0.21502951696121295,
+      "null_mean": 4.159395023461172,
+      "null_std": 0.0760125019829437,
+      "diff_mean": -1.0690434149875077
+    },
+    "H1_n_features": {
+      "real_mean": 31.266,
+      "real_std": 6.204775902480282,
+      "null_mean": 87.66640000000001,
+      "null_std": 6.069562672878501,
+      "diff_mean": -56.40040000000001
+    },
+    "H1_max_lifetime": {
+      "real_mean": 6.146696502685547,
+      "real_std": 1.4698015952894963,
+      "null_mean": 5.216603269958496,
+      "null_std": 0.3798843989223178,
+      "diff_mean": 0.9300932327270512
+    }
+  },
+  "classifiers": {
+    "real_ph_resid": {
+      "auroc_oof": 0.6957935021056508,
+      "auroc_cv_mean": 0.6954911772401268,
+      "auroc_cv_std": 0.02883873471512205
+    },
+    "null_ph_resid": {
+      "auroc_oof": 0.7624217386430961,
+      "auroc_cv_mean": 0.7650425554837319,
+      "auroc_cv_std": 0.05640439877719027
+    },
+    "diff_ph_resid": {
+      "auroc_oof": 0.5853549182559126,
+      "auroc_cv_mean": 0.5900510204081633,
+      "auroc_cv_std": 0.05727909313620687
+    }
+  },
+  "auroc_real_ph_resid": 0.6957935021056508,
+  "auroc_null_ph_resid": 0.7624217386430961,
+  "auroc_diff_ph_resid": 0.5853549182559126,
+  "gap_real_minus_null": -0.06662823653744532,
+  "f10_raw_real": 0.69,
+  "f10_raw_null": 0.693,
+  "f10_raw_gap": -0.0030000000000000027,
+  "gap_change_vs_raw": -0.06362823653744532,
+  "verdict": "Inverted gap on residuals (real=0.696 < null=0.762, gap=-0.067). Residualization weakens topology signal below null \u2014 unusual but consistent with F-10 being null-bound.",
+  "elapsed_seconds": 3920.046641588211
+}

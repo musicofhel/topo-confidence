@@ -1,0 +1,54 @@
+{
+  "per_subject": {
+    "Algebra": {
+      "auroc": 0.6982074640023509,
+      "n_test": 124,
+      "n_pos": 83,
+      "n_neg": 41
+    },
+    "Counting & Probability": {
+      "auroc": 0.7277777777777777,
+      "n_test": 38,
+      "n_pos": 18,
+      "n_neg": 20
+    },
+    "Geometry": {
+      "auroc": 0.9,
+      "n_test": 41,
+      "n_pos": 15,
+      "n_neg": 26
+    },
+    "Intermediate Algebra": {
+      "auroc": 0.7701923076923077,
+      "n_test": 97,
+      "n_pos": 32,
+      "n_neg": 65
+    },
+    "Number Theory": {
+      "auroc": 0.6031746031746031,
+      "n_test": 62,
+      "n_pos": 27,
+      "n_neg": 35
+    },
+    "Prealgebra": {
+      "auroc": 0.7919038583175205,
+      "n_test": 82,
+      "n_pos": 51,
+      "n_neg": 31
+    },
+    "Precalculus": {
+      "auroc": 0.7073906485671192,
+      "n_test": 56,
+      "n_pos": 17,
+      "n_neg": 39
+    }
+  },
+  "auroc_mean": 0.7426638085045256,
+  "auroc_worst": 0.6031746031746031,
+  "auroc_best": 0.9,
+  "auroc_std": 0.0852194416284515,
+  "n_folds_scored": 7,
+  "in_sample_full_auroc": 0.7833981841763943,
+  "f2_refutation_threshold": 0.65,
+  "f2_refuted": false
+}

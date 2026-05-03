@@ -1,0 +1,86 @@
+{
+  "experiment": "P11-FE110+P10-FE23+P11-FE455",
+  "depends_on": [
+    "F-2",
+    "F-3",
+    "F-9"
+  ],
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "n_problems": 500,
+  "layer": 19,
+  "n_folds": 5,
+  "seed": 42,
+  "elapsed_seconds": 135.2600293159485,
+  "n_problems_without_boxed": 75,
+  "f2_prefill_dom_auroc": 0.7731,
+  "f2_final_dom_auroc": 0.7186,
+  "fe110": {
+    "supervised_dom_auroc_oof": 0.7711485804871019,
+    "per_pair": [
+      {
+        "pair": [
+          "correct math step",
+          "incorrect math step"
+        ],
+        "cos_with_supervised_DoM": 0.03525801748037338,
+        "projection_AUROC": 0.62181550335463,
+        "v_norm": 28.904510498046875
+      },
+      {
+        "pair": [
+          "solve carefully",
+          "guess"
+        ],
+        "cos_with_supervised_DoM": 0.01931406743824482,
+        "projection_AUROC": 0.534467022145362,
+        "v_norm": 11103.4462890625
+      },
+      {
+        "pair": [
+          "complete solution",
+          "wrong solution"
+        ],
+        "cos_with_supervised_DoM": 0.05230718478560448,
+        "projection_AUROC": 0.6615426494371587,
+        "v_norm": 48.097999572753906
+      },
+      {
+        "pair": [
+          "right answer",
+          "wrong answer"
+        ],
+        "cos_with_supervised_DoM": -0.0061495560221374035,
+        "projection_AUROC": 0.4900962354485917,
+        "v_norm": 31.198318481445312
+      },
+      {
+        "pair": [
+          "certain",
+          "uncertain"
+        ],
+        "cos_with_supervised_DoM": 0.0651397854089737,
+        "projection_AUROC": 0.6549294647003251,
+        "v_norm": 53.326717376708984
+      }
+    ],
+    "max_cos_with_dom": 0.0651397854089737,
+    "max_projection_auroc": 0.6615426494371587,
+    "verdict": "Best contrast pair achieves cos=+0.065 with supervised DoM and AUROC 0.662 on cached prefill scores. F-2 supervised DoM is NOT recoverable from these contrast pairs (supervision adds signal beyond ActAdd)."
+  },
+  "fe23": {
+    "auroc_softmax_confidence": 0.43950457158412193,
+    "auroc_softmax_uncertainty": 0.43950457158412193,
+    "verdict": "Softmax-confidence AUROC 0.440 vs prefill DoM 0.7731 (< F-2). F-2 holds \u2014 softmax does not subsume DoM."
+  },
+  "fe455": {
+    "auroc_c_hat": 0.5887175545627772,
+    "auroc_p_confident": 0.5985492626218956,
+    "auroc_p_sure": 0.29274150934332516,
+    "concise_token_ids": {
+      " confident": 16506,
+      " sure": 2704,
+      " pretty": 5020
+    },
+    "verdict": "ConCISE c_hat AUROC 0.589 vs prefill DoM 0.7731 (< F-2). F-2 holds \u2014 ConCISE does not subsume DoM."
+  }
+}

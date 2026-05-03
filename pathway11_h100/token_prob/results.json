@@ -1,0 +1,14 @@
+{
+  "n_15b": 500,
+  "n_7b": 500,
+  "n_folds": 5,
+  "seed": 9999,
+  "auroc_mean_logp_15b": 0.6720628973114922,
+  "auroc_sum_logp_15b": 0.8477526380682455,
+  "joint_meanlogp_dom_auroc_15b": 0.7835743222686586,
+  "auroc_mean_logp_7b": 0.6336351031726613,
+  "auroc_sum_logp_7b": 0.8672008808416932,
+  "f2_auroc_anchor": 0.7731,
+  "tokenprob_beats_dom_15b": false,
+  "scope_note": "mean+sum aggregations only (cached scalar mean_logprob \u00d7 seq_len). min/product require fresh per-token logprobs, deferred to next H100 session."
+}

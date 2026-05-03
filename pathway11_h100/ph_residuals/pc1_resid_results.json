@@ -1,0 +1,79 @@
+{
+  "experiment": "FE291-followup-PC1-resid-PH",
+  "depends_on": [
+    "F-10",
+    "FE291"
+  ],
+  "n_problems": 500,
+  "layer": 19,
+  "pc1_source": "pathway11_h100/prefill_inversion/cache/m15b_prefill.npz (FE291 protocol)",
+  "pc1_var_share": 0.14741263655551942,
+  "n_features": 5,
+  "n_nulls_per_problem": 5,
+  "subsample": 100,
+  "pca_components": 45,
+  "n_folds": 5,
+  "seed": 42,
+  "feature_comparison": {
+    "H0_max_lifetime": {
+      "real_mean": 50.291893867492675,
+      "real_std": 4.144948981488146,
+      "null_mean": 53.549424949645996,
+      "null_std": 2.5364110145523835,
+      "diff_mean": -3.2575310821533208
+    },
+    "H0_entropy": {
+      "real_mean": 4.54759225890167,
+      "real_std": 0.020653065260781648,
+      "null_mean": 4.591686563891143,
+      "null_std": 0.0003327783614680705,
+      "diff_mean": -0.04409430498947309
+    },
+    "H1_pers_entropy": {
+      "real_mean": 3.8142459568677114,
+      "real_std": 0.1392507534749565,
+      "null_mean": 4.157213638434491,
+      "null_std": 0.07530076343456087,
+      "diff_mean": -0.34296768156677926
+    },
+    "H1_n_features": {
+      "real_mean": 63.712,
+      "real_std": 7.873058871874387,
+      "null_mean": 87.41,
+      "null_std": 6.073916364257908,
+      "diff_mean": -23.697999999999993
+    },
+    "H1_max_lifetime": {
+      "real_mean": 8.529345375061036,
+      "real_std": 1.3420510665789096,
+      "null_mean": 5.299336848449707,
+      "null_std": 0.38997426239708216,
+      "diff_mean": 3.2300085266113285
+    }
+  },
+  "classifiers": {
+    "real_ph_pc1resid": {
+      "auroc_oof": 0.6883957022305487,
+      "auroc_cv_mean": 0.6945263682396036,
+      "auroc_cv_std": 0.02099612756791185
+    },
+    "null_ph_pc1resid": {
+      "auroc_oof": 0.7628220524891516,
+      "auroc_cv_mean": 0.765762555022009,
+      "auroc_cv_std": 0.057157177486817506
+    },
+    "diff_ph_pc1resid": {
+      "auroc_oof": 0.5732494275512001,
+      "auroc_cv_mean": 0.5846141341151846,
+      "auroc_cv_std": 0.0741510049514789
+    }
+  },
+  "auroc_real_ph_pc1resid": 0.6883957022305487,
+  "auroc_null_ph_pc1resid": 0.7628220524891516,
+  "auroc_diff_ph_pc1resid": 0.5732494275512001,
+  "gap_real_minus_null": -0.07442635025860289,
+  "f10_raw_real": 0.69,
+  "f10_raw_null": 0.693,
+  "verdict": "Inverted gap on PC1 residuals (real=0.688 < null=0.763, gap=-0.074). Residualization weakens topology signal below null.",
+  "elapsed_seconds": 2256.267732858658
+}

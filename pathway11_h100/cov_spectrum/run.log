@@ -1,0 +1,35 @@
+derived FE291 PC1: ‖pc1‖=1.000000, var_share=0.1474
+  50/500  T_i= 303  top1=255.796  elapsed=18s  eta=163s
+  100/500  T_i=1024  top1=250.445  elapsed=39s  eta=154s
+  150/500  T_i=1024  top1=181.011  elapsed=61s  eta=142s
+  200/500  T_i= 337  top1=206.086  elapsed=81s  eta=122s
+  250/500  T_i=1024  top1=203.707  elapsed=113s  eta=113s
+  300/500  T_i= 623  top1=348.001  elapsed=140s  eta=93s
+  350/500  T_i= 312  top1=208.228  elapsed=170s  eta=73s
+  400/500  T_i= 248  top1=236.231  elapsed=194s  eta=48s
+  450/500  T_i= 295  top1=231.874  elapsed=223s  eta=25s
+  500/500  T_i= 444  top1=189.291  elapsed=256s  eta=0s
+eigval extraction done in 256s
+cloud T_i: min=123, median=521, max=1024
+correctness rate: 0.4860  (243/500)
+
+Classifier sweep over K:
+  K=  5  oof=0.7632  cv5=0.7627±0.0236
+  K= 10  oof=0.7925  cv5=0.7935±0.0124
+  K= 20  oof=0.7928  cv5=0.7920±0.0266
+  K= 50  oof=0.7925  cv5=0.7936±0.0288
+  K=100  oof=0.7886  cv5=0.7914±0.0214
+  log_eig_1 alone     oof=0.5223  cv5=0.5335±0.0482
+  log_eig_2 alone     oof=0.6925  cv5=0.6926±0.0388
+  log_eig_3 alone     oof=0.7488  cv5=0.7507±0.0223
+
+VERDICT: Per-problem cov spectrum (top-20 log-eigvals on PC1-residualized clouds) reaches OOF AUROC 0.7928 — BEATS supervised DoM (0.7679) by +2.49 pp. F-2's signal is at least partly spectral, not purely directional: per-problem second-order structure (after PC1 removal) carries correctness information beyond the L19 mean shift along PC1+PC9.
+
+Saved pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json
+cov_spectrum.top5_log_eigvals_auroc=0.7631903412
+cov_spectrum.top10_log_eigvals_auroc=0.7925413524
+cov_spectrum.top20_log_eigvals_auroc=0.7928295784
+cov_spectrum.top50_log_eigvals_auroc=0.7925253399
+cov_spectrum.top100_log_eigvals_auroc=0.7885542265
+cov_spectrum.best_top_k=20
+cov_spectrum.best_auroc_oof=0.7928295784

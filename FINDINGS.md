@@ -50,59 +50,101 @@ answer-token embedding — not yet done.
 across positions would indicate breathing is a long-generation artifact,
 not a reasoning-trajectory property.
 
-### F-2: Prefill L19 DoM is a strong correctness predictor, *better than final-token*
+### F-2: A single L19 prefill direction predicts correctness on Qwen-2.5-1.5B at AUROC 0.7731
 
-**Claim.** On Qwen-2.5-1.5B-Instruct, a 5-fold OOF logistic probe fit on
-mean-pooled L19 activations at position 0 (last prompt token, pre-generation)
-achieves **AUROC 0.7731** for K=1-correctness. Final-token DoM AUROC is
-**0.7186**. The 7B shows the same pattern with a larger gap (~0.876 vs
-~0.77).
+**Claim.** Pathway 11 H100 stage 1 established F-2 via supervised
+1536-d logistic regression at L19 prefill: 5-fold OOF AUROC 0.7731 on
+500 MATH-500 problems (243 correct on Qwen-2.5-1.5B-Instruct K=1).
+**EXP-55 reframes the direction as unsupervised-identifiable.** On the
+same cached prefill (`pathway11_h100/prefill_inversion/cache/m15b_prefill.npz`),
+the dominant eigenvector of the centered prefill covariance
+(unsupervised PCA) yields single-feature 5-fold OOF AUROC 0.7458 with
+cosine 0.9216 against the supervised mass-mean DoM. Decomposing the
+unit DoM in the PC basis: 85% of energy in PC1 alone, 97.6% in the
+top-10. CAST (Lee 2409.05907) class-mean PCA-PC1 (μ = (μ⁺ + μ⁻)/2)
+is numerically indistinguishable from the unsupervised PC1 (AUROC
+0.7458, cosine with global-PC1 ≈ 1.000). Under matched 5-fold
+single-feature protocol, supervised DoM AUROC is 0.7679. **The
+correctness direction at L19 is the dominant variance direction.**
+PC9 (variance rank 9, 2.5% of variance) carries a secondary spike
+(single-feature AUROC 0.6575, DoM-coeff 0.225) — orthogonal-to-PC1
+correctness signal that may be a topic / difficulty axis.
 
-**Strength:** MODERATE (2 models same family, clean methodology).
+**Strength:** STRONG (now triangulated by supervised + unsupervised +
+class-mean-supervised decompositions, all agreeing within 0.022 AUROC
+and cosine ≥ 0.92 on the same direction).
 
-**Evidence:** EXP-037 (`pathway11_h100/prefill_gated_compute/results.json`
-fields `prefill_DoM_auroc_oof` = 0.7731, `final_token_DoM_auroc_oof` =
-0.7186).
-
-**Controls passed:**
-- Length-residualization: cos(L19 DoM, length direction) ≈ −0.09 at every
-  layer; length-residualized probe AUROC matches raw within 0.002 (i.e., not
-  a length artifact — in contrast to the ABC-44 pipeline).
-- 5-fold stratified OOF (seed 9999) — not a test/train leak.
-
-**Controls not yet run:**
-- Replication on non-Qwen families (Phi-3, Llama) — Exp 1 captured the data
-  but didn't measure prefill DoM AUROC for them; feasible post-hoc.
-- Cross-benchmark: same prefill probe on BBH — partially done in Stage 5
-  via transfer (AUROC 0.693 BBH→MATH) but not exactly the same quantity.
-
-**Strongest counterargument:** The prefill signal may encode problem
-*familiarity* (closeness to training data) rather than structural
-decomposability. H-5 would distinguish these.
-
-**Would be overturned by:** Replication on fresh held-out math problems from
-a post-training-cutoff benchmark showing AUROC drop to ≤ 0.60 — would
-indicate the signal is memorization, not structural prediction.
-
-### F-3: Prefill and final-token DoM directions are orthogonal
-
-**Claim.** `cos(prefill_DoM, final_DoM) ≈ 0.046` on Qwen-2.5-1.5B L19. At
-every intermediate token position the cosine stays in [0.00, 0.20]; reaches
-~0.37 only by position 200. The "can I solve this?" circuit and the "did I
-solve this?" circuit live in geometrically unrelated subspaces.
-
-**Strength:** MODERATE (one model, one benchmark, but replicated across
-label schemes).
-
-**Evidence:** `scratch/pathway10_temporal_and_verifier_results.json`
-(`T1_temporal_dom.positions[0].cos_with_final_token_dom` = 0.046 at
-256tok_NEW labels; qualitative result survives label correction).
+**Evidence:** EXP-001 / `pathway11_h100/prefill_gated_compute/results.json`
+(supervised 1536-d probe AUROC 0.7731); P11-E12 / FE110 /
+`pathway11_h100/gpu_bundle/results.json` (DoM mass-mean replication
+0.7711 on cached prefill); **EXP-55** /
+`pathway11_h100/pca_covariance/results.json` (unsupervised PCA-PC1
+AUROC 0.7458, CAST class-mean PCA-PC1 AUROC 0.7458, cos with DoM
+0.9216, DoM-energy in PC1 0.849).
 
 **Controls passed:**
-- Same cosine pattern at multiple intermediate positions (5, 9, 19, 29, 39,
-  49, 59, 69 all in [0.00, 0.19]).
-- Two-feature LR (prefill DoM + final DoM) achieves ≈ 0.794 AUROC, exceeding
-  either alone — consistent with carrying complementary information.
+- Supervised vs mass-mean DoM (FE110 EXP-53): 0.7711 ≈ 0.7731.
+- Mean-shift on residualized clouds (FE115): residual DoM AUROC
+  0.8016 (gap +0.029 over raw F-2).
+- **Unsupervised PCA-PC1 (EXP-55, FE291)**: 0.7458 single-feature OOF,
+  cosine 0.922 with DoM, 85% DoM-energy in PC1 — the direction is
+  label-free recoverable.
+- CAST class-mean PCA-PC1 (EXP-55, FE291): 0.7458, numerically same
+  direction as unsupervised PC1.
+
+**Strongest counterargument:** F-2 is correlational. EXP-55 strengthens
+the *correlation* (the direction is unsupervised + supervised +
+contrastive all agreeing) but does not address causality. The
+load-bearing test of F-2 remains FE214 / FE269 / FE283 (noising,
+ablation, layer-zero ablation). If those degrade accuracy, F-2 is
+causal. If not, F-2 is "L19 is where correctness is *first readable*"
+not "L19 is where correctness is *computed*".
+
+**Would be overturned by:** Causal ablation/noising at L19 PC1
+preserving MATH-500 accuracy (FE283/FE214/FE269); cross-checkpoint
+PC1 rotation > cosine 0.5 across HF Qwen 1.5B checkpoints (FE700);
+PC1 AUROC ≪ 0.6 on a non-MATH-500 benchmark via cached activations.
+
+### F-3: Prefill and final-token DoM directions are orthogonal, *structurally — not positionally*
+
+**Claim.** On Qwen-2.5-1.5B L19, the cosine between prefill DoM and
+final-token DoM is **−0.0617 raw, 0.0008 after Song-Zhong residualization**
+(μ + pos_t + ctx_i), and **−0.0315 under Park-Choe-Veitch causal inner
+product whitening** (M = Cov(γ_unembed)^{-1}, EXP-51). The orthogonality
+is structural — survives removal of global mean, per-position bias,
+per-problem context vectors, AND unembed-row covariance whitening.
+NC3-collapse alignment (FE244) shows max |cos| of prefill DoM with top-50
+answer-token unembed rows = 0.067 (mean 0.022); final = 0.128 (mean
+0.055) — both well below the 0.3 NC3 threshold. The "can I solve this?"
+circuit and the "did I solve this?" circuit live in geometrically
+unrelated subspaces of the residual stream.
+
+**Strength:** STRONG (one model, but survives the strongest cheap-control
+available; cosine numerically tighter on residuals than raw and on
+causal-whitened than raw; NC3 alignment far below the alternative-
+explanation threshold).
+
+**Evidence:** EXP-037 / `scratch/pathway10_temporal_and_verifier_results.json`
+(P10 raw cos = 0.046 across multiple positions, original anchor); **EXP-48**
+/ `pathway11_h100/song_zhong/results.json` (raw cos = −0.0617 on per-problem
+1024-tok cache, residualized cos = 0.0008); **EXP-51** /
+`pathway11_h100/phase3_corroborators/results.json` (causal-whitened cos =
+−0.0315; FE244 NC3 alignment max |cos| 0.067/0.128).
+
+**Controls passed:**
+- Same cosine pattern at multiple intermediate positions in P10 (0.00–0.19
+  through token ~50, ~0.37 by position 200).
+- Two-feature LR (prefill DoM + final DoM) ≈ 0.794 AUROC, exceeding either
+  alone — consistent with carrying complementary information.
+- **Song-Zhong residualization (EXP-48, FE115)** — cos drops from −0.0617
+  to 0.0008 after subtracting μ + pos_t + ctx_i. Position is NOT the
+  source of orthogonality.
+- **Causal inner product whitening (EXP-51, FE136)** — cos shifts −0.062
+  → −0.032 under Park-Choe-Veitch unembed-cov whitening. Unembed-row
+  geometry is NOT the source of orthogonality.
+- **NC3 alignment (EXP-51, FE244)** — max |cos| with top-50 answer-token
+  unembed rows = 0.067 (prefill) / 0.128 (final), both below 0.3
+  threshold. F-3 is NOT generic neural collapse.
 
 **Controls not yet run:**
 - Head-level attribution (H-13) to test the "different circuits"
@@ -110,11 +152,12 @@ label schemes).
 - Cross-architecture replication (compute from Exp 1 cache — feasible).
 
 **Strongest counterargument:** Cosine is a crude metric for circuit
-separation; attention heads could share with different weights. H-13 would
-quantify.
+separation; attention heads could share with different weights but produce
+decorrelated DoM directions. H-13 would quantify.
 
 **Would be overturned by:** A head-attribution study showing the same top-K
-heads contribute to both probes.
+heads contribute to both probes; OR a setting where post-Song-Zhong cos > 0.5;
+OR FE244 max |cos| > 0.30 (NC3 collapse explanation).
 
 ### F-4: Correct trajectories collapse harder than incorrect at the final token ("asymmetric collapse")
 
@@ -279,18 +322,31 @@ signal is model-specific.
 Single-layer L19 DoM symmetric MATH↔BBH transfer at 1024-tok labels
 (Stage 5) = 0.7199. Δ = +0.004 in favor of DoM. A 60-dim trajectory
 classifier adds no cross-domain signal over a 1-dim direction at the right
-layer.
+layer. **Spectral α (HT-SR) head-to-head (EXP-50)**: best-layer α-AUROC =
+0.7026 (1.5B L28) / 0.7128 (7B L28), both below DoM 0.7731 at L19; joint
+[α_L28, prefill_DoM_proj_L19] = 0.7833, +1pp over DoM alone. α-AUROC is
+U-shaped in depth, near-chance at mid-layers (L13–L19) where DoM peaks —
+α and DoM are ~orthogonal probes that target different network regimes.
+The parsimony framing now has two independent confirming counter-examples
+(CoE trajectory features and spectral α single scalar).
 
 **Strength:** MODERATE (cross-domain replication on 3 BBH subsets; only
 directly contrasts CoE with DoM on transfer, not within-domain at 1024
-tokens — that's H-6).
+tokens — that's H-6; spectral-α corroborator on both 1.5B and 7B
+strengthens the broader "scalar competitors don't beat DoM" reading but
+doesn't directly address the CoE within-domain question).
 
 **Evidence:** EXP-030 (Pathway 9 CoE transfer), EXP-036 (Stage 5 L19 DoM
-transfer, `verdict_vs_coe` = 0.0039).
+transfer, `verdict_vs_coe` = 0.0039); **EXP-50**
+(`pathway11_h100/spectral_alpha/results.json`: best α-AUROC = 0.7026
+1.5B / 0.7128 7B at L28, joint with DoM = 0.7833 = +1pp).
 
 **Controls passed:**
 - Source-domain PCA applied to both domains (D11 fix from Pathway 9).
 - BBH pooled across 3 subsets.
+- **Spectral α head-to-head (EXP-50)** — independent scalar competitor
+  (HT-SR theory) also fails to beat L19 DoM; cross-scale (1.5B + 7B)
+  agreement on U-shaped depth profile.
 
 **Controls not yet run:**
 - CoE within-domain at 1024-tok labels (H-6) — if CoE stays at 0.80+
@@ -299,46 +355,50 @@ transfer, `verdict_vs_coe` = 0.0039).
 
 **Strongest counterargument:** Cross-domain and within-domain are different
 tests; H-6 hasn't run. The redundancy claim is weaker within-domain.
+EXP-50's α evidence is a *broadening* signal rather than a strengthening
+one for the CoE-specific claim.
 
 **Would be overturned by:** H-6 showing CoE ≥ 0.80 at 1024-tok while
 single-layer DoM stays at 0.77.
 
-### F-10: Persistent homology on trained residual streams is at the Gaussian null
+### F-10: Topology summary statistics on residual streams are not distinguishable from a Gaussian null
 
-**Claim.** Five raw PH summary features (H0_max_lifetime, H0_entropy,
-H1_pers_entropy, H1_n_features, H1_max_lifetime) on Qwen-2.5-1.5B L19
-predict MATH-500 correctness at AUROC 0.690. A rank-matched
-empirical-covariance Gaussian null on the same features gives 0.693. Gap
-zero — PH captures no topology-specific signal beyond matched covariance
-structure.
+**Claim.** F-10's narrow form (5 PH summary features ≈ matched-cov
+Gaussian null on raw L19 clouds, FE026 gap −0.003; ≈ inverted on
+Song-Zhong residualized clouds, FE116 gap −0.067) is *grounded* by
+EXP-55: the supervised L19 prefill DoM is essentially the dominant
+covariance principal component (PC1 cos 0.922, 85% DoM-energy in PC1).
+The covariance signal F-10 says "PH cannot improve on" is a single
+direction. PH features layered on the covariance ellipsoid add no
+orthogonal signal because the correctness signal is concentrated in
+14.7% of variance along PC1, and the PH descriptor family integrates
+*all* of the cloud's H_0/H_1 structure without distinguishing PC1
+from the rest.
 
-**Strength:** STRONG (explicit null, two replications in pathway 9, predicted by EoS framework).
+**Strength:** STRONG (PH-null gap holds under raw, residualized, and
+zigzag-trajectory cloud constructions; covariance pathway now grounded
+in a single quantified direction with cos 0.922 to supervised DoM).
 
-**Evidence:** EXP-026 (`pathway9/results/exp3a_gaussian_null_v2.json`,
-fields `classifiers.real_ph.auroc_holdout` = 0.690 vs `classifiers.null_ph.auroc_holdout` = 0.693).
+**Evidence:** EXP-026 (raw 5-feature PH gap −0.003); EXP-52 (FE321
+zigzag gap −0.066 + 7-descriptor +0.097, no topology component);
+EXP-54 (FE116 residualized gap −0.067); **EXP-55** (PCA-PC1 = DoM
+direction, covariance pathway grounded as PC1).
 
 **Controls passed:**
-- SVD-based empirical covariance sampler (mathematically equivalent to
-  `multivariate_normal`).
-- 5 features (one dropped per D2 audit).
-- CV std reduced from 0.245 (CV50) to 0.043 (CV5) after matching.
-- Null prediction consistent with Tuci et al. Sharpness-Dimension
-  framework.
+- Diagonal vs full covariance null (D1 fix in EXP-026 v2).
+- Drop H0_n_features rank-tie (D2 fix).
+- Zigzag descriptor pair on 28-layer trajectory (FE321).
+- Song-Zhong residualization (FE116).
+- **PCA-PC1 = supervised DoM (EXP-55, FE291)** — covariance pathway
+  is a single direction with 14.7% var share and cos 0.922 to DoM.
 
-**Controls not yet run:**
-- Extension to other layers, not just L19 (PH across layers in Exp 1 is
-  also weak at 0.646, consistent).
-- Extension to other benchmarks.
+**Strongest counterargument:** A covariance-controlled PH probe that
+regresses out the per-problem PC1 projection before computing PH and
+finds residual signal would falsify the new sharpened form. None
+attempted yet.
 
-**Strongest counterargument:** Null may be too strong — if PH does capture
-something, it's explained by second moments. Still a valid framing change:
-"topology equals covariance structure in this setting."
-
-**Would be overturned by:** A per-layer sweep showing PH > null at a
-specific layer / metric combination we didn't test. (Non-Euclidean PH was
-tested in EXP-018 and also didn't lift — so this is unlikely.)
-
----
+**Would be overturned by:** PH features computed on the [PC2..PC1536]
+subspace (PC1-residualized clouds) showing real_AUROC ≥ null + 0.05.
 
 ## Honorable mentions — findings we have evidence for but haven't fully validated
 

@@ -1,0 +1,85 @@
+{
+  "experiment": "FE291-followup-PC1-resid-cov-spectrum",
+  "depends_on": [
+    "F-2",
+    "F-10",
+    "FE291"
+  ],
+  "n_problems": 500,
+  "layer": 19,
+  "pc1_source": "pathway11_h100/prefill_inversion/cache/m15b_prefill.npz (FE291 protocol)",
+  "pc1_var_share": 0.14741263655551942,
+  "top_k_grid": [
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+  "n_folds": 5,
+  "seed": 42,
+  "cloud_T_min": 123,
+  "cloud_T_median": 521,
+  "cloud_T_max": 1024,
+  "correctness_rate": 0.486,
+  "classifiers": {
+    "top5_log_eigvals": {
+      "auroc_oof": 0.7631903412275225,
+      "auroc_cv_mean": 0.7627478876165851,
+      "auroc_cv_std": 0.02362493025958857,
+      "n_features": 5
+    },
+    "top10_log_eigvals": {
+      "auroc_oof": 0.7925413524202974,
+      "auroc_cv_mean": 0.7934930703050451,
+      "auroc_cv_std": 0.012417922759698878,
+      "n_features": 10
+    },
+    "top20_log_eigvals": {
+      "auroc_oof": 0.7928295783894572,
+      "auroc_cv_mean": 0.7919618809062087,
+      "auroc_cv_std": 0.026596614913494746,
+      "n_features": 20
+    },
+    "top50_log_eigvals": {
+      "auroc_oof": 0.7925253398664552,
+      "auroc_cv_mean": 0.7935621363930189,
+      "auroc_cv_std": 0.028751388476697753,
+      "n_features": 50
+    },
+    "top100_log_eigvals": {
+      "auroc_oof": 0.7885542265135866,
+      "auroc_cv_mean": 0.7914061778557577,
+      "auroc_cv_std": 0.02139795206209059,
+      "n_features": 100
+    },
+    "log_eigval_1_alone": {
+      "auroc_oof": 0.5222814686714383,
+      "auroc_cv_mean": 0.5335152330162833,
+      "auroc_cv_std": 0.04815072409938622,
+      "n_features": 1
+    },
+    "log_eigval_2_alone": {
+      "auroc_oof": 0.6924628909064706,
+      "auroc_cv_mean": 0.6925906901222028,
+      "auroc_cv_std": 0.03876715969367839,
+      "n_features": 1
+    },
+    "log_eigval_3_alone": {
+      "auroc_oof": 0.7488430929849003,
+      "auroc_cv_mean": 0.7506625727213962,
+      "auroc_cv_std": 0.022270889791890094,
+      "n_features": 1
+    }
+  },
+  "best_top_k": 20,
+  "best_auroc_oof": 0.7928295783894572,
+  "anchors": {
+    "supervised_dom_auroc": 0.7679,
+    "two_feature_pc1_pc9_auroc": 0.7856,
+    "pc1_resid_5ph_real_auroc": 0.6884,
+    "pc1_resid_5ph_null_auroc": 0.7628
+  },
+  "verdict": "Per-problem cov spectrum (top-20 log-eigvals on PC1-residualized clouds) reaches OOF AUROC 0.7928 \u2014 BEATS supervised DoM (0.7679) by +2.49 pp. F-2's signal is at least partly spectral, not purely directional: per-problem second-order structure (after PC1 removal) carries correctness information beyond the L19 mean shift along PC1+PC9.",
+  "elapsed_seconds": 256.0427062511444
+}

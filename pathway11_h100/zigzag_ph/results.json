@@ -1,0 +1,121 @@
+{
+  "experiment": "P11-FE321",
+  "depends_on": [
+    "F-10"
+  ],
+  "trigger_paper": "2410.11042",
+  "method_note": "static ripser PH on per-problem 28-point layer trajectory (L1..L28). fastzigzag and gudhi.zigzag_persistence not available; B_1 and bar_Z_1 are computed as static 1-dim PH descriptors (path topology, structurally near-zero) and supplemented with H_0 + step-distance descriptors that capture trajectory shape. LOLO 10%-prune analysis substitutes for the zigzag prune-set descriptor.",
+  "n_problems": 500,
+  "n_layers": 28,
+  "layer_start": 1,
+  "n_nulls_per_problem": 5,
+  "n_folds": 5,
+  "seed": 42,
+  "descriptor_names": [
+    "B_1",
+    "bar_Z_1",
+    "H_0_max_lifetime",
+    "H_0_total_lifetime",
+    "H_0_entropy",
+    "step_max",
+    "step_std"
+  ],
+  "feature_comparison": {
+    "B_1": {
+      "real_mean": 0.002,
+      "real_std": 0.044676615807377355,
+      "null_mean": 5.417200000000001,
+      "null_std": 0.8160049999846815,
+      "diff_mean": -5.415200000000001
+    },
+    "bar_Z_1": {
+      "real_mean": 0.00043745040893554686,
+      "real_std": 0.00977190192739677,
+      "null_mean": 8.544843460845948,
+      "null_std": 1.8203252551401747,
+      "diff_mean": -8.544406010437013
+    },
+    "H_0_max_lifetime": {
+      "real_mean": 155.8165048828125,
+      "real_std": 11.293069545600074,
+      "null_mean": 75.9328376586914,
+      "null_std": 8.065440583243639,
+      "diff_mean": 79.8836672241211
+    },
+    "H_0_total_lifetime": {
+      "real_mean": 863.8099805164337,
+      "real_std": 35.33844042703351,
+      "null_mean": 1162.9998199310303,
+      "null_std": 49.61695365088154,
+      "diff_mean": -299.1898394145966
+    },
+    "H_0_entropy": {
+      "real_mean": 2.9425493968701195,
+      "real_std": 0.04179422043232684,
+      "null_mean": 3.2638412631340534,
+      "null_std": 0.006885269896634284,
+      "diff_mean": -0.3212918662639339
+    },
+    "step_max": {
+      "real_mean": 235.23006610450074,
+      "real_std": 10.353904912819758,
+      "null_mean": 212.90930306897576,
+      "null_std": 20.31281290283486,
+      "diff_mean": 22.320763035524976
+    },
+    "step_std": {
+      "real_mean": 44.47465205855404,
+      "real_std": 2.055222652694897,
+      "null_mean": 44.3051242111506,
+      "null_std": 4.65346383093238,
+      "diff_mean": 0.16952784740344384
+    }
+  },
+  "auroc_real_full": 0.7156010312084675,
+  "auroc_null_full": 0.6188211557861363,
+  "auroc_diff_full": 0.6630638420521688,
+  "auroc_real_full_cv5_mean": 0.7149248160802782,
+  "auroc_real_full_cv5_std": 0.052726497732922956,
+  "auroc_null_full_cv5_mean": 0.6254929856558008,
+  "auroc_null_full_cv5_std": 0.07201281210621767,
+  "gap_real_minus_null_full": 0.09677987542233124,
+  "auroc_real_BZ_only": 0.49519623384733624,
+  "auroc_null_BZ_only": 0.5610958991849611,
+  "gap_BZ_only": -0.06589966533762481,
+  "f10_raw_real": 0.69,
+  "f10_raw_null": 0.693,
+  "f10_raw_gap": -0.0030000000000000027,
+  "layer_prune_frequency": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.002,
+    0.002,
+    0.002,
+    0.002,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "overall_prune_rate": 0.00028571428571428574,
+  "verdict": "Trajectory descriptors expose signal that F-10's raw 5-feature set missed (real=0.716 > null=0.619, gap=+0.097). F-10 is descriptor-narrow.",
+  "elapsed_seconds": 439.64418721199036
+}

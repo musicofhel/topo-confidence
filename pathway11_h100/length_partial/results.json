@@ -1,0 +1,17 @@
+{
+  "n": 500,
+  "d": 1536,
+  "ridge_alpha": 0.001,
+  "length_r2_from_prefill": 0.9999999789051872,
+  "length_pearson_s_shat": 0.9999999914764953,
+  "auroc_raw_in_sample": 0.7833981841763943,
+  "auroc_residualized": 0.6647451602056011,
+  "auroc_drop": 0.11865302397079314,
+  "cos_dom_raw_vs_resid": 0.7851625329418979,
+  "auroc_length_alone": 0.7986021040495749,
+  "auroc_predicted_length_alone": 0.7993947254647644,
+  "f2_length_artifact_threshold": 0.55,
+  "f2_length_artifact": false,
+  "f2_survives_partialing_threshold": 0.65,
+  "f2_survives_partialing": true
+}

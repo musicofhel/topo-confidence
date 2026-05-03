@@ -1,0 +1,43 @@
+  25/500  elapsed=16s  eta=305s
+  50/500  elapsed=37s  eta=334s
+  75/500  elapsed=61s  eta=343s
+  100/500  elapsed=82s  eta=329s
+  125/500  elapsed=107s  eta=322s
+  150/500  elapsed=132s  eta=308s
+  175/500  elapsed=155s  eta=287s
+  200/500  elapsed=180s  eta=270s
+  225/500  elapsed=205s  eta=251s
+  250/500  elapsed=231s  eta=231s
+  275/500  elapsed=254s  eta=208s
+  300/500  elapsed=281s  eta=187s
+  325/500  elapsed=308s  eta=166s
+  350/500  elapsed=335s  eta=144s
+  375/500  elapsed=363s  eta=121s
+  400/500  elapsed=389s  eta=97s
+  425/500  elapsed=418s  eta=74s
+  450/500  elapsed=445s  eta=49s
+  475/500  elapsed=471s  eta=25s
+  500/500  elapsed=499s  eta=0s
+PH compute done in 499s
+
+Descriptor real vs null (mean ± std):
+  B_1                    real=   0.002±0.045  null=   5.417±0.816  diff=-5.415
+  bar_Z_1                real=   0.000±0.010  null=   8.545±1.820  diff=-8.544
+  H_0_max_lifetime       real= 155.817±11.293  null=  75.933±8.065  diff=+79.884
+  H_0_total_lifetime     real= 863.810±35.338  null=1163.000±49.617  diff=-299.190
+  H_0_entropy            real=   2.943±0.042  null=   3.264±0.007  diff=-0.321
+  step_max               real= 235.230±10.354  null= 212.909±20.313  diff=+22.321
+  step_std               real=  44.475±2.055  null=  44.305±4.653  diff=+0.170
+
+Classifier OOF AUROC (5-fold, all 7 descriptors):
+  real  oof=0.7156  cv5=0.7149±0.0527
+  null  oof=0.6188  cv5=0.6255±0.0720
+  diff  oof=0.6631  cv5=0.6649±0.0327
+
+[B_1 + bar_Z_1 only] real oof=0.4952, null oof=0.5611, gap=-0.0659
+
+Overall LOLO prune rate (10%-of-max bar_Z_1 threshold): 0.0003
+
+VERDICT: Trajectory descriptors expose signal that F-10's raw 5-feature set missed (real=0.716 > null=0.619, gap=+0.097). F-10 is descriptor-narrow.
+
+Saved pathway11_h100/zigzag_ph/results.json
