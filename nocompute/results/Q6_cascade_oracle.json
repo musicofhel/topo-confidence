@@ -1,0 +1,49 @@
+{
+  "acc_all_7b": 0.732,
+  "target_90%": {
+    "target_acc": 0.6588,
+    "real": {
+      "tau_pct": 0.33,
+      "accuracy": 0.66,
+      "cost_rel": 0.736,
+      "pct_kept": 0.33
+    },
+    "oracle": {
+      "tau_pct": 0.64,
+      "accuracy": 0.66,
+      "cost_rel": 0.488,
+      "pct_kept": 0.64
+    }
+  },
+  "target_95%": {
+    "target_acc": 0.6953999999999999,
+    "real": {
+      "tau_pct": 0.19,
+      "accuracy": 0.698,
+      "cost_rel": 0.8480000000000001,
+      "pct_kept": 0.19
+    },
+    "oracle": {
+      "tau_pct": 0.5800000000000001,
+      "accuracy": 0.698,
+      "cost_rel": 0.536,
+      "pct_kept": 0.58
+    }
+  },
+  "target_98%": {
+    "target_acc": 0.71736,
+    "real": {
+      "tau_pct": 0.11,
+      "accuracy": 0.718,
+      "cost_rel": 0.9119999999999999,
+      "pct_kept": 0.11
+    },
+    "oracle": {
+      "tau_pct": 0.55,
+      "accuracy": 0.718,
+      "cost_rel": 0.5599999999999999,
+      "pct_kept": 0.55
+    }
+  },
+  "diagnosis": "mixed"
+}

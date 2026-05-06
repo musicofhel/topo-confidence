@@ -1,0 +1,190 @@
+{
+  "sweep": [
+    {
+      "tau_pct": 0.05,
+      "accuracy": 0.724,
+      "cost_per_problem": 4.8,
+      "cost_relative_to_all_7b": 0.96,
+      "n_kept_1p5b": 25,
+      "n_escalated_7b": 475,
+      "pct_kept": 0.05
+    },
+    {
+      "tau_pct": 0.1,
+      "accuracy": 0.718,
+      "cost_per_problem": 4.6,
+      "cost_relative_to_all_7b": 0.9199999999999999,
+      "n_kept_1p5b": 50,
+      "n_escalated_7b": 450,
+      "pct_kept": 0.1
+    },
+    {
+      "tau_pct": 0.15000000000000002,
+      "accuracy": 0.708,
+      "cost_per_problem": 4.4,
+      "cost_relative_to_all_7b": 0.8800000000000001,
+      "n_kept_1p5b": 75,
+      "n_escalated_7b": 425,
+      "pct_kept": 0.15
+    },
+    {
+      "tau_pct": 0.2,
+      "accuracy": 0.694,
+      "cost_per_problem": 4.2,
+      "cost_relative_to_all_7b": 0.8400000000000001,
+      "n_kept_1p5b": 100,
+      "n_escalated_7b": 400,
+      "pct_kept": 0.2
+    },
+    {
+      "tau_pct": 0.25,
+      "accuracy": 0.69,
+      "cost_per_problem": 4.0,
+      "cost_relative_to_all_7b": 0.8,
+      "n_kept_1p5b": 125,
+      "n_escalated_7b": 375,
+      "pct_kept": 0.25
+    },
+    {
+      "tau_pct": 0.3,
+      "accuracy": 0.672,
+      "cost_per_problem": 3.8,
+      "cost_relative_to_all_7b": 0.76,
+      "n_kept_1p5b": 150,
+      "n_escalated_7b": 350,
+      "pct_kept": 0.3
+    },
+    {
+      "tau_pct": 0.35000000000000003,
+      "accuracy": 0.656,
+      "cost_per_problem": 3.6,
+      "cost_relative_to_all_7b": 0.72,
+      "n_kept_1p5b": 175,
+      "n_escalated_7b": 325,
+      "pct_kept": 0.35
+    },
+    {
+      "tau_pct": 0.4,
+      "accuracy": 0.646,
+      "cost_per_problem": 3.4,
+      "cost_relative_to_all_7b": 0.6799999999999999,
+      "n_kept_1p5b": 200,
+      "n_escalated_7b": 300,
+      "pct_kept": 0.4
+    },
+    {
+      "tau_pct": 0.45,
+      "accuracy": 0.626,
+      "cost_per_problem": 3.2,
+      "cost_relative_to_all_7b": 0.64,
+      "n_kept_1p5b": 225,
+      "n_escalated_7b": 275,
+      "pct_kept": 0.45
+    },
+    {
+      "tau_pct": 0.5,
+      "accuracy": 0.604,
+      "cost_per_problem": 3.0,
+      "cost_relative_to_all_7b": 0.6,
+      "n_kept_1p5b": 250,
+      "n_escalated_7b": 250,
+      "pct_kept": 0.5
+    },
+    {
+      "tau_pct": 0.55,
+      "accuracy": 0.586,
+      "cost_per_problem": 2.8,
+      "cost_relative_to_all_7b": 0.5599999999999999,
+      "n_kept_1p5b": 275,
+      "n_escalated_7b": 225,
+      "pct_kept": 0.55
+    },
+    {
+      "tau_pct": 0.6000000000000001,
+      "accuracy": 0.572,
+      "cost_per_problem": 2.6,
+      "cost_relative_to_all_7b": 0.52,
+      "n_kept_1p5b": 300,
+      "n_escalated_7b": 200,
+      "pct_kept": 0.6
+    },
+    {
+      "tau_pct": 0.6500000000000001,
+      "accuracy": 0.552,
+      "cost_per_problem": 2.4,
+      "cost_relative_to_all_7b": 0.48,
+      "n_kept_1p5b": 325,
+      "n_escalated_7b": 175,
+      "pct_kept": 0.65
+    },
+    {
+      "tau_pct": 0.7000000000000001,
+      "accuracy": 0.532,
+      "cost_per_problem": 2.2,
+      "cost_relative_to_all_7b": 0.44000000000000006,
+      "n_kept_1p5b": 350,
+      "n_escalated_7b": 150,
+      "pct_kept": 0.7
+    },
+    {
+      "tau_pct": 0.7500000000000001,
+      "accuracy": 0.52,
+      "cost_per_problem": 2.0,
+      "cost_relative_to_all_7b": 0.4,
+      "n_kept_1p5b": 375,
+      "n_escalated_7b": 125,
+      "pct_kept": 0.75
+    },
+    {
+      "tau_pct": 0.8,
+      "accuracy": 0.512,
+      "cost_per_problem": 1.8,
+      "cost_relative_to_all_7b": 0.36,
+      "n_kept_1p5b": 400,
+      "n_escalated_7b": 100,
+      "pct_kept": 0.8
+    },
+    {
+      "tau_pct": 0.8500000000000001,
+      "accuracy": 0.5,
+      "cost_per_problem": 1.6,
+      "cost_relative_to_all_7b": 0.32,
+      "n_kept_1p5b": 425,
+      "n_escalated_7b": 75,
+      "pct_kept": 0.85
+    },
+    {
+      "tau_pct": 0.9000000000000001,
+      "accuracy": 0.494,
+      "cost_per_problem": 1.4,
+      "cost_relative_to_all_7b": 0.27999999999999997,
+      "n_kept_1p5b": 450,
+      "n_escalated_7b": 50,
+      "pct_kept": 0.9
+    },
+    {
+      "tau_pct": 0.9500000000000001,
+      "accuracy": 0.494,
+      "cost_per_problem": 1.2,
+      "cost_relative_to_all_7b": 0.24,
+      "n_kept_1p5b": 475,
+      "n_escalated_7b": 25,
+      "pct_kept": 0.95
+    }
+  ],
+  "acc_all_1p5b": 0.486,
+  "acc_all_7b": 0.732,
+  "cost_weights": {
+    "1p5b": 1.0,
+    "7b": 5.0
+  },
+  "best_95pct_7b": {
+    "tau_pct": 0.15000000000000002,
+    "accuracy": 0.708,
+    "cost_per_problem": 4.4,
+    "cost_relative_to_all_7b": 0.8800000000000001,
+    "n_kept_1p5b": 75,
+    "n_escalated_7b": 425,
+    "pct_kept": 0.15
+  }
+}

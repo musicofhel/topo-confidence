@@ -1,0 +1,33 @@
+{
+  "1p5b": {
+    "raw_auroc": 0.7730860995020097,
+    "calibrated_auroc": 0.7572256649212983,
+    "bootstrap_point": 0.7730860995020097,
+    "bootstrap_bca_lo": 0.7294354029449228,
+    "bootstrap_bca_hi": 0.8123420453885714,
+    "bootstrap_pct_lo": 0.7297596092490322,
+    "bootstrap_pct_hi": 0.8123752534650704,
+    "delong_point": 0.7730860995020098,
+    "delong_delong_lo": 0.7323713549377018,
+    "delong_delong_hi": 0.8138008440663178,
+    "delong_se": 0.020773210571959858,
+    "n": 500,
+    "n_pos": 243
+  },
+  "7b": {
+    "raw_auroc": 0.8738071935404942,
+    "calibrated_auroc": 0.863214664383003,
+    "bootstrap_point": 0.8738071935404942,
+    "bootstrap_bca_lo": 0.8342675725093648,
+    "bootstrap_bca_hi": 0.9056255315953148,
+    "bootstrap_pct_lo": 0.8365821318078797,
+    "bootstrap_pct_hi": 0.9070052770104837,
+    "delong_point": 0.8738071935404942,
+    "delong_delong_lo": 0.8385427452219615,
+    "delong_delong_hi": 0.9090716418590269,
+    "delong_se": 0.017992396083139395,
+    "n": 500,
+    "n_pos": 366
+  },
+  "bca_delong_agree_within_005": true
+}

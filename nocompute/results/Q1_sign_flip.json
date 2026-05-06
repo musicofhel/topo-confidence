@@ -1,0 +1,27 @@
+{
+  "auroc_original": 0.4157919777840352,
+  "auroc_negated": 0.5842080222159648,
+  "spearman_rho": -0.1248184064179285,
+  "spearman_pval": 0.0006125451178677373,
+  "diagnosis": "sign_flip",
+  "logical_deduction_seven_objects": {
+    "auroc": 0.6082269503546099,
+    "auroc_neg": 0.39177304964539006,
+    "rho": 0.08903670310678888
+  },
+  "tracking_shuffled_objects_seven_objects": {
+    "auroc": 0.7391368390042716,
+    "auroc_neg": 0.26086316099572837,
+    "rho": 0.27302566737935147
+  },
+  "web_of_lies": {
+    "auroc": 0.38112721417069245,
+    "auroc_neg": 0.6188727858293075,
+    "rho": -0.205235429165911
+  },
+  "prefill": {
+    "auroc": 0.7959587917156201,
+    "auroc_neg": 0.20404120828437988,
+    "rho": 0.4386886638018645
+  }
+}

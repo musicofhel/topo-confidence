@@ -1,0 +1,80 @@
+{
+  "baselines": {
+    "prefill_L1_norm": {
+      "point": 0.5917119021312709,
+      "bca_lo": 0.5392553485569875,
+      "bca_hi": 0.6396423105221963,
+      "pct_lo": 0.5411618903609832,
+      "pct_hi": 0.6408298803884758,
+      "sign": "positive",
+      "pre_generation": true
+    },
+    "prefill_L2_norm": {
+      "point": 0.511697170581736,
+      "bca_lo": 0.4595347324665811,
+      "bca_hi": 0.5595030219139023,
+      "pct_lo": 0.46104798889585447,
+      "pct_hi": 0.5614942497911806,
+      "sign": "positive",
+      "pre_generation": true
+    },
+    "prefill_activation_entropy": {
+      "point": 0.5570447230628813,
+      "bca_lo": 0.5061902489358401,
+      "bca_hi": 0.6036362912226578,
+      "pct_lo": 0.505160350634647,
+      "pct_hi": 0.6032590707627932,
+      "sign": "positive",
+      "pre_generation": true
+    },
+    "d2h_attn_entropy_L19": {
+      "point": 0.7574978783366159,
+      "bca_lo": 0.7165647485921924,
+      "bca_hi": 0.7976662177657996,
+      "pct_lo": 0.7169947236099035,
+      "pct_hi": 0.7985221179689139,
+      "sign": "negative",
+      "pre_generation": false,
+      "caveat": "aggregated over generation positions, not prefill-only"
+    },
+    "prefill_DomProbe_L19": {
+      "point": 0.7730860995020097,
+      "bca_lo": 0.7294354029449228,
+      "bca_hi": 0.8123420453885714,
+      "pct_lo": 0.7297596092490322,
+      "pct_hi": 0.8123752534650704,
+      "pre_generation": true
+    }
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "name": "prefill_DomProbe_L19",
+      "auroc": 0.7730860995020097
+    },
+    {
+      "rank": 2,
+      "name": "d2h_attn_entropy_L19",
+      "auroc": 0.7574978783366159
+    },
+    {
+      "rank": 3,
+      "name": "prefill_L1_norm",
+      "auroc": 0.5917119021312709
+    },
+    {
+      "rank": 4,
+      "name": "prefill_activation_entropy",
+      "auroc": 0.5570447230628813
+    },
+    {
+      "rank": 5,
+      "name": "prefill_L2_norm",
+      "auroc": 0.511697170581736
+    }
+  ],
+  "notes": {
+    "prompt_token_length": "NOT COMPUTED \u2014 original MATH-500 problem texts not stored in cache. Since AUROC is rank-based, character length would suffice but prompt text is unavailable in NPZ/manifest.",
+    "prefill_attn_entropy": "d2h_attn_entropy aggregates over all generation positions. True prefill-position attention entropy would require per-position attention weights not in the cache."
+  }
+}

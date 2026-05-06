@@ -1,0 +1,40 @@
+{
+  "partition": {
+    "both_right": 230,
+    "only_7b_right": 136,
+    "only_1p5b_right": 13,
+    "both_wrong": 121
+  },
+  "7b_probe_disagreement": {
+    "auroc": 0.6097285067873303,
+    "bca_lo": 0.4122299106379677,
+    "bca_hi": 0.7727272727272728,
+    "n": 149,
+    "n_7b_correct": 136,
+    "n_7b_wrong": 13
+  },
+  "1p5b_probe_disagreement": {
+    "auroc": 0.3252262443438914,
+    "bca_lo": 0.17287946729636078,
+    "bca_hi": 0.5232314916835955
+  },
+  "mean_scores_both_right": {
+    "7b": 6.384349394557269,
+    "1p5b": 2.5094905688710836
+  },
+  "mean_scores_only_7b": {
+    "7b": 1.8474973713540856,
+    "1p5b": -0.11275984774179318
+  },
+  "mean_scores_only_1p5b": {
+    "7b": -0.033267002839308515,
+    "1p5b": -2.5331514798677883
+  },
+  "mean_scores_both_wrong": {
+    "7b": -4.9707532442552,
+    "1p5b": -4.651926930408832
+  },
+  "7b_probe_full": 0.8738071935404942,
+  "difficulty_baseline_auroc": 0.7903719109371177,
+  "diagnosis": "mostly_difficulty"
+}

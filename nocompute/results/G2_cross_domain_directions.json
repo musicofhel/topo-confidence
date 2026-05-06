@@ -1,0 +1,24 @@
+{
+  "cosine_angle": 0.12251783162355423,
+  "score_correlation": 0.9859753085869172,
+  "auroc_math_direction_on_bbh": 0.7959587917156201,
+  "auroc_bbh_direction_on_bbh": 0.7820252648341085,
+  "auroc_2feature_combined": 0.7918127178630728,
+  "delta_combo_vs_best_single": -0.004146073852547283,
+  "subset_logical": {
+    "math_dir": 0.46893617021276596,
+    "bbh_dir": 0.4558865248226951,
+    "combined": 0.414468085106383
+  },
+  "subset_tracking": {
+    "math_dir": 0.6653409927824422,
+    "bbh_dir": 0.5584032994550008,
+    "combined": 0.6712328767123288
+  },
+  "subset_web": {
+    "math_dir": 0.5153623188405797,
+    "bbh_dir": 0.43684380032206116,
+    "combined": 0.49797101449275366
+  },
+  "diagnosis": "redundant"
+}

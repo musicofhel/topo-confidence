@@ -1,0 +1,39 @@
+{
+  "pooled": {
+    "point": 0.8015273475808096,
+    "bca_lo": 0.7680904500738537,
+    "bca_hi": 0.8322673265707621,
+    "pct_lo": 0.7691824897922885,
+    "pct_hi": 0.8336471517826981,
+    "sign": "negative",
+    "n": 750
+  },
+  "logical_deduction_seven_objects": {
+    "point": 0.6241134751773051,
+    "bca_lo": 0.5017810063954002,
+    "bca_hi": 0.7263533922550781,
+    "pct_lo": 0.5051888391502661,
+    "pct_hi": 0.728200439909372,
+    "sign": "negative"
+  },
+  "tracking_shuffled_objects_seven_objects": {
+    "point": 0.7357490057445868,
+    "bca_lo": 0.653919078433593,
+    "bca_hi": 0.7996751330119052,
+    "pct_lo": 0.6577671683877313,
+    "pct_hi": 0.804768064784053,
+    "sign": "negative"
+  },
+  "web_of_lies": {
+    "point": 0.6056682769726248,
+    "bca_lo": 0.5329716494210359,
+    "bca_hi": 0.6791555436809411,
+    "pct_lo": 0.5393174525990736,
+    "pct_hi": 0.6830782843095832,
+    "sign": "positive"
+  },
+  "mean_tokens_correct": 247.67403314917127,
+  "mean_tokens_incorrect": 389.3462214411248,
+  "math_mean_correct": 437.8024691358025,
+  "math_mean_incorrect": 705.2918287937744
+}

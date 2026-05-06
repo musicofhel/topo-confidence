@@ -1,0 +1,48 @@
+{
+  "cost_model": {
+    "P1_prefill": 93.65218604651164,
+    "P7_prefill": 468.2609302325582,
+    "R_gen_ratio": 5.0,
+    "mean_t_1p5b": 575.292,
+    "mean_t_7b": 560.426,
+    "prefill_frac": 0.14
+  },
+  "scenarios": {
+    "all_7b": {
+      "mean_cost": 3270.3909302325583,
+      "p50_latency": 2943.260930232558,
+      "p95_latency": 5588.260930232558,
+      "accuracy": 0.732
+    },
+    "all_1p5b": {
+      "mean_cost": 668.9441860465116,
+      "p50_latency": 614.6521860465116,
+      "p95_latency": 1117.6521860465116,
+      "accuracy": 0.486
+    },
+    "pregen_cascade": {
+      "mean_cost": 3017.023539534884,
+      "p50_latency": 2964.41311627907,
+      "p95_latency": 5681.91311627907,
+      "accuracy": 0.698,
+      "pct_kept": 0.19,
+      "tau_pct": 0.19,
+      "cost_relative_to_all_7b": 0.9225268794762536
+    },
+    "hybrid_cascade": {
+      "mean_cost": 3171.039009302326,
+      "p50_latency": 3376.91311627907,
+      "p95_latency": 6595.2631162790685,
+      "accuracy": 0.696,
+      "pct_kept": 0.33,
+      "tau_pct": 0.33,
+      "cost_relative_to_all_7b": 0.969620781414298
+    }
+  },
+  "buyer_recommendation": {
+    "latency_sensitive": "pregen",
+    "cost_sensitive": "pregen",
+    "pregen_p95_advantage_pct": 13.848575620062519,
+    "hybrid_cost_advantage_pct": -5.10488127617279
+  }
+}

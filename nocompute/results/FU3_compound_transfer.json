@@ -1,0 +1,29 @@
+{
+  "cross_domain_only": {
+    "point": 0.7959587917156201,
+    "bca_lo": 0.7560484201008649,
+    "bca_hi": 0.8287220365786989,
+    "pct_lo": 0.7604772022609102,
+    "pct_hi": 0.831489983903659,
+    "desc": "1.5B MATH \u2192 1.5B BBH (prefill)"
+  },
+  "cross_tier_only": {
+    "mean": 0.8720817296409203,
+    "std": 0.041204317477225576,
+    "desc": "1.5B MATH \u2192 7B MATH via ridge (prefill)"
+  },
+  "compound_cross_tier_cross_domain": {
+    "status": "NOT_COMPUTED",
+    "reason": "7B BBH activations not in cache (only bbh_1p5b, math500_7b exist). Requires running BBH through Qwen2.5-7B on GPU pod.",
+    "desc": "Would be: train 1.5B MATH \u2192 ridge to 7B \u2192 score 7B BBH"
+  },
+  "probe_direction_cosine_math_bbh_1p5b": 0.12251783162355423,
+  "within_domain_reference": {
+    "point": 0.7730860995020097,
+    "bca_lo": 0.7294354029449228,
+    "bca_hi": 0.8123420453885714,
+    "pct_lo": 0.7297596092490322,
+    "pct_hi": 0.8123752534650704,
+    "desc": "1.5B MATH within-domain prefill OOF"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "both_high": {
+    "n": 186,
+    "accuracy": 0.7903225806451613
+  },
+  "dom_high_tc_low": {
+    "n": 64,
+    "accuracy": 0.421875
+  },
+  "dom_low_tc_high": {
+    "n": 64,
+    "accuracy": 0.46875
+  },
+  "both_low": {
+    "n": 186,
+    "accuracy": 0.20967741935483872
+  },
+  "dom_high_tc_low_within_dom_auroc": 0.5485485485485485,
+  "dom_high_tc_low_within_tc_auroc": 0.585085085085085,
+  "dom_low_tc_high_within_dom_auroc": 0.5764705882352941,
+  "dom_low_tc_high_within_tc_auroc": 0.6583333333333333,
+  "agreement_rate": 0.744,
+  "accuracy_agree": 0.5,
+  "accuracy_disagree": 0.4453125,
+  "pearson_r": 0.6040481750427342,
+  "pearson_p": 4.815219709009151e-51
+}

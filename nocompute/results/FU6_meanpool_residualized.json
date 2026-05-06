@@ -1,0 +1,21 @@
+{
+  "auroc_raw_meanpool": 0.8192983298906343,
+  "auroc_residualized": 0.6775391907255287,
+  "auroc_prefill": 0.7730860995020097,
+  "auroc_token_count": 0.798602104049575,
+  "ci_residualized": {
+    "bca_lo": 0.6323047130720538,
+    "bca_hi": 0.7214465341342723
+  },
+  "ci_raw_meanpool": {
+    "bca_lo": 0.7824406530387338,
+    "bca_hi": 0.8526146494823317
+  },
+  "ci_prefill": {
+    "bca_lo": 0.7294354029449228,
+    "bca_hi": 0.8123420453885714
+  },
+  "r_resid_vs_tokens": -0.020046152288545345,
+  "r_raw_vs_tokens": 0.8475598443290798,
+  "diagnosis": "small_residual_gain"
+}

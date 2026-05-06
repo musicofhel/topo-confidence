@@ -1,0 +1,10 @@
+{
+  "r2_meanpool_vs_tokencount": 0.7183576984096258,
+  "r2_prefill_vs_tokencount": 0.36487419777245766,
+  "r_meanpool": 0.8475598494558516,
+  "r_prefill": 0.6040481750427342,
+  "auroc_meanpool": 0.8192983298906343,
+  "auroc_prefill": 0.7730860995020097,
+  "auroc_tokencount": 0.798602104049575,
+  "diagnosis": "meanpool_mostly_length"
+}
