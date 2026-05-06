@@ -2,41 +2,38 @@
 
 *Overwritten at the end of every session. Not appended. For append-only history see `EXPERIMENT_LOG.md`.*
 
-**Date:** 2026-05-03
+**Date:** 2026-05-06
 
 ## Where the project actually is
 
-Synthesis cascade complete. Three practitioner-facing docs landed
-2026-05-03 and have now been propagated through the intent-layer narrative
-docs (this session). Branch `max-depth-retriage-2026-04-28` is pushed.
+**Methodology phase complete.** The `nocompute/` experiment suite landed
+2026-05-06 (commit 1921e3a, merged to main). Branch
+`max-depth-retriage-2026-04-28` is merged and up to date with `main`.
 `validate_claims.py` invariant: **172/172 internal PASS, 127/127 Tier-1
 regen PASS, 216 claims tracked total** (172 internal + 41 external + 3
-PENDING_FE). No experiments ran this session — narrative-doc work only.
+PENDING_FE).
 
-The FE291 PCA cascade (FE880, FE881, FE882) landed 2026-05-02 as
-commit 39c264f. The synthesis docs distill those + every prior finding
-into one practitioner briefing.
+The `nocompute/` suite runs all paper-defense experiments against committed
+NPZ caches without GPU: 6 scripts, 39 result JSONs, 14 figures. Key
+paper-narrative results from this phase:
 
-## Last documents completed
+- 7B AUROC 0.874 is NOT an imbalance artifact (rebalanced: 0.875±0.012),
+  but IS substantially a difficulty detector (disagreement-set AUROC: 0.61)
+- Prefill DomProbe dominates all pre-generation baselines by +0.18 AUROC
+- Pre-gen cascade wins on BOTH cost (0.92×) and latency (p95 14% better)
+  vs hybrid — no tradeoff, pre-gen is universally better
+- Cross-domain transfer: cos(directions)=0.12 but r(scores)=0.986 —
+  operationally redundant, "transfers at 0.796" is the defensible claim
+- Mean-pool residualized AUROC = 0.68, below prefill (0.77) — deprecate
+- Calibration locked: histogram_15 for 1.5B (ECE=0.041), isotonic for 7B
+  (ECE=0.038)
 
-- `SYNTHESIS.md` (2026-05-03, 375 lines) — 10-min practitioner briefing.
-  What survived (DoM 0.7731, selective 71.6%, decomposition triangle),
-  what was overturned (PH=null, 256-tok artifacts, fixed-vector steering,
-  CoE redundant), what is new (cov-spectrum 0.7928, F-10 strengthening,
-  CAST PC1 ≈ supervised DoM), 8 honest open questions.
-- `NOVELTY_AUDIT.md` (2026-05-03, 469 lines) — F-1..F-10 ranked novel /
-  refines-prior-work / parallel-discovery against the 220-paper
-  research-graph. Cov-spectrum probe ranked #1 novel; F-2 AUROC
-  parallel-discovery on Qwen-VL-7B (Zhu 2509.12886).
-- `APPLICATIONS.md` (2026-05-03, 387 lines) — 6 deployment surfaces with
-  honest "what would have to be true for production" checklists.
-  Selective serving for small-model APIs ranked first to ship.
-- `handoff/2026-05-03-intent-layer-and-githubio-update.md` — the queued
-  next-session plan that drove this session's work.
+## Last experiment completed
 
-The last experiment was EXP-58 (P11-FE882 decomposition triangle: full
-1536-d L2-reg directional ceiling, 0.7847 at C=0.001) on 2026-05-02.
-Cov-spectrum 0.7928 above 0.7856/0.7847 is genuinely second-order.
+EXP-58 (P11-FE882 decomposition triangle: full 1536-d L2-reg directional
+ceiling, 0.7847 at C=0.001) on 2026-05-02. The nocompute methodology
+suite (2026-05-06) ran post-hoc analyses on existing caches — no new
+EXP-N entries.
 
 ## Queued — next session
 
@@ -119,7 +116,3 @@ The cheap-wins plan does NOT require pod resumption — all CPU and 2060-local.
    item 1".
 4. **`pathway11_h100/` is NOT in the GitHub remote** — back up if the local
    disk is at risk.
-5. **Branch state**: `max-depth-retriage-2026-04-28` is pushed (head
-   1bd0c1b after synthesis cascade). Not merged to main. Decide whether
-   to merge before starting Phase 1 / causal-companion work or keep the
-   branch live.
