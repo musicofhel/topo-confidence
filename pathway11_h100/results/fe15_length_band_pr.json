@@ -1,0 +1,68 @@
+{
+  "experiment": "FE15",
+  "description": "Length-band PR control: does PR=20 survive length stratification?",
+  "n": 500,
+  "n_correct": 243,
+  "percentiles": {
+    "p25": 362.75,
+    "p75": 760.0
+  },
+  "pr_global": 19.861175537109375,
+  "pr_global_reference": 19.86,
+  "cross_check": {
+    "global_pr_matches": true
+  },
+  "band_results": {
+    "short": {
+      "n": 125,
+      "n_correct": 105,
+      "n_incorrect": 20,
+      "seq_len_range": [
+        123.0,
+        362.0
+      ],
+      "pr_all": 17.47638702392578,
+      "pr_correct": 16.960580825805664,
+      "pr_incorrect": 9.958479881286621,
+      "dom_auroc_insample": 0.8276190476190476,
+      "rank_bounded": true,
+      "max_rank": 125
+    },
+    "medium": {
+      "n": 251,
+      "n_correct": 125,
+      "n_incorrect": 126,
+      "seq_len_range": [
+        363.0,
+        760.0
+      ],
+      "pr_all": 21.478042602539062,
+      "pr_correct": 19.23494529724121,
+      "pr_incorrect": 19.801488876342773,
+      "dom_auroc_insample": 0.7518095238095238,
+      "rank_bounded": true,
+      "max_rank": 251
+    },
+    "long": {
+      "n": 124,
+      "n_correct": 13,
+      "n_incorrect": 111,
+      "seq_len_range": [
+        764.0,
+        1024.0
+      ],
+      "pr_all": 20.93425178527832,
+      "pr_correct": 7.2208733558654785,
+      "pr_incorrect": 20.82118797302246,
+      "dom_auroc_insample": 0.781011781011781,
+      "rank_bounded": true,
+      "max_rank": 124
+    }
+  },
+  "interpretation": "If PR is roughly constant across bands, F-4's asymmetric collapse is NOT a length artifact. If PR varies systematically with length, the spectral structure may be confounded.",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "seed": 9999,
+    "method": "gram_eigenvalue_participation_ratio_per_length_band"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "experiment": "FE308",
+  "description": "Adaptive best-of-k Damani allocator: DoM-guided K allocation",
+  "n": 500,
+  "k_max": 8,
+  "n_bins": 5,
+  "uniform_baselines": {
+    "1": {
+      "k": 1,
+      "accuracy": 0.416,
+      "n_correct": 208
+    },
+    "2": {
+      "k": 2,
+      "accuracy": 0.41231799999999996,
+      "accuracy_std": 0.01140380971430161,
+      "n_correct_mean": 206.159
+    },
+    "4": {
+      "k": 4,
+      "accuracy": 0.417956,
+      "accuracy_std": 0.008372219777335039,
+      "n_correct_mean": 208.978
+    },
+    "8": {
+      "k": 8,
+      "accuracy": 0.40383,
+      "accuracy_std": 0.005963815892530539,
+      "n_correct_mean": 201.91500000000002
+    }
+  },
+  "adaptive_results": {
+    "1.0": {
+      "target_avg_k": 1.0,
+      "actual_avg_k": 1.0,
+      "k_per_bin": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "bin_sizes": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "bin_medians": [
+        0.09919839679358718,
+        0.2995991983967936,
+        0.5,
+        0.7004008016032064,
+        0.9008016032064128
+      ],
+      "accuracy": 0.4159999999999999,
+      "accuracy_std": 5.551115123125783e-17
+    },
+    "2.0": {
+      "target_avg_k": 2.0,
+      "actual_avg_k": 2.0,
+      "k_per_bin": [
+        4,
+        3,
+        1,
+        1,
+        1
+      ],
+      "bin_sizes": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "bin_medians": [
+        0.09919839679358718,
+        0.2995991983967936,
+        0.5,
+        0.7004008016032064,
+        0.9008016032064128
+      ],
+      "accuracy": 0.41224000000000005,
+      "accuracy_std": 0.002717057231638672
+    },
+    "2.5": {
+      "target_avg_k": 2.5,
+      "actual_avg_k": 2.4,
+      "k_per_bin": [
+        5,
+        4,
+        1,
+        1,
+        1
+      ],
+      "bin_sizes": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "bin_medians": [
+        0.09919839679358718,
+        0.2995991983967936,
+        0.5,
+        0.7004008016032064,
+        0.9008016032064128
+      ],
+      "accuracy": 0.4036600000000001,
+      "accuracy_std": 0.0030601307161622917
+    },
+    "4.0": {
+      "target_avg_k": 4.0,
+      "actual_avg_k": 4.0,
+      "k_per_bin": [
+        7,
+        6,
+        4,
+        2,
+        1
+      ],
+      "bin_sizes": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "bin_medians": [
+        0.09919839679358718,
+        0.2995991983967936,
+        0.5,
+        0.7004008016032064,
+        0.9008016032064128
+      ],
+      "accuracy": 0.40608000000000005,
+      "accuracy_std": 0.007013814939104095
+    },
+    "8.0": {
+      "target_avg_k": 8.0,
+      "actual_avg_k": 6.2,
+      "k_per_bin": [
+        8,
+        8,
+        8,
+        5,
+        2
+      ],
+      "bin_sizes": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "bin_medians": [
+        0.09919839679358718,
+        0.2995991983967936,
+        0.5,
+        0.7004008016032064,
+        0.9008016032064128
+      ],
+      "accuracy": 0.391,
+      "accuracy_std": 0.005841232746604098
+    }
+  },
+  "cache_k1_accuracy": 0.416,
+  "canonical_k1_greedy_accuracy": 0.486,
+  "canonical_k8_majority": 0.438,
+  "references": {
+    "f8_selective_71_6_at_cov_0_5": "DIFFERENT protocol (refuse bottom half)"
+  },
+  "interpretation": "Adaptive allocation should outperform uniform at the same avg K. The margin quantifies how much DoM scores help allocate compute. Note: K=8 majority (43.8%) < K=1 greedy (48.6%), so naive majority vote HURTS \u2014 adaptive allocation must overcome this.",
+  "meta": {
+    "dom_npz": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase2_prefill_dom.npz",
+    "k8_dir": "/home/musicofhel/topo-confidence/pathway11_h100/data/k8_selfconsistency",
+    "seed": 9999,
+    "n_tie_seeds_uniform": 1000,
+    "n_tie_seeds_adaptive": 100,
+    "method": "damani_greedy_bin_allocation"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "experiment": "FE447",
+  "description": "Length-as-correctness baseline + OOF residualized DoM AUROC",
+  "n": 500,
+  "n_correct": 243,
+  "n_incorrect": 257,
+  "auroc_length_positive": 0.20139789595042512,
+  "auroc_length_negative": 0.7986021040495749,
+  "auroc_dom_raw": 0.7730860995020096,
+  "auroc_oof_residualized_dom": 0.6198619717858801,
+  "auroc_insample_residualized_reference": 0.6647,
+  "spearman_dom_seqlen": -0.6193580166418883,
+  "spearman_dom_seqlen_pvalue": 2.7215238352587926e-54,
+  "length_stats": {
+    "correct_mean": 437.8024691358025,
+    "correct_median": 382.0,
+    "incorrect_mean": 705.2918287937744,
+    "incorrect_median": 686.0
+  },
+  "cross_check": {
+    "expected_length_auroc": 0.7986,
+    "matches": true
+  },
+  "interpretation": "OOF residualized AUROC isolates DoM signal that is NOT explained by sequence length. If OOF << 0.6647, in-sample residualization was optimistic. The gap (raw - residualized) quantifies length confounding.",
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "dom_npz": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase2_prefill_dom.npz",
+    "seed": 9999,
+    "method": "oof_ols_residualization"
+  }
+}

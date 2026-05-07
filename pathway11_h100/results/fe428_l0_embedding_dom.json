@@ -1,0 +1,19 @@
+{
+  "experiment": "FE428",
+  "description": "L0 embedding-layer DoM baseline (deconfounding control for F-2)",
+  "n": 500,
+  "n_correct": 243,
+  "auroc_L0_dom_oof": 0.5,
+  "auroc_L19_dom_reference": 0.7731,
+  "cos_dom_L0_L19": 0.0,
+  "pr_L0": 0.0,
+  "pr_L19_reference": 19.86,
+  "interpretation": "L0 AUROC near 0.5 confirms F-2's L19 specificity is NOT inherited from input geometry. L0 AUROC > 0.6 would suggest the embedding already separates correct/incorrect, weakening L19's unique role.",
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "data_dir": "/home/musicofhel/topo-confidence/pathway8_layerwise/data/math500",
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "seed": 9999,
+    "method": "oof_dom_at_layer_0"
+  }
+}

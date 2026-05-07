@@ -1,0 +1,71 @@
+{
+  "experiment": "FE188",
+  "description": "LID-MLE local intrinsic dimension (Levina-Bickel)",
+  "n": 500,
+  "n_correct": 243,
+  "centered": true,
+  "results_per_k": {
+    "5": {
+      "k": 5,
+      "mean_lid": 25.96281833625497,
+      "std_lid": 21.350874689797962,
+      "median_lid": 20.29421646890246,
+      "mean_lid_correct": 25.005898984116723,
+      "mean_lid_incorrect": 26.867609785942108,
+      "std_lid_correct": 19.282928576737497,
+      "std_lid_incorrect": 23.1003566350575,
+      "auroc_lid_positive": 0.4742598196986437,
+      "auroc_lid_negative": 0.5257401803013563,
+      "best_auroc": 0.5257401803013563
+    },
+    "10": {
+      "k": 10,
+      "mean_lid": 18.716924174409296,
+      "std_lid": 9.932066709589323,
+      "median_lid": 17.078953042437576,
+      "mean_lid_correct": 18.820932715020163,
+      "mean_lid_incorrect": 18.618581468695528,
+      "std_lid_correct": 11.265362183715904,
+      "std_lid_incorrect": 8.47957553783003,
+      "auroc_lid_positive": 0.48148148148148145,
+      "auroc_lid_negative": 0.5185185185185185,
+      "best_auroc": 0.5185185185185185
+    },
+    "20": {
+      "k": 20,
+      "mean_lid": 15.696431976053706,
+      "std_lid": 6.020810172061173,
+      "median_lid": 14.770061651257437,
+      "mean_lid_correct": 15.47592892520728,
+      "mean_lid_incorrect": 15.90492318755441,
+      "std_lid_correct": 5.981054793308817,
+      "std_lid_incorrect": 6.050773528334167,
+      "auroc_lid_positive": 0.46546892763926917,
+      "auroc_lid_negative": 0.5345310723607308,
+      "best_auroc": 0.5345310723607308
+    },
+    "50": {
+      "k": 50,
+      "mean_lid": 13.125185552741032,
+      "std_lid": 4.593326487180019,
+      "median_lid": 12.81172740927433,
+      "mean_lid_correct": 13.315545115989396,
+      "mean_lid_incorrect": 12.94519577114822,
+      "std_lid_correct": 4.262636593253358,
+      "std_lid_incorrect": 4.878630259366768,
+      "auroc_lid_positive": 0.5183904180877809,
+      "auroc_lid_negative": 0.4816095819122192,
+      "best_auroc": 0.5183904180877809
+    }
+  },
+  "pr_reference": 19.86,
+  "dom_auroc_reference": 0.7731,
+  "interpretation": "LID measures local intrinsic dimension around each sample. If mean LID \u2248 PR (19.86), the global spectral dimension matches the local geometric dimension. Class-conditional LID differences would indicate correct/incorrect samples live on manifolds of different dimensionality.",
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "seed": 9999,
+    "method": "levina_bickel_mle",
+    "distance_metric": "euclidean"
+  }
+}

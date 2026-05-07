@@ -2,16 +2,15 @@
 
 *Overwritten at the end of every session. Not appended. For append-only history see `EXPERIMENT_LOG.md`.*
 
-**Date:** 2026-05-06
+**Date:** 2026-05-07
 
 ## Where the project actually is
 
 **Methodology phase complete.** The `nocompute/` experiment suite landed
 2026-05-06 (commit 1921e3a, merged to main). Branch
 `max-depth-retriage-2026-04-28` is merged and up to date with `main`.
-`validate_claims.py` invariant: **172/172 internal PASS, 127/127 Tier-1
-regen PASS, 216 claims tracked total** (172 internal + 41 external + 3
-PENDING_FE).
+`validate_claims.py` invariant: **200/200 internal PASS, 244 claims tracked total**
+(200 internal + 41 external + 3 PENDING_FE).
 
 The `nocompute/` suite runs all paper-defense experiments against committed
 NPZ caches without GPU: 6 scripts, 39 result JSONs, 14 figures. Key
@@ -30,13 +29,13 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-EXP-59 through EXP-68 (overnight sweep, 10 CPU experiments) on 2026-05-06.
-Standout: FE919 Diffusion Maps AUROC=0.788 > DoM 0.773 (nonlinear manifold
-structure contributes). FE903 mCCA=0.98 confirms shared subspace with
-orthogonal DoM directions. FE909 alignment profile peaks at L19 with 7-layer
-half-max width (L15-L21). FE889 rules out RLHF rotation alignment. FE930
-rules out positional coupling. Full brief:
-`research-graph/briefs/result-2026-05-06-P11-overnight-sweep.md`
+EXP-69 through EXP-78 (second sweep, 10 CPU experiments) on 2026-05-07.
+Standout: FE421 ridge-LR final-only 0.849 ≈ concat 0.851 >> prefill 0.784 —
+huge untapped signal in final token via regularized probe. FE459 Spearman
+0.937 cross-model — 1.5B and 7B rank problems identically. FE428 L0 AUROC
+exactly 0.500 — zero signal at embedding layer. FE119 cos near zero at all
+29 layers — F-3 orthogonality is network-wide. Full brief:
+`research-graph/briefs/result-2026-05-07-P11-second-sweep.md`
 
 ## Queued — next session
 

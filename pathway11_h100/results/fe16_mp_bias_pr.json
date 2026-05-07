@@ -1,0 +1,145 @@
+{
+  "experiment": "FE16",
+  "description": "Marchenko-Pastur bias-corrected participation ratio (Chun et al.)",
+  "n": 500,
+  "n_correct": 243,
+  "n_incorrect": 257,
+  "all_samples": {
+    "pr_naive": 19.861175537109375,
+    "pr_corrected": 18.929438833735563,
+    "gamma_row": 24.561563555435864,
+    "aspect_ratio": 0.3255208333333333,
+    "P": 500,
+    "Q": 1536,
+    "phi_fro_sq": 88606.03125,
+    "gram_sq_trace": 395295264.0
+  },
+  "correct_only": {
+    "pr_naive": 19.405467987060547,
+    "pr_corrected": 18.517150444097176,
+    "gamma_row": 11.609391307055228,
+    "aspect_ratio": 0.158203125,
+    "P": 243,
+    "Q": 1536,
+    "phi_fro_sq": 43786.6484375,
+    "gram_sq_trace": 98800560.0
+  },
+  "incorrect_only": {
+    "pr_naive": 20.520978927612305,
+    "pr_corrected": 19.63062742701701,
+    "gamma_row": 11.610937296823364,
+    "aspect_ratio": 0.16731770833333334,
+    "P": 257,
+    "Q": 1536,
+    "phi_fro_sq": 42031.671875,
+    "gram_sq_trace": 86090512.0
+  },
+  "per_length_band": {
+    "short": {
+      "all": {
+        "pr_naive": 17.47638702392578,
+        "pr_corrected": 16.647084584168248,
+        "gamma_row": 6.177267978065719,
+        "aspect_ratio": 0.08138020833333333,
+        "P": 125,
+        "Q": 1536,
+        "phi_fro_sq": 23361.857421875,
+        "gram_sq_trace": 31229362.0
+      },
+      "correct": {
+        "pr_naive": 16.960580825805664,
+        "pr_corrected": 16.15168612256034,
+        "gamma_row": 5.208437589683578,
+        "aspect_ratio": 0.068359375,
+        "P": 105,
+        "Q": 1536,
+        "phi_fro_sq": 19311.353515625,
+        "gram_sq_trace": 21987944.0
+      },
+      "incorrect": {
+        "pr_naive": 9.958479881286621,
+        "pr_corrected": 9.45629987693741,
+        "gamma_row": 1.0090014283393463,
+        "aspect_ratio": 0.013020833333333334,
+        "P": 20,
+        "Q": 1536,
+        "phi_fro_sq": 3872.04541015625,
+        "gram_sq_trace": 1505524.5
+      }
+    },
+    "medium": {
+      "all": {
+        "pr_naive": 21.478042602539062,
+        "pr_corrected": 20.59167239148616,
+        "gamma_row": 10.761270311140239,
+        "aspect_ratio": 0.16341145833333334,
+        "P": 251,
+        "Q": 1536,
+        "phi_fro_sq": 43313.65625,
+        "gram_sq_trace": 87348400.0
+      },
+      "correct": {
+        "pr_naive": 19.23494529724121,
+        "pr_corrected": 18.415406627629494,
+        "gamma_row": 5.518357377967591,
+        "aspect_ratio": 0.08138020833333333,
+        "P": 125,
+        "Q": 1536,
+        "phi_fro_sq": 21005.8828125,
+        "gram_sq_trace": 22939872.0
+      },
+      "incorrect": {
+        "pr_naive": 19.801488876342773,
+        "pr_corrected": 18.984114766394217,
+        "gamma_row": 5.381960918421874,
+        "aspect_ratio": 0.08203125,
+        "P": 126,
+        "Q": 1536,
+        "phi_fro_sq": 21603.029296875,
+        "gram_sq_trace": 23568470.0
+      }
+    },
+    "long": {
+      "all": {
+        "pr_naive": 20.93425178527832,
+        "pr_corrected": 20.12607545587645,
+        "gamma_row": 4.939149151773908,
+        "aspect_ratio": 0.08072916666666667,
+        "P": 124,
+        "Q": 1536,
+        "phi_fro_sq": 16992.35546875,
+        "gram_sq_trace": 13792715.0
+      },
+      "correct": {
+        "pr_naive": 7.2208733558654785,
+        "pr_corrected": 6.76917024397641,
+        "gamma_row": 0.8007535853441182,
+        "aspect_ratio": 0.008463541666666666,
+        "P": 13,
+        "Q": 1536,
+        "phi_fro_sq": 1931.6552734375,
+        "gram_sq_trace": 516736.90625
+      },
+      "incorrect": {
+        "pr_naive": 20.82118797302246,
+        "pr_corrected": 20.030289644878998,
+        "gamma_row": 4.343362858860277,
+        "aspect_ratio": 0.072265625,
+        "P": 111,
+        "Q": 1536,
+        "phi_fro_sq": 14863.08203125,
+        "gram_sq_trace": 10609923.0
+      }
+    }
+  },
+  "pr_naive_reference": 19.86,
+  "cross_check": {
+    "naive_pr_matches": true
+  },
+  "interpretation": "If corrected PR > naive PR, finite-sample bias was deflating the estimate. If corrected \u2248 naive, the sample is large enough that MP corrections are negligible. Per-class differences in corrected PR indicate genuine dimensionality asymmetry (F-4).",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "method": "marchenko_pastur_gamma_row_correction",
+    "reference": "Chun et al. 2509.26560 Appendix D"
+  }
+}

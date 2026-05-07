@@ -1,0 +1,39 @@
+{
+  "experiment": "FE459",
+  "description": "Cross-model 1.5B\u21947B DoM score correlation at L19 prefill",
+  "n": 500,
+  "model_15b": {
+    "n_correct": 243,
+    "auroc_oof": 0.7730860995020096,
+    "auroc_reference": 0.7731
+  },
+  "model_7b": {
+    "n_correct": 366,
+    "auroc_oof": 0.8738071935404943,
+    "hidden_dim": 3584
+  },
+  "cross_model": {
+    "spearman_rho": 0.9367761631046523,
+    "spearman_p": 3.044108476978207e-229,
+    "kendall_tau": 0.7792865731462925,
+    "kendall_p": 1.4594578347296505e-149,
+    "concordance_fraction": 0.8896432865731463
+  },
+  "label_agreement": {
+    "both_correct": 230,
+    "both_incorrect": 121,
+    "only_15b_correct": 13,
+    "only_7b_correct": 136
+  },
+  "cross_check": {
+    "n_correct_7b_is_366": true
+  },
+  "interpretation": "High Spearman (>0.5) means both models rank problem difficulty similarly in activation space, despite different capabilities. This would support F-2 as a general geometric phenomenon, not 1.5B-specific.",
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "dom_npz": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase2_prefill_dom.npz",
+    "data_7b": "/home/musicofhel/topo-confidence/pathway11_h100/data/math500_7b",
+    "seed": 9999,
+    "method": "oof_dom_cross_model_spearman"
+  }
+}

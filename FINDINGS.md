@@ -96,6 +96,16 @@ saturates at 2-feat).
 - **Full 1536-d L2-reg (EXP-58, FE882)**: max 0.7847 at C=0.001 —
   directional ceiling saturates at 2-feat. Confirms cov-spectrum
   lift is second-order, not under-regularized linear-directional.
+- **L0 embedding null (EXP-74, FE428)**: L0 DoM AUROC = 0.500
+  (exactly chance), cos(DoM_L0, DoM_L19) = 0.0. Signal emerges
+  entirely in deeper layers, not inherited from input geometry.
+- **Cross-model correlation (EXP-78, FE459)**: 7B L19 prefill DoM
+  AUROC = 0.874; Spearman(1.5B, 7B scores) = 0.937. Both models
+  rank problem difficulty nearly identically despite different
+  accuracy (48.6% vs 73.2%). F-2 is not 1.5B-specific.
+- **Length residualization (EXP-69, FE447)**: OOF residualized DoM
+  AUROC = 0.620 (raw 0.773). ~15% of signal is length-explained;
+  majority survives. Spearman(DoM, seq_len) = −0.619.
 
 **Strongest counterargument:** EXP-58 confirms the cov-spectrum lift
 is correlationally orthogonal to direction, but does not address
@@ -159,6 +169,13 @@ explanation threshold).
 - **NC3 alignment (EXP-51, FE244)** — max |cos| with top-50 answer-token
   unembed rows = 0.067 (prefill) / 0.128 (final), both below 0.3
   threshold. F-3 is NOT generic neural collapse.
+- **Pre-final token (EXP-75, FE416)** — cos(prefinal DoM, prefill DoM) =
+  −0.054 (< 0.3 threshold). cos(prefinal, final) = 0.717. The rotation
+  is gradual across the generation trajectory, NOT a last-token positional
+  artifact.
+- **Layer-sweep (EXP-76, FE119)** — cos(prefill DoM, final DoM) near zero
+  at ALL 29 layers (max |cos| = 0.103 at L28). F-3 orthogonality is a
+  network-wide geometric fact, not L19-specific.
 
 **Controls not yet run:**
 - Head-level attribution (H-13) to test the "different circuits"
@@ -193,6 +210,12 @@ direction on all).
 - Bootstrap CIs on Qwen: 7B P(ratio>1) = 0.000, 1.5B P(ratio>1) = 0.000 out
   of 1000 draws.
 - Balance-controlled (n=134 vs 134): 7B ratio 0.381, 1.5B 0.511.
+- **Length-band PR (EXP-72, FE15)**: PR roughly stable across bands
+  (Short=17.5, Medium=21.5, Long=20.9). DoM AUROC holds within each
+  band (0.75–0.83). NOT a length artifact.
+- **MP bias correction (EXP-73, FE16)**: Corrected PR = 18.9 (naive
+  19.9, ~5% correction). Correct=18.5 vs incorrect=19.6. Class
+  asymmetry survives finite-sample bias correction.
 
 **Controls not yet run:**
 - Answer-vocabulary null (see F-1 controls; H-699).

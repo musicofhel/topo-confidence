@@ -1,0 +1,64 @@
+{
+  "experiment": "FE421",
+  "description": "Ridge-LR on [prefill, final] concat vs single-source",
+  "n": 500,
+  "n_correct": 243,
+  "ridge_lr": {
+    "concat_3072": {
+      "auroc_oof": 0.8508750860674769,
+      "best_Cs": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    },
+    "prefill_1536": {
+      "auroc_oof": 0.7844390001761381,
+      "best_Cs": [
+        0.001,
+        0.001,
+        0.01,
+        0.001,
+        0.001
+      ]
+    },
+    "final_1536": {
+      "auroc_oof": 0.8493218683447823,
+      "best_Cs": [
+        0.01,
+        0.01,
+        0.01,
+        0.01,
+        0.01
+      ]
+    }
+  },
+  "dom_baselines": {
+    "concat_3072": 0.7574258218443259,
+    "prefill_1536": 0.7698675761797249,
+    "final_1536": 0.7209972618532929
+  },
+  "references": {
+    "dom_prefill_canonical": 0.7731,
+    "dom_concat_exp51_fe254": 0.6946
+  },
+  "cross_check": {
+    "dom_concat_matches_fe254": false
+  },
+  "interpretation": "If ridge concat > prefill DoM 0.7731, the final-token carries complementary signal that DoM alone misses. The gap between ridge and DoM on concat quantifies how much regularization helps vs naive mean-diff.",
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "seed": 9999,
+    "Cs": [
+      0.001,
+      0.01,
+      0.1,
+      1.0,
+      10.0
+    ],
+    "method": "logistic_regression_cv_l2"
+  }
+}
