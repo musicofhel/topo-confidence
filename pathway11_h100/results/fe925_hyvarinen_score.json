@@ -1,0 +1,20 @@
+{
+  "experiment": "FE925",
+  "description": "Hyv\u00e4rinen score difference for correctness prediction",
+  "n": 500,
+  "d": 1536,
+  "centered": true,
+  "gaussian_baseline_auroc_insample": 1.0,
+  "gaussian_baseline_auroc_oof": 0.7360330499111303,
+  "sliced_score_auroc_insample": 0.996301100062449,
+  "n_slices": 200,
+  "dom_auroc_reference": 0.7731,
+  "interpretation": "Gaussian (QDA) captures second-order; sliced score captures higher-order. Gap between them = non-Gaussian contribution.",
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "seed": 9999,
+    "method": "hyvarinen_score_gaussian_baseline_plus_sliced_score_matching",
+    "pca_dim": 50
+  }
+}

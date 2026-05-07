@@ -1599,4 +1599,134 @@ low-eigenvalue tail).
 **Enables:** {what experiments this unlocks}
 ```
 
-Next ID: **EXP-59**.
+## EXP-59: FE01172B — Gram eigenspectrum effective rank
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2604.02759 (random matrix theory for NN spectra)
+**Hypothesis:** Effective rank of L19 prefill activations matches cov-spectrum probe dim (~20)
+**What we actually tested:** MP noise estimation + participation ratio on 500×1536 Gram matrix
+**Key result:** PR=19.86, top-20 eigenvalues explain 68.15% variance
+**Verdict:** CONFIRMED — effective dimensionality ≈ 20
+**Changed our understanding of:** Why 20-feature cov-spectrum (0.793) ≈ full-space ceiling (0.785)
+**Files:** `pathway11_h100/gram_eigenspectrum/recompute_fe01172B.py`, `pathway11_h100/results/fe01172B_gram_eigenspectrum.json`
+**Depends on:** EXP-57 (FE881 cov-spectrum)
+**Enables:** Rank-constrained probe architectures; optimal feature count selection
+
+## EXP-60: FE903 — CCA prefill vs final-token
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2502.15016 (canonical correlation for representation analysis)
+**Hypothesis:** Prefill and final-token activations occupy different linear subspaces (explaining cos(DoM)=0.046)
+**What we actually tested:** PCA-regularized CCA at k ∈ {20,50,100,200}
+**Key result:** mCCA=0.98 at k=200, but cos(DoM_pre, DoM_fin)=-0.062
+**Verdict:** REJECTED — subspaces are shared (mCCA≈1); DoM orthogonality is within-subspace rotation
+**Changed our understanding of:** F-3 orthogonality is NOT between-subspace; discriminative directions rotate within a shared ~20-dim subspace
+**Files:** `pathway11_h100/mcca_prefill_final/recompute_fe903.py`, `pathway11_h100/results/fe903_mcca_prefill_final.json`
+**Depends on:** EXP-001 (F-2 DoM), F-3 (prefill/final orthogonality)
+**Enables:** Within-subspace rotation analysis; time-evolution of DoM direction during generation
+
+## EXP-61: FE899 — Principal subspace angles correct vs incorrect
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2604.03038 (subspace geometry of representations)
+**Hypothesis:** Correct and incorrect activations occupy measurably different PCA subspaces
+**What we actually tested:** scipy.linalg.subspace_angles on per-class PCA at k ∈ {5,10,20,50}
+**Key result:** Mean angles 34-39°, zero angles below 10° at k≤20, Grassmann distance grows with k
+**Verdict:** CONFIRMED — classes diverge geometrically beyond the DoM direction
+**Changed our understanding of:** Discriminative structure is multi-dimensional, not just 1-d DoM
+**Files:** `pathway11_h100/subspace_angles/recompute_fe899.py`, `pathway11_h100/results/fe899_subspace_angles.json`
+**Depends on:** F-2 (DoM)
+**Enables:** Multi-dimensional correctness probes; class-conditional PCA
+
+## EXP-62: FE930 — RoPE plane projection via q_proj pullback
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2604.18805 (position-dependent attention geometry)
+**Hypothesis:** DoM is concentrated in a few attention heads' RoPE planes (positional coupling)
+**What we actually tested:** Per-head decomposition of DoM variance through q_proj weight pullback (12 heads × 64 planes)
+**Key result:** Gini=0.17 (nearly uniform), top-1 head=16.4%
+**Verdict:** REJECTED — DoM has no special positional coupling
+**Changed our understanding of:** Correctness signal is not position-encoded; lives in isotropic residual space
+**Files:** `pathway11_h100/rope_projection/recompute_fe930.py`, `pathway11_h100/results/fe930_rope_projection.json`
+**Depends on:** F-2 (DoM)
+**Enables:** Rules out position-dependent steering; supports position-agnostic probes
+
+## EXP-63: FE901 — SETOL ECS projection
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2604.02759 (SETOL weight spectral theory)
+**Hypothesis:** DoM aligns with the effective correlation space (ECS) of L19 weight matrices
+**What we actually tested:** W@W^T eigendecomp + power-law tail fit for o_proj and down_proj; DoM/PC1 projection onto ECS
+**Key result:** o_proj alpha=1.14, DoM ECS=50%; down_proj alpha=1.72, DoM ECS=53%
+**Verdict:** CONFIRMED (partial) — ~50% alignment, not concentrated in top eigenvectors
+**Changed our understanding of:** DoM partially lives in weight correlation structure but is not a weight eigenvector
+**Files:** `pathway11_h100/setol_ecs/recompute_fe901.py`, `pathway11_h100/results/fe901_setol_ecs.json`
+**Depends on:** F-2 (DoM), EXP-57 (cov-spectrum)
+**Enables:** Weight-informed probe design; SETOL-guided feature selection
+
+## EXP-64: FE26841a — Logit-lens entropy for correctness prediction
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2502.00062 (logit lens as representation probe)
+**Hypothesis:** L19 logit-lens entropy predicts correctness (lower entropy → more confident → correct)
+**What we actually tested:** Entropy via tied embed_tokens unembed, 5-fold OOF logistic regression AUROC
+**Key result:** AUROC=0.633; CORRECT samples have HIGHER entropy (8.76 vs 8.33) — direction reversed from hypothesis
+**Verdict:** CONFIRMED (direction reversed) — entropy is informative but weaker than DoM; correct samples are LESS committed at L19
+**Changed our understanding of:** Intermediate-layer "confidence" works oppositely to final-layer; correct solutions explore more at L19
+**Files:** `pathway11_h100/logit_lens_entropy/recompute_fe26841a.py`, `pathway11_h100/results/fe26841a_logit_lens_entropy.json`
+**Depends on:** F-2 (DoM)
+**Enables:** Entropy as complementary feature; intermediate vs final layer confidence reversal study
+
+## EXP-65: FE889 — Procrustes rotation-axis projection
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2604.18805 (instruction tuning geometry)
+**Hypothesis:** DoM aligns with the largest RLHF/SFT rotation axes (correctness signal is instruction-tuning imprint)
+**What we actually tested:** Procrustes alignment between base and instruct L19 o_proj + down_proj, matrix logarithm, rotation plane extraction, DoM projection
+**Key result:** Largest o_proj rotation=76°, but DoM has only 1.6% variance in top-10 planes; top-10 plane AUROC=0.752
+**Verdict:** REJECTED — DoM is NOT aligned with the largest instruction-tuning changes
+**Changed our understanding of:** Correctness signal is not a direct RLHF artifact; it lives in its own subspace
+**Files:** `pathway11_h100/procrustes_rotation/recompute_fe889.py`, `pathway11_h100/results/fe889_procrustes_rotation.json`
+**Depends on:** F-2 (DoM)
+**Enables:** RLHF vs emergent distinction; base-model DoM comparison
+
+## EXP-66: FE909 — Per-layer alignment score profile
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** F-2 (L19 peak), FE145 (per-layer AUROC sweep)
+**Hypothesis:** The correctness direction emerges sharply at L19 (single-layer imprint)
+**What we actually tested:** cos(layer_diff, DoM_L19) across all 29 layers with 2000-resample bootstrap CIs
+**Key result:** Peak at L19, half-max width=7 layers (L15-L21), gradual ramp from L12
+**Verdict:** CONFIRMED (nuanced) — L19 is the peak but direction emerges gradually over ~7 layers
+**Changed our understanding of:** Correctness signal is a multi-layer computation (L12-L21), not single-layer
+**Files:** `pathway11_h100/alignment_profile/recompute_fe909.py`, `pathway11_h100/results/fe909_alignment_profile.json`
+**Depends on:** EXP-42 (FE145 per-layer sweep), F-2 (DoM at L19)
+**Enables:** Multi-layer probe designs; layer-range ablation studies
+
+## EXP-67: FE919 — Diffusion Maps embedding
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2604.03038 (nonlinear manifold methods for representations)
+**Hypothesis:** Nonlinear manifold structure in L19 activations encodes correctness beyond linear DoM
+**What we actually tested:** Diffusion Maps with renormalized Laplacian, logistic regression on k ∈ {2,5,10,20} diffusion coordinates, 5-fold OOF AUROC
+**Key result:** k=10 AUROC=0.788 > DoM 0.773; k=20 AUROC=0.784
+**Verdict:** CONFIRMED — nonlinear manifold structure contributes beyond linear DoM
+**Changed our understanding of:** There IS curvature-encoded correctness information; manifold-aware methods can improve on linear probes
+**Files:** `pathway11_h100/diffusion_maps/recompute_fe919.py`, `pathway11_h100/results/fe919_diffusion_maps.json`
+**Depends on:** F-2 (DoM), EXP-57 (cov-spectrum 0.793)
+**Enables:** Manifold-aware probes; spectral embedding + logistic hybrid; kernel methods on activations
+
+## EXP-68: FE925 — Hyvärinen score difference
+**Date:** 2026-05-06
+**Status:** COMPLETE
+**Motivated by:** 2502.15016 (score-based analysis of representations)
+**Hypothesis:** Non-Gaussian structure in class-conditional densities contributes to correctness prediction
+**What we actually tested:** Gaussian QDA (Ledoit-Wolf) OOF AUROC; sliced score matching (200 slices)
+**Key result:** Gaussian QDA OOF=0.736 < DoM 0.773; sliced score in-sample=0.996 (overfit)
+**Verdict:** INCONCLUSIVE — Gaussian QDA underperforms DoM in high-d/low-n regime, but cov-spectrum (0.793) using 20 features beats both. Feature selection > model complexity.
+**Changed our understanding of:** Full quadratic form is suboptimal with 500 samples in 1536-d; feature selection (cov-spectrum's 20 log-eigenvalues) matters more than model class
+**Files:** `pathway11_h100/hyvarinen_score/recompute_fe925.py`, `pathway11_h100/results/fe925_hyvarinen_score.json`
+**Depends on:** F-2 (DoM), EXP-57 (cov-spectrum)
+**Enables:** Confirms feature-selection-first design principle for probes
+
+Next ID: **EXP-69**.

@@ -1,0 +1,25 @@
+{
+  "experiment": "FE26841a",
+  "description": "Logit-lens entropy from L19 prefill activations for correctness prediction",
+  "n": 500,
+  "vocab_size": 151936,
+  "entropy_auroc_oof_logreg": 0.6332644793518118,
+  "entropy_auroc_raw_negated": 0.3628604826183728,
+  "entropy_mean_correct": 8.762246875605957,
+  "entropy_std_correct": 0.8963417231868893,
+  "entropy_mean_incorrect": 8.331307598588996,
+  "entropy_std_incorrect": 0.9362250321914506,
+  "entropy_class_gap": -0.4309392770169609,
+  "spearman_entropy_vs_dom": 0.3394191496765987,
+  "spearman_pvalue": 6.021658737723226e-15,
+  "dom_auroc_reference": 0.7731,
+  "fold_structure": "StratifiedKFold(n_splits=5, shuffle=True, random_state=9999)",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "dom_npz": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_gated_compute/phase2_prefill_dom.npz",
+    "safetensors": "/home/musicofhel/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/model.safetensors",
+    "seed": 9999,
+    "method": "logit_lens_entropy_via_tied_embed_tokens",
+    "chunk_size": 50
+  }
+}

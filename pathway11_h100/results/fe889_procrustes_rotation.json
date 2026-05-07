@@ -1,0 +1,103 @@
+{
+  "experiment": "FE889",
+  "description": "Procrustes rotation-axis projection (base vs instruct L19 weights)",
+  "n": 500,
+  "hidden_dim": 1536,
+  "centered": true,
+  "weight_analyses": {
+    "o_proj": {
+      "name": "o_proj",
+      "det_R": 1.0000008344650269,
+      "skew_symmetry_error": 0.00020341086717023417,
+      "n_rotation_planes": 768,
+      "top10_rotation_angles_rad": [
+        1.3276212832183791,
+        0.5115901794362028,
+        0.42583503980333126,
+        0.35148345557108635,
+        0.32004734600599555,
+        0.3009346165380223,
+        0.27866378486691584,
+        0.24714379441523324,
+        0.2376542522511247,
+        0.22204183638169578
+      ],
+      "top10_rotation_angles_deg": [
+        76.06709632015567,
+        29.311958122034895,
+        24.3985505495163,
+        20.13851857289723,
+        18.33736217050669,
+        17.242283437016503,
+        15.966258776015817,
+        14.16029635284175,
+        13.616585637326889,
+        12.722060100005542
+      ],
+      "dom_cumulative_variance_in_top_k_planes": {
+        "1": 0.002788504548901125,
+        "5": 0.012051840770583992,
+        "10": 0.0155491669587998,
+        "50": 0.06277688406843555
+      },
+      "auroc_top_k_planes": {
+        "1": 0.6669068549742998,
+        "5": 0.7417975692943267,
+        "10": 0.7518214279995517,
+        "50": 0.744759891755136
+      },
+      "dom_auroc_reference": 0.7731
+    },
+    "down_proj": {
+      "name": "down_proj",
+      "det_R": 1.0000015497207642,
+      "skew_symmetry_error": 0.0047696213548992705,
+      "n_rotation_planes": 768,
+      "top10_rotation_angles_rad": [
+        0.013856209527806598,
+        0.013184375582148827,
+        0.01165254635306842,
+        0.011486595395934081,
+        0.01122628895352555,
+        0.010885656158980276,
+        0.0106689330108399,
+        0.01044537801884329,
+        0.010282702483913705,
+        0.01011272764784112
+      ],
+      "top10_rotation_angles_deg": [
+        0.7939023259922774,
+        0.7554090763724656,
+        0.6676417266113797,
+        0.6581334371614257,
+        0.6432189766313515,
+        0.6237021551401605,
+        0.6112848334289285,
+        0.5984760758984418,
+        0.5891554543169436,
+        0.5794166135865564
+      ],
+      "dom_cumulative_variance_in_top_k_planes": {
+        "1": 0.007020147039048597,
+        "5": 0.015584688955339333,
+        "10": 0.028550302534787728,
+        "50": 0.10215679552572426
+      },
+      "auroc_top_k_planes": {
+        "1": 0.7204368224688156,
+        "5": 0.7341916062192759,
+        "10": 0.7570094954444284,
+        "50": 0.7211573873917151
+      },
+      "dom_auroc_reference": 0.7731
+    }
+  },
+  "interpretation": "If DoM variance concentrated in top-k rotation planes with small k, DoM aligns with RLHF/SFT rotation axes \u2014 correctness signal is an imprint of instruction tuning.",
+  "meta": {
+    "cache": "/home/musicofhel/topo-confidence/pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+    "instruct_safetensors": "/home/musicofhel/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B-Instruct/snapshots/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/model.safetensors",
+    "base_safetensors": "/home/musicofhel/.cache/huggingface/hub/models--Qwen--Qwen2.5-1.5B/snapshots/8faed761d45a263340a0528343f099c05c9a4323/model.safetensors",
+    "seed": 9999,
+    "method": "Procrustes_logm_rotation_plane_extraction"
+  }
+}

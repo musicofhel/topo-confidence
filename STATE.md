@@ -30,10 +30,13 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-EXP-58 (P11-FE882 decomposition triangle: full 1536-d L2-reg directional
-ceiling, 0.7847 at C=0.001) on 2026-05-02. The nocompute methodology
-suite (2026-05-06) ran post-hoc analyses on existing caches — no new
-EXP-N entries.
+EXP-59 through EXP-68 (overnight sweep, 10 CPU experiments) on 2026-05-06.
+Standout: FE919 Diffusion Maps AUROC=0.788 > DoM 0.773 (nonlinear manifold
+structure contributes). FE903 mCCA=0.98 confirms shared subspace with
+orthogonal DoM directions. FE909 alignment profile peaks at L19 with 7-layer
+half-max width (L15-L21). FE889 rules out RLHF rotation alignment. FE930
+rules out positional coupling. Full brief:
+`research-graph/briefs/result-2026-05-06-P11-overnight-sweep.md`
 
 ## Queued — next session
 
