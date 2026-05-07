@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-702.**
+**Numbering continues monotonically. Next ID: H-739.**
 
 ## Cost + time summary (at a glance)
 
@@ -7664,6 +7664,359 @@ probe") graduates from filter to mechanism. *Reject* (no drop): cov-spectrum
 is a passive geometric correlate; F-2 remains directional + a per-problem
 second-order shape readout that the model doesn't itself use.
 **Blocks:** F-2 causal upgrade; APPLICATIONS App 3 production checklist.
+
+---
+
+
+### H-702: DoM AUROC is confounded by decoding-strategy-dependent correctness labels
+**Priority:** MEDIUM
+**Motivated by:** 2602.10346 + F-2
+**Test:** Regenerate MATH-500 under Top-W decoding (λ=2.2, β=2.8, T=1.0) on Qwen-2.5-1.5B; recompute DoM AUROC under new labels. Also compute correlation between DoM score and per-problem accuracy gain from greedy→Top-W.
+**Requires:** H100 (~4h) for regeneration; CPU for analysis
+**Would change:** If confirmed (AUROC drops >0.03 under Top-W), F-2's interpretation shifts from "DoM predicts model knowledge" to "DoM predicts decode-tractability." Selective prediction (F-8) would still work operationally but the mechanism interpretation weakens.
+**Blocks:** nothing
+
+### H-703: Diagonal whitening of L19 activations improves DoM separability
+**Priority:** HIGH
+**Motivated by:** 2602.10346 + F-2
+**Test:** Apply per-coordinate whitening (subtract mean, scale by inverse std) to cached L19 prefill activations. Recompute DoM (top singular vector of whitened correct-incorrect difference) and AUROC. Compare to 0.7731.
+**Requires:** CPU only, 10min, cached NPZs
+**Would change:** If confirmed (AUROC > 0.78), whitening becomes standard preprocessing. If rejected (AUROC drops), confirms that anisotropy is informative for our task.
+**Blocks:** nothing
+
+---
+
+
+### H-704: L19 DoM direction is recoverable from weight-space Procrustes rotation axes alone
+
+**Priority:** HIGH
+**Motivated by:** 2602.05943 + F-2
+**Test:** Procrustes decompose the L19 attention-out and MLP-down weight matrices (instruct vs base). Extract top-k eigenvectors of skew-symmetric Q. Project cached L19 prefill activations onto these axes and compute 5-fold AUROC. Compare with supervised DoM AUROC 0.7731.
+**Requires:** CPU only. Qwen-2.5-1.5B base + instruct weights (HF download). Cached activations from pathway11.
+**Would change:** If AUROC ≥ 0.75, F-2 is reframed: correctness signal is weight-geometric, not content-computed. Steering (H-1) would need to target rotation axes, not activation directions.
+**Blocks:** H-1
+
+### H-705: Per-layer orthogonality ratio ||ρ||/||R·W₀|| anti-correlates with per-layer DoM AUROC
+
+**Priority:** MEDIUM
+**Motivated by:** 2602.05943 + F-2
+**Test:** Procrustes decompose each layer's MLP and attention weights. Correlate ||ρ||/||R·W₀|| with per-layer DoM AUROC from pathway11 layer sweep.
+**Requires:** CPU only. Same weights as H-704.
+**Would change:** If anti-correlation holds (more orthogonal = higher AUROC), this explains why L19 is special — its weight matrix is the most rotation-dominated. If no correlation, weight orthogonality is unrelated to correctness signal location.
+**Blocks:** nothing
+
+### H-706: F-3 prefill/final DoM orthogonality is mechanically explained by weight-space rotation at L19
+
+**Priority:** HIGH
+**Motivated by:** 2602.05943 + F-3
+**Test:** Extract R from Procrustes at L19. Compute R · DoM_prefill and measure cos(R · DoM_prefill, DoM_final). If cos >> 0.046, a single weight rotation bridges the two directions. If cos ≈ 0.046, the orthogonality is not explained by weight rotation.
+**Requires:** CPU only. Cached DoM directions from pathway11.
+**Would change:** Confirms F-3 is structural if cos stays near zero (rotation doesn't bridge). Refutes F-3's "structural" label if cos is high (rotation mechanically explains it).
+**Blocks:** nothing
+
+---
+
+
+### H-707: Prefill DoM direction at L19 rotates under MaxRL training vs GRPO training
+**Priority:** HIGH
+**Motivated by:** 2602.02710 §5 (weight function analysis) + F-2 (AUROC 0.7731 on GRPO-trained Qwen2.5-1.5B-Instruct)
+**Test:** Train Qwen2.5-1.5B with MaxRL (single-line change to advantage normalization in verl), or use released Qwen3-1.7B-MaxRL checkpoint. Extract L19 prefill activations on MATH-500 at 1024 tok. Fit DoM direction. Report cos(DoM_GRPO, DoM_MaxRL). 1-2 days H100.
+**Requires:** H100, MATH-train for RL training (or released checkpoint), extraction pipeline from P11
+**Would change:** On confirm (cos < 0.5): F-2 and F-8 are partly GRPO artifacts; on reject (cos > 0.8): DoM is robust to RL objective, strengthening F-2 and effectively closing H-282.
+**Blocks:** H-282
+
+### H-708: D-bucket geometric signature (F-7) is caused by GRPO gradient void at low pass rates
+**Priority:** HIGH
+**Motivated by:** 2602.02710 Figure 6 (GRPO gradient norm → 0 at low pass rate, on our exact model+data) + F-7
+**Test:** Compute GRPO w(p) for each MATH-500 problem using cached per-problem accuracy estimates. Check whether D-bucket problems cluster in the w(p) → 0 region. Cheap CPU analysis (FE110701) gives indirect evidence; direct confirmation requires MaxRL checkpoint (FE110704). 20min CPU + optional 2h H100.
+**Requires:** Cached per-problem accuracy from K-sample generation, cached L19 activations
+**Would change:** On confirm: F-7 is reframed as "GRPO gradient void signature" not "competence boundary signature." On reject: F-7 is robust and reflects genuine competence structure.
+**Blocks:** nothing
+
+---
+
+
+### H-709: Correct/incorrect L19 prefill activations are separated by a one-parameter Lie subgroup action classifiable as elliptic, hyperbolic, or parabolic
+**Priority:** HIGH
+**Motivated by:** 2509.22219 + F-2 + F-3
+**Test:** Decompose the inter-class covariance of cached L19 prefill activations into skew-symmetric, symmetric-traceless, and nilpotent components. Fit Hγ-Net–style invariant representations under each regime assumption. Compare classification AUROC to DoM 0.7731 and cov-spectrum 0.7928.
+**Requires:** CPU, cached NPZ activations from pathway11_h100
+**Would change:** On confirm (one regime clearly dominant + AUROC lift): F-2 reframed from "single direction" to "single one-parameter subgroup orbit," opening invariant-representation–based probes as the natural feature space. On reject (no clean subgroup, invariant rep ≤ 0.7731): correct/incorrect separation is genuinely linear, strengthening F-2's "single direction" framing.
+**Blocks:** nothing
+
+### H-710: The prefill→final-token DoM transformation is best described by a specific Lie-algebraic regime (elliptic/hyperbolic/parabolic), and the regime type determines whether H-17's RoPE-mechanical hypothesis holds
+**Priority:** MEDIUM
+**Motivated by:** 2509.22219 + F-3 + H-17
+**Test:** Using cached prefill and final-token L19 activations, fit paired transformation models under each regime. If elliptic regime dominates and recovered rotation frequency matches RoPE frequency at L19's position, H-17 is supported. If hyperbolic or parabolic regime fits better, H-17 is refuted.
+**Requires:** CPU, cached paired (prefill, final-token) activations from pathway11_h100
+**Would change:** On confirm (elliptic + RoPE-matched): H-17 becomes CONFIRMED, F-3 gains precise geometric characterization. On reject (non-elliptic): H-17 is refuted, F-3's "structural" orthogonality gets a new mechanistic explanation.
+**Blocks:** H-17
+
+---
+
+
+### H-711: Per-layer WeightWatcher alpha profile of Qwen-2.5-1.5B peaks (minimizes toward 2) at or near L19
+**Priority:** HIGH
+**Motivated by:** 2507.17912 + F-2 + H-489
+**Test:** Run `weightwatcher` on all 28 transformer block weight matrices; plot alpha vs layer index; test whether the alpha minimum falls at L19 ± 2 layers.
+**Requires:** CPU only, Qwen-2.5-1.5B weights from HuggingFace (~3GB download)
+**Would change:** Confirms → L19 specialness has a weight-space explanation (SETOL predicts its correctness-prediction peak). Rejects → L19 is NOT spectrally special, correctness signal is representational, not "layer quality."
+**Blocks:** nothing
+
+### H-712: L19 DoM direction (cos=0.9216 with PC1) lies predominantly within the SETOL Effective Correlation Space of L19's weight matrix
+**Priority:** HIGH
+**Motivated by:** 2507.17912 + F-2 + F-10
+**Test:** Compute ECS of L19 (PL-tail eigenvectors of W_L19^T W_L19). Project our DoM direction onto ECS basis. Measure fraction of DoM variance explained by ECS directions.
+**Requires:** CPU only, Qwen-2.5-1.5B weights + cached DoM direction from P11
+**Would change:** Confirms → our correctness signal is in the "generalizing subspace" per SETOL, supporting its theoretical interpretation. Rejects → our signal exploits "bulk" directions SETOL predicts should be noise, challenging HTSR completeness and suggesting hidden-state correctness prediction accesses information NOT captured by weight-space spectral theory.
+**Blocks:** nothing
+
+---
+
+
+### H-713: mCCA between prefill and final-token L19 activations is high (≥0.9), implying F-3 orthogonality is within-equivalence-class
+**Priority:** HIGH
+**Motivated by:** 2602.15438 + F-3
+**Test:** Compute mCCA(L19_prefill_500×1536, L19_final_500×1536) using canonical correlation analysis on cached NPZ activations. Compare against cos(DoM_prefill, DoM_final) = 0.046.
+**Requires:** CPU, cached pathway11_h100 NPZs
+**Would change:** If confirmed (mCCA ≥ 0.9): F-3 needs reinterpretation — prefill/final are linearly equivalent, the cos=0.046 orthogonality is a 1D projection artefact. If rejected (mCCA ≪ 0.9): F-3 strengthened — genuine structural separation, not just a rotated basis.
+**Blocks:** nothing
+
+### H-714: Logit distance between 1.5B and 7B on MATH-500 is small enough to guarantee high mCCA, providing theoretical backing for cross-scale DoM transfer
+**Priority:** MEDIUM
+**Motivated by:** 2602.15438 + F-1
+**Test:** Forward-pass both models on 500 MATH-500 prefill prompts, compute d_logit (Def. 3.1), apply Thm. 3.4 bound using μ_m from logit covariance. Need both models' full vocab logits.
+**Requires:** H100 (two forward passes), Qwen-2.5-{1.5B, 7B}
+**Would change:** If confirmed (bound implies mCCA > 0.8): strong theoretical support for F-1 universality. If rejected (bound vacuous due to large d_logit): models are too distributionally different for this theory to apply cross-scale.
+**Blocks:** H-713
+
+---
+
+
+### H-715: Hodge Laplacian spectral gap on VR complexes built from L19 prefill activations separates correct from incorrect groups (refining F-10)
+**Priority:** LOW
+**Motivated by:** 2604.27241 + F-10
+**Test:** Build VR complexes from L19 prefill activations (correct group, incorrect group, matched Gaussian null). Compute the combinatorial Hodge Laplacian L_1 = B_1^T B_1 + B_2 B_2^T. Extract the spectrum. Compare the spectral gap λ_{min+1}(L_1) between groups via permutation test. Est. time: 90min CPU.
+**Requires:** CPU, cached L19 prefill NPZs (500 × 1536), scipy/numpy for sparse eigendecomposition
+**Would change:** If spectral gaps differ between groups: F-10's PH null is summary-statistic-specific, not topology-universal → H-35 confirmed. If spectral gaps are also null: F-10 is strengthened to cover Hodge spectral invariants.
+**Blocks:** nothing
+
+---
+
+
+### H-716: Intrinsic dimension of L19 prefill activations is ≪ 1536 and explains the linear probe ceiling
+**Priority:** HIGH
+**Motivated by:** 2311.03757 + F-2 + F-10
+**Test:** Run MLE intrinsic dimension estimator (Levina-Bickel) and correlation dimension on cached 500×1536 L19 prefill activations. If d_est < 20, manifold structure exists; if d_est ≈ 1–5, the linear probe ceiling (0.7731) is explained by the low-d manifold being nearly 1-d along the correctness axis.
+**Requires:** CPU, cached NPZs
+**Would change:** On confirm (d << 1536): F-10 reframed as "PH null despite manifold structure"; F-2 ceiling explained by manifold geometry. On reject (d ≈ 1536): manifold assumption is wrong; activations fill the space.
+**Blocks:** H-683
+
+### H-717: Nonlinear (Diffusion Maps) embedding of L19 activations achieves AUROC > 0.7731
+**Priority:** HIGH
+**Motivated by:** 2311.03757 + F-2 + F-9
+**Test:** Compute Diffusion Maps embedding (m=2–10) with renormalized Laplacian on cached L19 prefill activations. Train 5-fold logistic regression on DM coordinates. Compare to F-2's 0.7731.
+**Requires:** CPU, cached NPZs, scikit-learn or megaman
+**Would change:** On confirm: F-2's "single linear direction" is incomplete; nonlinear structure carries extra signal, and F-9's CoE redundancy may reflect CoE partially capturing this. On reject: linear probe is near-optimal; manifold curvature does not help.
+**Blocks:** nothing
+
+---
+
+
+### H-718: NAG-style sparse neuron decomposition at L19 FFN UP reveals correctness-discriminative functional backbone
+**Priority:** HIGH
+**Motivated by:** 2604.15706 + F-2 + H-64
+**Test:** Compute neuron impact scores for L19 FFN UP projection across 500 MATH-500 problems using cached activations + model weights. Identify top-K neurons per problem, compute High-Δ neurons between correct and incorrect groups. Test overlap with top components of supervised DoM direction.
+**Requires:** CPU, cached L19 activations, Qwen-2.5-1.5B L19 FFN weights (load from HuggingFace)
+**Would change:** If High-Δ neurons align with DoM's top components: strengthens F-2's mechanistic interpretation (DoM direction ≈ sparse neuron backbone). If they diverge: identifies orthogonal signal the current probe misses, motivates a neuron-importance-based probe that may beat 0.7731 AUROC.
+**Blocks:** nothing
+
+### H-719: NAG Dice similarity in neuron-index space separates correct/incorrect MATH-500 groups where Euclidean distance in R^1536 does not
+**Priority:** MEDIUM
+**Motivated by:** 2604.15706 + F-10
+**Test:** Construct NAG representations (top-K neuron indices per problem at L19), compute pairwise NAG Dice similarity, run permutation test for correct/incorrect group separation. Compare effect size to Euclidean-distance-based separation (which yielded F-10's PH null).
+**Requires:** CPU, cached L19 activations, Qwen-2.5-1.5B weights
+**Would change:** If NAG similarity separates groups: shows the correctness signal lives in sparse combinatorial neuron patterns, not in the continuous geometry that PH tested. Would reframe F-10 as geometry-null rather than signal-null.
+**Blocks:** nothing
+
+---
+
+
+### H-720: L19 DoM direction is recoverable from MATH-500 completions via next-token loss alone (cos(v_r, DoM) > 0.5)
+**Priority:** HIGH
+**Motivated by:** 2604.25783 + F-2 (AUROC 0.7731)
+**Test:** Apply paper's vector recovery protocol (Eq. 5) on Qwen-2.5-1.5B MATH-500 completions with soft-gated layer window, no correctness labels. Measure cos(v_r, DoM_L19).
+**Requires:** H100, Qwen-2.5-1.5B, MATH-500 completions (cached or regenerated), ~3h
+**Would change:** Confirm → DoM is self-supervisedly recoverable, strengthening the signal's robustness beyond labeled supervision; Reject → DoM requires explicit correctness labels to find, it's not encoded in generation patterns.
+**Blocks:** nothing
+
+### H-721: DoM verbalization reveals "mathematical rigor" or "problem difficulty" as the dominant semantic content, not "confidence"
+**Priority:** HIGH
+**Motivated by:** 2604.25783 + F-2 + F-5
+**Test:** Alpha-sweep DoM injection on 20 neutral prompts (paper's protocol), LLM summarization. Does the model start producing math-related or confidence-related text?
+**Requires:** H100, Qwen-2.5-1.5B, ~1h generation + API call for summarization
+**Would change:** Confirm → DoM is a difficulty/rigor estimator, reframing F-2 from "correctness prediction" to "difficulty assessment"; Reject (confidence-related) → DoM is closer to a calibration signal; Reject (incoherent) → DoM may not have clean semantic content at all.
+**Blocks:** H-5
+
+### H-722: Correctness-signal alignment score s(ℓ) has a single sharp peak at L19 (width ≤ 4 layers), consistent with layer-localized training imprint
+**Priority:** MEDIUM
+**Motivated by:** 2604.25783 Figure 3 + F-2
+**Test:** Compute per-layer s(ℓ) = cos(mean_correct - mean_incorrect, DoM_L19) across all 28 layers of Qwen-2.5-1.5B. Measure peak width at half-maximum.
+**Requires:** CPU, per-layer activation caches from P8 or new extraction (~2h H100)
+**Would change:** Confirm (sharp peak) → L19 specificity is real, possibly training-imprinted; Reject (broad peak) → correctness signal is a distributed computation, not layer-specific.
+**Blocks:** nothing
+
+---
+
+
+### H-723: Graph-structural features of L19 activation k-NN neighborhoods predict correctness at AUROC > 0.7731
+**Priority:** MEDIUM
+**Motivated by:** 2312.04762 + F-2
+**Test:** Build k-NN graph (k=5,10,20) from cached 500×1536 L19 prefill activations, compute per-node effective resistance, spectral gap contribution, and Forman curvature. Train 5-fold logistic regression for correct/incorrect. Compare AUROC to DoM baseline 0.7731.
+**Requires:** CPU, cached NPZ activations, scipy + networkx
+**Would change:** If confirmed: F-2 needs revision — correctness signal has a relational/graph-structural component beyond single-direction projection. If rejected: strengthens the "single direction suffices" claim.
+**Blocks:** nothing
+
+### H-724: PH on kTree-sparsified activation graphs shows non-null correct/incorrect separation (refining F-10)
+**Priority:** LOW
+**Motivated by:** 2312.04762 + F-10
+**Test:** Build k-NN graph from cached L19 activations, apply kTree sparsification to avg degree 5, compute H_0/H_1 barcodes on clique complex for correct vs incorrect vs Gaussian null. Compare bottleneck/Wasserstein distances between groups.
+**Requires:** CPU, cached NPZs, giotto-tda or ripser, networkx
+**Would change:** If confirmed: F-10's null result is an artifact of dense VR complexes, not absence of topology. PH could be rehabilitated as a correctness signal. If rejected: further strengthens F-10 (topology is null even at optimal sparsity).
+**Blocks:** nothing
+
+---
+
+
+### H-725: Prefill DoM direction is primarily detecting memorization proximity (low conditional entropy basin)
+**Priority:** HIGH
+**Motivated by:** 2604.26841 + F-2
+**Test:** Compute per-problem logit-lens conditional entropy at L19 (unembedding applied to cached residuals), compute AUROC for correctness, compare to DoM AUROC 0.7731. Then partial-correlation: DoM→correctness controlling for entropy. If partial r ≈ 0, DoM is explained by memorization.
+**Requires:** CPU, cached L19 activations (500×1536), Qwen unembedding matrix
+**Would change:** If confirmed: F-2 is reframed from "correctness geometry" to "memorization proximity detection." If rejected (DoM retains signal after controlling for entropy): DoM captures something beyond memorization.
+**Blocks:** H-5
+
+### H-726: D-bucket collective signature (F-7) is explained by problems sitting in memorization regime
+**Priority:** MEDIUM
+**Motivated by:** 2604.26841 + F-7
+**Test:** Stratify MATH-500 problems by D-bucket membership, compare conditional entropy distributions. If D-bucket problems show systematically lower entropy (sharper basins → memorization regime), the geometric signature is an artifact of memorization clustering.
+**Requires:** CPU, cached L19 activations, problem-level D-bucket labels
+**Would change:** If confirmed: F-7 is downgraded from "difficulty-specific geometry" to "memorization artifact." If rejected: F-7's collective signature is independent of memorization regime.
+**Blocks:** nothing
+
+---
+
+
+### H-727: The AUROC ceiling (0.7928) for correctness prediction from L19 activations equals the signal-channel rank at layer 19
+**Priority:** HIGH
+**Motivated by:** 2605.01172 + F-2
+**Test:** Compute Gram matrix eigenspectrum of L19 prefill activations (500×500 matrix); identify signal-channel rank via MP edge or elbow method; compare to effective dimensionality of best probe (20 features → 0.7928). If they match, the ceiling is a representational property.
+**Requires:** CPU only, cached L19 activations
+**Would change:** On confirm: F-2's ceiling becomes theoretically explained, shifts focus from probe engineering to representation engineering. On reject: signal-channel theory doesn't apply at single-layer level.
+**Blocks:** nothing
+
+### H-728: Leave-one-out self-influence computed from L19 activations achieves AUROC ≥ 0.75 for correctness prediction without supervised labels
+**Priority:** HIGH
+**Motivated by:** 2605.01172 Section 6 + H-12 + F-8
+**Test:** For each of 500 problems, compute LOO influence (cosine distance to leave-one-out centroid, or Mahalanobis distance to LOO distribution). Compute AUROC for correct/incorrect classification. Target: match or exceed DoM (0.7731) without any labels.
+**Requires:** CPU only, cached L19 activations
+**Would change:** On confirm: label-free selective prediction is possible, resolving H-12. On reject: supervised probing remains necessary for deployment.
+**Blocks:** H-12
+
+---
+
+
+### H-729: L19 prefill activation manifold has negligible curvature (geodesic ≈ Euclidean)
+**Priority:** MEDIUM
+**Motivated by:** 2605.02167 + F-2 + F-10
+**Test:** Compute ISOMAP geodesic distance matrix on cached 500×1536 L19 prefill activations at k=10,15,20 nearest neighbors. Correlate (Spearman) with Euclidean distance matrix. Also compute intrinsic dimensionality via MLE estimator.
+**Requires:** CPU only, cached NPZs, scikit-learn ISOMAP
+**Would change:** If confirmed (r > 0.95): validates all Euclidean analyses (DoM, PCA, VR-PH) and closes the "manifold curvature" concern. If rejected (r < 0.85): motivates manifold-aware re-analysis of F-2, F-10, and potentially explains part of F-10's PH null.
+**Blocks:** nothing
+
+---
+
+
+### H-730: L19 DoM AUROC partially depends on position-content cross-term coupling, not pure content signal
+**Priority:** HIGH
+**Motivated by:** 2006.15595 + F-2 + H-101
+**Test:** P11-FE925 (length correlation, 15min CPU) then P11-FE926 (RoPE projection, 30min CPU) then P11-FE928 (attention decomposition, 4h H100 — only if Tier 1 shows signal)
+**Requires:** Cached DoM scores + Qwen-2.5 config (Tier 1); H100 forward passes (Tier 2)
+**Would change:** Confirm (|ρ_length| > 0.2 or RoPE-plane fraction > 20%) → F-2's headline AUROC 0.7731 needs a "position-residualized" companion number; ceiling analysis changes. Reject → F-2's content-signal interpretation strengthens; H-101 partially confirmed.
+**Blocks:** H-101
+
+### H-731: F-5's content-dependent breathing has a positional pathway component mediated by content→attention→position coupling
+**Priority:** MEDIUM
+**Motivated by:** 2006.15595 (Eq. 6 cross-terms) + F-5
+**Test:** P11-FE927 (length-matched breathing comparison, 20min CPU)
+**Requires:** Cached breathing amplitudes + prefill token counts
+**Would change:** Confirm (breathing amplitude differences attenuate >30% after length-matching) → F-5 needs a "partially position-mediated" caveat. Reject (differences survive within 10%) → F-5's pure content interpretation strengthens.
+**Blocks:** nothing
+
+---
+
+
+### H-732: Fisher divergence between correct/incorrect activations exceeds Gaussian-predicted value
+**Priority:** HIGH
+**Motivated by:** 2407.11094 + F-10
+**Test:** Estimate Fisher divergence between correct/incorrect L19 prefill activations using (a) Gaussian assumption with shared covariance and (b) non-parametric score matching (kernel or neural). If (b) >> (a), non-Gaussian structure exists that PH missed. Run on cached 500×1536 NPZs.
+**Requires:** CPU only, cached NPZ data, score-matching library (e.g., sliced score matching)
+**Would change:** Confirm: F-10 is PH-specific, not geometry-general — motivates exploring non-PH non-parametric probes. Reject: F-10 extends to Fisher divergence — Gaussian really does suffice for this data.
+**Blocks:** nothing
+
+### H-733: L19 is a robustly detected change-point in the layer-wise correctness signal
+**Priority:** HIGH
+**Motivated by:** 2407.11094 + F-2 + F-1
+**Test:** Apply CUSUM/RSCUSUM to the 28-point per-layer DoM AUROC (or Fisher divergence) sequence. Test whether L19 is the unique robustly detected change-point with controlled false-alarm rate.
+**Requires:** CPU only, per-layer DoM AUROCs from P8 layer-wise analysis
+**Would change:** Confirm: L19 is a robust phase boundary, not just an AUROC peak — strengthens F-2 and provides a statistical test for layer importance. Reject: change-point is elsewhere or no single change-point exists — F-2's framing needs revision toward a multi-layer or gradual-transition picture.
+**Blocks:** nothing
+
+---
+
+
+### H-734: The L19 DoM direction aligns with the top Hessian eigenvector of the training loss at the converged checkpoint
+**Priority:** MEDIUM
+**Motivated by:** 2604.21016 + F-2
+**Test:** Compute λ\_max(∇²L(θ)) and its eigenvector u at the Qwen-2.5-1.5B converged weights (on the MATH-500 training loss surface). Compare cos(u, DoM) and cos(u, PC1). Est: 4h H100.
+**Requires:** H100, Qwen-2.5-1.5B weights, MATH-500 data, backward pass infrastructure
+**Would change:** Confirm (cos > 0.8) → F-2's DoM is a fingerprint of training-time EoS dynamics, opening a mechanistic bridge between loss-landscape curvature and inference-time correctness signals. Reject (cos < 0.3) → DoM is not the top curvature direction; its origin must be sought elsewhere (possibly in the forward-pass computation, not the training trajectory).
+**Blocks:** H-4
+
+### H-735: Qwen-2.5-1.5B does not operate at Edge of Stability (sharpness far below 2/η due to CE loss)
+**Priority:** HIGH
+**Motivated by:** 2604.21016 + H-4
+**Test:** Compute S(θ) = λ\_max(∇²L(θ)) at the converged weights and compare to 2/η (where η is Qwen's training learning rate). Check if the model is in the EoS regime. Est: 2h H100.
+**Requires:** H100, Qwen-2.5-1.5B weights, training hyperparameters (learning rate, batch size)
+**Would change:** Confirm (S ≪ 2/η) → H-4 should be deprioritized or reformulated; breathing is not an EoS phenomenon. Reject (S ≈ 2/η) → EoS framework applies, H-4 proceeds.
+**Blocks:** H-4
+
+---
+
+
+### H-736: Correctness-confidence at L19 is a multi-dimensional manifold, not a single linear direction
+**Priority:** HIGH
+**Motivated by:** 2604.28119 + F-2
+**Test:** Restricted-R² subspace capture (P11-FE934): measure how many PCA directions are needed to reconstruct correctness-class centroids in cached L19 prefill activations. If R² at 1 direction < 0.8 but R² at 5 directions > 0.95, correctness is manifold-structured.
+**Requires:** CPU only, cached NPZs
+**Would change:** On confirm: F-2's "single direction" framing becomes "single direction is best linear tile of a multi-dimensional correctness manifold" — the AUROC ceiling is set by tile coverage, not information limit. On reject: F-2 stands as stated, correctness is genuinely 1D at L19.
+**Blocks:** H-26
+
+### H-737: F-10's PH-null is an artifact of testing the superposed cloud rather than factor-projected sub-clouds
+**Priority:** HIGH
+**Motivated by:** 2604.28119 + F-10 + H-35
+**Test:** Factor-manifold PH retest (P11-FE937): project L19 activations onto top-k PCA subspaces, recompute VR-PH on projected correct/incorrect sub-clouds. If non-trivial Betti numbers emerge in sub-clouds that were Gaussian-null in the full cloud, F-10's null was premature.
+**Requires:** CPU only, cached NPZs + ripser/giotto-tda
+**Would change:** On confirm: F-10 gets a caveat ("PH on the full superposed cloud is null; per-factor PH is non-trivial"), reopening topology as a signal source. On reject: F-10 is robust even under factor projection, strengthening the Gaussian-null claim.
+**Blocks:** H-23, H-24, H-25, H-35
+
+### H-738: Ising-community structure in L19 PCA components reveals correctness-aligned manifold groups
+**Priority:** MEDIUM
+**Motivated by:** 2604.28119 + F-2 + F-7
+**Test:** Ising-coupling community detection (P11-FE935): binarize PC projections, fit Ising model, Louvain cluster. Check community alignment with correctness labels (A/B/C/D buckets) via adjusted Rand index.
+**Requires:** CPU only, cached NPZs
+**Would change:** On confirm: provides a principled grouping of L19 features by manifold membership, potentially improving D-bucket detection (F-7) and explaining why certain PCs matter more than others. On reject: L19 PCA components lack the co-activation structure needed for Ising discovery — SAE-level analysis (P11-FE938) may be needed instead.
+**Blocks:** nothing
 
 ---
 

@@ -24711,3 +24711,1236 @@ The paper introduces no new benchmarks. All claims rest on perplexity on a held-
 - **2510.21623** — NOT in graph; recommend admission. Cited in context of Long-CoT structure / RL stability — likely a 2025 reasoning-models paper relevant to H-19 (verification routing) and H-1 (steering).
 - **2502.03387 / 2503.09567 / 2503.14476 / 2503.19633 / 2504.16891 / 2505.09388 / 2506.04178 / 2512.22255** — NOT in graph; recommend admission of any that turn out to be Long-CoT-distillation or behavior-classification papers. Specifically 2503.19633 and 2506.04178 should be checked against H-13 (head-level circuit attribution) since the paper discusses bond-specific energy levels which are head-attributable in principle.
 - **2103.03874** (MATH benchmark) and **2110.14168** (GSM8K) — NOT in graph but are dataset papers, not necessarily worth admission unless we want a benchmark provenance node.
+
+## 2602.10346 — Geometry-Aware Decoding with Wasserstein-Regularized Truncation and Mass Penalties for Large Language Models (Davoodi, Rezazadeh, Mousavi Davoudi, Pezeshkpour, 2026)
+
+**Relevance:** Introduces Wasserstein-1 distance and diagonal-whitened Mahalanobis metric over token embeddings as a geometry-aware decoding tool. Though focused on output distributions, the geometric techniques (whitening, distance-to-set potentials, W_1 as a distributional measure) are directly transferable to our hidden-state activation analysis. Tests on Qwen2.5-3B + GSM8K overlap with our model family and task domain. The large accuracy variance across decoding strategies (9%–76% on same model) raises a deconfounding question for F-2/F-8.
+
+**Key claim we tested:** Embedding-space geometry (via W_1-regularized truncation) significantly improves generation correctness compared to probability-only sampling methods.
+
+**Our result:** **TO TEST** — The geometric techniques (diagonal whitening, W_1 distance, distance-to-set) are directly applicable to our cached L19 activations as correctness predictors or preprocessing steps. The decode-strategy confound for DoM labels needs GPU testing.
+
+**Related experiments:** P11-FE883, P11-FE884, P11-FE885, P11-FE886, H-702, H-703
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Diagonal-whitened Mahalanobis distance** — normalize embeddings to unit norm, subtract mean, scale each coordinate by inverse std. Yields an isotropic ground metric for OT computations.
+  *Replication cost*: 5min CPU on cached activations.
+  *We'd plausibly run this*: yes — directly applicable as a preprocessing step before computing DoM/PC1 on our cached L19 activations.
+
+- **Distance-to-set potential (f(i) = -dist(i, S))** — for a reference set S, compute the 1-Lipschitz potential as negative distance to nearest point in S. Combined with log-probability gives a joint score.
+  *Replication cost*: 10min CPU.
+  *We'd plausibly run this*: yes — set S = centroids of correct-sample activations, compute distance-to-set for each sample, test as a correctness predictor.
+
+- **Alternating f-step/S-step optimization** — iterate between updating a feasible potential (geometry) and optimizing the subset (prefix scan). Converges in 2-3 iterations.
+  *Replication cost*: 15min CPU for analogous procedure on 500 samples.
+  *We'd plausibly run this*: maybe — the alternating optimization is interesting as a way to select an "informative subset" of activation dimensions, but the vocabulary-scale framing doesn't directly transfer.
+
+- **Wasserstein-1 (Earth Mover's Distance) under learned metric** — W_1 between two distributions over a metric space defined by learned embeddings. Used here for output distributions but applicable to any pair of distributions over a metric space.
+  *Replication cost*: 20min CPU (exact W_1 via linear programming on 500 samples with 1536-d Euclidean ground metric).
+  *We'd plausibly run this*: yes — compute W_1 between correct and incorrect activation distributions as an alternative separability measure to AUROC.
+
+### Approaches & framings
+
+- **Distribution shaping as truncation optimization:** Viewing decoding as selecting an optimal subset S of a distribution to retain, subject to faithfulness + entropy + mass constraints. This framing maps to our "which dimensions of the hidden state carry the signal" question — we're also implicitly selecting a subspace (PC1, top eigenvectors) that preserves the correctness signal while discarding noise.
+
+- **Unification of heuristics via metric specialization:** Top-W reduces to Top-k (uniform metric, cardinality budget) and Top-H (uniform metric, entropy constraint). Analogously, our DoM (project onto one direction) vs. cov-spectrum (project onto multiple eigenvectors) vs. full-1536-d logistic regression might be unifiable as different "metric" choices in an optimal-subspace framework.
+
+### Datasets & benchmarks
+
+- **GSM8K** — 8.5K grade-school math problems (1319 test). Accessible (HF, open). Applicable? yes — related to MATH-500 but much larger; could expand our evaluation set.
+- **GPQA** — graduate-level science QA (448 test). Accessible (HF, open). Applicable? yes — hard enough to test high-difficulty regime where DoM may have different behavior.
+- **AlpacaEval** — instruction-following evaluation. Applicable? no — open-ended generation, not applicable to correctness prediction.
+- **MT-Bench** — multi-turn chat evaluation. Applicable? no — same reason.
+
+### Implementation details worth capturing
+
+- Default hyperparameters: λ=2.2, β=2.8, topm=1200, altiters=3.
+- Diagonal whitening: ε=small (not specified, likely 1e-8) for numerical stability.
+- Distance computation restricted to top-m=1200 candidates for efficiency (Theorem I.1 proves this is exact under mild conditions).
+- Code released: https://github.com/arashgholami/top-w-decoding
+- ~5.4% slower than Top-p/Min-p/Top-H in wall-clock time.
+- Models tested include Qwen2.5-3B-Instruct — same family as our Qwen-2.5-1.5B.
+
+### Replicable intermediates
+
+- Compute diagonal-whitened Mahalanobis distance matrix over cached L19 prefill activations (500×1536 from `pathway11_h100/prefill_gated_compute/`). Compare resulting pairwise distances to Euclidean distances and test whether whitening changes the DoM direction or AUROC.
+- Compute W_1(correct_distribution, incorrect_distribution) over the 500 cached L19 samples using `scipy.stats.wasserstein_distance` (1-D projections) or `ot.emd2` (full multidimensional) from the POT library. Compare to AUROC as a separability measure.
+- Apply the "distance-to-set" potential: for each test sample, compute its minimum distance to the centroid set of correct or incorrect samples. Test as a binary classifier.
+
+### Cross-paper signals
+
+- 2509.02510 — NOT in graph; recommend admission. Top-H entropy-bounded decoding paper (Potraghloo et al., 2025) — Top-W directly extends and improves upon it. Relevant as the closest prior art to Top-W.
+- 2407.01082 — NOT in graph; do NOT recommend admission. Min-p sampling (Nguyen et al., 2024) — standard baseline, no hidden-state content.
+- 2309.03883 — NOT in graph; do NOT recommend admission. DoLA (Chuang et al., 2023) — contrastive layer decoding for factuality. Tangentially related to our layer-analysis (F-6), but focused on decoding not representation analysis.
+
+none worth flagging — the cited papers are predominantly about decoding heuristics and optimal transport theory, not about hidden-state geometry or correctness prediction.
+
+## 2602.05943 — Orthogonal Model Merging (Yang, Shi, Liu, 2026)
+
+**Relevance:** OrthoMerge provides a Procrustes + Lie algebra framework for decomposing weight matrices into orthogonal rotations and residuals. While designed for model merging, the Procrustes decomposition and inverse Cayley transform are directly applicable to analyzing whether L19's weight structure mechanically explains F-2's correctness-predicting DoM direction and F-3's prefill/final orthogonality. The spectral norm invariance result also connects to F-10's Gaussian null.
+
+**Key claim we tested:** Orthogonal decomposition of weight matrices preserves geometric structure (hyperspherical energy, spectral norms) while capturing the dominant adaptation direction.
+
+**Our result:** **TO TEST** — Three cheap CPU experiments (P11-FE887–111003) proposed to test whether Procrustes rotation axes at L19 align with the supervised DoM direction. If confirmed, F-2 would be reframed from "model computes correctness" to "weight geometry separates by difficulty."
+
+**Related experiments:** P11-FE887, P11-FE888, P11-FE889, P11-FE890, H-704, H-705, H-706
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Orthogonal Procrustes decomposition of weight matrices** — Given W_ft and W₀, solve R = argmin ||W_ft − R·W₀||_F s.t. RᵀR = I via SVD of W_ft·W₀ᵀ. Decomposes any weight change into rotation R + residual ρ.
+  *Replication cost*: 20min CPU (SVD of 1536×1536 matrix per layer is trivial).
+  *We'd plausibly run this*: yes — directly tests whether L19 weight structure explains DoM.
+
+- **Inverse Cayley transform to Lie algebra** — Map R → Q = (R − I)(R + I)⁻¹ to get a skew-symmetric matrix whose eigenvalues give rotation angles and eigenvectors give rotation planes.
+  *Replication cost*: 5min CPU (matrix inverse + subtraction on 1536×1536).
+  *We'd plausibly run this*: yes — gives rotation-plane decomposition of inter-layer maps.
+
+- **Magnitude-corrected averaging** — Scaling factor c = (Σ||Qᵢ||_F) / ||ΣQᵢ||_F compensates for cancellation when averaging rotations. Could be applied to averaging DoM directions across folds or models.
+  *Replication cost*: trivial (norm computation on vectors).
+  *We'd plausibly run this*: maybe — relevant if we ever merge DoM directions across models (H-45 cross-architecture).
+
+- **Orthogonal-residual decoupling with conflict detection** — Column-level cosine similarity identifies "conflicting" neurons where task vectors point in opposite directions. Could be applied to identify which neurons in L19 carry the correctness signal vs. noise.
+  *Replication cost*: 15min CPU.
+  *We'd plausibly run this*: no — designed for multi-task merging, not single-model analysis.
+
+- **Loss landscape visualization via Gram-Schmidt orthonormalization** — Constructs 2D parameter-space plane through base model and merged models, evaluates loss on grid.
+  *Replication cost*: 2h H100 (many forward passes).
+  *We'd plausibly run this*: no — not directly relevant to activation-space geometry.
+
+### Approaches & framings
+
+**Weight change = orthogonal rotation + residual.** Any fine-tuning-induced weight change can be decomposed into an isometry (distance-preserving) and a non-isometric residual. This reframes "what did fine-tuning change?" as "how much is rotation vs. distortion?" — directly applicable to understanding why L19's geometry carries a correctness signal while other layers don't (F-2). If L19 has an unusually large or structured orthogonal component, the DoM direction might align with a rotation axis.
+
+**Lie algebra as a linearized rotation space.** Mapping SO(d) → 𝔰𝔬(d) via Cayley/log makes rotations additive, enabling averaging. For our project, this provides a coordinate system for the space of possible inter-layer rotations — the skew-symmetric basis elements of 𝔰𝔬(1536) give d(d−1)/2 independent rotation planes. The DoM direction could be expressed in this basis to test whether it aligns with a few dominant rotation planes.
+
+**Spectral norm invariance under orthogonal transformation.** The preserved ||W||₂ = ||W₀||₂ means that if inter-layer maps are mostly orthogonal, then the spectral properties of activations are inherited from the input distribution, not from the weights. This connects to F-10's Gaussian null: orthogonal transformations of Gaussian data remain Gaussian.
+
+### Datasets & benchmarks
+
+- **MATH-500** — 500 problems, same as our benchmark. Applicable? yes — directly comparable, though their evaluation is end-to-end accuracy of merged models (17.80→24.60 for Llama-3.1-8B), not hidden-state geometry.
+- **MergeBench** — Multi-task evaluation suite (instruction, math, coding, multilingual, safety). HF, open. Applicable? no — designed for model merging evaluation.
+- **ScienceQA / CommonsenseQA / Social-IQA** — Standard NLU benchmarks. HF, open. Applicable? no — not math reasoning.
+- **NuminaMath-TIR** — Math training data used for fine-tuning. HF, open. Applicable? possibly — if we needed to fine-tune a model for math, but we work with pretrained/instruct models.
+- **Magicoder-OSS-Instruct** — Code instruction data. HF, open. Applicable? no.
+
+### Implementation details worth capturing
+
+- Cayley parameterization: R = (I + Q)(I − Q)⁻¹ is numerically stable and differentiable, avoids the exp/log on SO(d) which is O(d³) and numerically fragile.
+- Block-diagonal structure with 32-dimensional blocks reduces SVD cost from O(d³) to O(d·32²).
+- Procrustes solution via SVD: R = U·Vᵀ where U·Σ·Vᵀ = SVD(W_ft · W₀ᵀ). For 1536×1536, this is a few seconds on CPU.
+- The skew-symmetric Q is stored as upper-triangular elements only (d(d−1)/2 parameters for d×d rotation).
+- Conflict-aware decoupling uses per-column cosine similarity threshold (cos < 0) to identify neurons with opposing task gradients.
+- Code: project page at spherelab.ai/OrthoMerge/ (license CC BY 4.0).
+
+### Replicable intermediates
+
+- **Procrustes decomposition of L19 weight matrix.** Load Qwen-2.5-1.5B-Instruct weights, compute W_L19 (e.g., the attention output projection or MLP down-projection). Compute SVD(W_L19 · W_L19_base^T) to get R, then ρ = W_L19 − R · W_L19_base. Measure ||ρ||_F / ||R · W_L19_base||_F. Compare R's top rotation axes (eigenvectors of Q) with the cached DoM direction from `pathway11_h100/prefill_gated_compute/phase2_prefill_dom.npz`. ~20min CPU, no H100 needed.
+- **Per-layer orthogonality ratio.** For each of the 28 layers, compute the Procrustes decomposition of the MLP weight matrix and measure ||ρ||/||R·W₀||. Plot against per-layer DoM AUROC from the layer sweep data (if cached in `pathway11_h100/per_layer_sweep/`). ~30min CPU.
+- **Rotation angle spectrum.** Compute the eigenvalues of Q for L19's weight matrix — these give rotation angles in each rotation plane. Check if the distribution is concentrated (few large rotations) or diffuse. Compare with non-correctness-predictive layers. ~10min CPU.
+
+### Cross-paper signals
+
+- 2306.03341 — already in graph (status: CONTRADICTED partial). ITI's mass-mean direction is the precursor to DoM; OrthoMerge's Procrustes could decompose the ITI direction into weight-orthogonal and residual components.
+- 2306.07280 — NOT in graph; recommend admission. OFT (Orthogonal Finetuning, Qiu et al. 2023) — the foundation OrthoMerge builds on. Directly relevant: OFT constrains fine-tuning to orthogonal rotations, which is the structure OrthoMerge exploits. If Qwen-2.5-1.5B-Instruct was fine-tuned with OFT-like constraints, this would strengthen the R3 refutation.
+- 2306.01708 — NOT in graph; low-priority admission. TIES-Merging — task vector merging baseline. Tangential: merging technique, not directly about hidden-state geometry.
+
+## 2602.02710 — Maximum Likelihood Reinforcement Learning (Tajwar, Zeng, Zhou, Song, Arora, Jiang, Schneider, Salakhutdinov, Feng, Zanette, 2026)
+
+**Relevance:** MaxRL proposes a principled alternative to GRPO for RL training of reasoning LLMs, showing that GRPO optimizes only a first-order approximation of the ML objective and induces a specific difficulty-dependent gradient weighting (w(p) = 1/√(p(1−p))). Their gradient norm analysis is performed on exactly our model (Qwen2.5-1.5B-Instruct) and benchmark (MATH-500), providing the first external characterization of how the RL training objective shapes per-prompt gradient landscape on the model we probe. This directly addresses whether our findings (F-2 DoM direction, F-7 D-bucket signature, F-8 selective prediction) are intrinsic geometric properties of the model or artifacts of GRPO's specific difficulty-weighting.
+
+**Key claim we tested:** GRPO concentrates gradient on medium-difficulty prompts and delivers vanishing gradient for hard (low pass-rate) prompts, while MaxRL approximates maximum likelihood by upweighting hard prompts with w(p) ≈ 1/p.
+
+**Our result:** **TO TEST** — The weight-function analysis (FE110700, FE110701) can be run immediately on cached data to check whether our DoM/D-bucket signals correlate with GRPO's w(p) profile. The definitive test (FE110703) requires training or obtaining a MaxRL checkpoint.
+
+**Related experiments:** P11-FE891, P11-FE892, P11-FE893, P11-FE894, P11-FE895, H-707, H-708, H-282, H-682
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Population-level weight function analysis** — Express any RL objective's gradient as w(p)·∇p, where w(p) is a scalar weight depending only on pass rate p. Different objectives (GRPO, RLOO, MaxRL, ML) correspond to different w(p) curves (Table 2, Section 5).
+  *Replication cost*: 20min CPU (compute w(p) curves analytically; no model needed).
+  *We'd plausibly run this*: yes — apply to our per-problem pass-rate estimates from multi-sample generation to predict how each objective would weight gradient across MATH-500 difficulty buckets.
+
+- **Gradient norm vs pass-rate scatter analysis** — For each prompt in a batch, record per-prompt gradient L2 norm against per-prompt pass rate (Figure 6). Reveals how different objectives allocate learning signal across difficulty.
+  *Replication cost*: 2-4h H100 (requires backward passes on the model; 131,072 rollouts per example in their full analysis, but coarse estimates at 128 rollouts would suffice).
+  *We'd plausibly run this*: yes — but only if we train a MaxRL checkpoint; a gradient analysis on the existing GRPO-trained model is a useful control but not new relative to the paper's own Figure 6.
+
+- **Maclaurin expansion truncation of log-likelihood** — Express log-probability as infinite series of fail@k terms (Eq. 4), truncate to order T. Provides a compute-indexed family of objectives interpolating between expected reward (T=1) and maximum likelihood (T→∞).
+  *Replication cost*: 5min CPU (pure math, no code needed).
+  *We'd plausibly run this*: no — this is a training objective, not a post-hoc analysis we'd apply to cached activations.
+
+- **Success-conditioned gradient estimator** — Normalize REINFORCE gradient by number of successful samples K instead of total samples N (Algorithm 1). Single-line modification to advantage calculation.
+  *Replication cost*: 1h implementation + H100 training run.
+  *We'd plausibly run this*: yes if training a checkpoint — trivial to implement in verl.
+
+### Approaches & framings
+
+- **RL-as-approximate-ML framing.** The paper reframes all existing RL objectives (REINFORCE, GRPO, RLOO) as varying-quality approximations to maximum likelihood, differentiated only by their w(p) weighting. This provides a unified lens for understanding *why* GRPO-trained models have the specific geometric signatures we observe: GRPO's w(p) = 1/√(p(1−p)) creates a particular difficulty-dependent gradient landscape that plausibly shapes F-2's DoM direction, F-7's D-bucket signature, and F-4's asymmetric collapse.
+
+- **Compute-indexed objective interpolation.** The truncation level T in MaxRL controls how much the objective resembles ML vs RL. This intersects H-282: different T values should produce different amounts of the GRPO-like variance-prioritization artifact, providing a continuous knob to test the "training artifact" hypothesis.
+
+- **Pass@k degradation as objective-level failure, not optimization-level.** MaxRL attributes GRPO's pass@k collapse to the objective (not the optimizer), which reframes our F-8 selective-prediction result: the ability to "refuse and spend" may be parasitic on GRPO-induced distribution sharpening rather than being a robust model property.
+
+### Datasets & benchmarks
+
+- **MATH-500** — 500 problems, used in their Section 6.5 gradient analysis on Qwen2.5-1.5B-Instruct (our exact setup). Open, accessible via HF. Applicable? yes — identical to our evaluation set.
+
+- **GSM8K** — 7,473 training / 1,319 test problems, used for SmolLM2-360M training experiments. Open, HF. Applicable? yes — could extend our pipeline to a simpler reasoning benchmark for sanity checks.
+
+- **POLARIS-53K** — ~50K mathematical reasoning prompts used for Qwen3 training. Available via HKU NLP. Applicable? yes — if training a MaxRL checkpoint, this is the dataset they used.
+
+- **BeyondAIME** — Hard math competition problems. HF. Applicable? medium — could test DoM generalization on harder problems, but we'd need new extractions.
+
+### Implementation details worth capturing
+
+- MaxRL is a single-line change to GRPO/RLOO advantage calculation: divide by mean reward instead of standard deviation (Algorithm 1, line 7-8). Implemented in verl framework.
+- Code and checkpoints available at https://zanette-labs.github.io/MaxRL/
+- They train Qwen3-1.7B-Base and Qwen3-4B-Base (not Instruct variants) with MaxRL on POLARIS-53K, 256 prompts/batch, 16 rollouts/prompt, 1000 RL steps on 32×H200.
+- Fully on-policy: one gradient update per batch of rollouts, no importance ratio or clipping.
+- Gradient analysis in Figure 6 uses 131,072 rollouts per example on Qwen2.5-1.5B-Instruct + MATH-500.
+
+### Replicable intermediates
+
+- **Weight-function difficulty reweighting analysis on cached per-problem pass rates.** If we have per-problem pass@1 estimates from multi-sample generation (K=2.5 avg in F-8), we can analytically compute w_GRPO(p), w_MaxRL(p), and w_ML(p) for each MATH-500 problem, then correlate with the L19 DoM projection. This checks whether the DoM direction's predictive power is concentrated on the problems that GRPO upweights. Script: any cached per-problem accuracy + `pathway11_h100/prefill_gated_compute/` data.
+- **DoM projection vs difficulty bucket overlap.** From cached L19 prefill activations (500 samples × 1536 dims) and per-problem accuracy labels, compute DoM projections, bin by GRPO w(p) quantiles, and test whether DoM discrimination tracks GRPO's gradient-weighting profile. Script: `pathway11_h100/pca_covariance/` cached data.
+
+### Cross-paper signals
+
+- 2501.12948 — already in graph (status: graphed). DeepSeek-R1: MaxRL positions itself as improving on GRPO, which DeepSeek-R1 uses. Direct lineage.
+- 2504.13837 — NOT in graph; recommend admission. Yue et al. "Does RL really incentivize reasoning capacity beyond the base model?" — MaxRL cites extensively; directly relevant to whether F-2/F-8 are pre-training artifacts amplified by RL.
+- 2507.14843 — NOT in graph; recommend admission. Wu et al. "The invisible leash: Why RLVR may or may not escape its origin" — studies whether RL moves beyond pretraining distribution, directly relevant to H-282.
+- 2510.04996 — NOT in graph; recommend admission. Xiong et al. "REINFORCE-ADA: adaptive sampling under non-linear RL objectives" — closely related to MaxRL, alternative adaptive-sampling approach to the same 1/p weighting problem.
+- 2503.20783 — NOT in graph; recommend admission. Liu et al. "Understanding R1-zero-like training: A critical perspective" — studies RLVR dynamics, directly relevant to understanding what RL training carved into the hidden states we probe.
+- 2505.15201 — NOT in graph; recommend admission. Walder & Karkhanis "Pass@k Policy Optimization (PKPO)" — optimizes pass@k directly; MaxRL shows it's a special case of their framework. Relevant to pass@k diversity and F-8.
+
+## 2509.22219 — Interpretable Discovery of One-parameter Subgroups (Karjol, Kashyap, Kashyap, Prathosh, 2026)
+
+**Relevance:** Provides a principled framework for classifying and discovering continuous Lie-algebraic symmetries (elliptic/hyperbolic/parabolic one-parameter subgroups) directly from data. The canonical regime classification and orbit-separating invariant representations offer a finer geometric vocabulary than PCA/linear probes for characterizing the L19 prefill correct/incorrect separation and the prefill→final-token direction relationship. No LLM-specific claims, but the methodology is directly applicable to cached activation matrices.
+
+**Key claim we tested:** Their invariant representations are provably orbit-separating and complete — applied to our activation data, they should capture any one-parameter subgroup structure that linear probes miss.
+
+**Our result:** **TO TEST**
+
+**Related experiments:** P11-FE896, P11-FE897, P11-FE898, H-709, H-710
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Hγ-Net invariant representation layer** — learnable, parameterized layer that maps inputs to orbit-separating invariant representations under a one-parameter subgroup. Decomposes input via a learnable orientation matrix A into 2D blocks, performs gauge-fixing on the first block, applies inverse transformation to remaining blocks.
+  *Replication cost*: 2–4h CPU implementation + 30min training on cached activations.
+  *We'd plausibly run this*: yes — directly applicable to the 500×1536 L19 prefill matrix. Would need PCA reduction to manageable dimensionality first (768 2D blocks for 1536 dims is already the paper's framework).
+
+- **Canonical regime classification (elliptic/hyperbolic/parabolic)** — data-driven determination of which geometric regime best describes a transformation by fitting each regime separately and comparing prediction error / generator recovery.
+  *Replication cost*: 1h CPU (fit three regimes, compare residuals).
+  *We'd plausibly run this*: yes — apply to correct→incorrect mean-shift transformation in L19 to classify the separation geometry.
+
+- **Generator recovery via cosine similarity** — the paper evaluates symmetry discovery quality by computing cosine similarity between learned and ground-truth Lie algebra generators. Useful as a diagnostic for stability of discovered structure.
+  *Replication cost*: 5min CPU (once generator is learned).
+  *We'd plausibly run this*: yes — use as stability metric for any subgroup we discover on cached activations.
+
+- **Invariance error metric** — E_{h,x}[‖f(x) − f(h·x)‖²] measures how well a function respects the discovered symmetry. Could be applied to test whether our DoM probe is approximately invariant to some hidden symmetry.
+  *Replication cost*: 10min CPU.
+  *We'd plausibly run this*: yes — compute invariance error of the DoM linear probe under the discovered subgroup to quantify how much signal the linear probe loses.
+
+### Approaches & framings
+
+- **Regime-conditioned symmetry discovery:** Fixing the geometric regime a priori (elliptic/hyperbolic/parabolic) and learning only the subgroup parameters within that regime. This avoids the identifiability issues of jointly inferring both regime and parameters. Intersects F-3/H-36: we could condition on each regime and let model selection determine which best describes prefill→final.
+
+- **Canonicalize–process–restore principle (Section F.5):** Factor any equivariant function as: canonicalize input to orbit representative, apply unconstrained function, restore equivariance by inverse group element. This framing could recharacterize the DoM probe as a canonicalization step followed by a simple threshold — making explicit what information the canonicalization preserves vs discards.
+
+- **Orbit-separating completeness as a design criterion:** The paper's key guarantee is that invariant representations separate orbits (Proposition 3.6). This is a stronger guarantee than PCA or linear probes provide. If applied to our activation data, it would test whether the AUROC ceiling (0.7928 for cov-spectrum) is due to incomplete orbit separation in the feature space.
+
+### Datasets & benchmarks
+
+- **Top Quark Tagging dataset** — 64K jet four-momenta from Komiske et al., 2019. HF | public. Applicable? No — unrelated to LLM activations.
+- **Double pendulum dynamics** — 32K synthetic samples. Not released. Applicable? No.
+- **Synthetic invariant polynomial / Angled Sine** — 32K synthetic samples. Not released. Applicable? No — but the data generation procedure is reproducible from paper descriptions.
+
+### Implementation details worth capturing
+
+- MLP backbone: hidden dimensions (128, 128, 64, 64, 32) with ReLU activations for regression tasks.
+- ResNet backbone for classification tasks (Top Quark Tagging).
+- Training: 50 epochs, 32K samples for regression, 64K for classification.
+- For enforcing orthogonality of orientation matrix A: regularizer λ_A ‖A^T A − I‖²_F when domain knowledge suggests SO(n) symmetry.
+- Admissible domains exclude measure-zero subsets (‖v₁‖₂ ≠ 0 for elliptic, etc.) — not a practical concern for real data.
+- No public code repository found in the paper.
+
+### Replicable intermediates
+
+- **Regime classification of the correct→incorrect mean-shift direction:** Decompose the 1536-dim correct-mean minus incorrect-mean vector (our DoM) into 768 2D blocks. For each candidate orientation matrix A (start with PCA eigenvectors), compute the skew-symmetric, symmetric-traceless, and nilpotent parts of the generator relating the two class centroids. The dominant part's type (skew-sym = elliptic, symmetric = hyperbolic, nilpotent = parabolic) classifies the regime. Uses cached `pathway11_h100/prefill_gated_compute/` NPZ data. ~20min CPU implementation.
+
+- **Invariance error of DoM probe under candidate one-parameter subgroups:** Using cached L19 prefill activations, generate synthetic group-transformed samples by exponentiating candidate generators (e.g., PCA-derived rotation in the PC1–PC2 plane), evaluate DoM probe on original vs transformed inputs, compute invariance error. Tests whether the DoM probe is already approximately invariant to a natural symmetry. ~15min CPU.
+
+## 2507.17912 — SETOL: A Semi-Empirical Theory of (Deep) Learning (Martin, Hinrichs, 2025)
+
+**Relevance:** Provides a first-principles derivation of per-layer quality metrics (Alpha, AlphaHat, ERG condition) from statistical mechanics + random matrix theory. These weight-space diagnostics can be computed on Qwen-2.5-1.5B to test whether L19's correctness-prediction peak (F-2) coincides with a distinctive spectral signature (alpha≈2, ERG satisfied), and whether our activation-space signals (DoM, cov-spectrum) fall within the "Effective Correlation Space" that SETOL identifies as the generalizing subspace. Also proposes "Correlation Traps" as a mechanism for failure modes that may connect to F-7's D-bucket phenomenon.
+
+**Key claim we tested:** Per-layer alpha profile and ERG condition identify "Ideal" layers; these should correlate with where hidden-state correctness prediction is strongest.
+
+**Our result:** **TO TEST** — requires running WeightWatcher on Qwen-2.5-1.5B (CPU, ~20min) and correlating alpha/ERG profiles with our per-layer DoM AUROC curve. No computation done yet.
+
+**Related experiments:** P11-FE899, P11-FE900, P11-FE901, P11-FE902, H-711, H-712
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **WeightWatcher alpha + AlphaHat per-layer profiling** — Compute ESD of each layer's weight matrix, fit PL to tail, extract alpha and alpha-hat metrics. Correlates with model quality without needing test data.
+  *Replication cost*: 5-10min CPU per model (WeightWatcher is pip-installable).
+  *We'd plausibly run this*: yes — directly applicable to Qwen-2.5-1.5B weight matrices to test whether L19 has a distinctive alpha signature.
+
+- **ERG Condition (det(X̃) = 1 / Trace-Log = 0)** — For eigenvalues in the PL tail, check whether ∑ln λ̃i ≈ 0. Novel condition for "Ideal" layer quality derived from first principles.
+  *Replication cost*: 5min CPU once ESD is computed.
+  *We'd plausibly run this*: yes — immediate application to Qwen-2.5-1.5B layers; compare ERG score profile with DoM AUROC profile.
+
+- **Effective Correlation Space (ECS) identification** — Identify the low-rank subspace spanned by PL-tail eigenvectors. Generalizing components concentrate here.
+  *Replication cost*: 10min CPU (SVD + PL fit).
+  *We'd plausibly run this*: yes — project our cached L19 activations onto ECS basis to test overlap between correctness-predicting directions and SETOL's "generalizing subspace."
+
+- **Correlation Trap detection** — Randomize weight matrix element-wise, look for eigenvalues beyond MP bulk edge in randomized version. Identifies anomalous rank-1 perturbations associated with degraded quality.
+  *Replication cost*: 5min CPU.
+  *We'd plausibly run this*: maybe — could detect whether Qwen layers carrying D-bucket signal have Correlation Traps.
+
+- **Computational R-transform layer quality (Q̄²)** — Numerically evaluate the integrated R-transform to get a direct layer quality metric (not just the PL proxy).
+  *Replication cost*: 30min CPU (numerical computation of R-transforms).
+  *We'd plausibly run this*: no — alpha is simpler and more stable per the paper's own findings (Section 6.4).
+
+### Approaches & framings
+
+- **Layer quality as a phase boundary (α=2 critical exponent)**: Reframes the question "what makes a good layer?" as proximity to a critical point in a statistical mechanics phase diagram. Overfitting is α<2 (VHT phase), underfitting is α>6 (RandomLike). Intersects H-4 (Sharpness Dimension) by offering a competing explanation for the same phase structure.
+
+- **Effective Hamiltonian via Exact Renormalization Group**: One-step coarse-graining that discards bulk "uninteresting" DOF and retains strongly-correlated tail modes. Potentially reframes why our PC1 (which captures 0.9216 cosine with DoM) is so dominant — it may correspond to the leading ECS direction.
+
+- **Semi-Empirical philosophy**: Teacher (trained model) as empirical input; theory makes predictions testable on the empirical ESD. This is exactly our methodology — we take the trained Qwen model as given and probe its geometry empirically.
+
+### Datasets & benchmarks
+
+- **MNIST (MLP3 experiments)** — 60K train / 10K test, fully open. Applicable? no — too simple for our regime.
+- **ImageNet (via pretrained VGG/ResNet/ViT/DenseNet)** — used only via pretrained weights. Applicable? no — we work on language models.
+- **No new datasets introduced** — SETOL is a theory paper validated on existing pretrained models.
+
+### Implementation details worth capturing
+
+- WeightWatcher tool is open-source: `pip install weightwatcher`. Computes alpha, AlphaHat, ERG condition, Correlation Traps, MP-SoftRank.
+- PL fits use Clauset et al. MLE method via `powerlaw` python package.
+- ERG condition computed as: select eigenvalues in PL tail (λ ≥ λ_min^PL), compute ∑ ln λ̃i, check proximity to 0.
+- For transformers, WeightWatcher computes eigenvalues for all channels-to-channels operators separately, then pools (Section 6.3.2, footnote 45).
+- Key hyperparameter: λ_min (start of PL tail) — jointly estimated with alpha via Clauset MLE.
+- Code not released in paper but WeightWatcher is at https://github.com/CalculatedContent/WeightWatcher.
+
+### Replicable intermediates
+
+- We do NOT have cached weight matrices in our NPZ pipeline (those contain activations, not weights). However:
+- We CAN load Qwen-2.5-1.5B weights directly from HuggingFace and run WeightWatcher on all 28 layers (~10min CPU). This requires no GPU, just the model weights.
+- Cross-check: compute per-layer alpha profile and correlate with our P8 per-layer DoM AUROC curve to see if alpha predicts where the correctness signal peaks.
+- Cross-check 2: compute ECS basis for L19's weight matrix, project our cached 500×1536 activation matrix onto ECS eigenvectors, measure how much of the DoM direction (and PC1) falls within the ECS subspace.
+
+### Cross-paper signals
+
+- 2604.19740 — already in graph (status: PARTIALLY CONFIRMED). Sharpness Dimension / EoS. SETOL's alpha=2 phase boundary may have formal overlap with Tuci et al.'s EoS-at-criticality.
+- 2106.00734 — NOT in graph; recommend admission. Martin & Mahoney 2021 "Post-mortem on a deep learning contest" — foundational HTSR/AlphaHat paper; establishes the empirical basis that SETOL now derives from first principles. Directly relevant: shows alpha predicts quality across architectures.
+
+## 2602.15438 — Logit Distance Bounds Representational Similarity (Nielsen, Marconato, Gresele, Dittadi, Buchholz, 2026)
+
+**Relevance:** Proves that logit distance (not KL divergence) is the correct metric for guaranteeing linear representational similarity between models. Directly applicable to our cross-scale DoM transfer question (F-1), the interpretation of prefill/final orthogonality (F-3), and the theoretical grounding of linear probes on residual streams (F-2). Provides formal tools (mCCA bounds, d_rep dissimilarity) that can be computed on our cached activations.
+
+**Key claim we tested:** Small logit distance between two models' conditional distributions implies their internal representations are related by an invertible linear transformation (high mCCA), with explicit quantitative bounds (Thm. 3.4, Thm. 3.9). KL divergence does NOT provide such guarantees.
+
+**Our result:** **TO TEST** — mCCA computation on cached L19 activations (P11-FE903, P11-FE904) will validate whether our prefill/final-token and correct/incorrect group representations satisfy the paper's linear equivalence predictions. Cross-scale d_logit measurement (P11-FE907) will test whether the theory's bounds are informative for our 1.5B/7B comparison.
+
+**Related experiments:** P11-FE903, P11-FE904, P11-FE905, P11-FE906, P11-FE907, H-713, H-714
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **mCCA (mean Canonical Correlation Analysis)** — Measures linear representational similarity between two sets of embeddings by computing canonical correlations and averaging. Standard metric in representational similarity literature.
+  *Replication cost*: 5min CPU on cached NPZs (500 × 1536 matrices).
+  *We'd plausibly run this*: yes — directly applicable to compare L19 prefill vs final-token activations, or 1.5B vs 7B activations.
+
+- **d_rep (linear identifiability dissimilarity, Def. 3.7)** — Averages the reconstruction error f(x) − Ã_J f'(x) over all pivot/label choices, measuring how far two representations are from the same linear equivalence class. Zero iff representations are linearly equivalent.
+  *Replication cost*: 30min CPU (requires shifted-unembedding matrices from model weights + activations).
+  *We'd plausibly run this*: yes — we have cached L19 activations AND model weights for Qwen-2.5-1.5B.
+
+- **d_logit (logit distance, Def. 3.1)** — Square root of mean squared logit difference E_x ||u(x) - u'(x)||². A metric on conditional distributions that, unlike KL, guarantees representational similarity.
+  *Replication cost*: 20min CPU if logits are cached; 2h H100 if fresh forward passes needed.
+  *We'd plausibly run this*: yes for comparing two model checkpoints; needs forward passes we may not have cached.
+
+- **L1-logit distillation loss (Eq. 19)** — L1 variant of logit distance for training stability. Minimizing this preserves teacher's linear structure better than KL.
+  *Replication cost*: N/A (training method, not applicable to cached activations).
+  *We'd plausibly run this*: no — we're not training models.
+
+- **Aitchison distance (§D.2)** — Compositional data analysis distance on probability simplices. Shown equivalent to logit distance (Prop. D.6). Proper metric on probability distributions that can be computed from softmax outputs.
+  *Replication cost*: 10min CPU if softmax outputs cached.
+  *We'd plausibly run this*: yes — if we have token-level probability vectors from MATH-500 generations.
+
+### Approaches & framings
+
+- **Approximate identifiability under distributional closeness:** Instead of asking "are these representations the same?", the paper asks "given these distributions are ε-close, how close are the representations up to their intrinsic symmetry?" This reframes cross-model comparison (relevant to F-1 universality) from pointwise direction comparison to equivalence-class distance.
+
+- **Logit distance as the "correct" metric for representational guarantees:** KL divergence does NOT bound representational similarity (their negative result); only logit distance does. This reframes our approach to cross-model DoM transfer (H-5, F-1): we should measure d_logit between models, not KL or accuracy gap, when asking whether representations will be linearly aligned.
+
+- **Embedding/unembedding coupling:** The model family p_{f,g}(y|x) = softmax(f(x)^T g(y)) explicitly couples encoder f with the unembedding matrix g. Linear identifiability is about the JOINT (f, g) structure, not f alone. This lens suggests our DoM direction (extracted from f only) should be understood relative to the unembedding g — the direction might mean nothing without its paired unembedding row.
+
+### Datasets & benchmarks
+
+- **Synth** — 2D synthetic classification dataset, 7 classes, designed for non-linear-separability testing. Not released as a standalone benchmark. Applicable? no — too simple, no LLM connection.
+
+- **CIFAR-100** — 100-class image classification, 60K images. Public, torchvision. Applicable? no — vision domain, not language.
+
+- **SUB (Synthetic Unique Birds)** — 33-class bird images with concept annotations, from Bader et al. 2025. HF availability unknown. Applicable? no — vision domain.
+
+### Implementation details worth capturing
+
+- mCCA computation uses Eq. (26): Σ_XX^{-1/2} Σ_XY Σ_YY^{-1/2}, taking singular values. Standard scipy implementation.
+- d_rep requires access to the shifted unembedding matrix L̃_J from model weights (the token-embedding/unembedding layer). For Qwen-2.5-1.5B this is the lm_head weight matrix (vocab_size × 1536).
+- τ-lower-bound assumption (Assumption 3.2): their KL → logit bound requires min probability ≥ τ > 0 across all tokens. For LMs with 150K+ vocab, τ is astronomically small, making their KL bound vacuous in practice. This is actually key context for us — it means KL-based comparisons between our 1.5B and 7B models give NO representational similarity guarantees.
+- Code not publicly released as of paper date (Feb 2026).
+
+### Replicable intermediates
+
+- **mCCA between L19 prefill activations (correct vs incorrect groups):** We have the 500×1536 activation matrix cached. Split by correctness label and compute mCCA between the two groups to test whether correct/incorrect representations live in the same linear equivalence class. This cross-checks against F-2 (if mCCA is near 1, the groups ARE linearly related and DoM is just the separating hyperplane within that class).
+- **mCCA between L19 prefill and L19 final-token activations:** Directly tests whether F-3's cos=0.046 orthogonality survives when measured with the paper's proper invariant metric. Cached in `pathway11_h100/prefill_gated_compute/`.
+- **Singular value spectrum of Qwen-2.5-1.5B lm_head:** The paper's bound (Thm. 3.9) depends on σ_min of the unembedding matrix. Computing this tells us how tight any logit-distance bound would be for our model. Requires loading model weights (10min, CPU).
+
+### Cross-paper signals
+
+- 2405.07987 — already in graph (status: graphed). Platonic Representation Hypothesis directly motivates the universality question; this paper provides the formal apparatus (d_logit bounds mCCA) that could make "convergent representations" testable.
+- 2311.03658 — already in graph (status: graphed). Linear Representation Hypothesis is the theoretical foundation for this paper's identifiability results.
+- 2506.03784 — NOT in graph; recommend admission. Nielsen et al. 2025 "When does closeness in distribution imply representational similarity?" — the direct predecessor to 2602.15438, proves KL does NOT guarantee linear similarity (negative result our paper builds on).
+- 2502.18710 — NOT in graph; recommend admission. Kapoor et al. 2025 "Bridging critical gaps in convergent learning" — studies how representational similarity evolves across layers and training, directly relevant to F-1 breathing universality and cross-layer DoM analysis.
+
+## 2605.00250 — Information-Geometric Adaptive Sampling for Graph Diffusion (Lu, Liu, Zhan, ICML 2026)
+
+**Relevance:** Tangential. Uses Fisher-Rao information geometry to adaptively control step sizes in graph diffusion generative models. The "information geometry" framing superficially overlaps with H-544 (dual/information-geometric coordinates for residual streams), but the paper operates on a completely different mathematical object (transition kernel manifold of a diffusion sampler, not transformer hidden-state geometry). No LLM hidden states, no correctness signal, no probing.
+
+**Key claim we tested:** N/A — no testable claim overlaps with our pipeline.
+
+**Our result:** **CITED ONLY** — admitted by keyword overlap (Fisher-Rao, information geometry) but domain mismatch makes it non-actionable.
+
+**Related experiments:** None.
+
+**Status:** CITED ONLY
+
+### Methodologies extracted
+
+- **Drift Variation Score (DVS)** — Computes ‖f(x_k, t_k) − f(x_{k-1}, t_{k-1})‖² / g²_{t_k} as a local sensitivity indicator for adaptive step sizing.
+  *Replication cost*: 20min CPU (the formula itself is trivial to compute on any sequence of vectors).
+  *We'd plausibly run this*: no — it measures sensitivity of a diffusion drift field between time steps, not a quantity naturally applicable to a fixed set of 500 cached activation vectors. Our activations are not sequential samples from a diffusion process.
+
+- **Equal arc-length parametrization on Fisher-Rao statistical manifold** — Reparametrize a curve on a statistical manifold so each discrete step covers equal informational distance.
+  *Replication cost*: 30min CPU if applied to any parametric curve.
+  *We'd plausibly run this*: no — requires a parametric family of distributions evolving along some axis. Our L19 activations don't form a parametric curve in the relevant sense.
+
+- **EMA-smoothed variation state with power-law step scaling** — Exponential moving average (α=0.2) of local variation with β=0.5 square-root damping for adaptive control.
+  *Replication cost*: trivial.
+  *We'd plausibly run this*: no — engineering detail for diffusion sampling, not applicable to our static cached activations.
+
+### Approaches & framings
+
+- **Treating sequential numerical outputs as a parametric curve on a Riemannian statistical manifold.** If we ever model the *layer-by-layer* evolution of hidden states as a parametric curve (which H-544 gestures toward), the mathematical framework in §3.1–3.3 provides a clean formalization. But this is a "if we ever need it" connection — no immediate intersection with current F-N/H-N framings.
+
+- **Constant informational speed as an optimality criterion.** The idea that a well-designed process should maintain equal information-distance per step is potentially relevant to thinking about why L19 is special (maybe it's where informational speed peaks in the layer-wise trajectory). But this would require a completely different operationalization than anything in this paper.
+
+### Datasets & benchmarks
+
+- **QM9** — 134k small organic molecules, public (RDKit). Applicable? no.
+- **ZINC250k** — 250k drug-like molecules, public. Applicable? no.
+- **Planar** — synthetic planar graphs. Applicable? no.
+- **SBM** — stochastic block model graphs. Applicable? no.
+- **Ego-small** — ego-centric social graphs. Applicable? no.
+
+None of these are applicable to MATH-500 / 1024-tok regime / hidden-state pipeline.
+
+## 2604.27241 — Root-to-Leaf Path Random Walks, Normalized Hodge Laplacians, and Cheeger Inequalities on Simplicial Complexes (Viganò, Birdal, Schaub, Barahona, 2025)
+
+**Relevance:** Pure mathematics paper developing spectral theory for simplicial complexes via random walks. The normalized Hodge Laplacian spectral gap and Cheeger constants provide topological invariants distinct from persistent homology — in principle applicable to VR complexes built from residual-stream activations. However, the paper is entirely theoretical with no computational experiments, and the connection to LLM hidden-state analysis is distant. The main relevance is as a theoretical basis for testing whether F-10's PH null extends to Hodge spectral invariants.
+
+**Key claim we tested:** Normalized Hodge Laplacian spectra characterize topological properties (coherent components, near-bipartiteness) of simplicial complexes that are invisible to PH summary statistics.
+
+**Our result:** **CITED ONLY** — No experiment run. The paper's framework is theoretically interesting for F-10 follow-up but is pure math with no empirical content. Priority is low given F-10's strong PH null and the implementation cost.
+
+**Related experiments:** P11-FE908, H-715
+
+**Status:** CITED ONLY
+
+### Methodologies extracted
+
+- **Normalized Hodge Laplacian spectral gaps** — Given a simplicial complex (e.g. VR complex from point cloud), compute the normalized up-Laplacian Δ^up_k = I − δ_k^T δ_k (with the paper's root-to-leaf-path normalization). Extract λ_max and λ_max−1; the gap 1 − λ_max−1 quantifies near-coherence.
+  *Replication cost*: 2-4h CPU for implementation from scratch on cached 500×1536 activations (need to build VR complex, compute boundary operators, normalize, diagonalize). No existing off-the-shelf library implements this specific normalization.
+  *We'd plausibly run this*: no — the implementation cost is moderate but the expected signal is very low given F-10's PH null already covers VR complexes on the same data, and spectral gaps of a null VR complex would likely also be null.
+
+- **Cheeger constant computation** — For a simplicial complex, compute the up-Cheeger constant h^up_k = min_{Y ⊂ X_k} ω(Y, X_k\Y) / min(μ(Y), μ(X_k\Y)). This is an NP-hard optimization but can be approximated via the eigenvector of Δ^up_k associated with λ_max−1 (analogous to spectral clustering for graphs).
+  *Replication cost*: 1-2h CPU for VR complex + spectral approximation.
+  *We'd plausibly run this*: no — same reasoning as above; unlikely to beat the F-10 null.
+
+- **Conditional random up-/down-walks on simplicial complexes** — The paper defines random walks that move between adjacent faces of different dimensions, with transition probabilities weighted by root-to-leaf path counts. The convergence rate of these walks characterizes topological connectivity in a way distinct from PH.
+  *Replication cost*: 2-3h CPU for implementation.
+  *We'd plausibly run this*: no — pure theory; the random walk on a VR complex built from activations is a very indirect way to probe correctness.
+
+### Approaches & framings
+
+- **Random walks on simplicial complexes as a normalization device:** The paper's central insight is that root-to-leaf path random walks on double covers of graded signed graphs provide a *natural* normalization of the coboundary operator and Hodge Laplacians. This is a more principled normalization than ad hoc choices. Intersects our F-10 framing: if the PH null is partly a normalization artifact (e.g. non-normalized PH features being dominated by degree/scale effects), the paper's normalization could help — but this is speculative.
+
+- **Coherent components as topological structure:** The paper defines "coherent-up-components" and "coherent-down-components" — subsets of faces whose orientations are compatible. This generalizes bipartiteness from graphs to simplicial complexes. No direct intersection with our F-N/H-N framings, but conceptually adjacent to the idea that correct/incorrect activation clouds might differ in their simplicial "balance."
+
+## 2311.03757 — Manifold learning: what, how, and why (Meila, Zhang, 2023)
+
+**Relevance:** Comprehensive survey of manifold learning foundations — intrinsic dimension estimation, Diffusion Maps, Isomap, graph Laplacian construction, embedding distortion correction, and statistical consistency theory. Every technique is directly applicable to our cached L19 prefill activation matrices (500×1536). The survey consolidates the mathematical machinery needed to test whether the residual stream has low-dimensional manifold structure that PH (F-10) missed, and whether nonlinear probes beat the linear DoM direction (F-2).
+
+**Key claim we tested:** Not a claim paper — a methodology survey. The applicable claim is: "nonlinear manifold learning recovers geometric structure that PCA misses" (the paper's central thesis).
+
+**Our result:** **TO TEST** — No methods from this survey have been applied to our cached activations yet. The survey provides at least 4 cheap experiments (intrinsic dimension, DM embedding, Isomap geodesics, Laplacian density estimation) that can run on CPU in under 1 hour total.
+
+**Related experiments:** P11-FE909, P11-FE910, P11-FE911, P11-FE912, P11-FE913, H-716, H-717
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Intrinsic dimension estimation (correlation dimension, MLE, local PCA eigengap)** — Multiple estimators that compute the intrinsic dimensionality of a point cloud from local neighborhood statistics. Correlation dimension uses log(neighbor count) vs log(radius) slope; MLE method (Levina & Bickel 2004) uses k-NN distances; local PCA eigengap (Chen et al. 2013) uses the spectral gap of local covariance matrices at multiple scales.
+  *Replication cost*: 15min CPU on cached 500×1536 NPZ.
+  *We'd plausibly run this*: yes — directly answers "what is the effective dimensionality of L19 activations?" with no new data needed.
+
+- **Diffusion Maps / Laplacian Eigenmaps embedding** — Constructs a graph Laplacian from k-NN similarity, embeds data via bottom eigenvectors. The renormalized Laplacian (Algorithm 3) removes density bias. Produces coordinates that approximate the Laplace-Beltrami eigenfunctions of the underlying manifold.
+  *Replication cost*: 20min CPU for 500×1536 data (sparse eigendecomposition).
+  *We'd plausibly run this*: yes — nonlinear alternative to PCA for correct/incorrect separation.
+
+- **Isomap (geodesic MDS)** — Computes shortest-path distances in the k-NN graph to approximate geodesic distances, then applies classical MDS. Tests whether geodesic structure matters for correctness prediction.
+  *Replication cost*: 20min CPU (O(n³) but n=500 is small).
+  *We'd plausibly run this*: yes — if geodesic AUROC > Euclidean AUROC, manifold curvature matters.
+
+- **Push-forward metric estimation** — Given an embedding F, estimates the Riemannian metric ĝ at each point via the Laplace-Beltrami operator applied to test functions (§5.5, Perraul-Joncas & Meila 2013). Quantifies local distortion of any embedding, enables isometry-corrected distances.
+  *Replication cost*: 30min CPU implementation + computation.
+  *We'd plausibly run this*: maybe — primarily useful if DM embedding shows signal; then the metric clarifies what structure PCA distorts.
+
+- **Subspace Constrained Mean Shift (SCMS) for density ridges** — Iteratively projects data onto the density ridge (local density maxima in D−1 directions). Finds the "spine" of the data distribution.
+  *Replication cost*: 30min CPU (needs KDE bandwidth tuning).
+  *We'd plausibly run this*: maybe — interesting for D-bucket ridge detection (H-7) but more exotic than dimension estimation.
+
+- **Graph Laplacian renormalization (density debiasing)** — Column-then-row normalization of the kernel matrix removes the effect of non-uniform sampling density on eigenvectors. Asymptotically converges to the Laplace-Beltrami operator regardless of sampling density.
+  *Replication cost*: 5min CPU (matrix operations).
+  *We'd plausibly run this*: yes — should always be applied before interpreting any spectral embedding of L19 activations.
+
+### Approaches & framings
+
+- **The Manifold Assumption as testable hypothesis.** The paper frames the question "does data lie on a low-d manifold?" as a *testable* statistical hypothesis (Fefferman et al. 2016), not an article of faith. This directly reframes F-10: instead of "PH found null → no topology," the question becomes "does the manifold assumption hold? If yes, which tools can see it?" This is a strictly more informative framing.
+
+- **Distortion-aware geometry.** The push-forward metric framework (§5.5) establishes that *any* embedding distorts, and the distortion is estimable and correctable. This intersects our PCA-based analysis: PCA is a linear embedding that distorts curved manifold structure, and the distortion may systematically affect correctness-correlated directions differently from noise directions.
+
+- **Attraction-repulsion spectrum unifying t-SNE/UMAP/spectral methods.** Böhm et al. (2022) showed t-SNE with varying repulsion parameter ρ interpolates between LE and cluster-separation. This frames our choice of visualization/embedding method as a continuous parameter choice, not a discrete algorithm selection.
+
+- **Repeated Eigendirection Problem (REP).** Higher PCA components can be harmonics of lower ones, creating apparent rank that is actually redundant. This is relevant to our cov-spectrum probe (AUROC 0.7928 using top-20 log-eigvals): some of those eigvals might be REP artifacts, and independent eigendirection selection could improve the feature set.
+
+### Datasets & benchmarks
+
+- **Swiss roll, torus, ethanol molecule configurations** — Synthetic and molecular dynamics manifold benchmarks. Applicable? no — these are for validating manifold learning algorithms, not for our correctness-prediction task.
+
+- **SDSS galaxy spectra** — High-dimensional astronomical spectral data used to demonstrate DM embeddings. Applicable? no — domain-irrelevant.
+
+### Implementation details worth capturing
+
+- For n=500, k-NN graph construction is trivial; the computational bottleneck shifts to eigenvector computation, which is also fast for n=500.
+- Gaussian kernel with bandwidth h is nearly universal for similarity matrix construction. Rule of thumb: radius r = 3–10h.
+- k-NN recommended rates: k ~ n^(4d/(d+4)) * (log n)^(d/(d+4)). For n=500, d≈10: k ≈ 30–50.
+- Renormalization (Algorithm 3) removes density bias — should be used by default over unnormalized or singly-normalized Laplacians.
+- scikit-learn implements Isomap, LTSA, Locally Linear Embedding, Spectral Embedding (LE), and MDS. megaman (McQueen et al. 2016) implements DM with renormalization and push-forward metric estimation.
+
+### Replicable intermediates
+
+- **Intrinsic dimension estimate on cached L19 activations.** Use scikit-learn's `neighbors.NearestNeighbors` + MLE dimension estimator on the 500×1536 prefill activation matrix from `pathway11_h100/prefill_gated_compute/`. Compare estimated d to the 1536 ambient dimension and the ~20 eigenvalues used in FE881's cov-spectrum probe.
+- **Diffusion Maps AUROC comparison.** Compute DM embedding (m=5) using scikit-learn's `SpectralEmbedding` (which implements normalized Laplacian eigenmaps) on cached L19 prefill activations. Train 5-fold logistic regression on DM coordinates. Compare AUROC to 0.7731 (F-2's DoM AUROC).
+- **Isomap geodesic distance check.** Run `sklearn.manifold.Isomap(n_neighbors=30, n_components=5)` on L19 activations. Check whether geodesic-distance-based nearest-neighbor classification of correct/incorrect outperforms Euclidean.
+
+### Cross-paper signals
+
+- 2604.19740 — already in graph (status: graphed). Sharpness Dimension / EoS paper. Connection: both concern intrinsic dimension of activation spaces; Meila's survey provides the statistical foundations for dimension estimators that could validate or extend Tuci et al.'s claims.
+- 2410.13640 — already in graph (status: graphed). Chain-of-Embedding (CoE). Connection: Meila's framework for measuring embedding distortion and the REP could explain why CoE-60 is redundant with L19 DoM (F-9) — the trajectory features may be REP-corrupted harmonics.
+
+## 2604.15706 — Target-Oriented Pretraining Data Selection via Neuron-Activated Graph (Wang, Tu, Zhou, Zhou, Zhou, Zhang, Feng, Wang, Xie, Liu, 2025)
+
+**Relevance:** NAG introduces a neuron-level decomposition of LLM internal computation that identifies sparse "functional backbones" (0.12% of neurons carrying 23.5% of task performance). While the paper focuses on pretraining data selection, the neuron-impact methodology is directly applicable to understanding which neurons at L19 carry the F-2 correctness signal. NAG's finding that all-layer aggregation beats single-layer by 4.1% intersects F-9's CoE-60 redundancy claim, and the FFN UP neuron selectivity connects to H-64's sparse-circuit hypothesis.
+
+**Key claim we tested:** NAG-identified neurons constitute a sparse functional backbone whose activation patterns are task-discriminative and distributed across layers.
+
+**Our result:** **TO TEST** — NAG's neuron-impact decomposition has not been applied to our cached L19 activations. The sparse-backbone finding motivates P11-FE914 (High-Δ neuron overlap with DoM), P11-FE915 (NAG clustering of correct/incorrect), and P11-FE916 (neuron-importance probe vs DoM AUROC).
+
+**Related experiments:** P11-FE914, P11-FE915, P11-FE916, P11-FE917, H-718, H-719
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Neuron impact scoring (column-wise activation magnitude)** — For a projection weight matrix W, neuron importance = ||h_in^T W_{:,k}|| for each column k. Computed per-input during a single forward pass, no gradients needed.
+  *Replication cost*: 20min CPU on cached activations (just need to decompose existing L19 hidden states into FFN sub-layer contributions).
+  *We'd plausibly run this*: yes — directly applicable to cached Qwen-2.5-1.5B L19 activations if we also cache the FFN weight matrices.
+
+- **Neuron-Activated Graph (NAG) construction** — Select top-K neurons per layer by impact score, represent each input as a set of (layer, neuron-index) pairs. Similarity = Dice coefficient over these sets.
+  *Replication cost*: 30min CPU for 500 samples × 28 layers if weight matrices are cached; 2h H100 if forward passes needed.
+  *We'd plausibly run this*: yes for a single-layer version on L19 (CPU); uncertain for all-28-layers (needs fresh forward passes to get per-layer neuron activations).
+
+- **Sparse neuron deactivation** — Zero out top-K neuron columns and measure performance collapse. Identifies functional backbone.
+  *Replication cost*: 2h H100 (need fresh forward passes with modified weights).
+  *We'd plausibly run this*: no — primarily a pretraining data selection tool; the deactivation experiment is interesting mechanistically but not directly applicable to our correctness-prediction pipeline without fresh inference.
+
+- **High-Δ neuron selection** — Select neurons with largest difference in mean impact between target and random inputs. Only 0.006% of neurons (25 total) cause 17.8% collapse.
+  *Replication cost*: 30min CPU if activations for correct vs incorrect groups are cached.
+  *We'd plausibly run this*: yes — compute High-Δ neurons between correct and incorrect MATH-500 groups, test whether these sparse neurons carry correctness signal.
+
+### Approaches & framings
+
+- **Sparse functional backbone:** The idea that a tiny fraction (0.12%) of neurons constitutes a "functional backbone" for each capability. Intersects H-64's question about whether the DoM signal is carried by a similarly sparse subset of the L19 circuit.
+
+- **Neuron-level task alignment vs embedding-level task alignment:** NAG outperforms BETR (embedding similarity) because it captures neuron-level computation patterns distributed across layers, not just final-layer semantic representations. This reframes F-9's CoE-60 redundancy finding: the issue may not be that multi-layer information is redundant, but that embedding-level (or mean-pooled) aggregation loses the sparse neuron-level signal that matters.
+
+- **Expansion-layer selectivity:** FFN UP projection neurons (in the higher-dimensional latent space) are more task-discriminative than DOWN projection or attention K/V neurons. This suggests that if we're looking for correctness-discriminative features, the FFN intermediate activations (d_internal = 5440 in Qwen) may be richer than the residual stream (d_model = 1536).
+
+### Datasets & benchmarks
+
+- **RefinedWeb (150B token subset)** — Web-only English pretraining corpus, 600B tokens total. Open. Applicable? no — pretraining corpus, not relevant to MATH-500 hidden-state pipeline.
+- **ARC-Challenge, HellaSwag, TriviaQA, MMLU, XStoryCloze, XWinograd** — Standard LM evaluation benchmarks. Applicable? no — we use MATH-500 with 1024-tok labels; these benchmarks test different capabilities.
+
+### Implementation details worth capturing
+
+- NAG width ratio rk = 0.3% per layer is optimal across model scales (1.7B, 4B, 8B)
+- For Qwen3-1.7B-Base: d_internal = 6144, K = 20 neurons per layer
+- UP projection neurons outperform Q, K, V, DOWN for task-discriminative signal
+- NAG extraction requires only a single forward pass per input (no gradients, no generation)
+- Code released at https://github.com/asillycat/NAG
+- Pearson correlation between local neuron-impact proxy and actual |Δloss| is +0.71±0.02
+- NAG ranking stabilizes with as few as 200 target samples (Spearman ρ ≥ 0.999)
+
+### Replicable intermediates
+
+- **Single-layer NAG at L19:** We have cached L19 prefill activations (500 × 1536). If we also cache/load the L19 FFN UP weight matrix from Qwen-2.5-1.5B (~1536 × 4096 or similar), we can compute per-problem neuron impact scores by decomposing h_out = h_in^T W into column-wise contributions, select top-K neurons per problem, and test whether NAG-based Dice similarity between problems correlates with correct/incorrect grouping. Script: load `pathway11_h100/` cached NPZs + model weights, compute column-wise norms, cluster.
+- **High-Δ neuron identification:** Compute mean neuron impact for correct group (243 problems) vs incorrect group (257 problems) at L19 FFN UP, identify top-25 High-Δ neurons, test if these neuron indices overlap with the top components of the DoM direction.
+
+### Cross-paper signals
+
+- 2302.06600 — NOT in graph; recommend admission. Task-specific skill localization in fine-tuned LLMs (Panigrahi et al., 2023). Foundational for NAG's claim that different tasks rely on disjoint neuron subsets. Connects to H-64 (sparse circuits for DoM).
+- 2505.07293 — NOT in graph; recommend admission. Attention-Influence for data selection (Hua et al., 2025). Alternative to NAG using attention heads for data selection. Directly intersects H-64 and H-13 (attention-head attribution of DoM circuits).
+
+## 2604.25783 — Subliminal Steering: Stronger Encoding of Hidden Signals (Morgulis & Hewitt, 2026)
+
+**Relevance:** Demonstrates that steering vectors injected into teacher models' residual streams during data generation transfer to student models via fine-tuning, localized to the same layers. Directly relevant to our L19 DoM direction: provides both (a) a mechanistic explanation for why the direction exists (training-time imprint), (b) a vector-recovery protocol that could test whether DoM is self-supervisedly recoverable, and (c) a verbalization technique to reveal what the direction semantically encodes. Also provides a training-time mechanism for the H-1/H-659 predict-steer discrepancy.
+
+**Key claim we tested:** Steering vectors transfer through fine-tuning data and are recoverable from generation text alone, with the hidden-state shift localized to the steered layers.
+
+**Our result:** **TO TEST** — Paper's vector recovery and verbalization methods applicable to our DoM direction but not yet run. The layer-localization finding provides a new mechanistic hypothesis for F-2 (training imprint) and F-3 (layer-window orthogonality) that requires P11-FE919 and P11-FE921 to evaluate.
+
+**Related experiments:** P11-FE918, P11-FE919, P11-FE920, P11-FE921, P10-FE49, H-720, H-721, H-722
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Hidden-state shift Δh(ℓ)** — Difference in per-layer activations between a modified and baseline model at the final token, averaged over a prompt set. Measures directional imprint of an intervention.
+  *Replication cost*: 20min CPU (on cached activations, comparing correct-group vs incorrect-group means).
+  *We'd plausibly run this*: yes — we already compute something similar (DoM), but the per-layer profiling across all 28 layers using their alignment-score framing is a cleaner version.
+
+- **Alignment score s(ℓ) = cos(E[Δh(ℓ)], v_c)** — Per-layer cosine between mean hidden-state shift and a reference vector. Profiles where in the network a signal is localized.
+  *Replication cost*: 15min CPU on cached per-layer activations (need per-layer caches or ~2h H100 re-extraction).
+  *We'd plausibly run this*: yes — could profile DoM alignment across all 28 layers using P8 layer-sweep data or new extraction.
+
+- **Vector recovery with soft-gated layer window** — Optimize a single vector v_r added to residual stream via learnable sigmoid-gated layer window [s,e] to minimize next-token loss. Recovers an unknown steering direction from generation data.
+  *Replication cost*: 2-4h H100 (requires forward passes through model).
+  *We'd plausibly run this*: yes, but only if we frame it as "can we recover DoM from generation data alone without labels?" — H100-dependent.
+
+- **Vector verbalization via alpha sweep** — Inject recovered vector at varying strengths α ∈ [0, 10] on neutral prompts, then use LLM to summarize the semantic content of the direction.
+  *Replication cost*: 1h H100 (generation at multiple α) + 5min API (summarization).
+  *We'd plausibly run this*: yes — could verbalize our DoM direction to check what semantic content it encodes (difficulty estimate? topic familiarity? formatting convention?).
+
+- **Normalized ΔNLL** — Relative change in per-token NLL between fine-tuned and base model as a signal-strength measure.
+  *Replication cost*: 30min H100 (two forward passes per prompt).
+  *We'd plausibly run this*: no — we don't have a fine-tuned vs base comparison scenario.
+
+### Approaches & framings
+
+- **Signal propagation through data**: The idea that activation-space structure of a teacher propagates through generated text into a student's representations, even when the text is semantically unrelated. Intersects F-2: if post-training data carries correctness-signal geometry, DoM could be a propagated artifact rather than emergent.
+
+- **Predict vs steer asymmetry has a training-time explanation**: The paper implicitly argues that readable-but-not-writable directions exist because writing requires training-time intervention. This reframes the H-659/H-1 tension from "DoM isn't causal" to "DoM is causal but only through the training pathway."
+
+- **Layer-localized imprinting**: The finding that interventions at specific layers leave signatures detectable at those same layers provides a mechanistic language for why L19 is special (F-2) — it may be the layer where the post-training process applied the strongest correctness-related gradient.
+
+### Datasets & benchmarks
+
+- **Random 3-digit number sequences** — 40,000 procedurally generated prompt-completion pairs; used as innocuous carrier data. Applicable? no — we use MATH-500 reasoning tasks.
+- **Bias evaluation prompts (20 neutral prompts)** — Fixed set for alpha-sweep verbalization. Applicable? yes (trivially) — could reuse for verbalizing our DoM direction. Not released as a formal dataset.
+
+### Implementation details worth capturing
+
+- Steering vector v_c initialized from N(0, 0.01^2), optimized with Adam (η=0.01) for 100 iterations, all model weights frozen, α=1. Applied at layers [2, L-2].
+- LoRA: rank-8, α_LoRA=8, dropout=0.05, applied to all attention and FFN projections. Loss on completion tokens only. SFTTrainer, Adam (η=2e-4), linear LR schedule, 5 warmup steps, batch size 60, 4 epochs on 10k samples.
+- Vector recovery: AdamW (η=2e-3 for v_r, 1e-2 for α̃, 5e-2 for layer boundaries), cosine LR, 10 epochs on 10k samples. Gate sharpness k annealed 5→20.
+- **Critical**: fp16 mixed precision required for vector recovery convergence; bfloat16 fails or stalls.
+- Code: https://github.com/GMorgulis/Subliminal-Steering-2026-Code
+
+### Replicable intermediates
+
+- **Alignment-score profile at L19**: Compute cos(mean(h_correct) - mean(h_incorrect), DoM) at L19 using cached prefill activations — this is trivially 1.0 by construction (DoM IS the difference of means). The non-trivial version: compute the alignment score at every layer using per-layer DoM directions from P8 layer-sweep, testing whether the paper's "peak migration" phenomenon appears in our correctness signal. Requires: P8 per-layer activation caches (if available) or the per-layer AUROC data from P8.
+- **Verbalization of DoM direction**: Inject the L19 DoM direction into the model at varying α on neutral prompts and use an LLM to summarize what the direction "means." Requires: H100 forward passes (not a cached-data experiment), but very cheap once on GPU (~30min).
+
+### Cross-paper signals
+
+- 2308.10248 — already in graph (status: graphed). Foundational ActAdd method; this paper extends it to subliminal transfer.
+- 2502.18862 — already in graph (status: pending_triage). One-shot optimized steering vectors; methodologically adjacent to this paper's vector recovery.
+- 2507.14805 — NOT in graph; recommend admission. Cloud et al. "Subliminal Learning" — the foundational paper that this work extends. Relevant to H-1/H-659 predict-steer gap: shows bias can transfer through data without explicit supervision.
+- 2507.21509 — NOT in graph; recommend admission. Chen et al. "Persona Vectors" — persona-level steering vectors that could intersect correctness-as-persona framing. Tests whether "being correct" is a persona direction.
+- 2509.23886 — NOT in graph; weak recommend. Schrodi et al. "Towards Understanding Subliminal Learning" — divergence-token mechanism for subliminal transfer; could explain which token positions carry the correctness signal in our MATH-500 generations.
+- 2602.04735 — NOT in graph; weak recommend. Wang et al. "From Data to Behavior" — predicting behavioral shifts from dataset-level mean representations without training; relevant if we want to check whether MATH-500 training data predicts DoM direction.
+
+## 2312.04762 — The Graph Lottery Ticket Hypothesis: Finding Sparse, Informative Graph Structure (Tsitsulin, Perozzi, NeurIPS GLFrontiers 2023)
+
+**Relevance:** The GLT hypothesis — that extremely sparse graph backbones (avg degree ~5) preserve graph learning performance — provides a principled framework for sparsifying neighborhood graphs built from LLM activation vectors before computing topological or structural features. Directly relevant to F-10's PH null result (dense VR complexes may over-smooth topology) and to testing whether graph-structural features complement the directional DoM probe (F-2, AUROC 0.7731). The kTree algorithm and spectral graph metrics suite are cheap to apply to our cached 500×1536 L19 activations.
+
+**Key claim we tested:** Sparse graph backbones preserve or improve graph learning utility compared to the full graph, with most information concentrated at avg degree ~5.
+
+**Our result:** **TO TEST** — no graph-based analysis of activation neighborhoods has been attempted yet. Three FEs proposed: graph-structural correctness features (P11-FE120476A), PH on sparsified graph (P11-FE120476B), and spectral dimension comparison (P11-FE120476C).
+
+**Related experiments:** P11-FE120476A, P11-FE120476B, P11-FE120476C, H-723, H-724
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **kTree (union of k random spanning trees)** — Iteratively union random spanning trees of an input graph until reaching a target edge budget. Preserves connectivity and approximates spectral properties.
+  *Replication cost*: 10min CPU (our graphs would be 500-node, trivial).
+  *We'd plausibly run this*: yes — as a preprocessing step before graph-based analyses of cached activations.
+
+- **Spectral sparsification via effective resistance weighting** — Weight edges by effective resistance (probability of inclusion in random spanning tree), then sample. Preserves Laplacian quadratic forms.
+  *Replication cost*: 10min CPU for 500-node graph.
+  *We'd plausibly run this*: yes — as a principled graph thinning step.
+
+- **Graph robustness metrics suite (8 metrics)** — Algebraic connectivity (λ₂), spectral radius, effective resistance, number of spanning trees, number of triangles, global/local clustering coefficient, Forman curvature. Computed via stochastic Lanczos quadrature for eigenvalue-dependent metrics.
+  *Replication cost*: 15min CPU for the full suite on a 500-node graph.
+  *We'd plausibly run this*: yes — these could serve as alternative features for correctness prediction from activation-space neighborhood graphs.
+
+- **Forman/Ollivier curvature on graphs** — Edge-level curvature measures quantifying local geometry (clique-like vs. tree-like neighborhoods). Forman curvature is O(m) to compute.
+  *Replication cost*: 5min CPU.
+  *We'd plausibly run this*: yes — as node-level features aggregated from edge curvatures on activation k-NN graphs.
+
+### Approaches & framings
+
+- **Lottery ticket as structural redundancy:** The core insight that most graph structure is redundant for downstream tasks could reframe F-10: PH may be null not because topology is absent, but because dense VR complexes encode massively redundant structure that washes out group-discriminative signal. Sparsify first, then compute topology.
+
+- **Spectral vs. local metrics hierarchy:** The paper establishes that spectral properties (algebraic connectivity, effective resistance) are more informative than local properties (clustering coefficient, triangles) for graph quality. This parallels our finding that covariance-spectrum features (spectral, AUROC 0.7928) outperform single-direction DoM (0.7731) — both cases favor global spectral structure over local features.
+
+### Datasets & benchmarks
+
+- **SBM (Stochastic Blockmodel) graphs** — Synthetic, parameterized by n, k, p/q ratio. Freely generated. Applicable? no — our data is real activation vectors, not synthetic graphs.
+- **Cora, Citeseer, Pubmed** — Citation networks. Public. Applicable? no — different domain entirely.
+- **MNIST/FashionMNIST/CIFAR-10 ε-NN graphs** — The ε-nearest-neighbor graph construction from feature vectors is the most relevant methodological precedent: they build graphs from raw features, which is exactly what we'd do with activation vectors. Applicable? yes — the construction procedure (not the data) is directly transferable.
+
+### Implementation details worth capturing
+
+- kTree algorithm is near-linear O(m^{1+o(1)}) in edges via the Schild 2018 random spanning tree algorithm.
+- For eigenvalue-dependent metrics, they use stochastic Lanczos quadrature (Ubaru et al. 2017) with 100 starting vectors and 10 iterations — good defaults for our 500-node scale.
+- Graph connectivity must be preserved as a hard constraint (most graph learning algorithms fail on disconnected graphs); kTree guarantees this by construction (spanning tree is connected).
+- No code link provided in the paper, but kTree/1Tree are trivial to implement (~20 lines with NetworkX).
+
+### Replicable intermediates
+
+- Build k-NN graph (k=5,10,20) from cached L19 prefill activations (`pathway11_h100/prefill_gated_compute/` NPZs, 500 × 1536), apply kTree sparsification, compute effective resistance and algebraic connectivity per node. Compare distributions for correct vs. incorrect groups. Uses `sklearn.neighbors.kneighbors_graph` + `networkx` + `scipy.sparse.linalg`.
+- Compute Forman curvature on k-NN graph of cached activations, test whether mean curvature differs between correct/incorrect subgraphs. Pure CPU, ~10min.
+
+## 2604.26841 — Language Diffusion Models are Associative Memories Capable of Retrieving Unseen Data (Pham, Zaki, Ambrogioni, Krotov, Negri, 2026)
+
+**Relevance:** Establishes that conditional likelihood maximization in transformers creates basins of attraction (memorization → generalization phase transition detectable via conditional entropy). Directly relevant as an alternative explanation for F-2's DoM predictive power (memorization proximity rather than correctness geometry) and F-7's D-bucket collective signature (memorization-regime clustering). Provides formal connection between conditional entropy and basin curvature (Appendix C) that intersects H-4's breathing-sharpness hypothesis.
+
+**Key claim we tested:** Conditional entropy of token predictions serves as a practical probe for the memorization-to-generalization transition in deployed models.
+
+**Our result:** **TO TEST** — P11-FE26841a will compute logit-lens entropy from cached L19 activations and compare against DoM AUROC 0.7731. If entropy ≥ 0.77 AUROC and correlates strongly with DoM, F-2 is reframed as memorization detection.
+
+**Related experiments:** P11-FE26841a, P11-FE26841b, P11-FE26841c, P11-FE26841d, H-725, H-726
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Token recovery rate as basin-of-attraction probe** — Corrupt tokens at varying noise levels and measure fraction recovered after denoising, as a function of dataset size. Quantifies basin size around specific inputs.
+  *Replication cost*: Requires forward passes through the model at multiple noise levels; ~2-4h H100 for 500 problems at 10 noise levels.
+  *We'd plausibly run this*: no — requires diffusion model machinery not applicable to autoregressive Qwen.
+
+- **Conditional entropy as memorization/generalization discriminator** — Compute H(x^ℓ | z^{1:L}_t) = −Σ_k p_θ(x^ℓ|z)_k · log p_θ(x^ℓ|z)_k per token, sum across sequence. Memorized sequences have near-zero entropy; generalized sequences have finite entropy.
+  *Replication cost*: 20-40min CPU if using cached logit outputs; ~1h H100 if extracting fresh logits from Qwen-2.5-1.5B on MATH-500.
+  *We'd plausibly run this*: yes — we can compute per-token entropy from Qwen's output logits on the 500 MATH-500 problems and correlate with DoM scores / correctness labels. This is the most directly testable methodology.
+
+- **Classification margin analysis via pseudo-likelihood gradient** — Decompose the learning signal into Hebbian term × margin penalty (Eq. 11). The gradient dL/dW ∝ −(1/P)Σ x^ℓ x^m [1 − tanh(M^ℓ(x))] identifies which patterns have the smallest margins.
+  *Replication cost*: Conceptual/analytical only—no direct computation path on cached activations.
+  *We'd plausibly run this*: no — requires access to model weights' gradient structure, not applicable to frozen-extractor pipeline.
+
+- **Greedy (deterministic) vs stochastic sampling comparison** — Replace stochastic sampling with argmax to isolate basin geometry from sampling noise.
+  *Replication cost*: N/A for autoregressive models.
+  *We'd plausibly run this*: no — specific to diffusion model reverse process.
+
+### Approaches & framings
+
+- **Memorization-to-generalization as phase transition, detected by conditional entropy convergence:** The framing that memorization and generalization are sharp phases (not a smooth continuum) governed by dataset-size-to-model-capacity ratio. Intersects H-5/F-7: D-bucket problems may be in a different phase than A/B/C problems.
+
+- **Basins of attraction without explicit energy (conditional likelihood suffices):** Dropping the requirement for an explicit energy function extends AM theory to feed-forward architectures (transformers). Intersects F-10: explains why PH (which implicitly assumes energy-landscape structure) is uninformative—the relevant attractor structure exists in conditional probability space, not geometric space.
+
+- **Entropy gap as confidence calibration:** The "entropy gap" between memorized vs generated sequences narrows with model scale. Intersects F-2/F-8: the DoM-based selective prediction may be detecting the entropy gap—problems where the model is in its memorization regime (low entropy gap) are answered correctly with high confidence.
+
+### Datasets & benchmarks
+
+- **LM1B (One Billion Word Benchmark)** — ~800M tokens, public, widely available (HF/direct download). Applicable? no — designed for language modeling perplexity evaluation, not math reasoning. Our pipeline targets MATH-500 with correctness labels.
+
+### Implementation details worth capturing
+
+- UDDMs trained with diffusion transformer backbone (DiT architecture from Peebles & Xie 2023)
+- Three model scales tested: Tiny (~24M), Small (~135M), Medium (~384M)
+- Sequence length 128, GPT-2 tokenizer, 1M training iterations
+- Training fractions sampled from 10^-4 to 1.0 (54 models per scale, 162 total)
+- Greedy sampling = replace Cat(·) with argmax(·) in reverse process
+- Conditional entropy computed at t = 10^-5 (near-clean) for practical deployment metric
+- Code appears to build on Sahoo et al. 2024 [44] codebase
+
+### Replicable intermediates
+
+- **Conditional entropy from cached logits:** If we have cached logit outputs (or can extract them cheaply), compute per-token entropy H = −Σ p·log(p) over vocabulary for each token position in MATH-500 prefill. Sum per-sequence, then test AUROC for correctness prediction. Compare against DoM AUROC 0.7731. This requires one forward pass per problem to get logits—doable from cached activations only if logit-lens / unembedding is applied to L19 residuals. Script: apply unembedding matrix to cached L19 prefill activations (500×1536 → 500×vocab_size), compute entropy per token, correlate with correctness.
+- **Logit-lens entropy vs DoM correlation:** From the same logit-lens outputs, compute cos(entropy_vector, DoM_scores) to test whether DoM is a memorization detector.
+
+### Cross-paper signals
+
+- 2505.21777 — NOT in graph; recommend admission. Same lead author (Pham), companion paper "Memorization to Generalization: Emergence of Diffusion Models from Associative Memory" — likely contains the continuous-domain analogue and deeper theoretical treatment that this paper extends to discrete/language.
+- 2410.08727 — NOT in graph; recommend admission. Achilli et al. "Losing Dimensions: Geometric Memorization in Generative Diffusion" — directly studies geometric memorization, connects to F-10 (PH null on residual streams) via the dimensionality-loss-during-memorization mechanism.
+- 2412.04140 — NOT in graph; weak recommend. Jeon et al. "Understanding Memorization via Sharpness in Probability Landscapes" — connects memorization to sharpness, directly relevant to H-4 (Breathing ↔ Sharpness Dimension).
+
+## 2605.01172 — A Theory of Generalization in Deep Learning (Litman, Guo, 2025)
+
+**Relevance:** Provides a non-asymptotic generalization theory based on NTK signal-channel / reservoir decomposition. The signal channel (directions where training dissipated loss) is exactly the subspace visible at test. Directly relevant to understanding why our DoM direction predicts correctness (it may live in the signal channel), why the AUROC ceiling exists (signal-channel rank), and why PH/topology adds nothing (reservoir geometry is provably noise-like). The population-risk objective offers a potential label-free alternative to supervised DoM.
+
+**Key claim we tested:** Signal-channel rank determines the effective dimensionality of test-predictable information; reservoir directions are unconditionally test-invisible.
+
+**Our result:** **TO TEST** — The theoretical framework elegantly explains F-2's ceiling and F-10's null, but requires verification that the output-space theory applies to intermediate-layer activations (L19) rather than only final logits. Tier 1 experiments (FE01172A–D) can validate the activation-level predictions cheaply.
+
+**Related experiments:** P11-FE01172A, P11-FE01172B, P11-FE01172C, P11-FE01172D, P11-FE01172E, H-727, H-728
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Signal-channel / reservoir decomposition via cumulative dissipation Gramian W_S** — Integrates the NTK over the training trajectory to identify which output directions were "trained" (signal) vs. untouched (reservoir/noise).
+  *Replication cost*: "2-4h H100" (needs NTK computation at L19 for 500 samples; NTK is n×n with n=500 at a single layer, feasible but requires forward passes + Jacobian-vector products).
+  *We'd plausibly run this*: yes — the core eigendecomposition can be approximated cheaply via random projections, and the signal-channel rank at L19 would directly explain our AUROC ceiling.
+
+- **Per-parameter SNR gate (µ²_k > σ²_k/(b-1))** — Binary mask that updates a parameter only when its squared mean gradient exceeds its variance scaled by 1/(b-1). Separates population-relevant signal from batch-specific noise.
+  *Replication cost*: "10min CPU" (only need to compute mean and variance of per-feature activations across the 500 cached samples, then apply the threshold).
+  *We'd plausibly run this*: yes — directly applicable to our 500×1536 activation matrix as a feature-selection criterion.
+
+- **Self-influence via leave-one-out test-transfer operator G** — For each training point, compute its contribution to the generalization gap by treating it as a one-point test set against the remaining batch.
+  *Replication cost*: "30min CPU" (for our 500-sample setup, this is 500 leave-one-out comparisons on cached features; no forward passes needed if we compute on the already-extracted L19 activations).
+  *We'd plausibly run this*: yes — self-influence per problem could be a novel correctness predictor.
+
+- **Drift-diffusion separation (Theorem 4.1)** — Decomposes SGD updates into linear drift (signal) and √t diffusion (noise), showing that signal accumulates at rate T while noise grows at √(ηT/b).
+  *Replication cost*: "Would need training checkpoints — not applicable to frozen model analysis."
+  *We'd plausibly run this*: no — requires access to training dynamics, not inference-time activations.
+
+- **Population-risk objective (no validation data)** ��� Exact unbiased estimator of population risk from a single training batch, derived from exchangeability + the test-transfer operator.
+  *Replication cost*: "1-2h H100" (needs gradient computation per sample, but the principle could be approximated from cached activations).
+  *We'd plausibly run this*: yes (in a simplified form applied to our probe training, not full LLM training) — could validate whether our logistic regression probe on L19 features suffers from memorization.
+
+### Approaches & framings
+
+- **Output-space dynamics framing:** Working entirely in output space (stacked predictions) rather than parameter space. Relevant because our DoM direction is defined in hidden-state space (a single layer's output), which is an intermediate output space — the paper's theory could apply per-layer rather than only at the final logit layer.
+
+- **Signal-channel rank as generalization capacity:** The dimensionality of range(W_S) determines how many independent directions of generalization the model supports. This reframes our "why does a single direction (DoM) work so well?" question as: the signal channel at L19 may simply have low effective rank, making a 1-D projection surprisingly competitive.
+
+- **Noise-in-signal-channel as the only failure mode:** After reservoir invisibility and drift-diffusion separation, the only source of test error is noise that leaked into the signal channel. This reframes our selective-prediction problem: abstaining on problems where the signal-channel noise is high (rather than where DoM is low) might be more principled.
+
+### Datasets & benchmarks
+
+- **Modular arithmetic (a·b⁻¹ mod 97)** — 25% train split, synthetic, 9409 samples total. Applicable? no — irrelevant to MATH-500 / hidden-state pipeline.
+- **PINN transport equation** — synthetic noisy IC. Applicable? no — PDE domain.
+- **UltraFeedback (DPO fine-tuning)** — standard preference dataset with 30% swapped labels. Applicable? partially — they fine-tune Qwen2.5-0.5B-Instruct which is in our model family; the noisy-preference resistance metric could be relevant if we ever do preference-based training.
+
+### Implementation details worth capturing
+
+- SNR preconditioner is one extra parameter-sized state vector storing streaming variance EMA of squared gradient deviations; gate multiplies standard Adam moment update.
+- Leave-one-out coefficient α = 1 for fresh-batch boundary, α = b/(n-b) for finite-dataset boundary.
+- The gate has a "soft" form (Section F.4) for continuous weighting rather than binary masking.
+- Qwen2.5-0.5B-Instruct fine-tuning with DPO used as experimental testbed.
+- Code likely not yet released (preprint, Stanford, no repository link in paper).
+
+### Replicable intermediates
+
+- **SNR feature selection on cached L19 activations:** Compute per-feature (across 500 samples) mean and variance for correct vs incorrect groups. The µ²/σ² ratio per feature dimension is trivially computable from our cached NPZs and would tell us whether the SNR criterion selects the same dimensions as our PCA-based approach. Uses: `pathway11_h100/prefill_gated_compute/` cached activations.
+- **Signal-channel rank estimate:** Compute the eigenvalues of our 500×500 sample covariance (Gram matrix) of L19 prefill activations. Count how many eigenvalues exceed a noise floor (e.g., Marchenko-Pastur upper edge). Compare this number to the effective feature dimensionality of our cov-spectrum probe (20). Uses: `pathway11_h100/cov_spectrum/` cached features.
+- **Self-influence approximation:** For each of the 500 problems, compute a leave-one-out cosine similarity of its L19 activation against the remaining 499 — high self-influence (unusual activation) may predict incorrectness. Uses: cached L19 activations from `pathway11_h100/prefill_gated_compute/`.
+
+### Cross-paper signals
+
+- 2604.19740 — already in graph (status: PARTIALLY CONFIRMED). The "sharpness dimension" concept intersects with this paper's signal-channel spectral schedule; sharpness dimension = effective rank of the signal channel.
+- 2509.12886 — already in graph (status: REPLICATED). Their hidden-representation difficulty estimation is essentially measuring projection onto signal-channel vs reservoir directions, but they don't have this theoretical framing.
+- 2402.03744 — already in graph (status: TO TEST). INSIDE's eigenvalue-decomposition-based hallucination detection is a special case of signal-channel rank analysis at inference time.
+
+## 2605.02167 — Manifold-Aligned Guided Integrated Gradients for Reliable Feature Attribution (Kim, Lim, Lee, Choi, ICML 2026)
+
+**Relevance:** Proposes manifold-aligned interpolation paths for gradient-based feature attribution, demonstrating that ambient-space linear paths cause off-manifold drift (Proposition 3.1). While the paper targets image classifiers, the theoretical framework raises the question of whether L19 prefill activations lie on a curved manifold where Euclidean analyses (DoM, PCA, VR-PH) might be misleading. Practically, cos(DoM, PC1) = 0.9216 suggests the relevant manifold is approximately flat, making the paper's concerns unlikely to apply.
+
+**Key claim we tested:** Off-manifold drift from ambient-space linear operations on neural network representations.
+
+**Our result:** **TO TEST** — Proposed FE965 (geodesic vs Euclidean distance comparison) and FE966 (DoM tangent-space residual sweep) would determine whether the paper's manifold-curvature concerns apply to our L19 activation geometry. Strong prior expectation: they don't, given the PC1 alignment.
+
+**Related experiments:** P11-FE922, P11-FE923, H-729
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Manifold-aligned interpolation via VAE latent space** — Encode endpoints to VAE latent space, construct attribution path by iteratively updating low-gradient latent dimensions, decode intermediates to data space. All intermediates stay on the learned data manifold.
+  *Replication cost*: Days to weeks — requires training a VAE on L19 activations (500 samples × 1536 dims is severely underdetermined for a VAE).
+  *We'd plausibly run this*: No — sample count is far too low for a meaningful VAE, and we don't need gradient-based attribution for linear probes.
+
+- **Jacobian-based tangent space estimation** — Use decoder Jacobian J_D(z) to map latent perturbations to on-manifold perturbations in data space. The column space of J_D defines the tangent space at each decoded point.
+  *Replication cost*: 30min CPU (local PCA serves as a non-parametric equivalent for tangent space estimation on cached activations).
+  *We'd plausibly run this*: Yes, but only as local PCA, not the VAE-Jacobian variant — we already have global PCA and could do k-NN local PCA cheaply.
+
+- **Low-gradient-dimension selection for path construction** — At each step, identify feature dimensions where the classifier gradient magnitude is below a quantile threshold τ, and only update those dimensions. This prevents the path from taking large steps in gradient-sensitive directions.
+  *Replication cost*: 15min CPU if adapted to our logistic regression probe on cached activations.
+  *We'd plausibly run this*: No — for a linear probe, gradients are constant (the weight vector), so dimension selection is trivial and doesn't add value over examining probe weights directly.
+
+- **DiffID metric** — Measures relative divergence between insertion/deletion curves rather than absolute values, neutralizing shared distributional bias.
+  *Replication cost*: 10min CPU to implement.
+  *We'd plausibly run this*: No — we don't use insertion/deletion evaluation for our probes.
+
+### Approaches & framings
+
+- **Off-manifold drift as a systematic error source.** The paper formalizes (Proposition 3.1) how linear interpolation in ambient space causes first-order drift from the data manifold. This framing could be transplanted to argue that any analysis of L19 activations using Euclidean geometry (distances, means, PCA) has potential manifold-bias — but since our PCA already captures >90% of variance in few components, the manifold appears approximately flat and this concern is muted.
+
+- **"Perfect Autoencoder" assumption as a benchmark for manifold methods.** Assumption 3.2 defines conditions (exact reconstruction, surjectivity, smooth immersion) under which latent-space operations faithfully represent manifold-level operations. This provides a theoretical checklist for evaluating any future VAE/autoencoder-based analysis of activations.
+
+### Datasets & benchmarks
+
+- **ImageNet** — 1.28M images, 1000 classes, open (HF/torchvision). Applicable? No — image classification, not math reasoning.
+- **Oxford-IIIT Pet** — 7.4K images, 37 classes, open. Applicable? No.
+- **Oxford 102 Flower** — 8.2K images, 102 classes, open. Applicable? No.
+
+### Implementation details worth capturing
+
+- Code available at GitHub (ma-gig repository, per paper).
+- Uses Stable Diffusion v1-1/v2-1 and Kandinsky 2.1 VAE encoders/decoders as off-the-shelf manifold models.
+- K=200 integration steps for baseline IG methods; MA-GIG uses iterative latent updates with learning rate η and quantile threshold q.
+- Slerp (spherical linear interpolation) tested as alternative to linear latent interpolation — mixed results, linear preferred.
+
+### Replicable intermediates
+
+- **Tangent-space projection of DoM.** Using cached L19 prefill PCA (from FE291), project the DoM direction into the top-k PC subspace at varying k and measure residual norm. If residual is near-zero at small k, the DoM is on-manifold. We already know cos(DoM, PC1) = 0.9216, which strongly suggests this, but a formal k-sweep (k=1..20) would quantify it. *Script:* Could be done with `pathway11_h100/pca_covariance/` cached PCA components + DoM direction from `prefill_gated_compute/results.json`.
+
+- **Geodesic vs Euclidean distance comparison.** Compute ISOMAP (k=10) geodesic distance matrix on the 500 × 1536 cached L19 activations and compare to Euclidean distance matrix (Pearson/Spearman correlation). If r > 0.95, manifold curvature is negligible and the paper's concerns about off-manifold analysis don't apply.
+
+## 2605.02279 — Foundations of Riemannian Geometry for Riemannian Optimization (Ghojogh, 2025)
+
+**Relevance:** Reference monograph providing implementation-ready formulas for Riemannian optimization on Stiefel, Grassmann, and SPD manifolds. The SPD manifold section (affine-invariant, log-Euclidean, Bures–Wasserstein metrics) is directly applicable to our covariance-based probes; the Grassmann section formalizes subspace optimization underlying PCA/DoM extraction.
+
+**Key claim we tested:** N/A — no empirical claims (pure mathematics reference).
+
+**Our result:** **CITED ONLY** — pedagogical resource for anyone implementing manifold-constrained probes or computing intrinsic distances on activation covariance matrices.
+
+**Related experiments:** P11-FE924, H-729
+
+**Status:** CITED ONLY
+
+### Methodologies extracted
+
+- **Riemannian Gradient Descent on Grassmann manifold** — optimize a subspace objective (e.g., correctness separation) constrained to Gr(n,k) using exponential map or QR retraction.
+  *Replication cost*: 30min CPU (pymanopt already implements this).
+  *We'd plausibly run this*: no — our 1-d DoM is already the unit-sphere solution; for k>1 we already use PCA which is the closed-form Grassmann solution.
+
+- **Affine-invariant geodesic distance on SPD manifold** — compute d_AI(Σ_correct, Σ_incorrect) = ||log(Σ_c^{-1/2} Σ_i Σ_c^{-1/2})||_F as the intrinsic distance between group covariance matrices.
+  *Replication cost*: 10min CPU on cached 500×1536 activations.
+  *We'd plausibly run this*: yes — gives a single-number manifold-aware separation metric between correct/incorrect covariance structures, complementing our log-eigenvalue features.
+
+- **Log-Euclidean metric on SPD manifold** — map SPD matrices to symmetric matrices via matrix log, then use Frobenius distance: d_LE(Σ_1, Σ_2) = ||log(Σ_1) - log(Σ_2)||_F.
+  *Replication cost*: 10min CPU.
+  *We'd plausibly run this*: yes — this is essentially what our cov-spectrum probe already does (log-eigenvalues), but the full log-Euclidean distance uses the eigenvectors too.
+
+- **Bures–Wasserstein distance on SPD manifold** — d_BW(Σ_1, Σ_2) = [tr(Σ_1) + tr(Σ_2) - 2tr((Σ_1^{1/2} Σ_2 Σ_1^{1/2})^{1/2})]^{1/2}. Related to optimal transport between Gaussians.
+  *Replication cost*: 10min CPU.
+  *We'd plausibly run this*: yes — optimal-transport framing of correct/incorrect separation could yield a more robust single metric than eigenvalue-based features.
+
+- **Retraction-based optimization on Stiefel manifold** — constrain probe weights to have orthonormal columns via QR or polar retraction.
+  *Replication cost*: 20min CPU with pymanopt.
+  *We'd plausibly run this*: no — unconstrained L2-regularized probe already hits ceiling (AUROC 0.7847); orthonormality constraint would only reduce capacity.
+
+### Approaches & framings
+
+- **Optimization-on-manifolds reframing of linear probing**: Instead of "fit a linear probe in R^1536 with L2 regularization," frame as "find the optimal point on Gr(1536,1) that maximizes AUROC." For k=1 these coincide, but for multi-dimensional probes (k>1), the Grassmann formulation is the correct intrinsic geometry. Does not intersect our current findings since k=1 (DoM) already works.
+
+- **SPD manifold as the natural space for covariance features**: Our cov-spectrum probe extracts log-eigenvalues from the activation covariance. The formal Riemannian view says this is the "log-Euclidean" representation — a geodesic-preserving flattening of SPD(n). This framing suggests that the *eigenvector* information discarded by our probe is orthogonal geodesic information that could carry signal.
+
+### Implementation details worth capturing
+
+- Explicit exponential map formula for Stiefel manifold: Exp_X(Δ) = [X, Q] expm([X^T Δ, -R^T; R, 0]) [I_d; 0] where QR = (I - XX^T)Δ (Edelman et al. 1998, reproduced in Proposition 37).
+- QR retraction on Stiefel: Ret_X(Δ) = qf(X + Δ) (cheapest retraction, first-order approximation to geodesic).
+- Affine-invariant exponential map on SPD: Exp_X(Δ) = X^{1/2} expm(X^{-1/2} Δ X^{-1/2}) X^{1/2}.
+- Software: Manopt (MATLAB), Pymanopt (Python), Geomstats (Python), McTorch (PyTorch), Geoopt (PyTorch) — all cited in §13.
+- The monograph explicitly derives Christoffel symbols for Stiefel/Grassmann/SPD, enabling custom second-order methods beyond what pymanopt exposes.
+
+### Replicable intermediates
+
+- Compute affine-invariant geodesic distance d_AI(Σ_correct, Σ_incorrect) from cached L19 prefill activations (500 samples, split by correctness label, compute sample covariance per group). Compare to Frobenius distance ||Σ_c - Σ_i||_F. Script: load NPZ, split by label, numpy.linalg.eigh for matrix log/sqrt, compute distance. ~5 lines of numpy after loading.
+- Compute Bures–Wasserstein distance between same two covariance matrices. Compare magnitude to the affine-invariant distance.
+- Compute log-Euclidean distance (full matrix log, not just eigenvalues) between correct/incorrect group covariances. Compare to our cov-spectrum probe's log-eigenvalue features to quantify how much eigenvector information is lost.
+
+## 2006.15595 — Rethinking Positional Encoding in Language Pre-training (Ke, He, Liu, ICLR 2021)
+
+**Relevance:** TUPE decomposes standard transformer attention into word-word, word-position, position-word, and position-position correlations (Eq. 6) and shows the cross-terms are noisy. This decomposition provides a principled framework for testing whether our L19 DoM correctness signal (F-2, AUROC 0.7731) and prefill/final-token orthogonality (F-3, cos = 0.046) carry positional confounds at the attention-mechanism level that residual-stream controls (Song-Zhong, EXP-48) cannot detect. TUPE is for BERT-style absolute positional encoding (not RoPE), but the core insight — content and position are entangled in the attention computation — generalizes.
+
+**Key claim we tested:** Content-position cross-correlations in standard transformer attention are noisy and removable without performance loss.
+
+**Our result:** **TO TEST** — TUPE's decomposition framework has not been applied to our Qwen-2.5-1.5B L19 DoM analysis. Proposed experiments P11-FE925 (length correlation), P11-FE926 (RoPE projection), P11-FE928 (attention decomposition) would test whether our findings carry positional confounds at the attention mechanism level.
+
+**Related experiments:** P11-FE925, P11-FE926, P11-FE927, P11-FE928, H-730, H-731, H-17, H-101, H-107
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **4-term attention decomposition (Eq. 6)** — Decomposes standard attention score α_ij into word-word, word-position, position-word, and position-position correlations by expanding (w_i + p_i)W^Q((w_j + p_j)W^K)^T. Applicable to any transformer with additive positional encoding; RoPE requires adaptation (rotational rather than additive).
+  *Replication cost*: 2h CPU to implement decomposition on cached attention matrices (if we extract them); 4h H100 if we need fresh forward passes to capture attention patterns.
+  *We'd plausibly run this*: yes — directly tests H-17 and H-101 at the attention mechanism level rather than the residual stream level.
+
+- **Separate projection matrices for content vs position (Eq. 7)** — Uses independent W^{Q,K} for word correlations and U^{Q,K} for positional correlations, eliminating cross-terms. Not directly applicable to cached data (requires architectural modification), but the *analysis* framework — measuring how much signal comes from each term — can be applied post-hoc.
+  *Replication cost*: Not applicable as an architectural change to Qwen. As an analysis tool on extracted attention patterns: 2-4h H100 for extraction + 30min CPU for decomposition.
+  *We'd plausibly run this*: no for the architectural modification; yes for the post-hoc analysis.
+
+- **Toeplitz factorization of relative position bias (Proposition 1)** — Shows any Toeplitz matrix B can be factorized as B = GDG*, proving absolute and relative positional encodings span different subspaces of R^{n×n}. Mathematical tool for analyzing what positional encoding captures.
+  *Replication cost*: 20min CPU — pure linear algebra on position matrices.
+  *We'd plausibly run this*: no — Qwen uses RoPE, not learned absolute + T5-style relative, so the specific factorization doesn't apply.
+
+- **[CLS] untying (Eq. 9)** — Replaces positional correlation for a special token with learnable scalars θ_1, θ_2, making it "positionless" and encouraging global information aggregation. Conceptual parallel to our mean-pooled prefill representation.
+  *Replication cost*: N/A (training-time modification).
+  *We'd plausibly run this*: no — we don't train models, and Qwen doesn't have a [CLS] token.
+
+### Approaches & framings
+
+- **Content-position disentanglement as an inductive bias for pre-training efficiency.** TUPE frames the word-position cross-terms as noise that slows training convergence (30% faster with TUPE). This intersects F-2: if the "noisy" cross-terms are present in Qwen-2.5's L19 representations, the DoM direction might be extracting signal that's partially positional noise, limiting the AUROC ceiling. The 0.7928 cov-spectrum ceiling could be an artifact of this noise rather than a true information bottleneck.
+
+- **Heterogeneous embedding analysis.** TUPE introduces the framing that position and content are "heterogeneous" and should be decomposed, not summed. This directly parallels the Song-Zhong decomposition (h = μ + pos_t + ctx_c + resid) already used in F-3, but argues the decomposition should happen *inside the attention mechanism*, not just at the residual output.
+
+- **Position attention pattern taxonomy.** TUPE-A's visualization (Figure 6) reveals 5 canonical positional attention patterns: global, local, broad, previous-position, next-position. If L19 in Qwen-2.5 has strong local or next-position positional attention heads, those heads would contribute a positional bias to the residual stream that partially drives DoM.
+
+### Datasets & benchmarks
+
+- **GLUE benchmark (8 tasks)** — Standard NLU tasks (MNLI, QNLI, QQP, SST, CoLA, MRPC, RTE, STS-B). Public, HF-accessible. Applicable? no — different domain (NLU classification vs math reasoning correctness prediction).
+
+- **English Wikipedia + BookCorpus (16GB)** — Pre-training corpus. Public. Applicable? no — we don't pre-train.
+
+### Implementation details worth capturing
+
+- TUPE adds ~1% parameters (1.18M for BERT-Base 110M) via separate U^Q, U^K projection matrices for positional correlation.
+- Positional correlation term is computed once and reused across all layers (shared U^Q, U^K across layers).
+- Layer normalization applied to positional embeddings whenever used.
+- Scaling factor √(2d) instead of √(d) to maintain magnitude after summing content + position terms.
+- θ_1, θ_2 for [CLS] are parameterized as p_θ U^Q (p_θ U^K)^T / √(2d) to maintain consistent scale.
+- Code released at https://github.com/guolinke/TUPE (fairseq/PyTorch).
+
+### Replicable intermediates
+
+- **DoM-vs-sequence-length correlation**: Using cached L19 prefill DoM scores (500 MATH-500 samples from `pathway11_h100/prefill_gated_compute/results.json`) and the corresponding token counts, compute Spearman ρ between DoM score and prefill length. Scripts: use the same DoM extraction pipeline from `pathway11_h100/`. If |ρ| > 0.2, the positional confound deserves a deeper investigation.
+- **RoPE rotation-plane projection of DoM**: Qwen-2.5-1.5B's RoPE configuration defines specific rotation planes in the 1536-dim space (pairs of dimensions). Compute what fraction of the DoM direction's variance lies in RoPE rotation planes vs the orthogonal complement. This is pure linear algebra on the cached DoM direction vector + RoPE config. Script: `pathway11_h100/` DoM vector + Qwen model config.
+
+### Cross-paper signals
+
+- 2006.03654 — NOT in graph; recommend admission. DeBERTa introduces "disentangled attention" with separate content and position matrices (very close to TUPE, concurrent work). Directly relevant to H-17/H-101 and provides an alternative decomposition framework. Published by He et al., cited by TUPE.
+
+## 2407.11094 — Robust Score-Based Quickest Change Detection (Moushegian, Wu, Diao, Ding, Banerjee, Tarokh, 2025)
+
+**Relevance:** Introduces RSCUSUM, a robust change-point detection algorithm using Hyvärinen scores and Fisher divergence. Directly applicable to detecting where correctness signal emerges across the 28-layer Qwen stack (layers as sequential data stream). Fisher divergence provides a non-parametric divergence measure for comparing correct/incorrect activation distributions without requiring normalized densities. The Gaussian LFD result (Fisher div = Mahalanobis²/2 for shared-covariance Gaussians) connects directly to our Gaussian-null finding (F-10).
+
+**Key claim we tested:** Fisher divergence between distributions can be computed from score functions alone, enabling robust change-point detection in high-dimensional data where densities are unavailable.
+
+**Our result:** **TO TEST** — Fisher divergence and RSCUSUM applied to cached L19 activations and per-layer statistics are proposed as FE131094–FE131096 and P8-FE11. Core experiments are cheap CPU-only.
+
+**Related experiments:** P11-FE929, P11-FE930, P11-FE931, P8-FE11, H-732, H-733
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Fisher divergence estimation** — Non-parametric divergence measure between two distributions using score functions (gradients of log-density). Avoids needing normalized densities. Eq. 8: D_F(P||Q) = E_{X~P}[½||∇log p(X) - ∇log q(X)||²].
+  *Replication cost*: 30min CPU on cached activations (need score estimation step via score matching or kernel density estimation).
+  *We'd plausibly run this*: **yes** — directly applicable to comparing correct vs incorrect activation distributions at L19 without assumptions about normalization.
+
+- **Hyvärinen score** — Scoring function S_H(x, P) = ½||∇log p(x)||² + Δ log p(x) that is invariant to scaling of density functions. Can be computed for unnormalized models.
+  *Replication cost*: 20min CPU on cached activations (requires gradient estimation on density).
+  *We'd plausibly run this*: **yes** — Hyvärinen score differences between correct/incorrect group distributions could serve as a per-sample feature, alternative to DoM.
+
+- **RSCUSUM / SCUSUM sequential detection** — Cumulative sum of Hyvärinen score differences with threshold-based stopping rule. Designed for online detection of distributional changes in sequential data.
+  *Replication cost*: 1hr CPU (need to set up the framework, estimate scores per layer, run detection).
+  *We'd plausibly run this*: **yes** — applied to the 28-layer sequence of activation statistics to identify where correctness signal emerges.
+
+- **Least favorable distribution (LFD) identification** — Finding the pair of distributions from two uncertainty classes that minimizes Fisher divergence (hardest to distinguish). Closed-form for Gaussian mixtures (Theorem VII.5: reduces to nearest-mean pair under V-norm).
+  *Replication cost*: 15min CPU for Gaussian case (just need to find nearest centroids between correct/incorrect Gaussian fits per layer).
+  *We'd plausibly run this*: **yes** — the Gaussian LFD result (Theorem VII.5) applies directly if we model correct/incorrect activations as Gaussians with shared covariance. The LFD pair would tell us the "hardest" correct/incorrect configuration to distinguish.
+
+- **Hutchinson's trace estimator for Laplacian** — Used to estimate the Laplacian term in Hyvärinen score for mixture models (Eq. 59). Stochastic trace estimation via random projections.
+  *Replication cost*: 10min CPU.
+  *We'd plausibly run this*: **yes** — needed for computing Hyvärinen scores on high-dimensional activation distributions.
+
+### Approaches & framings
+
+- **Distributional change as layer progression:** Reframes the question "which layer is important?" as "where does the distribution change?" in a sequential statistical framework. This intersects F-2 by providing a hypothesis-testing framework for layer importance rather than a peak-picking approach.
+
+- **Robustness via worst-case pair:** The LFD concept (finding the hardest pair to distinguish) provides a natural framework for understanding *why* some problems are harder to classify as correct/incorrect — the correct and incorrect distributions for D-bucket problems (F-7) might be closer in Fisher divergence than for other problems.
+
+- **Score-based vs. likelihood-based distinction:** The paper's core insight that score functions suffice when densities are unknown/unnormalized directly applies to our setting where we have 1536-dim activation vectors but no explicit density model. This reframes the "what probe to use" question from "pick a classifier" to "estimate the score function."
+
+### Implementation details worth capturing
+
+- RSCUSUM algorithm is simple to implement: maintain cumulative score Z(n) = max(Z(n-1) + z(X_n), 0), stop when Z(n) ≥ ω (Algorithm 1).
+- For Gaussian case with shared covariance V: Fisher divergence D_F(C||D) = ½||V^{-1}(μ_C - μ_D)||² (Eq. 47). Reduces to Mahalanobis distance squared / 2.
+- LFD for Gaussian mixtures with shared covariance: just find nearest means under V-norm (Theorem VII.5). No iterative optimization needed.
+- For non-Gaussian (e.g., RBM): learn LFD via neural network with Softmax output + Langevin dynamics for particle sampling (Section VIII-B). Architecture: MLP with single hidden layer.
+- Detection threshold ω = (log γ)/ρ where γ is the desired ARL (mean time to false alarm) and ρ satisfies the MGF bound E[exp(ρ·z(X))] ≤ 1.
+- Code: not released in the paper. Published in IEEE TIT vol. 71, July 2025.
+
+### Replicable intermediates
+
+- **Fisher divergence between correct/incorrect at L19 (Gaussian case):** We have cached prefill L19 activations (500 × 1536). Fit Gaussian to correct group (μ_c, Σ) and incorrect group (μ_i, Σ) with shared covariance. Fisher divergence = ½||Σ^{-1}(μ_c - μ_i)||². Compare this to the DoM AUROC 0.7731 — if Fisher divergence tracks AUROC (it should for Gaussian data, since Fisher div for shared-covariance Gaussians = Mahalanobis² / 2), this confirms the Gaussian-sufficient interpretation of F-10.
+- **Per-layer Fisher divergence profile:** Compute Fisher divergence between correct/incorrect groups at each of 28 layers using cached per-layer activations (if available) or request from P8 data. Plot as function of layer index. Check if L19 is the peak.
+- **CUSUM-style change-point on per-layer DoM AUROCs:** The 28-point sequence of per-layer DoM AUROCs (from P8 layer-wise analysis) can be treated as a data stream. Apply CUSUM with known pre-change (low AUROC ~0.5) and post-change (high AUROC ~0.77) to detect the change-point layer.
+
+## 2604.21016 — SGD at the Edge of Stability: The Stochastic Sharpness Gap (Liao, Kolomvaki, Kyrillidis, 2025)
+
+**Relevance:** Extends the Edge of Stability self-stabilization framework from full-batch GD to mini-batch SGD. Derives a closed-form sharpness gap ΔS = ηβσ²\_u/(4α) showing that gradient noise projected onto the top Hessian eigenvector suppresses the equilibrium sharpness below 2/η. Relevant to H-4 (Breathing ↔ Sharpness Dimension / EoS correspondence) because it provides the stochastic correction that any formal breathing-EoS mapping must incorporate. Also conceptually relevant to F-2 (DoM direction) via the role of the top Hessian eigenvector as the geometrically load-bearing direction.
+
+**Key claim we tested:** That the equilibrium loss-landscape sharpness depends on batch size through the projected gradient noise variance, and that the top Hessian eigenvector u is the operative geometric quantity.
+
+**Our result:** **CITED ONLY** — The paper's claims are about training-time optimization dynamics, not inference-time representations. No direct test against our findings is possible without computing Hessian eigenvalues at the Qwen converged checkpoint (proposed as P11-FE933). The conceptual link (training dynamics → weight geometry → inference activations) is plausible but unverified. The CE-loss caveat (Fig 10A: no EoS with cross-entropy on CNN) is a significant concern for applicability to LLMs.
+
+**Related experiments:** H-4, H-734, H-735, P11-FE932, P11-FE933
+
+**Status:** CITED ONLY
+
+### Methodologies extracted
+
+- **Top Hessian eigenvalue tracking (progressive sharpening / EoS measurement)** — compute λ\_max(∇²L(θ)) periodically during training, identify the progressive sharpening phase and EoS plateau.
+  *Replication cost*: H100 day (requires backward passes through the full model for each checkpoint).
+  *We'd plausibly run this*: no — we don't have Qwen training checkpoints and retraining is out of scope.
+
+- **Projected gradient noise variance σ²\_u = u⊤Σ\_b u** — compute the covariance of mini-batch gradients, project onto the top Hessian eigenvector, measure how this scales with batch size.
+  *Replication cost*: H100 day (Hessian eigenvector + gradient covariance computation).
+  *We'd plausibly run this*: no — same reason as above; we're an inference-time project.
+
+- **Batch Sharpness (Andreyev & Beneventano 2025)** — expected directional curvature of the mini-batch Hessian along the mini-batch gradient direction. The quantity that actually saturates at 2/η for SGD.
+  *Replication cost*: H100 day.
+  *We'd plausibly run this*: no — training-time metric.
+
+- **Stochastic coupling analysis** — decompose SGD trajectory into constrained reference + oscillatory deviation, prove the deviation tracks predicted dynamics.
+  *Replication cost*: conceptual framework, no direct computational cost. The mathematical machinery (PGD reference trajectory, cubic Taylor expansion, coupling theorem) is applicable to any optimization setting.
+  *We'd plausibly run this*: no — theoretical tool for analyzing training dynamics, not applicable to inference-time activation analysis.
+
+- **Mean-field stationarity test** — verify E[(1+ηŷ\_t)²x̂²\_t] ≈ (1+ηȳ)²E[x̂²\_t] (Assumption 7). Tests whether the cross-correlation between the two oscillatory coordinates is small.
+  *Replication cost*: 20min CPU (if we had the relevant time series).
+  *We'd plausibly run this*: no — requires training-time trajectory data we don't have.
+
+### Approaches & framings
+
+- **Self-stabilization as implicit regularization:** The paper frames SGD's batch-size-dependent flatness as a *self-stabilization* mechanism rather than noise-as-regularizer in the usual sense. The restoring force is cubic (third-order loss structure), not quadratic. This is a distinct lens from the standard "noise helps generalization" framing — the mechanism is geometric (nonlinear coupling between curvature and gradient), not statistical (averaging over noise).
+
+  Intersection with F-N/H-N: If inference-time "breathing" has a self-stabilization analog (expansion creates a restoring force toward lower intrinsic dimensionality), this framing would predict that breathing is not merely fluctuation but a *regulated* oscillation with a deterministic equilibrium shape.
+
+- **Projected noise variance as the operative noise statistic:** Not the total gradient noise, but only the component projected onto the top eigenvector (σ²\_u) determines the sharpness gap. This "relevant projection" idea is analogous to our finding that only a *single direction* (DoM ≈ PC1) carries the correctness signal — most of the 1536 dimensions are irrelevant.
+
+  Intersection with F-N/H-N: Strengthens the conceptual case for F-2's single-direction dominance. The paper shows that even in the loss landscape, only one projected quantity (σ²\_u along the top eigenvector) matters for the equilibrium.
+
+### Datasets & benchmarks
+
+- **CIFAR-10 (5,000-image subset)** — standard image classification benchmark. Size: 5K images from the 50K training set. License: open. Accessibility: HF. Applicable? no — we work with LLM hidden states on math reasoning, not image classification.
+
+### Implementation details worth capturing
+
+- Architectures tested: FC-Tanh (2 hidden layers), FC-ReLU, CNN, ResNet, all on CIFAR-10.
+- Learning rate η = 0.01 (stability threshold 2/η = 200), varied η ∈ {0.005, 0.008, 0.01, 0.015, 0.02}.
+- Batch sizes: {50, 100, 200, 500, 1000, 2500} plus full-batch GD.
+- 3–5 random seeds per configuration. Equilibrium sharpness = average of λ\_max over final 20 measurements.
+- Cross-entropy loss did NOT produce EoS dynamics on CNN+CIFAR-10 (sharpness collapsed to ~15, far below 2/η). MSE loss required for clean EoS behavior. This is a significant caveat for extending results to LLM training (which uses CE loss).
+- No code link provided in the paper.
+
+### Cross-paper signals
+
+- 2604.19740 — already in graph (status: graphed). Sharpness Dimension / EoS (Tuci et al.) — the deterministic EoS framework that this paper extends to the stochastic setting. Directly relevant to H-4.
+
+No other cited papers in this paper appear to be in the research graph. The paper's references are primarily to the optimization/training-dynamics literature (Cohen et al. 2021, Damian et al. 2023, Keskar et al. 2017, etc.) which are relevant to training but not to inference-time representation geometry.
+
+## 2604.28119 — Do Sparse Autoencoders Capture Concept Manifolds? (Bhalla, Fel, Rager, Feucht, Haklay, Wurgaft, Boppana, Kowal, Shyam, Lewis, McGrath, Merullo, Geiger, Lubana, 2026)
+
+**Relevance:** Provides a theoretical and empirical framework for understanding how neural network representations organize concepts along low-dimensional manifolds rather than isolated linear directions. Directly challenges the single-direction DoM framing (F-2) by showing that SAEs — and by extension linear probes — fragment manifolds into localized tiles in a "dilution" regime. Their formalization of additive mixture of manifolds offers the strongest theoretical explanation for F-10's PH-null result (topology of superposed manifolds is destroyed by Minkowski summation). All experiments use Llama-3.1-8B layer 19, matching our choice of L19 for Qwen-2.5-1.5B.
+
+**Key claim we tested:** Concepts in LLM representations are organized along low-dimensional manifolds, and SAEs capture these via fragmented tiling rather than compact subspace capture; individual directions are tiles, not complete representations.
+
+**Our result:** **TO TEST** — The manifold-tiling framework makes specific testable predictions about our L19 correctness signal: (1) multiple PCA directions should be needed for full R² capture if correctness is a manifold, (2) PH on factor-projected sub-clouds should show non-trivial topology even though PH on the full cloud (F-10) is null, (3) Ising coupling on binarized PCA codes should reveal correctness-aligned communities. P11-FE934 through P11-FE938 queued.
+
+**Related experiments:** P11-FE934, P11-FE935, P11-FE936, P11-FE937, P11-FE938, H-736, H-737, H-738
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Ising-coupling community detection on binarized SAE/probe codes** — Fit pairwise Ising model (Eq. 4/16) on binarized feature activations to discover groups of features that jointly tile a manifold. Uses pseudo-likelihood maximization with EBIC regularization, then Louvain community detection on |J|.
+  *Replication cost*: 30min CPU (SAE codes needed; could adapt to probe residuals on cached NPZs).
+  *We'd plausibly run this*: yes — could apply to cached L19 activations to test whether correctness-related structure forms a coherent Ising community.
+
+- **Restricted-R² subspace capture metric** — Greedily select decoder directions that maximize variance explained of a target manifold; measure how many directions are needed for near-full reconstruction.
+  *Replication cost*: 20min CPU on cached data.
+  *We'd plausibly run this*: yes — directly measures how many L19 directions are needed to capture the correctness signal, testing F-2's single-direction sufficiency.
+
+- **Manifold tiling receptive-field analysis** — For each feature, compute the mean pairwise distance among manifold points where it activates, normalized by the manifold's overall pairwise distance. Distinguishes capture (broad) from shattering (narrow) from dilution (mixed).
+  *Replication cost*: 15min CPU.
+  *We'd plausibly run this*: yes — applicable to DoM direction's activation pattern over MATH-500 samples.
+
+- **Additive Mixture of Manifolds (AMM) generative model** — Formalization (Defn. 2) where representations decompose as x = Σ fᵢ(mᵢ), each mᵢ on a low-d manifold. Extends LRH to curved geometries.
+  *Replication cost*: theoretical framework, no compute needed.
+  *We'd plausibly run this*: yes — could test whether L19 activations are better modeled as AMM than as linear superposition.
+
+- **Steering along manifold centroids** — Activation patching along PCA-space interpolation between concept centroids at L19, measuring smooth changes in next-token logits for diagnostic tokens (Sec. 3, App. B.1).
+  *Replication cost*: 1h H100 (requires forward passes).
+  *We'd plausibly run this*: no — superseded by our P10 steering program and the rotation-refutation result.
+
+### Approaches & framings
+
+- **Concepts as geometric objects, not directions:** The paper reframes the fundamental unit of interpretability from isolated linear directions to low-dimensional manifolds. This directly challenges our framing in F-2 where DoM is treated as a direction — in their framework it would be a single tile of a broader correctness manifold.
+
+- **Capture vs. tiling vs. dilution taxonomy:** A three-regime classification of how SAEs/probes represent manifolds. This provides vocabulary for describing our observation that cov-spectrum beats single-direction (dilution regime → the correctness manifold is spread across many spectral components).
+
+- **Population coding / tuning curves from neuroscience:** Each SAE feature acts like a neuron with a receptive field, selective for a restricted region of the manifold. If DoM is a single "neuron" in this analogy, the AUROC ceiling may reflect the limited receptive field of one neuron out of a population code.
+
+- **Ising model for conditional independence structure:** Using statistical physics (pairwise Ising) to infer functional groupings of features. This could be applied to probe coefficients or PCA loadings to discover whether our L19 features form coherent communities.
+
+### Datasets & benchmarks
+
+- **Manifold evaluation dataset (synthetic)** — 2M training samples, 1M eval, 48 manifold instances (8 types × 6 variants) in R¹²⁸. License: presumably open (code at github.com/goodfire-ai/sae-manifold). Applicable? no — synthetic topology benchmark, not applicable to MATH-500 hidden states directly, but the evaluation framework (restricted-R², tiling metrics) transfers.
+
+- **Concept manifold probes (Llama-3.1-8B layer 19)** — ~900 color, 150 temperature, 99 age, ~4000 geography, 420 days, 199 years, 1000 formality, 5000 sentence-length samples. License: mixed (some from HuggingFace, some GPT-5 augmented). Applicable? no — different model (Llama vs. Qwen), different task (concept steering vs. correctness prediction), but their layer-19 choice is notable since it matches our L19.
+
+### Implementation details worth capturing
+
+- All manifold analysis uses Llama-3.1-8B layer 19 residual stream (d=4096) — same layer we use for Qwen-2.5-1.5B (d=1536). This convergence on L19 across models is noteworthy.
+- SAE training: Adam lr=1e-4, batch 16384, 500M tokens from The Pile. Expansion factors 8× and 16×. TopK sparsities: k ∈ {64, 128, 256}.
+- Ising model fitting: pseudo-likelihood maximization with L-BFGS, EBIC regularization (γ=0.5), Louvain community detection on |J|.
+- Code available at https://github.com/goodfire-ai/sae-manifold.
+- Their restricted-R² protocol (greedy atom selection by residual variance explained) is directly portable to our PCA-based analysis.
+
+### Replicable intermediates
+
+- **Restricted-R² on cached L19 PCA components:** Take our 500×1536 L19 prefill activation matrix, compute PCA, then measure restricted-R² (Eq. 14) asking how many PCs are needed to reconstruct the correct/incorrect class centroids. If 1 PC suffices (R²≈1), the correctness signal is genuinely 1D (supporting F-2); if many PCs needed, it's manifold-like. Script: `pathway11_h100/pca_covariance/` PCA code + cached NPZs.
+- **Ising coupling on binarized DoM projections:** Binarize L19 activations by whether each PC's projection exceeds its median. Fit pairwise Ising model. Check whether PCs form communities aligned with correctness. Uses: cached activations from `pathway11_h100/pca_covariance/`.
+- **Tuning-curve analysis of DoM:** Plot DoM projection value as a function of problem difficulty (MATH level) or correctness label to check for smooth "tuning curve" structure vs. sharp binary separation. Uses: cached DoM projections from `pathway11_h100/prefill_gated_compute/results.json`.
+
+### Cross-paper signals
+
+- 2311.03658 — already in graph (status: graphed). Bhalla et al. directly extends Park et al.'s Linear Representation Hypothesis, arguing LRH is a special case of additive mixture of manifolds.
+- 2406.04093 — already in graph (status: unknown edge state). Gao et al. SAE scaling paper; Bhalla et al. uses TopK SAEs from this architecture.
+- 2405.14860 — NOT in graph; recommend admission. Engels et al. "Not all language model features are one-dimensionally linear" — directly motivates Bhalla et al.'s manifold framing and challenges single-direction interpretability (relevant to F-2 DoM framing).
+- 2503.01822 — NOT in graph; recommend admission. Hindupur et al. "Projecting assumptions: The duality between sparse autoencoders and concept geometry" — formalizes the relationship between SAE assumptions and concept geometry, directly relevant to understanding what probes can/cannot capture from residual streams.
+- 2602.02315 — NOT in graph; recommend admission. Sarfati et al. "The shape of beliefs" — studies geometry/dynamics of representation manifolds encoding LLM posteriors, directly bears on whether correctness-confidence is a manifold.
+- 2602.15029 — NOT in graph; recommend admission. Karkada et al. "Symmetry in language statistics shapes the geometry of model representations" — explains why manifold structure arises from data symmetries, relevant to understanding why L19 breathing geometry has the shape it does.
