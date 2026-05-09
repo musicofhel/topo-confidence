@@ -165,11 +165,11 @@ def _runnable_fes() -> list[dict[str, Any]]:
 def _git_is_clean() -> bool:
     try:
         result = subprocess.run(
-            ["git", "status", "--porcelain"],
+            ["git", "diff", "--quiet", "HEAD"],
             capture_output=True, text=True, timeout=10,
             cwd=str(REPO_ROOT),
         )
-        return result.returncode == 0 and not result.stdout.strip()
+        return result.returncode == 0
     except Exception:
         return False
 
