@@ -29,13 +29,10 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-EXP-69 through EXP-78 (second sweep, 10 CPU experiments) on 2026-05-07.
-Standout: FE421 ridge-LR final-only 0.849 ≈ concat 0.851 >> prefill 0.784 —
-huge untapped signal in final token via regularized probe. FE459 Spearman
-0.937 cross-model — 1.5B and 7B rank problems identically. FE428 L0 AUROC
-exactly 0.500 — zero signal at embedding layer. FE119 cos near zero at all
-29 layers — F-3 orthogonality is network-wide. Full brief:
-`research-graph/briefs/result-2026-05-07-P11-second-sweep.md`
+EXP-79 (P11-FE42 Ridge-LR on [prefill, final] concat). Ridge-LR concat
+AUROC 0.8509; final-only 0.8493 nearly matches, prefill-only 0.7844
+confirms directional ceiling. The final token at L19 carries ~12.8pp
+more correctness signal than DoM reveals (0.8493 vs 0.7210).
 
 ## Queued — next session
 

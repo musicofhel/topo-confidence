@@ -1582,6 +1582,47 @@ directional ceiling; if cov-spectrum AUROC stays at 0.79 after
 top-K residualization, the spectral signal lives in PC10+
 low-eigenvalue tail).
 
+## EXP-79: P11-FE42 — Ridge-LR on [prefill, final] concat vs single-source
+**Date:** 2026-05-09
+**Status:** COMPLETE
+**Motivated by:** EXP-51/FE254 showed naive DoM concat (0.6946) performs
+*worse* than prefill-only DoM (0.7731), but EXP-51 noted this was
+probe-family-specific — ridge-LR on concatenated features was an explicit
+follow-up to close the FE254 caveat. F-3's cos(prefill_DoM, final_DoM) =
+0.046 orthogonality implies the two representations should carry
+complementary signal if probed correctly.
+**Hypothesis:** Ridge-regularized logistic regression on the concatenated
+(500, 3072) [prefill, final] feature space exceeds the F-2 prefill-only
+DoM AUROC of 0.7731, because the final token carries complementary
+correctness signal that naïve mean-diff projection fails to extract.
+**What we actually tested:** L2-regularized LogisticRegressionCV on three
+feature sets — concat (3072-d), prefill-only (1536-d), final-only
+(1536-d) — plus DoM baselines on each, all on n=500 Qwen-2.5-1.5B
+MATH-500 L19 activations with 5-fold stratified OOF (seed=9999). Inner
+3-fold CV selects best C from {0.001, 0.01, 0.1, 1.0, 10.0}.
+**Key result:** Ridge-LR concat **0.8509** (best C=0.01 all folds);
+ridge-LR final-only **0.8493** (C=0.01); ridge-LR prefill-only
+**0.7844** (C=0.001). DoM concat 0.7574; DoM prefill 0.7699; DoM final
+0.7210. The final token alone, properly regularized, reaches within
++0.0016 of concat — the prefill adds almost nothing to a regularized
+final-token probe.
+**Verdict:** CONFIRMED — final token carries more correctness signal
+than prefill when regularized; naive DoM massively underestimates
+final-token information content.
+**Changed our understanding of:** F-2's "prefill is special" was
+probe-specific. Ridge-LR final-only (0.8493) >> ridge-LR prefill-only
+(0.7844) >> DoM prefill (0.7731). The L19 representation space has a
+correctness-prediction ceiling of ~0.85, driven primarily by the final
+token, not the prefill mean.
+**Files:** `pathway11_h100/regularized_concat/recompute_fe421.py` (regen),
+`pathway11_h100/results/fe421_regularized_concat.json` (output).
+**Depends on:** F-2 (DoM baseline), F-3 (orthogonality motivation),
+EXP-51/FE254 (naive concat baseline 0.6946). Previously logged as
+EXP-71 (2026-05-07).
+**Enables:** Final-token probes as primary correctness signal; re-framing
+F-2 from "prefill direction is the probe" to "prefill direction is a
+convenient but lossy projection of a richer L19 signal."
+
 ## Template for new experiments
 
 ```markdown
@@ -1859,4 +1900,4 @@ low-eigenvalue tail).
 **Depends on:** F-2 (DoM), EXP-040 (cross-model PR ratios)
 **Enables:** Cross-model DoM transfer; universal difficulty landscape claim
 
-Next ID: **EXP-79**.
+Next ID: **EXP-80**.

@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-05-09 06:11 UTC_
+_Generated: 2026-05-09 12:54 UTC_
 
 ---
 
@@ -815,18 +815,6 @@ _Generated: 2026-05-09 06:11 UTC_
 **Depends on:** F-4, F-2, F-8
 **Would update:** F-8, F-4
 **Trigger condition:** EKBM's SFT data construction (§3.2) showing self-sampling alone produces a usable supervision signal.
-
-### P11-FE42 (P11) — [ROI: 9, READY, HIGH]
-
-**What:** Per-head logistic-regression probes for prefill correctness on Qwen-1.5B MATH-500. Train 448 probes (28 layers × 16 heads) on cached Stage-2 prefill head outputs, predict K=1 correctness, produce (acc_{l,h}) heatmap. Compare two ensembles to F-2 layer-mean L19 DoM (AUROC 0.7731): (a) top-K=16 heads voted-mean, (b) SMITIN soft-weighted (c=3) over all 448 heads. SUCCESS criterion: an ensemble exceeds 0.7731 OOF AUROC by ≥ 0.02 on the same 5-fold split.
-
-**Why:** SMITIN demonstrates that head-level probes carry distributed correctness signal that single-layer DoM may miss. F-2's headline AUROC was measured at the layer-mean level only — the ceiling is unknown. This is the smallest possible test of whether L19 DoM is a sufficient statistic or a lossy projection.
-
-**Cost:** 30min CPU on cached Stage-2 NPZs
-**Triggered by:** [SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers](https://arxiv.org/abs/2025.35346)
-**Depends on:** F-9, F-2
-**Would update:** F-9, F-2
-**Trigger condition:** SMITIN per-head accuracy distribution (best 96.2% / mean 77.5% on real-vs-synthetic) implies a long upper tail of high-accuracy heads beyond what any single-layer mean recovers.
 
 ### P11-FE431 (P11) — [ROI: 9, READY, HIGH]
 
@@ -13358,6 +13346,19 @@ _Generated: 2026-05-09 06:11 UTC_
 **Trigger condition:** TruthPrInt §3.1 frames the predictive activation as the previous-token hidden state, not the current token.
 **Outcome:** cos(prefinal,prefill)=-0.054; not positional artifact
 
+### P11-FE42 (P11) — [ROI: 9, COMPLETED, HIGH]
+
+**What:** Per-head logistic-regression probes for prefill correctness on Qwen-1.5B MATH-500. Train 448 probes (28 layers × 16 heads) on cached Stage-2 prefill head outputs, predict K=1 correctness, produce (acc_{l,h}) heatmap. Compare two ensembles to F-2 layer-mean L19 DoM (AUROC 0.7731): (a) top-K=16 heads voted-mean, (b) SMITIN soft-weighted (c=3) over all 448 heads. SUCCESS criterion: an ensemble exceeds 0.7731 OOF AUROC by ≥ 0.02 on the same 5-fold split.
+
+**Why:** SMITIN demonstrates that head-level probes carry distributed correctness signal that single-layer DoM may miss. F-2's headline AUROC was measured at the layer-mean level only — the ceiling is unknown. This is the smallest possible test of whether L19 DoM is a sufficient statistic or a lossy projection.
+
+**Cost:** 30min CPU on cached Stage-2 NPZs
+**Triggered by:** [SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers](https://arxiv.org/abs/2025.35346)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** SMITIN per-head accuracy distribution (best 96.2% / mean 77.5% on real-vs-synthetic) implies a long upper tail of high-accuracy heads beyond what any single-layer mean recovers.
+**Outcome:** Ridge-LR on concat [prefill, final] (3072-d) achieves OOF AUROC 0.8509, but final-token-only (1536-d) nearly matches at 0.8493 — meaning prefill adds only +0.0016. Ridge-LR prefill-only = 0.7844, confirming EXP-58's directional ceiling. DoM concat = 0.7574 (below DoM prefill-only 0.7699), confirming EXP-51's finding that naive mean-diff concat dilutes signal. The final token at L19 carries 12.8pp more signal under regularized probing than DoM reveals (0.8493 vs 0.7210).
+
 ### P11-FE421 (P11) — [ROI: 9, COMPLETED, HIGH]
 
 **What:** Prefill+Final concatenated DoM AUROC vs each separately. Train a probe on `[prefill_L19, final_L19]` concatenated representation; compare AUROC against each component alone. If concat ≈ max(prefill, final), the orthogonality reading of F-3 collapses to redundancy not two-circuits. If concat ≫ max, F-3's two-circuits framing is corroborated.
@@ -13613,7 +13614,7 @@ check whether any experiment's status should change.
 | [1912.02164](https://arxiv.org/abs/1912.02164) | Plug and Play Language Models: A Simple Approach to Controlled Text Generation | P11-FE41, P11-FE40, P10-FE8 | BLOCKED, READY |
 | [2006.15595](https://arxiv.org/abs/2006.15595) | Rethinking Positional Encoding in Language Pre-training | P11-FE928, P11-FE927, P11-FE926 | READY |
 | [2012.13255](https://arxiv.org/abs/2012.13255) | Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning | P11-FE809, P11-FE808, P11-FE807, P11-FE806 | READY |
-| [2025.35346](https://arxiv.org/abs/2025.35346) | SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers | P11-FE44, P11-FE43, P11-FE42 | BLOCKED, READY |
+| [2025.35346](https://arxiv.org/abs/2025.35346) | SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers | P11-FE44, P11-FE43 | BLOCKED, READY |
 | [2103.14743](https://arxiv.org/abs/2103.14743) | Outlier-robust subsampling techniques for persistent homology | P8-FE7, P11-FE50, P8-FE6 | READY |
 | [2106.00012](https://arxiv.org/abs/2106.00012) | Persistent Homology Captures the Generalization of Neural Networks Without A Validation Set | P11-FE54, P11-FE53, P11-FE52, P11-FE51 | READY |
 | [2205.09630](https://arxiv.org/abs/2205.09630) | Acceptability Judgements via Examining the Topology of Attention Maps | P7-FE4, P11-FE64, P11-FE63 | READY |

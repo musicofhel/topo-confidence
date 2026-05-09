@@ -326,7 +326,7 @@ def assert_claims_gate(parsed: dict[str, Any], brief_path: Path, dry_run: bool) 
         return
     print("  running validate_claims.py …")
     res = subprocess.run(
-        [sys.executable, str(validate_path)],
+        [sys.executable, str(validate_path), "--no-regen"],
         cwd=REPO, capture_output=True, text=True,
     )
     last_line = (res.stdout + res.stderr).strip().splitlines()[-1:]

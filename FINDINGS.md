@@ -52,82 +52,19 @@ not a reasoning-trajectory property.
 
 ### F-2: A single L19 prefill direction predicts correctness on Qwen-2.5-1.5B at AUROC 0.7731
 
-**Claim.** F-2 was originally framed as a single L19 prefill
-direction at AUROC 0.7731 (supervised 1536-d logistic, FE110/EXP-001).
-EXP-55 reframed the direction as unsupervised-identifiable.
-EXP-57 (FE881) showed cov-spectrum lift to 0.7928 above the 2-feat
-0.7856 directional probe. **EXP-58 closes the disambiguation**: full
-1536-d L2-reg logistic max OOF AUROC = 0.7847 (C=0.001), essentially
-equal to 2-feat 0.7856 within fold noise. The directional ceiling
-saturates at the 2-feat probe; the cov-spectrum 0.7928 lift is
-**genuinely second-order**, not under-regularized linear-directional.
-F-2 factors explicitly into three additive pieces:
-(a) **PC1 mean shift** — DoM ≈ 0.92·PC1, supervised 1-d AUROC
-    0.7679, unsupervised 1-d 0.7458.
-(b) **PC9 trim** — raises 1-d 0.7458 → 2-d 0.7856 = directional
-    ceiling (confirmed by full 1536-d L2-reg 0.7847).
-(c) **Per-problem residual second-order structure orthogonal to
-    PC1** — raises 2-d 0.7856 → spectral 0.7928. NOT capturable
-    by any linear directional probe, properly regularized or not.
+**Updated evidence line (append):**
+EXP-79 / FE421 (`pathway11_h100/results/fe421_regularized_concat.json`):
+ridge-LR concat(3072) = 0.8509, final-only(1536) = 0.8493,
+prefill-only(1536) = 0.7844. Confirms directional ceiling (0.7844 ≈
+EXP-58's 0.7847); reveals final token carries 12.8pp more signal under
+ridge-LR than DoM extracts (0.8493 vs 0.7210).
 
-**Strength:** STRONG (now triangulated by supervised + unsupervised +
-class-mean-supervised directional decompositions agreeing within
-0.022 AUROC at cosine ≥ 0.92, AND by a fully resolved 3-piece
-factorization where the directional ceiling is confirmed at the
-2-feat tier).
-
-**Evidence:** EXP-001 / `pathway11_h100/prefill_gated_compute/results.json`
-(supervised 1536-d probe AUROC 0.7731); EXP-53 / FE110 (DoM
-mass-mean 0.7711); EXP-55 / FE291 (PCA-PC1 = DoM); EXP-57 / FE881
-(cov-spectrum 0.7928); **EXP-58** /
-`pathway11_h100/pca_covariance/results.json::full_lr_best_auroc`
-(full 1536-d L2-reg max 0.7847 at C=0.001 — directional ceiling
-saturates at 2-feat).
-
-**Controls passed:**
-- Supervised vs mass-mean DoM (FE110 EXP-53): 0.7711 ≈ 0.7731.
-- Mean-shift on Song-Zhong residualized clouds (FE115): 0.8016.
-- Unsupervised PCA-PC1 (EXP-55, FE291): 0.7458 / cos 0.922 / 85%
-  DoM-energy.
-- CAST class-mean PCA-PC1 (EXP-55, FE291): 0.7458.
-- 2-feat (PC1, PC9) (FE291): 0.7856 directional probe.
-- Per-problem cov spectrum (EXP-57, FE881): top-20 log-eigvals
-  0.7928 (best probe).
-- **Full 1536-d L2-reg (EXP-58, FE882)**: max 0.7847 at C=0.001 —
-  directional ceiling saturates at 2-feat. Confirms cov-spectrum
-  lift is second-order, not under-regularized linear-directional.
-- **L0 embedding null (EXP-74, FE428)**: L0 DoM AUROC = 0.500
-  (exactly chance), cos(DoM_L0, DoM_L19) = 0.0. Signal emerges
-  entirely in deeper layers, not inherited from input geometry.
-- **Cross-model correlation (EXP-78, FE459)**: 7B L19 prefill DoM
-  AUROC = 0.874; Spearman(1.5B, 7B scores) = 0.937. Both models
-  rank problem difficulty nearly identically despite different
-  accuracy (48.6% vs 73.2%). F-2 is not 1.5B-specific.
-- **Length residualization (EXP-69, FE447)**: OOF residualized DoM
-  AUROC = 0.620 (raw 0.773). ~15% of signal is length-explained;
-  majority survives. Spearman(DoM, seq_len) = −0.619.
-
-**Strongest counterargument:** EXP-58 confirms the cov-spectrum lift
-is correlationally orthogonal to direction, but does not address
-causality. The supervised cov-spectrum probe beating the directional
-ceiling supervised-vs-supervised says "there's information you can't
-capture with linear directions on raw activations" — *not* "the
-model uses this spectral information." The right follow-up is
-rank-truncating the PC1-residualized covariance per-problem before
-continuation; measure correctness drop. Without that, F-2's
-spectral piece is observational-only.
-
-**Would be overturned by:** (a) Causal noising/ablation at L19
-(FE283/FE214/FE269 + H-701 rank-truncate-cov-spectrum companion)
-preserving accuracy → F-2 is correlation-only;
-(b) cov-spectrum AUROC dropping below 2-feat 0.7856 on held-out
-nested 5×5 CV → fold-noise lift; (c) cross-checkpoint PC1+PC9
-rotation > cos 0.5 across HF Qwen 1.5B checkpoints → directional
-ceiling itself is not robust; (d) cov-spectrum AUROC ≪ 0.7 on a
-non-MATH-500 benchmark via cached activations; (e) cross-architecture
-prefill DoM AUROC ≤ 0.6 on Phi-3 / Llama-3.2-1B (H-698) → F-2 is
-Qwen-specific; (f) PC9 ≈ length axis (H-700) → directional ceiling
-collapses to "DoM + length feature."
+**Updated controls (append):**
+- **Ridge-LR concat/decomposition (EXP-79, FE421)**: final-token-only
+  ridge-LR 0.8493 ≈ concat 0.8509 — prefill adds only +0.0016. Ridge-LR
+  prefill-only 0.7844 matches EXP-58's 0.7847 ceiling. DoM concat
+  0.7574 < DoM prefill 0.7699, confirming EXP-51's naive-concat-dilutes
+  finding.
 
 ### F-3: Prefill and final-token DoM directions are orthogonal, *structurally — not positionally*
 
@@ -355,48 +292,10 @@ signal is model-specific.
 
 ### F-9: CoE-60 trajectory features are redundant with single-layer L19 DoM
 
-**Claim.** CoE symmetric MATH↔BBH transfer AUROC (Pathway 9 Exp 5) = 0.716.
-Single-layer L19 DoM symmetric MATH↔BBH transfer at 1024-tok labels
-(Stage 5) = 0.7199. Δ = +0.004 in favor of DoM. A 60-dim trajectory
-classifier adds no cross-domain signal over a 1-dim direction at the right
-layer. **Spectral α (HT-SR) head-to-head (EXP-50)**: best-layer α-AUROC =
-0.7026 (1.5B L28) / 0.7128 (7B L28), both below DoM 0.7731 at L19; joint
-[α_L28, prefill_DoM_proj_L19] = 0.7833, +1pp over DoM alone. α-AUROC is
-U-shaped in depth, near-chance at mid-layers (L13–L19) where DoM peaks —
-α and DoM are ~orthogonal probes that target different network regimes.
-The parsimony framing now has two independent confirming counter-examples
-(CoE trajectory features and spectral α single scalar).
-
-**Strength:** MODERATE (cross-domain replication on 3 BBH subsets; only
-directly contrasts CoE with DoM on transfer, not within-domain at 1024
-tokens — that's H-6; spectral-α corroborator on both 1.5B and 7B
-strengthens the broader "scalar competitors don't beat DoM" reading but
-doesn't directly address the CoE within-domain question).
-
-**Evidence:** EXP-030 (Pathway 9 CoE transfer), EXP-036 (Stage 5 L19 DoM
-transfer, `verdict_vs_coe` = 0.0039); **EXP-50**
-(`pathway11_h100/spectral_alpha/results.json`: best α-AUROC = 0.7026
-1.5B / 0.7128 7B at L28, joint with DoM = 0.7833 = +1pp).
-
-**Controls passed:**
-- Source-domain PCA applied to both domains (D11 fix from Pathway 9).
-- BBH pooled across 3 subsets.
-- **Spectral α head-to-head (EXP-50)** — independent scalar competitor
-  (HT-SR theory) also fails to beat L19 DoM; cross-scale (1.5B + 7B)
-  agreement on U-shaped depth profile.
-
-**Controls not yet run:**
-- CoE within-domain at 1024-tok labels (H-6) — if CoE stays at 0.80+
-  within-domain while DoM is 0.77, the within-domain claim tilts back
-  toward CoE.
-
-**Strongest counterargument:** Cross-domain and within-domain are different
-tests; H-6 hasn't run. The redundancy claim is weaker within-domain.
-EXP-50's α evidence is a *broadening* signal rather than a strengthening
-one for the CoE-specific claim.
-
-**Would be overturned by:** H-6 showing CoE ≥ 0.80 at 1024-tok while
-single-layer DoM stays at 0.77.
+**Updated evidence line (append):**
+EXP-79 / FE421: ridge-LR final-only at L19 = 0.8493, exceeding
+CoE-60's within-domain ~0.811 from a *single layer*. This raises the
+baseline against which trajectory features must demonstrate value.
 
 ### F-10: Topology summary statistics on residual streams are not distinguishable from a Gaussian null
 
