@@ -1,0 +1,468 @@
+"""CLI entry point for the experiment pipeline.
+
+Usage:
+    python -m pipeline run                     # run next experiment from queue
+    python -m pipeline run --fe P11-FE101      # run specific FE
+    python -m pipeline run --dry-run            # generate artifacts without promoting
+    python -m pipeline resume                   # resume from last checkpoint
+    python -m pipeline status                   # show current pipeline state
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import tempfile
+from datetime import date
+
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+
+from pipeline.observability import init_tracing
+
+_console = Console()
+
+
+# ---------------------------------------------------------------------------
+# Shared interrupt loop
+# ---------------------------------------------------------------------------
+
+
+def _run_interrupt_loop(graph, config, result) -> dict:
+    """Handle the review-gate interrupt loop. Used by both run and resume."""
+    from langgraph.types import Command
+
+    while "__interrupt__" in str(result):
+        state = graph.get_state(config)
+        if not state.tasks:
+            break
+
+        _console.rule("[bold cyan]Human Review Gate[/bold cyan]")
+
+        payload_data = None
+        for task in state.tasks:
+            if hasattr(task, "interrupts"):
+                for intr in task.interrupts:
+                    payload_data = intr.value
+                    _display_review(payload_data)
+
+        if payload_data is None:
+            break
+
+        verdict = _prompt_verdict(payload_data)
+        if verdict == "q":
+            _console.print("[yellow]Pipeline stopped by user.[/yellow]")
+            return {"__quit__": True}
+
+        resume_value: dict = {"verdict": verdict}
+        if verdict == "edit":
+            resume_value["edits"] = _prompt_edits(payload_data)
+
+        result = graph.invoke(Command(resume=resume_value), config)
+
+    return result
+
+
+def _print_summary(result: dict) -> None:
+    completed = result.get("completed_this_session", [])
+    errors = result.get("errors", [])
+    _console.rule()
+    _console.print(f"Pipeline complete. [bold]{len(completed)}[/bold] experiments promoted.")
+    if completed:
+        _console.print(f"  Completed: {', '.join(completed)}")
+    if errors:
+        _console.print(f"  [red]Errors ({len(errors)}):[/red]")
+        for e in errors:
+            _console.print(
+                f"    - {e.get('fe_id', '?')}: {e.get('step', '?')} "
+                f"(exit {e.get('exit_code', '?')})"
+            )
+
+
+# ---------------------------------------------------------------------------
+# Display helpers
+# ---------------------------------------------------------------------------
+
+
+def _display_review(payload: dict) -> None:
+    fe_id = payload.get("fe_id", "?")
+    desc = payload.get("description", "")
+    dry_run = payload.get("dry_run", False)
+
+    title = f"REVIEW: {fe_id}"
+    if dry_run:
+        title += " [DRY RUN]"
+    _console.print(Panel(desc or "No description", title=title, border_style="cyan"))
+
+    brief = payload.get("brief_markdown", "")
+    if brief:
+        lines = brief.split("\n")
+        preview = "\n".join(lines[:40])
+        _console.print(Panel(preview, title="Brief Preview (first 40 lines)", border_style="green"))
+        if len(lines) > 40:
+            _console.print(
+                f"  [dim]... {len(lines)} total lines. "
+                f"Press [bold]v[/bold] to view full brief in pager.[/dim]"
+            )
+    _console.print()
+
+    claims = payload.get("claims", [])
+    if claims:
+        table = Table(title=f"Claims ({len(claims)})")
+        table.add_column("cid", style="cyan", no_wrap=True)
+        table.add_column("description", style="white")
+        table.add_column("expected", justify="right", style="green")
+        table.add_column("tol", justify="right", style="dim")
+        for c in claims:
+            table.add_row(
+                c.get("cid", "?"),
+                c.get("description", "")[:80],
+                str(c.get("expected", "?")),
+                str(c.get("tol", "?")),
+            )
+        _console.print(table)
+    else:
+        _console.print("  [dim]No claims extracted.[/dim]")
+
+    updates = payload.get("findings_updates", [])
+    if updates:
+        table = Table(title=f"Findings Updates ({len(updates)})")
+        table.add_column("finding_id", style="cyan", no_wrap=True)
+        table.add_column("strength", style="yellow")
+        table.add_column("status", style="yellow")
+        table.add_column("summary", style="white")
+        for u in updates:
+            table.add_row(
+                u.get("finding_id", "?"),
+                u.get("strength", "?"),
+                u.get("status", "?"),
+                u.get("summary", "")[:100],
+            )
+        _console.print(table)
+    else:
+        _console.print("  [dim]No findings updates proposed.[/dim]")
+    _console.print()
+
+
+def _view_full_brief(payload: dict) -> None:
+    brief = payload.get("brief_markdown", "")
+    if not brief:
+        _console.print("  [dim]No brief content available.[/dim]")
+        return
+    with _console.pager(styles=True):
+        _console.print(brief)
+
+
+# ---------------------------------------------------------------------------
+# Verdict + edit prompts
+# ---------------------------------------------------------------------------
+
+
+def _prompt_verdict(payload: dict) -> str:
+    while True:
+        choice = input("  [a]pprove  [r]eject  [e]dit  [v]iew full  [q]uit > ").strip().lower()
+        if choice in ("a", "approve"):
+            return "approve"
+        if choice in ("r", "reject"):
+            return "reject"
+        if choice in ("e", "edit"):
+            return "edit"
+        if choice in ("v", "view"):
+            _view_full_brief(payload)
+            continue
+        if choice in ("q", "quit"):
+            return "q"
+        _console.print("  [red]Invalid choice. Try again.[/red]")
+
+
+def _prompt_edits(payload: dict) -> dict:
+    """Open $EDITOR with current artifacts for human editing."""
+    brief = payload.get("brief_markdown", "")
+    claims = payload.get("claims", [])
+    updates = payload.get("findings_updates", [])
+
+    doc = _build_edit_document(brief, claims, updates)
+    edited = _open_in_editor(doc)
+    if edited is None:
+        _console.print("  [dim]No edits made.[/dim]")
+        return {}
+
+    return _parse_edit_document(edited, brief, claims, updates)
+
+
+def _build_edit_document(brief: str, claims: list, updates: list) -> str:
+    lines = [
+        "# Review Edits",
+        "#",
+        "# Edit the sections below. Save and close to apply changes.",
+        "# Leave a section unchanged to keep the original.",
+        "",
+        "## BRIEF",
+        "",
+        brief,
+        "",
+        "## CLAIMS",
+        "",
+        "```json",
+        json.dumps(claims, indent=2, default=str),
+        "```",
+        "",
+        "## FINDINGS_UPDATES",
+        "",
+        "```json",
+        json.dumps(updates, indent=2, default=str),
+        "```",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def _open_in_editor(content: str) -> str | None:
+    editor = os.environ.get("EDITOR", "vi")
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".md", prefix="pipeline-review-", delete=False
+    ) as f:
+        f.write(content)
+        tmppath = f.name
+
+    try:
+        subprocess.run([editor, tmppath], check=True)
+        with open(tmppath) as f:
+            edited = f.read()
+        if edited.strip() == content.strip():
+            return None
+        return edited
+    except subprocess.CalledProcessError:
+        _console.print("  [red]Editor exited with error.[/red]")
+        return None
+    finally:
+        os.unlink(tmppath)
+
+
+def _parse_edit_document(
+    edited: str, original_brief: str, original_claims: list, original_updates: list
+) -> dict:
+    patches: dict = {}
+
+    brief_match = re.search(
+        r"## BRIEF\n\n?(.*?)(?=\n## CLAIMS)", edited, re.DOTALL
+    )
+    if brief_match:
+        new_brief = brief_match.group(1).strip()
+        if new_brief and new_brief != original_brief.strip():
+            patches["brief_patch"] = new_brief
+
+    claims_match = re.search(r"## CLAIMS.*?```json\n(.*?)```", edited, re.DOTALL)
+    if claims_match:
+        try:
+            new_claims = json.loads(claims_match.group(1).strip())
+            if new_claims != original_claims:
+                patches["claims_patch"] = new_claims
+        except json.JSONDecodeError:
+            _console.print(
+                "  [yellow]WARNING: Could not parse claims JSON, keeping original.[/yellow]"
+            )
+
+    findings_match = re.search(
+        r"## FINDINGS_UPDATES.*?```json\n(.*?)```", edited, re.DOTALL
+    )
+    if findings_match:
+        try:
+            new_updates = json.loads(findings_match.group(1).strip())
+            if new_updates != original_updates:
+                patches["findings_patch"] = new_updates
+        except json.JSONDecodeError:
+            _console.print(
+                "  [yellow]WARNING: Could not parse findings JSON, keeping original.[/yellow]"
+            )
+
+    return patches
+
+
+# ---------------------------------------------------------------------------
+# Commands
+# ---------------------------------------------------------------------------
+
+
+def cmd_run(args: argparse.Namespace) -> None:
+    init_tracing(
+        enable_langfuse=not args.no_langfuse,
+        enable_jaeger=not args.no_jaeger,
+    )
+
+    from langgraph.checkpoint.sqlite import SqliteSaver
+
+    from pipeline.graph import build_graph
+
+    with SqliteSaver.from_conn_string("pipeline_state.db") as checkpointer:
+        graph = build_graph(checkpointer=checkpointer)
+
+        thread_id = f"session-{date.today()}"
+        if args.fe:
+            thread_id = f"single-{args.fe}-{date.today()}"
+
+        config = {"configurable": {"thread_id": thread_id}}
+
+        max_runs = getattr(args, "max_runs", 0) or 0
+        local_only = getattr(args, "local", False)
+
+        initial_state = {
+            "current_fe": None,
+            "completed_this_session": [],
+            "errors": [],
+            "dry_run": args.dry_run,
+            "local_only": local_only,
+            "max_runs": max_runs,
+        }
+
+        _console.print(f"Starting pipeline (thread: [cyan]{thread_id}[/cyan])")
+        if args.dry_run:
+            _console.print("[yellow]DRY RUN — will generate artifacts but skip promotion[/yellow]")
+        if local_only:
+            _console.print("[yellow]LOCAL ONLY — skipping FEs that require cloud GPU[/yellow]")
+        if max_runs > 0:
+            _console.print(f"[yellow]MAX RUNS: {max_runs}[/yellow]")
+
+        result = graph.invoke(initial_state, config)
+        result = _run_interrupt_loop(graph, config, result)
+
+        if result.get("__quit__"):
+            return
+
+        _print_summary(result)
+
+
+def cmd_resume(args: argparse.Namespace) -> None:
+    init_tracing(
+        enable_langfuse=not args.no_langfuse,
+        enable_jaeger=not args.no_jaeger,
+    )
+
+    from langgraph.checkpoint.sqlite import SqliteSaver
+    from langgraph.types import Command
+
+    from pipeline.graph import build_graph
+
+    with SqliteSaver.from_conn_string("pipeline_state.db") as checkpointer:
+        graph = build_graph(checkpointer=checkpointer)
+
+        thread_id = args.thread or f"session-{date.today()}"
+        config = {"configurable": {"thread_id": thread_id}}
+
+        state = graph.get_state(config)
+        if state is None or state.values is None:
+            _console.print(f"[red]No checkpoint found for thread '{thread_id}'[/red]")
+            return
+
+        _console.print(f"Resuming thread '[cyan]{thread_id}[/cyan]'")
+        _console.print(
+            f"  Completed so far: {state.values.get('completed_this_session', [])}"
+        )
+
+        has_interrupt = False
+        payload_data = None
+        if state.tasks:
+            for task in state.tasks:
+                if hasattr(task, "interrupts") and task.interrupts:
+                    has_interrupt = True
+                    for intr in task.interrupts:
+                        payload_data = intr.value
+
+        if has_interrupt and payload_data is not None:
+            _console.rule("[bold cyan]Pending Review[/bold cyan]")
+            _display_review(payload_data)
+
+            verdict = _prompt_verdict(payload_data)
+            if verdict == "q":
+                _console.print("[yellow]Resume cancelled.[/yellow]")
+                return
+
+            resume_value: dict = {"verdict": verdict}
+            if verdict == "edit":
+                resume_value["edits"] = _prompt_edits(payload_data)
+
+            result = graph.invoke(Command(resume=resume_value), config)
+            result = _run_interrupt_loop(graph, config, result)
+
+            if result.get("__quit__"):
+                return
+            _print_summary(result)
+        else:
+            _console.print("  No pending review. Continuing from checkpoint...")
+            result = graph.invoke(None, config)
+            result = _run_interrupt_loop(graph, config, result)
+            if result.get("__quit__"):
+                return
+            _print_summary(result)
+
+
+def cmd_status(args: argparse.Namespace) -> None:
+    _console.print("Pipeline status:")
+    _console.print(f"  Checkpoint DB: pipeline_state.db")
+
+    try:
+        from pipeline.nodes import _find_recompute_script, _is_local_runnable, _query_neo4j_ready_fes
+
+        fes = _query_neo4j_ready_fes()
+        with_scripts = [fe for fe in fes if _find_recompute_script(fe["id"])]
+        local_runnable = [fe for fe in with_scripts if _is_local_runnable(fe)]
+
+        _console.print(f"  Ready/Triggered FEs in Neo4j: {len(fes)}")
+        _console.print(f"  With recompute scripts: {len(with_scripts)}")
+        _console.print(f"  Local-runnable (2060S + CPU): [bold]{len(local_runnable)}[/bold]")
+
+        if len(local_runnable) >= 5:
+            _console.print(f"  [green]Batch gate: PASS ({len(local_runnable)} >= 5)[/green]")
+        else:
+            _console.print(f"  [yellow]Batch gate: WAITING ({len(local_runnable)} < 5 needed)[/yellow]")
+
+        if local_runnable:
+            _console.print("  Top 5 local by ROI:")
+            for fe in local_runnable[:5]:
+                _console.print(
+                    f"    {fe['id']} (ROI: {fe.get('roi_score', '?')}, "
+                    f"cost: {fe.get('estimated_cost', '?')}, "
+                    f"status: {fe.get('status', '?')})"
+                )
+    except Exception as e:
+        _console.print(f"  Neo4j unavailable: {e}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        prog="pipeline", description="Experiment pipeline orchestrator"
+    )
+
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    def _add_common(p: argparse.ArgumentParser) -> None:
+        p.add_argument("--no-langfuse", action="store_true", help="Disable Langfuse tracing")
+        p.add_argument("--no-jaeger", action="store_true", help="Disable Jaeger tracing")
+
+    run_parser = sub.add_parser("run", help="Run experiments from queue")
+    run_parser.add_argument("--fe", help="Run specific FE ID instead of top-of-queue")
+    run_parser.add_argument("--dry-run", action="store_true", help="Skip promotion")
+    run_parser.add_argument("--local", action="store_true", help="Only run FEs that fit on local GPU (2060 Super + CPU)")
+    run_parser.add_argument("--max-runs", type=int, default=0, help="Stop after N experiments (0 = unlimited)")
+    _add_common(run_parser)
+    run_parser.set_defaults(func=cmd_run)
+
+    resume_parser = sub.add_parser("resume", help="Resume from checkpoint")
+    resume_parser.add_argument("--thread", help="Thread ID to resume")
+    _add_common(resume_parser)
+    resume_parser.set_defaults(func=cmd_resume)
+
+    status_parser = sub.add_parser("status", help="Show pipeline status")
+    _add_common(status_parser)
+    status_parser.set_defaults(func=cmd_status)
+
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

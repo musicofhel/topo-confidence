@@ -89,6 +89,74 @@ Top of [HYPOTHESES.md](HYPOTHESES.md):
 
 H-1 is the question that decides the program: if a *position-aware* DoM bank steers MATH-500 accuracy by ≥ 3 pp, the prefill signal is an actionable lever. If not, the program closes at "good selective predictor."
 
+## Pipeline architecture
+
+Two loops drive the project: a **paper ingestion** path that turns arxiv papers into experiment proposals, and a **session orchestrator** that batches, runs, and triages experiments locally.
+
+### Paper ingestion
+
+```mermaid
+flowchart LR
+    D[Discord upload] --> LF[link-forge\nNeo4j :7687]
+    LF -->|admission filter| RG[research-graph\nNeo4j :7688]
+    RG -->|status: pending_triage| PT["/paper-triage\n(per-paper subagent)"]
+    PT -->|briefs/triage-*.md| PB[promote_brief.py]
+    PB -->|MERGE nodes| FE[":FutureExperiment\nnodes + edges"]
+    PB -->|update| HYP[HYPOTHESES.md]
+    PB -->|update| PI[PAPER_INDEX.md]
+    PB -->|regenerate| NE[NEXT_EXPERIMENTS.md]
+
+    style D fill:#4a9eff,color:#fff
+    style RG fill:#7c3aed,color:#fff
+    style FE fill:#059669,color:#fff
+```
+
+### Session orchestrator (outer loop)
+
+```mermaid
+flowchart TD
+    SL["/session-loop"] --> BG
+
+    subgraph outer ["Session stages"]
+        BG["BATCH_GATE\n≥5 local-runnable FEs?"] -->|PASS| EX[EXECUTE\npython -m pipeline run --local]
+        EX --> TR[TRIAGE\n/triage-results]
+        TR -->|human review| P1[PLAN_V1\ncreate plan from triage]
+        P1 -->|compact| P2[PLAN_V2\nfresh-eyes audit]
+        P2 -->|compact| P3[PLAN_V3\nfinal audit + set phases]
+        P3 --> IM["IMPLEMENT\n/phase-impl (one phase per invoke)"]
+        IM -->|more phases| IM
+        IM -->|all done| SW[SWEEP\n/sweep → commit + handoff]
+        SW --> CO[COMPLETE]
+    end
+
+    style SL fill:#4a9eff,color:#fff
+    style BG fill:#f59e0b,color:#000
+    style CO fill:#059669,color:#fff
+```
+
+### Experiment pipeline (inner loop)
+
+```mermaid
+flowchart TD
+    SE[select_experiment\nNeo4j query + local filter] -->|current_fe| RUN[run_experiment\nexecute recompute script]
+    RUN -->|exit 0| PARSE[parse_results]
+    RUN -->|exit ≠ 0| FAIL[handle_failure] --> SE
+    PARSE --> BRIEF[generate_brief\nclaude -p]
+    BRIEF --> CLAIMS[extract_claims\nclaude -p]
+    CLAIMS --> FIND[interpret_findings\nclaude -p]
+    FIND --> REV{review_gate\nhuman interrupt}
+    REV -->|approve| WB[write_brief] --> WC[write_claims] --> PROM[promote\nresult → graph]
+    REV -->|edit| REVISE[revise_artifacts] --> REV
+    REV -->|reject| SE
+    PROM --> SE
+    SE -->|no more FEs| DONE[END]
+
+    style SE fill:#4a9eff,color:#fff
+    style REV fill:#f59e0b,color:#000
+    style DONE fill:#059669,color:#fff
+    style FAIL fill:#dc2626,color:#fff
+```
+
 ## Code
 
 The `topo_confidence/` Python package (v0.2.0) is the *original-framing* reference implementation — 44-feature ABC pipeline + logistic regression + CLI. The headline result it computes (AUROC 0.796 on MATH-500) is the now-overturned 256-tok number, kept for reproducibility of the historical claim.

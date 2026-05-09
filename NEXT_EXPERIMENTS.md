@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-05-07 22:49 UTC_
+_Generated: 2026-05-09 01:22 UTC_
 
 ---
 

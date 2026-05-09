@@ -41,7 +41,7 @@ exactly 0.500 — zero signal at embedding layer. FE119 cos near zero at all
 
 **`/home/musicofhel/topo-confidence/PLAN_cheap_wins.md`** is the action queue.
 Phased plan for ~25 CPU-only / sub-2h-on-2060-Super FEs that exploit cached
-RunPod NPZs. Targets F-2 (the load-bearing prefill L19 DoM AUROC 0.7731) with
+cached NPZs. Targets F-2 (the load-bearing prefill L19 DoM AUROC 0.7731) with
 the cheapest possible refutations first.
 
 Plan structure:
@@ -83,16 +83,11 @@ or append before `## Honorable mentions`), Neo4j (FE status + Finding props
 intentionally never touched. Same claims-gate as `promote_brief.py:322`.
 Phase 1 kicks off with `promote_result.py` already in place.
 
-## Pod status
+## Compute
 
-- `y687b9z2dgukcj` (Pathway 11 main pipeline): **REMOVED** on 2026-04-24 at
-  exp1_cross_model end-of-session. volumeInGb=0 so stop wouldn't have preserved
-  disk. Re-create from scratch if needed; ~15 min setup.
-- `lsuoka6bo8io7m` (gibberish + no-CoT): **STOPPED, volumeInGb=50, disk
-  preserved**. Resume with `runpodctl pod start lsuoka6bo8io7m`. pip packages
-  live on container disk (not volume) and need reinstalling after stop/start.
-
-The cheap-wins plan does NOT require pod resumption — all CPU and 2060-local.
+**Local only.** 2060 Super + CPU. No cloud GPU. Historical RunPod pods
+(`y687b9z2dgukcj` removed, `lsuoka6bo8io7m` stopped) are not active.
+All current and future experiments run on local hardware.
 
 ## Disk usage summary
 

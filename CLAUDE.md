@@ -196,6 +196,9 @@ Full chronology in PROJECT_RECORD §1a. One-liner per pathway:
 - **Don't add a new claim without updating `validate_claims.py`.** The 91/91 internal-PASS invariant is load-bearing; external paper-cited numbers go in as `kind="external"` entries.
 - **NPZ caches are gitignored.** Regeneration commands are in DATA_MANIFEST.md. Don't assume a cache exists on a fresh machine.
 
-## RunPod
+## Compute
 
-Always use H100 SXM. Pod state is in STATE.md (currently: `lsuoka6bo8io7m` stopped with volume preserved; `y687b9z2dgukcj` removed). See `~/.claude/projects/-home-musicofhel/memory/runpod-preferences.md` for general defaults.
+**Local only.** 2060 Super + CPU. No RunPod, no cloud GPU. All experiments
+must be runnable on local hardware. The pipeline's `--local` flag and
+`_is_local_runnable()` filter enforce this. Historical RunPod scripts
+(`runpod_*.sh`) are archived references, not active infrastructure.
