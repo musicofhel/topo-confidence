@@ -263,6 +263,8 @@ def run_loop(
     log.info("Autopilot starting (poll=%ds, budget=%d/day, dry_run=%s)",
              poll_interval, daily_cap, dry_run)
 
+    skipped_this_cycle: set[str] = set()
+
     while not shutdown:
         triggered_ids = _check_trigger()
         if triggered_ids:
@@ -272,53 +274,70 @@ def run_loop(
         if remaining <= 0:
             log.info("Daily budget exhausted, sleeping")
             time.sleep(poll_interval)
+            skipped_this_cycle.clear()
             continue
+
+        did_work = False
 
         # Phase 1: Triage one pending paper
         pending = _pending_papers()
-        pending = [p for p in pending if not _is_quarantined(f"triage-{p}")]
+        pending = [p for p in pending
+                   if not _is_quarantined(f"triage-{p}") and p not in skipped_this_cycle]
         if pending and remaining >= 1:
             arxiv_id = pending[0]
             ok = _triage_one_paper(arxiv_id, dry_run=dry_run)
             _increment_budget()
+            remaining -= 1
+            did_work = True
             if not ok:
                 count = _record_failure(f"triage-{arxiv_id}")
                 log.warning("Triage failed for %s (attempt %d/%d)", arxiv_id, count, MAX_RETRIES + 1)
-            continue
+            skipped_this_cycle.add(arxiv_id)
 
         # Phase 2: Generate script for one scriptless FE
-        scriptless = scriptless_local_fes()
-        scriptless = [fe for fe in scriptless if not _is_quarantined(f"gen-{fe['id']}")]
-        if scriptless and remaining >= 1:
-            fe = scriptless[0]
-            path = generate_for_fe(fe, dry_run=dry_run)
-            _increment_budget()
-            if path is None and not dry_run:
-                count = _record_failure(f"gen-{fe['id']}")
-                log.warning("Script gen failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
-            continue
+        if not did_work:
+            scriptless = scriptless_local_fes()
+            scriptless = [fe for fe in scriptless
+                          if not _is_quarantined(f"gen-{fe['id']}") and fe['id'] not in skipped_this_cycle]
+            if scriptless and remaining >= 1:
+                fe = scriptless[0]
+                path = generate_for_fe(fe, dry_run=dry_run)
+                _increment_budget()
+                remaining -= 1
+                did_work = True
+                if path is None and not dry_run:
+                    count = _record_failure(f"gen-{fe['id']}")
+                    log.warning("Script gen failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
+                skipped_this_cycle.add(fe['id'])
 
         # Phase 3: Run one experiment
-        runnable = _runnable_fes()
-        runnable = [fe for fe in runnable if not _is_quarantined(f"run-{fe['id']}")]
-        if runnable and remaining >= 3:
-            if not _git_is_clean():
-                log.warning("Git repo is dirty, skipping experiment run")
-            else:
-                fe = runnable[0]
-                result = _run_one_experiment(fe["id"], dry_run=dry_run)
-                _increment_budget()
-                _increment_budget()
-                _increment_budget()
-                if result is None and not dry_run:
-                    count = _record_failure(f"run-{fe['id']}")
-                    log.warning("Experiment failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
-                elif result is not None:
-                    classification = _classify_latest_result(fe["id"])
-                    if classification and classification in ("HIT", "NEAR_MISS"):
-                        _write_followup(fe["id"], classification, result)
+        if not did_work:
+            runnable = _runnable_fes()
+            runnable = [fe for fe in runnable
+                        if not _is_quarantined(f"run-{fe['id']}") and fe['id'] not in skipped_this_cycle]
+            if runnable and remaining >= 3:
+                if not _git_is_clean():
+                    log.warning("Git repo is dirty, skipping experiment run")
+                else:
+                    fe = runnable[0]
+                    result = _run_one_experiment(fe["id"], dry_run=dry_run)
+                    _increment_budget()
+                    _increment_budget()
+                    _increment_budget()
+                    remaining -= 3
+                    did_work = True
+                    if result is None and not dry_run:
+                        count = _record_failure(f"run-{fe['id']}")
+                        log.warning("Experiment failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
+                    elif result is not None:
+                        classification = _classify_latest_result(fe["id"])
+                        if classification and classification in ("HIT", "NEAR_MISS"):
+                            _write_followup(fe["id"], classification, result)
+                    skipped_this_cycle.add(fe['id'])
 
-        log.debug("Nothing to do, sleeping %ds", poll_interval)
-        time.sleep(poll_interval)
+        if not did_work:
+            log.debug("Nothing to do, sleeping %ds", poll_interval)
+            time.sleep(poll_interval)
+            skipped_this_cycle.clear()
 
     log.info("Autopilot shut down gracefully")
