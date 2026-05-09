@@ -5,7 +5,7 @@
   "n_correct": 243,
   "ridge_lr": {
     "concat_3072": {
-      "auroc_oof": 0.8508750860674769,
+      "auroc_oof": 0.8508910986213191,
       "best_Cs": [
         0.01,
         0.01,

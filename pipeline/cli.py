@@ -436,8 +436,98 @@ def cmd_status(args: argparse.Namespace) -> None:
         _console.print(f"  Neo4j unavailable: {e}")
 
 
+def cmd_autopilot_status(args: argparse.Namespace) -> None:
+    import json
+    import os
+    from pathlib import Path
+
+    ap_dir = Path(".autopilot")
+    if not ap_dir.exists():
+        _console.print("[red]No .autopilot directory found[/red]")
+        return
+
+    _console.print("[bold]Autopilot worker status[/bold]\n")
+
+    for phase in ("triage", "scriptgen", "experiment"):
+        pid_file = ap_dir / f"daemon-{phase}.pid"
+        budget_file = ap_dir / f"budget-{phase}.json"
+        log_file = ap_dir / f"daemon-{phase}.log"
+
+        alive = False
+        pid = None
+        if pid_file.exists():
+            try:
+                pid = int(pid_file.read_text().strip())
+                os.kill(pid, 0)
+                alive = True
+            except (OSError, ValueError):
+                pass
+        if not alive:
+            import subprocess as _sp
+            try:
+                out = _sp.run(["pgrep", "-f", f"autopilot --phase {phase}"],
+                              capture_output=True, text=True, timeout=5)
+                if out.stdout.strip():
+                    pid = int(out.stdout.strip().splitlines()[0])
+                    alive = True
+            except Exception:
+                pass
+
+        status = f"[green]RUNNING (PID {pid})[/green]" if alive else "[red]STOPPED[/red]"
+
+        budget_str = "no data"
+        if budget_file.exists():
+            try:
+                data = json.loads(budget_file.read_text())
+                budget_str = f"{data.get('calls', 0)} calls used ({data.get('date', '?')})"
+            except Exception:
+                pass
+
+        last_log = "no log"
+        if log_file.exists():
+            try:
+                lines = log_file.read_text().strip().splitlines()
+                interesting = [l for l in lines if "INFO" in l and "sleeping" not in l.lower() and "budget exhausted" not in l.lower()]
+                if interesting:
+                    last_log = interesting[-1].split(" autopilot ")[1] if " autopilot " in interesting[-1] else interesting[-1]
+            except Exception:
+                pass
+
+        _console.print(f"  [bold]{phase:12s}[/bold] {status}")
+        _console.print(f"               Budget: {budget_str}")
+        _console.print(f"               Last: {last_log}")
+        _console.print()
+
+    _console.print("[bold]Queue depths[/bold]\n")
+    try:
+        from pipeline.autopilot import _pending_papers, _runnable_fes
+        from pipeline.generate_recompute import scriptless_local_fes
+
+        pending = _pending_papers()
+        scriptless = scriptless_local_fes()
+        runnable = _runnable_fes()
+        _console.print(f"  Pending triage:  {len(pending)} papers")
+        _console.print(f"  Scriptless FEs:  {len(scriptless)}")
+        _console.print(f"  Runnable FEs:    {len(runnable)}")
+    except Exception as e:
+        _console.print(f"  [red]Neo4j query failed: {e}[/red]")
+
+    failures_file = ap_dir / "failures.json"
+    if failures_file.exists():
+        try:
+            failures = json.loads(failures_file.read_text())
+            quarantined = {k: v for k, v in failures.items() if v > 2}
+            if quarantined:
+                _console.print(f"\n  [yellow]Quarantined ({len(quarantined)}):[/yellow]")
+                for k, v in list(quarantined.items())[:10]:
+                    _console.print(f"    {k}: {v} failures")
+        except Exception:
+            pass
+
+
 def cmd_autopilot(args: argparse.Namespace) -> None:
     import logging
+    from pathlib import Path
 
     level = logging.DEBUG if getattr(args, "verbose", False) else logging.INFO
     logging.basicConfig(
@@ -446,9 +536,18 @@ def cmd_autopilot(args: argparse.Namespace) -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
+    phase = getattr(args, "phase", None)
+    if phase:
+        log_dir = Path(".autopilot")
+        log_dir.mkdir(parents=True, exist_ok=True)
+        fh = logging.FileHandler(str(log_dir / f"daemon-{phase}.log"))
+        fh.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"))
+        logging.getLogger("autopilot").addHandler(fh)
+
     from pipeline.autopilot import run_loop
 
     _console.print(f"[bold]Autopilot daemon starting[/bold]")
+    _console.print(f"  Phase: {phase or 'all (sequential)'}")
     _console.print(f"  Budget: {args.budget} calls/day")
     _console.print(f"  Poll interval: {args.poll}s")
     if args.dry_run:
@@ -458,6 +557,7 @@ def cmd_autopilot(args: argparse.Namespace) -> None:
         poll_interval=args.poll,
         daily_cap=args.budget,
         dry_run=args.dry_run,
+        phase=phase,
     )
 
 
@@ -491,12 +591,17 @@ def main() -> None:
     status_parser.set_defaults(func=cmd_status)
 
     autopilot_parser = sub.add_parser("autopilot", help="Run autopilot daemon")
+    autopilot_parser.add_argument("--phase", choices=["triage", "scriptgen", "experiment"],
+                                  default=None, help="Run only this phase (for multi-worker deployment)")
     autopilot_parser.add_argument("--budget", type=int, default=15, help="Daily LLM call cap")
     autopilot_parser.add_argument("--poll", type=int, default=60, help="Poll interval seconds")
     autopilot_parser.add_argument("--dry-run", action="store_true", help="Log actions, don't execute")
     autopilot_parser.add_argument("--verbose", action="store_true", help="Debug logging")
     _add_common(autopilot_parser)
     autopilot_parser.set_defaults(func=cmd_autopilot)
+
+    ap_status_parser = sub.add_parser("autopilot-status", help="Show autopilot worker status")
+    ap_status_parser.set_defaults(func=cmd_autopilot_status)
 
     args = parser.parse_args()
     args.func(args)
