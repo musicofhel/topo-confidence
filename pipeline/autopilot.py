@@ -185,18 +185,46 @@ def _runnable_fes() -> list[dict[str, Any]]:
     ]
 
 
+_dirty_tree_streak = 0
+
+
 def _git_is_clean() -> bool:
-    # Only check experiment output tree — triage-modified files (HYPOTHESES.md etc.)
-    # are allowed to be dirty without blocking experiments.
+    global _dirty_tree_streak
     try:
         result = subprocess.run(
             ["git", "diff", "--quiet", "HEAD", "--", "pathway11_h100/"],
             capture_output=True, text=True, timeout=10,
             cwd=str(REPO_ROOT),
         )
-        return result.returncode == 0
+        if result.returncode == 0:
+            _dirty_tree_streak = 0
+            return True
     except Exception:
         return False
+
+    _dirty_tree_streak += 1
+    if _dirty_tree_streak >= 5:
+        dirty = subprocess.run(
+            ["git", "diff", "--name-only", "HEAD", "--", "pathway11_h100/"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(REPO_ROOT),
+        )
+        dirty_files = dirty.stdout.strip().splitlines() if dirty.stdout else []
+        log.warning("Dirty-tree streak hit %d, auto-committing: %s",
+                     _dirty_tree_streak, dirty_files)
+        subprocess.run(
+            ["git", "add", "--", "pathway11_h100/"],
+            cwd=str(REPO_ROOT), timeout=30,
+        )
+        subprocess.run(
+            ["git", "commit", "-m",
+             f"autopilot: auto-commit dirty experiment outputs\n\n"
+             f"Files: {', '.join(dirty_files[:10])}"],
+            cwd=str(REPO_ROOT), timeout=30,
+        )
+        _dirty_tree_streak = 0
+        return True
+    return False
 
 
 def _acquire_experiment_lock() -> int | None:
@@ -217,6 +245,28 @@ def _release_experiment_lock(fd: int) -> None:
         pass
 
 
+def _auto_commit_results(fe_id: str) -> None:
+    """Commit any new/modified result files in pathway11_h100/ after experiment."""
+    try:
+        diff = subprocess.run(
+            ["git", "status", "--porcelain", "--", "pathway11_h100/"],
+            capture_output=True, text=True, timeout=10, cwd=str(REPO_ROOT),
+        )
+        if not diff.stdout.strip():
+            return
+        subprocess.run(
+            ["git", "add", "--", "pathway11_h100/"],
+            cwd=str(REPO_ROOT), timeout=30,
+        )
+        subprocess.run(
+            ["git", "commit", "-m", f"autopilot: {fe_id} experiment results"],
+            cwd=str(REPO_ROOT), timeout=30,
+        )
+        log.info("Auto-committed results for %s", fe_id)
+    except Exception as e:
+        log.warning("Auto-commit failed for %s: %s", fe_id, e)
+
+
 def _run_one_experiment(fe_id: str, *, dry_run: bool = False) -> dict[str, Any] | None:
     """Run pipeline for a single FE. Returns result JSON or None."""
     log.info("Running experiment %s", fe_id)
@@ -234,6 +284,7 @@ def _run_one_experiment(fe_id: str, *, dry_run: bool = False) -> dict[str, Any] 
             text=True,
             timeout=EXPERIMENT_TIMEOUT,
             cwd=str(REPO_ROOT),
+            start_new_session=True,
         )
         log.info("pipeline run %s exited %d", fe_id, result.returncode)
         if result.stdout:
@@ -407,6 +458,7 @@ def run_loop(
                                     count = _record_failure(f"run-{fe['id']}")
                                     log.warning("Experiment failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
                                 elif result is not None:
+                                    _auto_commit_results(fe["id"])
                                     classification = _classify_latest_result(fe["id"])
                                     if classification and classification in ("HIT", "NEAR_MISS"):
                                         _write_followup(fe["id"], classification, result)

@@ -28,3 +28,10 @@ research-graph/downloads/
 data/access.db
 data/access.db-shm
 data/access.db-wal
+
+# Autopilot operational artifacts
+.autopilot/
+pipeline_state.db
+
+# Experiment runner logs (sweep outputs)
+pathway11_h100/logs/

@@ -161,7 +161,7 @@ def generate_for_fe(fe: dict[str, Any], *, dry_run: bool = False) -> Path | None
             input=prompt,
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=600,
             cwd=str(REPO_ROOT),
         )
     except subprocess.TimeoutExpired:

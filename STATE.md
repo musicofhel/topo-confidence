@@ -2,15 +2,15 @@
 
 *Overwritten at the end of every session. Not appended. For append-only history see `EXPERIMENT_LOG.md`.*
 
-**Date:** 2026-05-07
+**Date:** 2026-05-09
 
 ## Where the project actually is
 
 **Methodology phase complete.** The `nocompute/` experiment suite landed
 2026-05-06 (commit 1921e3a, merged to main). Branch
 `max-depth-retriage-2026-04-28` is merged and up to date with `main`.
-`validate_claims.py` invariant: **200/200 internal PASS, 244 claims tracked total**
-(200 internal + 41 external + 3 PENDING_FE).
+`validate_claims.py` invariant: **202/202 internal PASS, 246 claims tracked total**
+(202 internal + 41 external + 3 PENDING_FE).
 
 The `nocompute/` suite runs all paper-defense experiments against committed
 NPZ caches without GPU: 6 scripts, 39 result JSONs, 14 figures. Key
@@ -49,11 +49,10 @@ Plan structure:
 - **Phase 0** (15 min) — verify two cache assumptions: (a) sequence-likelihoods
   in `pathway11_h100/prefill_gated_compute/generations.npz`; (b) per-layer vs
   L19-only prefill in `pathway11_h100/prefill_inversion/cache/`.
-- **Phase 1** (~3h CPU) — sub-1h sanity battery: FE719 (LOCO-CV by subject),
-  FE448 (length partial-correlation), FE145 (per-layer sweep, skip if Phase 0(b)
-  shows L19-only), FE299, FE101.
-- **Phase 2** (~3.5h CPU) — ROI-10 anchors: FE115 (Song-Zhong pos/ctx decomp),
-  FE749 (spectral α head-to-head), FE181 (token-prob baseline).
+- **Phase 1** ✓ COMPLETE — sub-1h sanity battery: FE719, FE448, FE145, FE299,
+  FE101 all run in EXP-59..78 sweeps. F-2 survived (not softened below 0.70).
+- **Phase 2** (NEXT, ~3.5h CPU) — ROI-10 anchors: FE115 (Song-Zhong pos/ctx
+  decomp), FE749 (spectral α head-to-head), FE181 (token-prob baseline).
 - **Phase 3** (~2.5h CPU bundle) — causal corroborators: FE110, FE136, FE244,
   FE319, FE331, FE339, FE254. Run only if F-2 survived Phase 1.
 - **Phase 4** (≤2h each on 2060) — FE455 (ConCISE), FE23 (softmax confidence),
@@ -103,10 +102,8 @@ All current and future experiments run on local hardware.
 2. **Cross-architecture replication of F-2.** Phi-3-mini and Llama-3.2-1B
    1024-tok caches exist in `pathway11_h100/exp1_cross_model/`; the prefill
    DoM AUROC has not been computed for them yet. Cheap (~1h CPU each).
-3. **12 untriaged Discord-admitted papers** in research-graph Neo4j
-   (status NULL, missed by `query.py pending` CLI filter). Reconciliation
-   procedure documented in
-   `handoff/2026-05-03-findings-synthesis-and-applications.md` "Open queue
-   item 1".
+3. **11 former status-NULL Discord papers** — reconciled 2026-05-09: 10 set
+   to `pending_triage` (will be picked up by triage daemon), 1 rejected
+   (malformed ID `2503.dual-route-induction`).
 4. **`pathway11_h100/` is NOT in the GitHub remote** — back up if the local
    disk is at risk.
