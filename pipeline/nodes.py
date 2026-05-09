@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import subprocess
@@ -13,8 +14,15 @@ from typing import Any
 
 from langgraph.types import interrupt
 
+from pipeline._match import (
+    find_recompute_script as _find_recompute_script,
+    match_result_dir,
+    parse_fe_num,
+)
 from pipeline.observability import get_tracer, score_experiment, traced_subprocess
 from pipeline.state import ExperimentState
+
+log = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RESEARCH_GRAPH = REPO_ROOT / "research-graph"
@@ -49,15 +57,6 @@ def _query_neo4j_ready_fes() -> list[dict[str, Any]]:
         print(f"WARNING: Neo4j query failed: {e}")
         return []
 
-
-def _find_recompute_script(fe_id: str) -> Path | None:
-    """Search for a recompute_*.py script matching the FE ID."""
-    fe_num = fe_id.split("-")[-1].lower()
-    for script in REPO_ROOT.glob(f"pathway11_h100/**/recompute_{fe_num}.py"):
-        return script
-    for script in REPO_ROOT.glob(f"pathway11_h100/**/recompute_*{fe_num}*.py"):
-        return script
-    return None
 
 
 # Cost tags that require cloud GPU (H100, A100, etc.)
@@ -95,6 +94,15 @@ def select_experiment(state: ExperimentState) -> dict[str, Any]:
             fe_id = fe.get("id", "")
             script = _find_recompute_script(fe_id)
             if script is not None:
+                expected = parse_fe_num(fe_id)
+                stem_num = script.stem.replace("recompute_", "").lower()
+                if stem_num != expected and stem_num != expected[2:]:
+                    log.critical(
+                        "BREAKPOINT: select_experiment FE-script mismatch! "
+                        "fe_id=%s but script=%s (stem=%s)",
+                        fe_id, script, stem_num,
+                    )
+                    continue
                 span.set_attribute("selected_fe", fe_id)
                 span.set_attribute("script_path", str(script))
                 return {
@@ -156,13 +164,14 @@ def parse_results(state: ExperimentState) -> dict[str, Any]:
                 break
 
         fe_id = state["current_fe"]["id"]
-        fe_num = fe_id.split("-")[-1].lower()
         if result_json_path is None:
-            for candidate in (REPO_ROOT / "pathway11_h100" / "results").glob(
-                f"{fe_num}_*.json"
-            ):
-                result_json_path = candidate
-                break
+            results_dir = REPO_ROOT / "pathway11_h100" / "results"
+            if results_dir.is_dir():
+                for candidate in results_dir.glob("*.json"):
+                    if match_result_dir(fe_id, candidate.stem):
+                        log.info("Result fallback matched: %s -> %s", fe_id, candidate)
+                        result_json_path = candidate
+                        break
 
         if result_json_path is None:
             span.set_attribute("error", "no result JSON found")
@@ -255,7 +264,8 @@ def _call_claude(
         try:
             prompt = f"{system}\n\n---\n\n{user_msg}"
             result = subprocess.run(
-                [claude_bin, "-p", "--output-format", "json"],
+                [claude_bin, "-p", "--output-format", "json",
+                 "--bare", "--tools", ""],
                 input=prompt,
                 capture_output=True,
                 text=True,
@@ -270,6 +280,15 @@ def _call_claude(
             events = json.loads(result.stdout)
             if not isinstance(events, list):
                 events = [events]
+            tool_use_events = [ev for ev in events if ev.get("type") == "tool_use"]
+            if tool_use_events:
+                span.set_attribute("error", f"tool_use_loop: {len(tool_use_events)} events")
+                raise RuntimeError(
+                    f"claude -p entered tool-use loop ({len(tool_use_events)} tool_use events). "
+                    f"First tool: {tool_use_events[0].get('name', 'unknown')}"
+                )
+            span.set_attribute("output_bytes", len(result.stdout))
+            span.set_attribute("event_count", len(events))
             text = ""
             for ev in events:
                 if ev.get("type") == "result":

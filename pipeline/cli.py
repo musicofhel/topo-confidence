@@ -525,6 +525,37 @@ def cmd_autopilot_status(args: argparse.Namespace) -> None:
             pass
 
 
+def cmd_audit_fes(args: argparse.Namespace) -> None:
+    """Cross-check every FE's attributed script against actual script paths."""
+    from pipeline._match import find_recompute_script, parse_fe_num
+    from pipeline.nodes import _query_neo4j_ready_fes
+
+    fes = _query_neo4j_ready_fes()
+    _console.print(f"Auditing {len(fes)} FEs...")
+    mismatches = []
+    found = 0
+
+    for fe in fes:
+        fe_id = fe["id"]
+        script = find_recompute_script(fe_id)
+        if script is None:
+            continue
+        found += 1
+        fe_num = parse_fe_num(fe_id)
+        num = fe_num[2:] if fe_num.startswith("fe") else fe_num
+        stem_num = script.stem.replace("recompute_", "").lower()
+        if stem_num != num and stem_num != fe_num:
+            mismatches.append((fe_id, str(script), fe_num, stem_num))
+
+    _console.print(f"  Scripts found: {found}/{len(fes)}")
+    if mismatches:
+        _console.print(f"\n[red]MISMATCHES FOUND ({len(mismatches)}):[/red]")
+        for fe_id, path, expected, got in mismatches:
+            _console.print(f"  {fe_id}: expected {expected}, script has {got} ({path})")
+    else:
+        _console.print("[green]All FE-to-script mappings verified.[/green]")
+
+
 def cmd_autopilot(args: argparse.Namespace) -> None:
     import logging
     from pathlib import Path
@@ -542,6 +573,7 @@ def cmd_autopilot(args: argparse.Namespace) -> None:
         log_dir.mkdir(parents=True, exist_ok=True)
         fh = logging.FileHandler(str(log_dir / f"daemon-{phase}.log"))
         fh.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"))
+        logging.getLogger("pipeline").addHandler(fh)
         logging.getLogger("autopilot").addHandler(fh)
 
     from pipeline.autopilot import run_loop
@@ -602,6 +634,9 @@ def main() -> None:
 
     ap_status_parser = sub.add_parser("autopilot-status", help="Show autopilot worker status")
     ap_status_parser.set_defaults(func=cmd_autopilot_status)
+
+    audit_parser = sub.add_parser("audit-fes", help="Cross-check FE-to-script mappings")
+    audit_parser.set_defaults(func=cmd_audit_fes)
 
     args = parser.parse_args()
     args.func(args)

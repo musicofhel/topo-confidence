@@ -157,7 +157,8 @@ def generate_for_fe(fe: dict[str, Any], *, dry_run: bool = False) -> Path | None
     prompt = f"{system}\n\n---\n\n{user_msg}"
     try:
         result = subprocess.run(
-            [claude_bin, "-p", "--output-format", "json"],
+            [claude_bin, "-p", "--output-format", "json",
+             "--bare", "--tools", ""],
             input=prompt,
             capture_output=True,
             text=True,
@@ -176,6 +177,19 @@ def generate_for_fe(fe: dict[str, Any], *, dry_run: bool = False) -> Path | None
         events = json.loads(result.stdout)
         if not isinstance(events, list):
             events = [events]
+        tool_use_events = [ev for ev in events if ev.get("type") == "tool_use"]
+        if tool_use_events:
+            log.critical(
+                "BREAKPOINT: %s claude -p entered tool-use loop despite --bare --tools ''! "
+                "%d tool_use events. First tool: %s",
+                fe_id, len(tool_use_events),
+                tool_use_events[0].get("name", "unknown"),
+            )
+            return None
+        log.info(
+            "AUDIT scriptgen %s: %d bytes, %d events",
+            fe_id, len(result.stdout), len(events),
+        )
         text = ""
         for ev in events:
             if ev.get("type") == "result":

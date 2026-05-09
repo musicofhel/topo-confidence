@@ -212,16 +212,40 @@ def _git_is_clean() -> bool:
         dirty_files = dirty.stdout.strip().splitlines() if dirty.stdout else []
         log.warning("Dirty-tree streak hit %d, auto-committing: %s",
                      _dirty_tree_streak, dirty_files)
-        subprocess.run(
+
+        add_result = subprocess.run(
             ["git", "add", "--", "pathway11_h100/"],
+            capture_output=True, text=True,
             cwd=str(REPO_ROOT), timeout=30,
         )
-        subprocess.run(
+        if add_result.returncode != 0:
+            log.critical(
+                "BREAKPOINT: git add failed (rc=%d): %s",
+                add_result.returncode, add_result.stderr[:500],
+            )
+            return False
+
+        commit_result = subprocess.run(
             ["git", "commit", "-m",
              f"autopilot: auto-commit dirty experiment outputs\n\n"
              f"Files: {', '.join(dirty_files[:10])}"],
+            capture_output=True, text=True,
             cwd=str(REPO_ROOT), timeout=30,
         )
+        if commit_result.returncode != 0:
+            log.critical(
+                "BREAKPOINT: git commit failed (rc=%d): %s",
+                commit_result.returncode, commit_result.stderr[:500],
+            )
+            return False
+
+        verify = subprocess.run(
+            ["git", "log", "-1", "--format=%H"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(REPO_ROOT),
+        )
+        log.info("Auto-commit verified: %s", verify.stdout.strip()[:12])
+
         _dirty_tree_streak = 0
         return True
     return False
@@ -245,26 +269,51 @@ def _release_experiment_lock(fd: int) -> None:
         pass
 
 
-def _auto_commit_results(fe_id: str) -> None:
-    """Commit any new/modified result files in pathway11_h100/ after experiment."""
+def _auto_commit_results(fe_id: str) -> bool:
+    """Commit result files in pathway11_h100/. Returns True on success."""
     try:
         diff = subprocess.run(
             ["git", "status", "--porcelain", "--", "pathway11_h100/"],
             capture_output=True, text=True, timeout=10, cwd=str(REPO_ROOT),
         )
         if not diff.stdout.strip():
-            return
-        subprocess.run(
+            return True
+
+        add_result = subprocess.run(
             ["git", "add", "--", "pathway11_h100/"],
+            capture_output=True, text=True,
             cwd=str(REPO_ROOT), timeout=30,
         )
-        subprocess.run(
+        if add_result.returncode != 0:
+            log.critical(
+                "BREAKPOINT: git add failed for %s (rc=%d): %s",
+                fe_id, add_result.returncode, add_result.stderr[:500],
+            )
+            return False
+
+        commit_result = subprocess.run(
             ["git", "commit", "-m", f"autopilot: {fe_id} experiment results"],
+            capture_output=True, text=True,
             cwd=str(REPO_ROOT), timeout=30,
         )
-        log.info("Auto-committed results for %s", fe_id)
+        if commit_result.returncode != 0:
+            log.critical(
+                "BREAKPOINT: git commit failed for %s (rc=%d): %s",
+                fe_id, commit_result.returncode, commit_result.stderr[:500],
+            )
+            return False
+
+        verify = subprocess.run(
+            ["git", "log", "-1", "--format=%H"],
+            capture_output=True, text=True, timeout=10,
+            cwd=str(REPO_ROOT),
+        )
+        log.info("Auto-committed results for %s (hash: %s)",
+                 fe_id, verify.stdout.strip()[:12])
+        return True
     except Exception as e:
-        log.warning("Auto-commit failed for %s: %s", fe_id, e)
+        log.critical("BREAKPOINT: auto-commit exception for %s: %s", fe_id, e)
+        return False
 
 
 def _run_one_experiment(fe_id: str, *, dry_run: bool = False) -> dict[str, Any] | None:
@@ -300,17 +349,30 @@ def _run_one_experiment(fe_id: str, *, dry_run: bool = False) -> dict[str, Any] 
 
 def _classify_latest_result(fe_id: str) -> str | None:
     """Find and classify the most recent result JSON for an FE."""
-    fe_num = fe_id.split("-")[-1].lower()
-    for results_json in REPO_ROOT.glob(f"pathway11_h100/**/results.json"):
+    from pipeline._match import match_result_dir
+
+    candidates = []
+    for results_json in REPO_ROOT.glob("pathway11_h100/**/results.json"):
         parent = results_json.parent.name
-        if fe_num in parent or f"fe{fe_num}" in parent.lower():
-            try:
-                data = json.loads(results_json.read_text())
-                classification = classify(data)
-                log.info("%s classified as %s (from %s)", fe_id, classification, results_json)
-                return classification
-            except Exception as e:
-                log.warning("Failed to classify %s: %s", results_json, e)
+        if match_result_dir(fe_id, parent):
+            candidates.append(results_json)
+
+    if len(candidates) > 1:
+        log.critical(
+            "BREAKPOINT: multiple result dirs match %s: %s — returning None",
+            fe_id, [str(c) for c in candidates],
+        )
+        return None
+    if not candidates:
+        return None
+
+    try:
+        data = json.loads(candidates[0].read_text())
+        classification = classify(data)
+        log.info("%s classified as %s (from %s)", fe_id, classification, candidates[0])
+        return classification
+    except Exception as e:
+        log.warning("Failed to classify %s: %s", candidates[0], e)
     return None
 
 
@@ -336,19 +398,45 @@ def _write_followup(fe_id: str, classification: str, result: dict[str, Any] | No
 
 
 def _check_stale_pid(phase: str | None) -> bool:
-    """Returns True if ok to start, False if another instance is running."""
+    """Returns True if ok to start, False if another instance is running.
+
+    Uses O_CREAT|O_EXCL for atomic creation after stale-PID cleanup.
+    Treats PID files older than 24h as stale even if the PID is still alive.
+    """
     pid_name = f"daemon-{phase}.pid" if phase else "daemon.pid"
     pid_path = AUTOPILOT_DIR / pid_name
+
     if pid_path.exists():
         try:
             old_pid = int(pid_path.read_text().strip())
             os.kill(old_pid, 0)
-            log.error("Phase %s already running (PID %d), exiting", phase or "all", old_pid)
-            return False
+            age_hours = (time.time() - pid_path.stat().st_mtime) / 3600
+            if age_hours > 24:
+                log.warning(
+                    "PID file for %s is %.1fh old (PID %d). Treating as stale.",
+                    phase or "all", age_hours, old_pid,
+                )
+            else:
+                log.error(
+                    "Phase %s already running (PID %d, age %.1fh), exiting",
+                    phase or "all", old_pid, age_hours,
+                )
+                return False
         except (OSError, ValueError):
-            pass
-    pid_path.write_text(str(os.getpid()))
-    return True
+            log.info("Removing stale PID file for %s", phase or "all")
+
+    try:
+        pid_path.unlink(missing_ok=True)
+        fd = os.open(str(pid_path), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+        os.write(fd, str(os.getpid()).encode())
+        os.close(fd)
+        return True
+    except FileExistsError:
+        log.error(
+            "Race condition: another %s worker started between check and write",
+            phase or "all",
+        )
+        return False
 
 
 def run_loop(
@@ -410,6 +498,8 @@ def run_loop(
                 if pending and remaining >= 1:
                     arxiv_id = pending[0]
                     ok = _triage_one_paper(arxiv_id, dry_run=dry_run)
+                    # Rate-limit: consume budget slot regardless of outcome.
+                    # Quarantine mechanism handles retries.
                     _increment_budget(phase)
                     remaining -= 1
                     did_work = True
@@ -426,6 +516,7 @@ def run_loop(
                 if scriptless and remaining >= 1:
                     fe = scriptless[0]
                     path = generate_for_fe(fe, dry_run=dry_run)
+                    # Rate-limit: consume budget slot regardless of outcome.
                     _increment_budget(phase)
                     remaining -= 1
                     did_work = True
@@ -450,6 +541,7 @@ def run_loop(
                             try:
                                 fe = runnable[0]
                                 result = _run_one_experiment(fe["id"], dry_run=dry_run)
+                                # Rate-limit: consume 3 budget slots regardless of outcome.
                                 for _ in range(3):
                                     _increment_budget(phase)
                                 remaining -= 3
@@ -458,10 +550,13 @@ def run_loop(
                                     count = _record_failure(f"run-{fe['id']}")
                                     log.warning("Experiment failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
                                 elif result is not None:
-                                    _auto_commit_results(fe["id"])
-                                    classification = _classify_latest_result(fe["id"])
-                                    if classification and classification in ("HIT", "NEAR_MISS"):
-                                        _write_followup(fe["id"], classification, result)
+                                    committed = _auto_commit_results(fe["id"])
+                                    if not committed:
+                                        log.error("Auto-commit failed for %s, skipping classification", fe["id"])
+                                    else:
+                                        classification = _classify_latest_result(fe["id"])
+                                        if classification and classification in ("HIT", "NEAR_MISS"):
+                                            _write_followup(fe["id"], classification, result)
                                 skipped_this_cycle.add(fe['id'])
                             finally:
                                 _release_experiment_lock(lock_fd)
