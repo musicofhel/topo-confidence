@@ -299,7 +299,8 @@ def cmd_run(args: argparse.Namespace) -> None:
     from pipeline.graph import build_graph
 
     with SqliteSaver.from_conn_string("pipeline_state.db") as checkpointer:
-        graph = build_graph(checkpointer=checkpointer)
+        no_review = getattr(args, "no_review", False)
+        graph = build_graph(checkpointer=checkpointer, no_review=no_review)
 
         thread_id = f"session-{date.today()}"
         if args.fe:
@@ -320,6 +321,8 @@ def cmd_run(args: argparse.Namespace) -> None:
         }
 
         _console.print(f"Starting pipeline (thread: [cyan]{thread_id}[/cyan])")
+        if no_review:
+            _console.print("[yellow]NO REVIEW — skipping human review gate[/yellow]")
         if args.dry_run:
             _console.print("[yellow]DRY RUN — will generate artifacts but skip promotion[/yellow]")
         if local_only:
@@ -328,10 +331,11 @@ def cmd_run(args: argparse.Namespace) -> None:
             _console.print(f"[yellow]MAX RUNS: {max_runs}[/yellow]")
 
         result = graph.invoke(initial_state, config)
-        result = _run_interrupt_loop(graph, config, result)
 
-        if result.get("__quit__"):
-            return
+        if not no_review:
+            result = _run_interrupt_loop(graph, config, result)
+            if result.get("__quit__"):
+                return
 
         _print_summary(result)
 
@@ -432,6 +436,31 @@ def cmd_status(args: argparse.Namespace) -> None:
         _console.print(f"  Neo4j unavailable: {e}")
 
 
+def cmd_autopilot(args: argparse.Namespace) -> None:
+    import logging
+
+    level = logging.DEBUG if getattr(args, "verbose", False) else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(name)s %(levelname)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    from pipeline.autopilot import run_loop
+
+    _console.print(f"[bold]Autopilot daemon starting[/bold]")
+    _console.print(f"  Budget: {args.budget} calls/day")
+    _console.print(f"  Poll interval: {args.poll}s")
+    if args.dry_run:
+        _console.print("[yellow]DRY RUN — logging actions only[/yellow]")
+
+    run_loop(
+        poll_interval=args.poll,
+        daily_cap=args.budget,
+        dry_run=args.dry_run,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="pipeline", description="Experiment pipeline orchestrator"
@@ -448,6 +477,7 @@ def main() -> None:
     run_parser.add_argument("--dry-run", action="store_true", help="Skip promotion")
     run_parser.add_argument("--local", action="store_true", help="Only run FEs that fit on local GPU (2060 Super + CPU)")
     run_parser.add_argument("--max-runs", type=int, default=0, help="Stop after N experiments (0 = unlimited)")
+    run_parser.add_argument("--no-review", action="store_true", help="Skip human review gate (autopilot mode)")
     _add_common(run_parser)
     run_parser.set_defaults(func=cmd_run)
 
@@ -459,6 +489,14 @@ def main() -> None:
     status_parser = sub.add_parser("status", help="Show pipeline status")
     _add_common(status_parser)
     status_parser.set_defaults(func=cmd_status)
+
+    autopilot_parser = sub.add_parser("autopilot", help="Run autopilot daemon")
+    autopilot_parser.add_argument("--budget", type=int, default=15, help="Daily LLM call cap")
+    autopilot_parser.add_argument("--poll", type=int, default=60, help="Poll interval seconds")
+    autopilot_parser.add_argument("--dry-run", action="store_true", help="Log actions, don't execute")
+    autopilot_parser.add_argument("--verbose", action="store_true", help="Debug logging")
+    _add_common(autopilot_parser)
+    autopilot_parser.set_defaults(func=cmd_autopilot)
 
     args = parser.parse_args()
     args.func(args)

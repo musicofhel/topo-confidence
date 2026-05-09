@@ -26,7 +26,7 @@ def _route_after_promote(state: ExperimentState) -> str:
     return "select_experiment"
 
 
-def build_graph(checkpointer=None):
+def build_graph(checkpointer=None, *, no_review: bool = False):
     from pipeline.nodes import (
         extract_claims,
         generate_brief,
@@ -34,8 +34,6 @@ def build_graph(checkpointer=None):
         interpret_findings,
         parse_results,
         promote,
-        review_gate,
-        revise_artifacts,
         run_experiment,
         select_experiment,
         write_brief,
@@ -50,12 +48,16 @@ def build_graph(checkpointer=None):
     builder.add_node("generate_brief", generate_brief)
     builder.add_node("extract_claims", extract_claims)
     builder.add_node("interpret_findings", interpret_findings)
-    builder.add_node("review_gate", review_gate)
-    builder.add_node("revise_artifacts", revise_artifacts)
     builder.add_node("write_brief", write_brief)
     builder.add_node("write_claims", write_claims)
     builder.add_node("promote", promote)
     builder.add_node("handle_failure", handle_failure)
+
+    if not no_review:
+        from pipeline.nodes import review_gate, revise_artifacts
+
+        builder.add_node("review_gate", review_gate)
+        builder.add_node("revise_artifacts", revise_artifacts)
 
     builder.add_edge(START, "select_experiment")
     builder.add_conditional_edges(
@@ -66,9 +68,14 @@ def build_graph(checkpointer=None):
     builder.add_edge("parse_results", "generate_brief")
     builder.add_edge("generate_brief", "extract_claims")
     builder.add_edge("extract_claims", "interpret_findings")
-    builder.add_edge("interpret_findings", "review_gate")
-    builder.add_conditional_edges("review_gate", _route_after_review)
-    builder.add_edge("revise_artifacts", "review_gate")
+
+    if no_review:
+        builder.add_edge("interpret_findings", "write_brief")
+    else:
+        builder.add_edge("interpret_findings", "review_gate")
+        builder.add_conditional_edges("review_gate", _route_after_review)
+        builder.add_edge("revise_artifacts", "review_gate")
+
     builder.add_edge("write_brief", "write_claims")
     builder.add_edge("write_claims", "promote")
     builder.add_conditional_edges("promote", _route_after_promote)

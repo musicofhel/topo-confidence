@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-05-09 01:22 UTC_
+_Generated: 2026-05-09 04:50 UTC_
 
 ---
 
@@ -2100,6 +2100,19 @@ _Generated: 2026-05-09 01:22 UTC_
 **Depends on:** F-8, F-2
 **Would update:** F-8, F-2
 **Trigger condition:** 2602.01893 Theorem 1 + Theorem 2.
+
+### P11-FE942 (P11) — [ROI: 9, BLOCKED, HIGH]
+
+**What:** Train a 120M Qwen3-like model with MACRO-spec (using paper's Algorithm 1, spectral sphere constraint) on same data as standard AdamW baseline. Extract L19 prefill activations on MATH-500 equivalent. Measure: (a) whether dimensional breathing exists, (b) whether DoM-based AUROC is comparable, (c) whether PR trajectories show asymmetric collapse (F-4). This is the direct test of H-546/H-547.
+
+**Why:** MACRO eliminates the AdamW transient phase and enforces rotational equilibrium from step 1. If breathing/DoM survive, F-1 and F-2 are architecture-universal. If they vanish, they are AdamW-specific artifacts — fundamentally reshaping our understanding of what the geometry captures.
+
+**Cost:** 1 H100 day
+**Blocked by:** MACRO code not yet publicly released; would need reimplementation from Algorithm 1
+**Triggered by:** [Demystifying Manifold Constraints in LLM Pre-training](https://arxiv.org/abs/2605.04418)
+**Depends on:** F-4, F-2, F-1
+**Would update:** F-4, F-2, F-1
+**Trigger condition:** Paper provides complete optimizer implementation details sufficient to replicate
 
 ---
 
@@ -5954,6 +5967,18 @@ _Generated: 2026-05-09 01:22 UTC_
 **Would update:** F-2
 **Trigger condition:** Bhalla et al. show SAEs fragment manifolds across many features in dilution regime; if correctness is a manifold, our single-direction DoM probe captures only a tile.
 
+### P11-FE940 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Test whether DoM direction aligns with the leading right singular vector v₁ of W_L19 (attention output projection or value projection). Compute cos(DoM, v₁) and compare to cos(DoM, PC1) = 0.9216. If DoM tracks v₁ rather than PC1, this reframes the correctness signal as a weight-geometry property.
+
+**Why:** MACRO paper shows the leading singular subspace controls worst-case activation amplification and is the most geometrically stable direction. If DoM ≈ v₁, then the correctness prediction capability of F-2 is explained by weight-matrix spectral structure rather than activation covariance.
+
+**Cost:** 15min CPU
+**Triggered by:** [Demystifying Manifold Constraints in LLM Pre-training](https://arxiv.org/abs/2605.04418)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Paper's spectral sphere theory predicts v₁ dominates activation geometry
+
 ### P11-FE97 (P11) — [ROI: 8, READY, HIGH]
 
 **What:** Per-head probing scan on Qwen-2.5-1.5B prefill activations. Extract per-head pre-output-projection activations at every (layer, head) pair (28 layers × 12 heads = 336 heads), fit one linear probe per head for MATH-500 K=1 correctness, rank by OOF AUROC. Compare top-K head AUROC and multi-head DoM bank AUROC (top-K aggregation, K ∈ {16, 32, 48}) against the residual-stream L19 DoM AUROC of 0.7731.
@@ -9095,6 +9120,18 @@ _Generated: 2026-05-09 01:22 UTC_
 **Would update:** F-10, F-2
 **Trigger condition:** Bhalla et al. demonstrate Ising-based unsupervised manifold discovery on Llama-3.1-8B L19; our L19 is the same layer on a smaller model with correctness labels available for validation.
 
+### P11-FE939 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute stable rank κ and spectral gap Δ₁ = σ₁ - σ₂ for all weight matrices at L19 of Qwen-2.5-1.5B from HuggingFace checkpoint. Compare to MACRO paper's Figure 2 regime (κ ∈ [2,7]). Report per-module (Q/K/V/O/up/gate/down). Connect spectral gap to DoM ≈ PC1 stability.
+
+**Why:** If L19 weights have large spectral gap, the paper's Wedin-bound analysis predicts the leading singular direction is perturbation-stable — which would theoretically explain why DoM ≈ PC1 (cos 0.9216) is a reliable probe direction. Conversely, small gap would predict DoM instability.
+
+**Cost:** 10min CPU
+**Triggered by:** [Demystifying Manifold Constraints in LLM Pre-training](https://arxiv.org/abs/2605.04418)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** MACRO paper proves spectral gap modulates rotation of leading singular subspace (Eq. 5)
+
 ### P11-FE94 (P11) — [ROI: 7, READY, HIGH]
 
 **What:** Cross-task DoM transfer test. Fit Qwen-2.5-1.5B L19 prefill DoM on a non-MATH closed-book QA correctness label set (TriviaQA closed-book, ~1k items, K=1 generation + correctness label), apply zero-shot to MATH-500 cached prefill activations, measure AUROC on MATH-500 K=1 correctness. Compare cos(MATH_DoM, TriviaQA_DoM).
@@ -11356,6 +11393,18 @@ _Generated: 2026-05-09 01:22 UTC_
 **Would update:** F-2
 **Trigger condition:** Bhalla et al.'s tuning-curve analysis reveals localized selectivity of SAE features for different regions of concept manifolds.
 
+### P11-FE941 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Compute ‖W‖_F/‖W‖₂ ratio for all 28 layers' attention and FFN weight matrices. Plot the layer-wise profile and test whether L19 is anomalous in this ratio. Compare to paper's RMT asymptotic prediction √D_out/(1+√(D_out/D_in)). This profiles which layers are 'well-conditioned' vs 'near rank-collapse' in the paper's framework.
+
+**Why:** If L19 has an anomalous spectral profile compared to other layers, this could explain why L19 DoM is the best single-layer correctness predictor (F-2) — it may have a uniquely large spectral gap or stable rank.
+
+**Cost:** 20min CPU
+**Triggered by:** [Demystifying Manifold Constraints in LLM Pre-training](https://arxiv.org/abs/2605.04418)
+**Depends on:** F-1, F-2
+**Would update:** F-2
+**Trigger condition:** Paper establishes spectral profile as key to activation control (Sec 4.1)
+
 ### P11-FE96 (P11) — [ROI: 6, READY, MEDIUM]
 
 **What:** Data-efficiency saturation curve for L19 prefill DoM. Fit L19 DoM on N ∈ {20, 40, 80, 160, 320, full(~400)} MATH-500 prefill activations, hold out the rest, plot OOF AUROC + cosine similarity to full-data DoM as a function of N. Direct port of ITI Figure 6A.
@@ -12928,6 +12977,7 @@ check whether any experiment's status should change.
 | [2605.01172](https://arxiv.org/abs/2605.01172) | A Theory of Generalization in Deep Learning | P11-FE01172E, P11-FE01172D, P11-FE01172C, P11-FE01172A | READY |
 | [2605.02167](https://arxiv.org/abs/2605.02167) | Manifold-Aligned Guided Integrated Gradients for Reliable Feature Attribution | P11-FE923, P11-FE922 | READY |
 | [2605.02279](https://arxiv.org/abs/2605.02279) | Foundations of Riemannian Geometry for Riemannian Optimization: A Monograph with Detailed Derivations | P11-FE924 | READY |
+| [2605.04418](https://arxiv.org/abs/2605.04418) | Demystifying Manifold Constraints in LLM Pre-training | P11-FE942, P11-FE941, P11-FE940, P11-FE939 | BLOCKED, READY |
 | [2601.01552](https://arxiv.org/abs/2601.01552) | HalluZig: Zigzag PH on Attention | P11-FE629, P11-FE628, P11-FE627, P11-FE626, P7-FE2 | BLOCKED, READY, TRIGGERED |
 | [2604.05655](https://arxiv.org/abs/2604.05655) | LLM Reasoning as Trajectories | P11-FE742, P11-FE741, P11-FE740, P11-FE739, P11-FE738, P11-FE737, P11-FE736 | READY |
 | [2604.14084](https://arxiv.org/abs/2604.14084) | TIP: Token Importance in OPD | P11-FE748, P11-FE747, P11-FE746, P10-FE4 | READY, TRIGGERED |

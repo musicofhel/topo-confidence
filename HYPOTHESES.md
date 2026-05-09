@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-739.**
+**Numbering continues monotonically. Next ID: H-741.**
 
 ## Cost + time summary (at a glance)
 
@@ -8016,6 +8016,27 @@ second-order shape readout that the model doesn't itself use.
 **Test:** Ising-coupling community detection (P11-FE935): binarize PC projections, fit Ising model, Louvain cluster. Check community alignment with correctness labels (A/B/C/D buckets) via adjusted Rand index.
 **Requires:** CPU only, cached NPZs
 **Would change:** On confirm: provides a principled grouping of L19 features by manifold membership, potentially improving D-bucket detection (F-7) and explaining why certain PCs matter more than others. On reject: L19 PCA components lack the co-activation structure needed for Ising discovery — SAE-level analysis (P11-FE938) may be needed instead.
+**Blocks:** nothing
+
+---
+
+
+### H-739: Dimensional breathing is AdamW-specific, not architecture-universal
+
+**Priority:** HIGH
+**Motivated by:** 2605.04418 + F-1
+**Test:** Train matched models with MACRO-spec vs AdamW, extract L19 prefill activations on MATH-500, measure breathing amplitude (PC1 variance ratio across sequence positions). If MACRO-trained model shows no breathing, F-1's universality claim is restricted to AdamW-family optimizers.
+**Requires:** H100 training run (120M–330M scale), MACRO reimplementation
+**Would change:** On confirm: F-1 is downgraded from "universal" to "AdamW-family-specific"; on reject (breathing persists under MACRO): F-1 is strengthened, breathing is architecture-intrinsic not optimizer-dependent.
+**Blocks:** H-546, H-547
+
+### H-740: DoM direction tracks the leading right singular vector v₁ of W_L19
+
+**Priority:** HIGH
+**Motivated by:** 2605.04418 + F-2 + EXP-FE291
+**Test:** Extract W_L19 (attention output or value projection) from Qwen-2.5-1.5B checkpoint, compute SVD, measure cos(DoM, v₁). Compare to cos(DoM, PC1) = 0.9216. If cos(DoM, v₁) > 0.90, the correctness signal is primarily a weight-matrix spectral property.
+**Requires:** CPU only, HuggingFace checkpoint, cached DoM vector from P11
+**Would change:** On confirm: F-2 mechanism shifts from "activation-space covariance" to "weight-space spectral structure"; on reject: weight geometry and activation geometry are decoupled, DoM is emergent from data covariance not weight spectrum.
 **Blocks:** nothing
 
 ---

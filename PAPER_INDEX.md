@@ -25944,3 +25944,73 @@ No other cited papers in this paper appear to be in the research graph. The pape
 - 2503.01822 — NOT in graph; recommend admission. Hindupur et al. "Projecting assumptions: The duality between sparse autoencoders and concept geometry" — formalizes the relationship between SAE assumptions and concept geometry, directly relevant to understanding what probes can/cannot capture from residual streams.
 - 2602.02315 — NOT in graph; recommend admission. Sarfati et al. "The shape of beliefs" — studies geometry/dynamics of representation manifolds encoding LLM posteriors, directly bears on whether correctness-confidence is a manifold.
 - 2602.15029 — NOT in graph; recommend admission. Karkada et al. "Symmetry in language statistics shapes the geometry of model representations" — explains why manifold structure arises from data symmetries, relevant to understanding why L19 breathing geometry has the shape it does.
+
+## 2605.04418 — Demystifying Manifold Constraints in LLM Pre-training (An, Li, Goldfarb, Ma, 2026)
+
+**Relevance:** Directly addresses the weight-space geometry that produces the activation-space signals we measure in F-1 through F-10. Their MACRO optimizer eliminates the AdamW transient phase and enforces rotational equilibrium from step 1, providing a principled control condition for testing whether breathing (F-1), DoM structure (F-2), and asymmetric collapse (F-4) are optimizer-specific or architecture-universal. Their spectral analysis (stable rank, spectral gap, Wedin bounds) provides a theoretical framework for understanding *why* the L19 DoM direction is stable and predictive.
+
+**Key claim we tested:** Manifold constraints subsume the roles of RMSNorm and weight decay by bounding activation scales to Θ(1) and enforcing rotational equilibrium from step 1 (Proposition 1, Eq. 50).
+
+**Our result:** **TO TEST** — Tier 1 experiments (FE960–962) test whether L19's spectral structure fits the paper's "well-conditioned" regime and whether DoM tracks the leading singular vector. Tier 2 (FE963) tests the central question: does breathing survive MACRO training?
+
+**Related experiments:** P11-FE939, P11-FE940, P11-FE941, P11-FE942, H-739, H-740
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **MACRO (Msign-Aligned Constrained Riemannian Optimizer)** — Single-loop Riemannian optimizer that constrains weights to spectral sphere, Frobenius sphere, or oblique manifold. Update: project momentum to tangent space → msign → normalize/scale → manifold retraction (Alg 1).
+  *Replication cost*: 1–2 days to implement + training time (330M model = ~hours on H100; 1.5B = days).
+  *We'd plausibly run this*: no — we don't train models, we analyze pre-trained ones. But the *analysis framework* (stable rank, spectral gaps, rotation angles) is directly applicable.
+
+- **Stable rank monitoring (κ = ‖W‖²₂ / (min{D_in,D_out} · ‖W‖²_F))** — Tracks whether weight matrices maintain high stable rank during training. Figure 2 shows per-module κ trajectories.
+  *Replication cost*: 5min CPU — just compute κ for Qwen-2.5-1.5B's L19 weights from HuggingFace checkpoint.
+  *We'd plausibly run this*: yes — tells us whether L19's spectral structure is in the "well-conditioned" regime that the paper's theory applies to.
+
+- **Rotation angle tracking (θ_t = arccos(⟨W_{t+1}, W_t⟩_F / ‖W_{t+1}‖_F ‖W_t‖_F))** — Measures angular velocity of weight updates across training.
+  *Replication cost*: Needs training checkpoints (not available for Qwen-2.5-1.5B).
+  *We'd plausibly run this*: no — we don't have intermediate checkpoints.
+
+- **Norm-Gated SwiGLU (Eq. 3)** — Normalizes the Swish branch before Hadamard product to prevent quadratic scale cascading across layers without learnable norms.
+  *Replication cost*: Trivial code change, but needs retraining.
+  *We'd plausibly run this*: no — architecture modification requiring full pre-training.
+
+- **Spectral-gap-modulated rotation (Eq. 5, Wedin sin Θ bound)** — The spectral sphere induces adaptive rotation angles proportional to η_t·c·R / (R − σ₂(W_{t+1})). This provides a quantitative link between spectral gap and training dynamics.
+  *Replication cost*: 5min CPU — compute σ₁, σ₂ for L19 weight matrix.
+  *We'd plausibly run this*: yes — compute the spectral gap at L19 and connect to DoM structure.
+
+### Approaches & framings
+
+- **Manifold constraints as normalization substitutes:** The paper reframes RMSNorm as a redundant mechanism when weight matrices are geometrically constrained. This inverts the usual view that normalization layers *cause* certain activation geometry; instead, the weight geometry is primary. For us: this suggests F-1 breathing may be a weight-geometry phenomenon rather than an activation-geometry one, directing attention from the residual stream to the weight matrices that produce it.
+
+- **Static vs adaptive rotational equilibrium:** Frobenius sphere → static rotation (θ_t ≈ η_t·c); spectral sphere → adaptive rotation modulated by spectral gap. For our F-2: if the DoM direction tracks the leading right singular vector v₁ of W_L19, then its stability during inference is governed by the spectral gap Δ₁ = σ₁ − σ₂. A large gap → stable DoM → reliable correctness prediction.
+
+- **Activation scale as Θ(1) design target:** The paper frames all normalization/constraint mechanisms through the lens of maintaining ‖vec(Y)‖_RMS = Θ(1) across layers. For F-10/PH-null: if every layer maintains unit-scale activations, residuals live on an effective sphere, explaining why PH can't distinguish them from Gaussian.
+
+### Datasets & benchmarks
+
+- **Pre-training data for Qwen3-like models** — The paper trains 120M, 330M, and 1B models. Token budgets exceed Chinchilla-optimal (Table 10 in appendix). Exact dataset not named but implied to be standard web corpus.
+  Applicable? no — we analyze pre-trained Qwen-2.5-1.5B/7B, not train new models.
+
+none beyond the above.
+
+### Implementation details worth capturing
+
+- MACRO uses β = 0.9 momentum, single global constraint radius r for all layers (they note per-layer r would close the 0.02 val loss gap with learnable norms, Table 3 footnote)
+- Approximate spectral projection: W_{t+1} = R · W̃_t / ‖W̃_t‖₂ (Appendix B.1) — avoids full SVD at each step
+- For Frobenius sphere, tangent-space violation ⟨W, ∇̃⟩ stabilizes at 10⁻²–10⁻³ (Appendix C.3)
+- PyTorch Muon baseline uses the official `torch.optim.Muon` implementation
+- Code not publicly released as of paper date (May 2026)
+
+### Replicable intermediates
+
+- Compute stable rank κ = ‖W‖²₂ / (min{D_in,D_out} · ‖W‖²_F) for Qwen-2.5-1.5B L19 attention and FFN weight matrices from HuggingFace checkpoint. Compare to Figure 2 values (κ converges to 2–7 range for different module types). Can use cached model weights or download. Script: load model → extract L19 Q/K/V/O/up/gate/down weight matrices → compute Frobenius norm, spectral norm, stable rank.
+- Compute spectral gap Δ₁ = σ₁ − σ₂ for W_L19 weight matrices. If Δ₁ is large relative to ‖W‖₂, the paper's framework predicts the leading singular direction is stable under perturbation — connect to DoM ≈ PC1 stability.
+- Compare ‖W_L19‖_F / ‖W_L19‖₂ to the paper's asymptotic prediction √D_out / (1 + √(D_out/D_in)) — tests whether Qwen-2.5-1.5B's L19 is in the "well-conditioned" regime.
+
+### Cross-paper signals
+
+- 2604.19740 — already in graph (status: pending data from admission note). Sharpness Dimension / EoS — the paper's rotational equilibrium analysis directly connects to Kosson et al.'s framework that Tuci et al. build on.
+- 2601.01306 — NOT in graph; recommend admission. Zhao 2026 "Towards a principled Muon under µP" — directly related to MACRO's µP transfer claims, and µP scaling is relevant to cross-scale transfer (H-9/F-6).
+- 2410.01131 — NOT in graph; recommend admission. nGPT (Loshchilov et al.) normalizes all representations to hypersphere — an extreme version of manifold constraints; if nGPT exhibits breathing, that's informative for F-1 universality.
+- 2305.17212 — NOT in graph; recommend admission. Kosson et al. "Rotational Equilibrium" — foundational for the paper's Sec 4.3 analysis and directly relevant to H-546/H-547 (breathing as rotational dynamics phenomenon).
