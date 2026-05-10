@@ -384,7 +384,6 @@ def assert_git_clean(brief_path: Path, parsed: dict[str, Any], skip: bool) -> No
             continue
         # porcelain: "XY <path>" (or "XY <path> -> <new>")
         path = line[3:].split(" -> ")[-1].strip().strip('"')
-        prefixes = tuple(e + (("/",) if not e.endswith("/") else ("",))[0] for e in expected)
         if path in expected:
             continue
         if any(path.startswith(e + "/") for e in expected):
@@ -437,45 +436,47 @@ def update_findings_in_graph(parsed: dict[str, Any], dry_run: bool) -> None:
                   f"add_evidence={m.get('add_evidence', [])})")
         return
     drv = GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
-    with drv.session() as s:
-        for m in metas:
-            f_id = f"F-{m['f_n']}"
-            sets: list[str] = []
-            params: dict[str, Any] = {"id": f_id}
-            if m.get("strength"):
-                sets.append("f.strength = $strength")
-                params["strength"] = m["strength"]
-            if m.get("status"):
-                sets.append("f.status = $status")
-                params["status"] = m["status"]
-            if m.get("counterargument"):
-                sets.append("f.strongest_counterargument = $counterarg")
-                params["counterarg"] = m["counterargument"]
-            if m.get("overturned_by"):
-                sets.append("f.would_be_overturned_by = $overturn")
-                params["overturn"] = m["overturned_by"]
-            if sets:
-                s.run(
-                    f"MERGE (f:Finding {{id: $id}}) SET {', '.join(sets)}",
-                    **params,
-                )
-            for exp_id in (m.get("add_evidence") or []):
-                s.run(
-                    """
-                    MERGE (f:Finding {id: $f})
-                    MERGE (x:Experiment {id: $x})
-                    MERGE (x)-[:PRODUCED]->(f)
-                    SET f.evidence = CASE
-                        WHEN f.evidence IS NULL THEN [$x]
-                        WHEN $x IN f.evidence THEN f.evidence
-                        ELSE f.evidence + [$x]
-                    END
-                    """,
-                    f=f_id, x=exp_id,
-                )
-            print(f"  ok Finding {f_id} updated "
-                  f"({len(sets)} props, +{len(m.get('add_evidence') or [])} evidence)")
-    drv.close()
+    try:
+        with drv.session() as s:
+            for m in metas:
+                f_id = f"F-{m['f_n']}"
+                sets: list[str] = []
+                params: dict[str, Any] = {"id": f_id}
+                if m.get("strength"):
+                    sets.append("f.strength = $strength")
+                    params["strength"] = m["strength"]
+                if m.get("status"):
+                    sets.append("f.status = $status")
+                    params["status"] = m["status"]
+                if m.get("counterargument"):
+                    sets.append("f.strongest_counterargument = $counterarg")
+                    params["counterarg"] = m["counterargument"]
+                if m.get("overturned_by"):
+                    sets.append("f.would_be_overturned_by = $overturn")
+                    params["overturn"] = m["overturned_by"]
+                if sets:
+                    s.run(
+                        f"MERGE (f:Finding {{id: $id}}) SET {', '.join(sets)}",
+                        **params,
+                    )
+                for exp_id in (m.get("add_evidence") or []):
+                    s.run(
+                        """
+                        MERGE (f:Finding {id: $f})
+                        MERGE (x:Experiment {id: $x})
+                        MERGE (x)-[:PRODUCED]->(f)
+                        SET f.evidence = CASE
+                            WHEN f.evidence IS NULL THEN [$x]
+                            WHEN $x IN f.evidence THEN f.evidence
+                            ELSE f.evidence + [$x]
+                        END
+                        """,
+                        f=f_id, x=exp_id,
+                    )
+                print(f"  ok Finding {f_id} updated "
+                      f"({len(sets)} props, +{len(m.get('add_evidence') or [])} evidence)")
+    finally:
+        drv.close()
 
 
 # ---------------------------------------------------------------------------
@@ -686,8 +687,6 @@ def main() -> None:
     args = p.parse_args()
 
     brief_path = Path(args.brief).expanduser().resolve()
-    if not brief_path.is_absolute():
-        brief_path = (ROOT / args.brief).resolve()
     if not brief_path.exists():
         raise SystemExit(f"Brief not found: {brief_path}")
 

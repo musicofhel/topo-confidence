@@ -371,63 +371,66 @@ def write_future_experiments(fes: list[dict[str, Any]], dry_run: bool) -> list[s
             print(f"  Would MERGE FutureExperiment {fe['id']} (priority={fe.get('priority','MEDIUM')}, ROI={fe['roi']})")
         return sorted(arxiv_ids)
 
+    from datetime import date as _date
     drv = GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
-    today = __import__("datetime").date.today().isoformat()
-    with drv.session() as s:
-        for fe in fes:
-            s.run(
-                """
-                MERGE (fe:FutureExperiment {id: $id})
-                SET fe.pathway_id = $pathway_id,
-                    fe.description = $description,
-                    fe.rationale = $rationale,
-                    fe.trigger = $trigger,
-                    fe.status = $status,
-                    fe.blocked_by = $blocked_by,
-                    fe.priority = $priority,
-                    fe.estimated_cost = $cost,
-                    fe.roi_score = $roi,
-                    fe.created_date = coalesce(fe.created_date, $today)
-                """,
-                id=fe["id"],
-                pathway_id=fe["pathway"],
-                description=fe["description"],
-                rationale=fe.get("rationale", ""),
-                trigger=fe.get("trigger", ""),
-                status=fe.get("status", "READY"),
-                blocked_by=fe.get("blocked-by"),
-                priority=fe.get("priority", "MEDIUM"),
-                cost=fe.get("cost", ""),
-                roi=int(fe["roi"]),
-                today=today,
-            )
-            s.run(
-                "MATCH (p:Pathway {id: $pid}), (fe:FutureExperiment {id: $fid}) MERGE (p)-[:HAS_FUTURE_EXPERIMENT]->(fe)",
-                pid=fe["pathway"], fid=fe["id"],
-            )
-            for fnd in (fe.get("depends-on") or []):
+    today = _date.today().isoformat()
+    try:
+        with drv.session() as s:
+            for fe in fes:
                 s.run(
-                    "MATCH (fe:FutureExperiment {id: $fid}), (f:Finding {id: $fnd}) MERGE (fe)-[:DEPENDS_ON_FINDING]->(f)",
-                    fid=fe["id"], fnd=fnd,
+                    """
+                    MERGE (fe:FutureExperiment {id: $id})
+                    SET fe.pathway_id = $pathway_id,
+                        fe.description = $description,
+                        fe.rationale = $rationale,
+                        fe.trigger = $trigger,
+                        fe.status = $status,
+                        fe.blocked_by = $blocked_by,
+                        fe.priority = $priority,
+                        fe.estimated_cost = $cost,
+                        fe.roi_score = $roi,
+                        fe.created_date = coalesce(fe.created_date, $today)
+                    """,
+                    id=fe["id"],
+                    pathway_id=fe["pathway"],
+                    description=fe["description"],
+                    rationale=fe.get("rationale", ""),
+                    trigger=fe.get("trigger", ""),
+                    status=fe.get("status", "READY"),
+                    blocked_by=fe.get("blocked-by"),
+                    priority=fe.get("priority", "MEDIUM"),
+                    cost=fe.get("cost", ""),
+                    roi=int(fe["roi"]),
+                    today=today,
                 )
-            for fnd in (fe.get("would-update") or []):
                 s.run(
-                    "MATCH (fe:FutureExperiment {id: $fid}), (f:Finding {id: $fnd}) MERGE (fe)-[:WOULD_UPDATE]->(f)",
-                    fid=fe["id"], fnd=fnd,
+                    "MATCH (p:Pathway {id: $pid}), (fe:FutureExperiment {id: $fid}) MERGE (p)-[:HAS_FUTURE_EXPERIMENT]->(fe)",
+                    pid=fe["pathway"], fid=fe["id"],
                 )
-            for arx in (fe.get("triggered-by") or []):
-                s.run("MERGE (:Paper {arxiv_id: $a})", a=arx)
-                s.run(
-                    "MATCH (fe:FutureExperiment {id: $fid}), (p:Paper {arxiv_id: $a}) MERGE (fe)-[:TRIGGERED_BY]->(p)",
-                    fid=fe["id"], a=arx,
-                )
-            for other in (fe.get("blocked-by-experiment") or []):
-                s.run(
-                    "MATCH (a:FutureExperiment {id: $a}), (b:FutureExperiment {id: $b}) MERGE (a)-[:BLOCKED_BY_EXPERIMENT]->(b)",
-                    a=fe["id"], b=other,
-                )
-            print(f"  ok FutureExperiment {fe['id']}")
-    drv.close()
+                for fnd in (fe.get("depends-on") or []):
+                    s.run(
+                        "MATCH (fe:FutureExperiment {id: $fid}), (f:Finding {id: $fnd}) MERGE (fe)-[:DEPENDS_ON_FINDING]->(f)",
+                        fid=fe["id"], fnd=fnd,
+                    )
+                for fnd in (fe.get("would-update") or []):
+                    s.run(
+                        "MATCH (fe:FutureExperiment {id: $fid}), (f:Finding {id: $fnd}) MERGE (fe)-[:WOULD_UPDATE]->(f)",
+                        fid=fe["id"], fnd=fnd,
+                    )
+                for arx in (fe.get("triggered-by") or []):
+                    s.run("MERGE (:Paper {arxiv_id: $a})", a=arx)
+                    s.run(
+                        "MATCH (fe:FutureExperiment {id: $fid}), (p:Paper {arxiv_id: $a}) MERGE (fe)-[:TRIGGERED_BY]->(p)",
+                        fid=fe["id"], a=arx,
+                    )
+                for other in (fe.get("blocked-by-experiment") or []):
+                    s.run(
+                        "MATCH (a:FutureExperiment {id: $a}), (b:FutureExperiment {id: $b}) MERGE (a)-[:BLOCKED_BY_EXPERIMENT]->(b)",
+                        a=fe["id"], b=other,
+                    )
+                print(f"  ok FutureExperiment {fe['id']}")
+    finally:
+        drv.close()
     return sorted(arxiv_ids)
 
 
@@ -748,8 +751,6 @@ def main() -> None:
     args = p.parse_args()
 
     brief_path = Path(args.brief).expanduser().resolve()
-    if not brief_path.is_absolute():
-        brief_path = (ROOT / args.brief).resolve()
     if not brief_path.exists():
         raise SystemExit(f"Brief not found: {brief_path}")
 

@@ -142,13 +142,18 @@ def _pending_papers() -> list[str]:
 
         load_dotenv(REPO_ROOT / "research-graph" / ".env")
         uri = os.getenv("NEO4J_BOLT_URL", "bolt://localhost:7688")
-        driver = GraphDatabase.driver(uri, auth=("neo4j", "topo_graph_dev"))
-        with driver.session() as session:
-            result = session.run(
-                "MATCH (p:Paper) WHERE p.status = 'pending_triage' "
-                "RETURN p.arxiv_id AS aid ORDER BY p.suggested_at DESC"
-            )
-            return [r["aid"] for r in result if r["aid"]]
+        user = os.getenv("NEO4J_USER", "neo4j")
+        password = os.getenv("NEO4J_PASSWORD", "topo_graph_dev")
+        driver = GraphDatabase.driver(uri, auth=(user, password))
+        try:
+            with driver.session() as session:
+                result = session.run(
+                    "MATCH (p:Paper) WHERE p.status = 'pending_triage' "
+                    "RETURN p.arxiv_id AS aid ORDER BY p.suggested_at DESC"
+                )
+                return [r["aid"] for r in result if r["aid"]]
+        finally:
+            driver.close()
     except Exception as e:
         log.warning("Neo4j pending query failed: %s", e)
         return []

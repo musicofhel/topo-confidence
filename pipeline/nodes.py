@@ -41,20 +41,23 @@ def _query_neo4j_ready_fes() -> list[dict[str, Any]]:
         password = os.getenv("NEO4J_PASSWORD", "topo_graph_dev")
 
         driver = GraphDatabase.driver(uri, auth=(user, password))
-        with driver.session() as session:
-            result = session.run(
-                """
-                MATCH (fe:FutureExperiment)
-                WHERE fe.status IN ['READY', 'TRIGGERED']
-                OPTIONAL MATCH (fe)-[:WOULD_UPDATE]->(f:Finding)
-                WITH fe, collect(DISTINCT f.id) AS would_update
-                RETURN fe {.*, would_update: would_update} AS fe
-                ORDER BY fe.roi_score DESC
-                """
-            )
-            return [dict(record["fe"]) for record in result]
+        try:
+            with driver.session() as session:
+                result = session.run(
+                    """
+                    MATCH (fe:FutureExperiment)
+                    WHERE fe.status IN ['READY', 'TRIGGERED']
+                    OPTIONAL MATCH (fe)-[:WOULD_UPDATE]->(f:Finding)
+                    WITH fe, collect(DISTINCT f.id) AS would_update
+                    RETURN fe {.*, would_update: would_update} AS fe
+                    ORDER BY fe.roi_score DESC
+                    """
+                )
+                return [dict(record["fe"]) for record in result]
+        finally:
+            driver.close()
     except Exception as e:
-        print(f"WARNING: Neo4j query failed: {e}")
+        log.warning("Neo4j query failed: %s", e)
         return []
 
 
