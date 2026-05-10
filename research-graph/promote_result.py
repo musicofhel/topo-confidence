@@ -742,6 +742,25 @@ def main() -> None:
     print("\nstep 10: regenerate NEXT_EXPERIMENTS.md")
     regen_next_experiments(args.dry_run)
 
+    if not args.dry_run:
+        try:
+            from datetime import datetime as _dt
+            from pipeline.publisher import publish, set_research_field, init_redis_publisher, close_redis_publisher
+            init_redis_publisher()
+            publish("topoconf:research:promoted", {
+                "fe_id": fe_id,
+                "status": parsed["fe"]["status"],
+                "findings_count": len(parsed["findings_blocks"]),
+            })
+            arxiv_id = parsed["fe"].get("triggered_by_arxiv", "")
+            if arxiv_id:
+                set_research_field(arxiv_id, {
+                    f"fe_{fe_id}_findings_updated": _dt.now().isoformat(),
+                })
+            close_redis_publisher()
+        except Exception:
+            pass
+
     print()
     if args.dry_run:
         print("Dry run complete.")

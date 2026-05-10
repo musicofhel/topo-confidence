@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 import time
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -126,6 +126,22 @@ def run_experiment(state: ExperimentState) -> dict[str, Any]:
     script_path = state["script_path"]
     fe_id = state["current_fe"]["id"]
 
+    try:
+        from pipeline.publisher import publish, set_research_field
+        arxiv_id = state["current_fe"].get("triggered_by_arxiv", "")
+        publish("topoconf:research:experiment_started", {
+            "arxiv_id": arxiv_id,
+            "fe_id": fe_id,
+            "script_path": script_path,
+        })
+        if arxiv_id:
+            set_research_field(arxiv_id, {
+                f"fe_{fe_id}_status": "running",
+                f"fe_{fe_id}_started_at": datetime.now().isoformat(),
+            })
+    except Exception:
+        pass
+
     with traced_subprocess(
         tracer, "experiment.run", fe_id=fe_id, script_path=script_path
     ) as span:
@@ -186,6 +202,27 @@ def parse_results(state: ExperimentState) -> dict[str, Any]:
 
         span.set_attribute("result_json_path", str(result_json_path))
         span.set_attribute("key_count", len(data))
+
+        try:
+            from pipeline.publisher import publish, set_research_field
+            arxiv_id = state["current_fe"].get("triggered_by_arxiv", "")
+            auroc = data.get("auroc", data.get("test_auroc", ""))
+            verdict = data.get("verdict", "")
+            publish("topoconf:research:experiment_completed", {
+                "arxiv_id": arxiv_id,
+                "fe_id": fe_id,
+                "auroc": auroc,
+                "verdict": verdict,
+            })
+            if arxiv_id:
+                set_research_field(arxiv_id, {
+                    f"fe_{fe_id}_status": "completed",
+                    f"fe_{fe_id}_auroc": str(auroc),
+                    f"fe_{fe_id}_verdict": str(verdict),
+                })
+        except Exception:
+            pass
+
         return {
             "result_json_path": str(result_json_path),
             "result_json": data,

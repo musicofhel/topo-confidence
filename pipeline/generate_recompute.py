@@ -213,6 +213,22 @@ def generate_for_fe(fe: dict[str, Any], *, dry_run: bool = False) -> Path | None
     log.info("%s: wrote %d bytes to %s", fe_id, len(code), script_path)
 
     try:
+        from pipeline.publisher import publish, set_research_field
+        arxiv_id = fe.get("triggered_by_arxiv", "")
+        publish("topoconf:research:script_generated", {
+            "arxiv_id": arxiv_id,
+            "fe_id": fe_id,
+            "script_path": str(script_path),
+        })
+        if arxiv_id:
+            set_research_field(arxiv_id, {
+                f"fe_{fe_id}_script": str(script_path),
+                f"fe_{fe_id}_desc": fe.get("description", ""),
+            })
+    except Exception:
+        pass
+
+    try:
         subprocess.run(
             [str(REPO_ROOT / ".venv/bin/python"), "-c", f"import ast; ast.parse(open('{script_path}').read())"],
             capture_output=True, text=True, timeout=10,

@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from pipeline.generate_recompute import generate_for_fe, scriptless_local_fes
+from pipeline.publisher import init_redis_publisher, close_redis_publisher
 from pipeline.nodes import (
     REPO_ROOT,
     _find_recompute_script,
@@ -453,6 +454,7 @@ def run_loop(
     When *phase* is None, all phases run with legacy sequential gating.
     """
     _ensure_dirs()
+    init_redis_publisher()
 
     if not _check_stale_pid(phase):
         return
@@ -567,5 +569,6 @@ def run_loop(
                 skipped_this_cycle.clear()
     finally:
         pid_path.unlink(missing_ok=True)
+        close_redis_publisher()
 
     log.info("Autopilot shut down gracefully")

@@ -819,6 +819,27 @@ def main() -> None:
     print("\nstep 8: set Paper status='graphed'")
     set_paper_graphed(arxiv_id, args.dry_run)
 
+    if not args.dry_run:
+        try:
+            from datetime import datetime as _dt
+            from pipeline.publisher import publish, set_research_field, init_redis_publisher, close_redis_publisher
+            init_redis_publisher()
+            publish("topoconf:research:triaged", {
+                "arxiv_id": arxiv_id,
+                "fe_count": len(parsed["future_experiments"]),
+                "hypothesis_count": len(parsed["hypotheses_blocks"]),
+            })
+            set_research_field(arxiv_id, {
+                "status": "graphed",
+                "brief_path": str(brief_path),
+                "fe_count": str(len(parsed["future_experiments"])),
+                "hypothesis_count": str(len(parsed["hypotheses_blocks"])),
+                "triaged_at": _dt.now().isoformat(),
+            })
+            close_redis_publisher()
+        except Exception:
+            pass
+
     print()
     if args.dry_run:
         print("Dry run complete.")
