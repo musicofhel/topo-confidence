@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-05-09 12:54 UTC_
+_Generated: 2026-06-02 04:13 UTC_
 
 ---
 
@@ -320,6 +320,150 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-3, F-2
 **Trigger condition:** Paper's dramatic mean-vs-last-token divergence (d > 1.88 vs d ≈ 0).
 
+### P11-FE1021 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Rank-correlate DoM confidence scores with per-problem answer diversity (number of distinct final answers across K samples). Spearman rho quantifies signal overlap between internal geometry and output-based uncertainty.
+
+**Why:** If rho > 0.8, DoM is a redundant single-pass proxy for output consistency. If rho < 0.4, DoM captures a genuinely different signal (possibly pre-generation 'knowledge' vs post-generation 'expression diversity'), validating the two-signal interpretation of F-3.
+
+**Cost:** 10min CPU
+**Triggered by:** [2302.09664](https://arxiv.org/abs/2302.09664)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** Need to determine whether internal and output uncertainty are redundant or complementary
+
+### P11-FE1022 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Build a 2-feature logistic regression combining DoM score + cluster-count (or answer-agreement rate from K samples). Measure whether combined AUROC exceeds 0.7928 cov-spectrum ceiling, testing complementarity of internal and output signals.
+
+**Why:** If the combined model beats both individual signals significantly, it proves DoM captures information orthogonal to output diversity — the strongest possible defense of the internal-geometry approach.
+
+**Cost:** 20min CPU
+**Triggered by:** [2302.09664](https://arxiv.org/abs/2302.09664)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Results of FE960 and FE961 determine whether this experiment is worth running
+
+### P11-FE1026 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Check whether DoM projection residual still predicts correctness after regressing out logit-lens entropy and top-token confidence: if AUROC remains high after partialing out copy-suppression-related features, DoM carries information beyond calibration.
+
+**Why:** Disambiguates whether DoM = calibration proxy (copy suppression account) vs. DoM = genuine correctness geometry. If residual AUROC drops to ~0.5, copy suppression fully explains F-2.
+
+**Cost:** 45min CPU
+**Triggered by:** [2310.04625](https://arxiv.org/abs/2310.04625)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** 2310.04625 copy suppression → calibration connection
+
+### P11-FE1030 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Identify entropy neuron candidates in Qwen-2.5-1.5B via weight analysis (high ||w_out||, low var(W_U · w_out)) and correlate their activations with DoM score on cached 500-sample data
+
+**Why:** Entropy neurons are the first documented uncertainty-quantification mechanism in LLMs. If they correlate strongly with DoM, it provides mechanistic grounding for F-2 and a simpler confidence signal for F-8.
+
+**Cost:** 40min CPU
+**Triggered by:** [2401.12181](https://arxiv.org/abs/2401.12181)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** 2401.12181 entropy neuron discovery — modulates prediction entropy via layer-norm
+
+### P11-FE1046 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Direction-suppression analysis: treat DoM as 'shared direction μ' in Prop. 2's framework. Compute the analog of retained energy — project out DoM from L19 activations (residualize), then measure whether the residual still carries correctness signal (i.e., run logistic regression on DoM-orthogonal subspace). Tests whether DoM captures ALL linear correctness info or just the 'shared' component.
+
+**Why:** Prop. 2 shows that load-balancing suppresses shared directions. By analogy, if DoM is the dominant shared direction in L19, the residual (orthogonal to DoM) may carry independent correctness signal. This directly connects to F-2 and the gap between DoM AUROC (0.7731) and cov-spectrum ceiling (0.7928) — the 0.02 gap might live in DoM-orthogonal directions.
+
+**Cost:** 15min CPU
+**Triggered by:** [The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise](https://arxiv.org/abs/2604.09780)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2604.09780 Prop. 2 direction suppression framework; gap between 0.7731 and 0.7928 (H-798)
+
+### P11-FE1047 (P11) — [ROI: 9, READY, CRITICAL]
+
+**What:** Cross-model DoM transfer test on MATH-500: extract L19-equivalent (layer ~60% depth) prefill activations from a second 1.5B model (e.g., Gemma-2-2B or Phi-2) on the same 500 MATH-500 problems. Compute DoM on each model independently, then test cos(DoM_Qwen, DoM_other) and cross-model AUROC (apply Qwen DoM to other model's activations and vice versa). Directly tests whether F-2 is model-specific or universal.
+
+**Why:** The paper's Fig. 6 shows ~60% expert overlap between different MoE models solving the same math problem — indistinguishable from different problems. If DoM similarly fails to transfer (cos < 0.3 between models), F-2's correctness signal is model-specific computation, not a universal mathematical-reasoning feature. This is the most important refutation test for the project's novelty claims.
+
+**Cost:** 2h H100
+**Triggered by:** [The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise](https://arxiv.org/abs/2604.09780)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2604.09780 Fig. 6: different models solving same question show only ~60% expert overlap
+
+### P11-FE1051 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Run inference-time looping on Qwen-2.5-1.5B: repeat layers 16-20 (the L19-centered block) 2× at inference on MATH-500, measure accuracy change and re-extract DoM. If looping the L19 block improves accuracy, this confirms L19 is doing iterative computation that benefits from repetition — and DoM is detecting convergence of that computation.
+
+**Why:** Paper shows depth-grown models gain up to 2× from inference-time middle-block looping. If Qwen (a standard model) also benefits, it directly validates the iterative interpretation of F-2 and motivates a new steering paradigm (H-1 alternative: repeat computation rather than steer direction).
+
+**Cost:** 2h H100
+**Triggered by:** [From Growing to Looping: A Unified View of Iterative Computation in LLMs](https://arxiv.org/abs/2602.16490)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** 2602.16490 demonstrates inference-time looping improves reasoning in non-looped models
+
+### P11-FE1060 (P11) — [ROI: 9, READY, CRITICAL]
+
+**What:** Mean-pooled generation-token L19 states for correctness AUROC — direct test of whether distributed generation signal beats single-position prefill DoM (0.7731)
+
+**Why:** Paper's central claim: mean-pooling over generated tokens yields better representations than any single position. If mean-pooled generation AUROC > 0.7731, F-2's 'single direction suffices' is incomplete. If < 0.7731, our single-position DoM is already superior for binary correctness (possible because we optimize for classification, not general alignment).
+
+**Cost:** 4h H100
+**Triggered by:** [The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv](https://arxiv.org/abs/2605.09969)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** Wang et al. 2605.09969 show 2.23x alignment improvement from generation mean-pooling
+
+### P11-FE1066 (P11) — [ROI: 9, READY, CRITICAL]
+
+**What:** Compute specificity ratio of L19 prefill DoM direction: project DoM onto the shared incorrect-vs-correct mean-difference direction and measure proportion of DoM variance that is mode-specific vs shared with task computation
+
+**Why:** Paper shows specificity ratio is the key diagnostic for steering viability. Our cos(DoM, PC1)=0.9216 predicts specificity < 0.15, which would formally close H-1 without requiring GPU steering experiments
+
+**Cost:** 10min CPU
+**Triggered by:** [Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes](https://arxiv.org/abs/2605.05715)
+**Depends on:** F-8, F-2
+**Would update:** F-2
+**Trigger condition:** 2605.05715 demonstrates 88% entanglement for comparable-AUROC probe direction
+
+### P11-FE1079 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Token-frequency confound test: compute per-problem mean log-unigram-probability for MATH-500 prompts, correlate with DoM scores and correctness, test if partialing out token-frequency projection from L19 activations degrades AUROC.
+
+**Why:** TIDE shows token identity persistence is frequency-dependent. If DoM is partially a token-frequency proxy, AUROC 0.7731 is confounded. This is a critical control for F-2.
+
+**Cost:** 30min CPU
+**Triggered by:** [TIDE: Every Layer Knows the Token Beneath the Context](https://arxiv.org/abs/2605.06216)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** TIDE shows rare tokens have systematically different hidden-state geometry (lower norms, collapse-prone) — need to rule out that our correctness signal captures token training quality rather than problem difficulty.
+
+### P11-FE1081 (P11) — [ROI: 9, READY, CRITICAL]
+
+**What:** Embedding-subspace residualization: compute top-k PCs of Qwen-2.5-1.5B embedding matrix restricted to MATH-500 tokens. Project L19 prefill activations onto complement of this subspace. Recompute DoM AUROC and cos(prefill_DoM, final_DoM) in residualized space.
+
+**Why:** Tests whether the L19 DoM direction is aligned with the token-identity subspace. If AUROC is preserved after removing the embedding subspace, the correctness signal is genuinely contextual (not identity-confounded). If cos(prefill_DoM_resid, final_DoM) rises, F-3's orthogonality was an identity-vs-context artifact.
+
+**Cost:** 45min CPU
+**Triggered by:** [TIDE: Every Layer Knows the Token Beneath the Context](https://arxiv.org/abs/2605.06216)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** TIDE's core claim that token identity is 'permanently discarded' after embedding layer — but if it leaks into L19, our DoM probe may be reading it.
+
+### P11-FE1094 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Orthogonality-constrained probe: project out DoM direction from L19 prefill activations, retrain logistic regression on residual subspace, measure AUROC
+
+**Why:** Directly tests whether correctness signal lives on a single direction (AUROC drops to ~0.5 after projection) or is distributed across many (AUROC remains >0.65). High residual AUROC would confirm mechanism plurality for our task.
+
+**Cost:** 10min CPU
+**Triggered by:** [All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs](https://arxiv.org/abs/2605.12671)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2605.12671 multiple low-overlap circuits maintain full task performance
+
 ### P11-FE110625A (P11) — [ROI: 9, READY, HIGH]
 
 **What:** TriviaQA→MATH-500 cross-domain DoM transfer on Qwen-2.5-1.5B. Train question-only DoM at L19 on TriviaQA prefill activations, evaluate AUROC on cached MATH-500 prefill activations from pathway11_h100/. Tests paper's 'GSM8K AUROC ≈ 0.5' result on our specific multi-step setup.
@@ -332,6 +476,42 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-8, F-2
 **Trigger condition:** 2509.10625 reports cross-domain DoM transfer fails on multi-step math; F-2 has not been stress-tested cross-domain.
 
+### P11-FE1116 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Label-weighted moment operator probe at L19: compute C = (1/n) Σ yᵢ zᵢ zᵢᵀ on cached 500×1536 prefill activations, extract top-k eigenvectors, fit 5-fold logistic regression. Compare AUROC to DoM (0.7731), PC1+PC9 (0.7856), cov-spectrum (0.7928), and full-dim ceiling (0.7847).
+
+**Why:** Neural LoFi (2605.13612) proves the label-weighted moment operator captures second-order label-feature correlations that unsupervised PCA and first-order DoM miss. If label-weighted eigenvectors surpass the cov-spectrum ceiling, it identifies the optimal linear spectral operator for correctness prediction and reframes F-2.
+
+**Cost:** 10min CPU
+**Triggered by:** [Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning](https://arxiv.org/abs/2605.13612)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** 2605.13612 Theorem 1 parts i-ii proving label-weighted eigenvectors are the optimal spectral features
+
+### P11-FE1143 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Reshape cached 500×1536 L19 prefill activation matrix into 500×12×128 (per-head blocks), compute per-head-block DoM AUROC for correctness prediction, and identify which heads carry the signal
+
+**Why:** If the 0.7731 AUROC is driven by a few heads rather than the full 1536-d space, this identifies the minimal head circuit for correctness prediction. Directly tests the retrieval-head hypothesis from RTPurbo on our cached data
+
+**Cost:** 30min CPU
+**Triggered by:** [Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps](https://arxiv.org/abs/2605.16928)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** RTPurbo's empirical finding of head-wise functional specialization applicable to our cached activation matrices
+
+### P11-FE1155 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Extract full 28-layer residual trajectory ‖h_{l+1} − h_l‖ for all 500 MATH-500 problems on Qwen-2.5-1.5B. Fit the EqR residual-convergence model: test whether residual decay rate predicts correctness better than any single-layer DoM.
+
+**Why:** The strongest test of the EqR attractor hypothesis applied to our setting. If the multi-layer residual trajectory subsumes single-layer DoM, it would reframe F-2 entirely as an attractor convergence finding rather than a directional geometry finding. This is the decisive experiment for the attractor interpretation.
+
+**Cost:** 3h H100
+**Triggered by:** [Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning](https://arxiv.org/abs/2605.21488)
+**Depends on:** F-9, F-4, F-2
+**Would update:** F-9, F-4, F-2
+**Trigger condition:** EqR demonstrates residual-correctness tight coupling; needs full trajectory to test in standard LLMs
+
 ### P11-FE117 (P11) — [ROI: 9, READY, HIGH]
 
 **What:** Recompute Qwen-2.5-1.5B + 7B participation ratio breathing curve (positions 0..T) on resid_{c,t} (post pos+ctx subtraction) for the four-model breathing comparison (Qwen 1.5B, Qwen 7B, Phi-3-mini, Llama-3.2-1B). For each model: (a) rank of P via ScreeNOT, (b) PR(t) on resid_{c,t}, (c) compare to raw PR curve from EXP-031/032/040. F-1 universality survives only if the breathing shape is preserved on residuals.
@@ -343,6 +523,42 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-5, F-1
 **Would update:** F-5, F-1
 **Trigger condition:** 2310.04861 §3 low-rank/low-freq + Table 1 cross-architecture rank
+
+### P11-FE1182 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Train top-K SAE (K=16, 32K latents) on L19 prefill activations with reconstruction-only loss on unlabeled text activations. Then score each latent against correctness labels. Measure: (a) per-feature max AUROC, (b) top-K ensemble AUROC vs 0.7731 DoM baseline, (c) feature-type heterogeneity.
+
+**Why:** Tests H-391/H-539/H-795 simultaneously using the exact methodology from this paper. Reconstruction-only training means no correctness supervision — if it still predicts correctness, the signal is structural.
+
+**Cost:** 2h H100
+**Triggered by:** [Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies](https://arxiv.org/abs/2605.29384)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2605.29384 demonstrates unsupervised SAE extraction recovers task-relevant features
+
+### P11-FE1194 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Counterfactual DoM editing with downstream forward pass: use Zhou et al.'s minimal-L2-norm editing framework to shift L19 prefill activations along DoM direction toward counterfactual correctness values (alpha=0.25,0.5,0.75,1.0), measure whether downstream token probabilities and generation correctness shift monotonically
+
+**Why:** This is the causal test for H-1. Zhou et al. show additive steering moves bias but not error signal. If counterfactual DoM edits shift correctness predictions but NOT actual generation accuracy, it confirms the bias/error decomposition applies to our setting.
+
+**Cost:** 2h H100
+**Triggered by:** [Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning](https://arxiv.org/abs/2605.29971)
+**Depends on:** F-3, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Zhou et al. 2605.29971 demonstrate counterfactual editing with graded alpha parameter on continuous variables
+
+### P11-FE1198 (P11) — [ROI: 9, READY, HIGH]
+
+**What:** Layer-wise RSA profile for correctness geometry across all 29 layers using cached all-layer NPZs
+
+**Why:** Directly tests whether correctness-predictive structure follows the transient-emergence pattern (peak intermediate, attenuate late) or peaks at/near L19. If RSA peaks at layers 10-14 and is degraded by L19, it refutes the geometric interpretation of F-2.
+
+**Cost:** 30min CPU
+**Triggered by:** [Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations](https://arxiv.org/abs/2605.27970)
+**Depends on:** F-1, F-2
+**Would update:** F-1, F-2
+**Trigger condition:** 2605.27970 shows transient emergence is universal for geometric structure in residual streams
 
 ### P11-FE121 (P11) — [ROI: 9, READY, CRITICAL]
 
@@ -2072,6 +2288,19 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-3, F-2
 **Trigger condition:** PMET 2308.08742 MHSA-vs-FFN dichotomy applied to Qwen-2.5-1.5B prefill activations.
 
+### P11-FE1136 (P11) — [ROI: 9, BLOCKED, CRITICAL]
+
+**What:** Extract L19 prefill activations from a VPO-trained Qwen-2.5-1.5B checkpoint on MATH-500 and refit DoM; measure AUROC and cos(DoM_VPO, DoM_GRPO) to test whether F-2 is GRPO-specific
+
+**Why:** This is the single most important experiment VPO motivates: it directly tests H-707 (DoM rotation under alternative RL) and whether F-2's 0.7731 AUROC survives diversity-preserving training. VPO is a drop-in GRPO replacement, so the training change is minimal.
+
+**Cost:** 2-3 H100 days
+**Blocked by:** Need VPO-trained Qwen-2.5-1.5B checkpoint (training requires veRL + 4×H100); or community release of a VPO checkpoint in compatible architecture
+**Triggered by:** [Vector Policy Optimization: Training for Diversity Improves Test-Time Search](https://arxiv.org/abs/2605.22817)
+**Depends on:** F-8, F-7, F-2
+**Would update:** F-8, F-7, F-2
+**Trigger condition:** VPO demonstrates GRPO mode collapse is structural (citing GX-Chen 2510.20817); our DoM direction may be an artifact of that collapse
+
 ### P11-FE130 (P11) — [ROI: 9, BLOCKED, HIGH]
 
 **What:** Compare codebook substitution vs. fixed-direction DoM addition on a matched MATH-500 K=1 correctness-control task. Using the L19 codebook from P11-FE129, identify codes whose firing predicts correctness; activate those codes during forward pass on K=1 generations and measure ΔAccuracy. Compare against H-1's planned per-position DoM steering at the same layer. Refutation test for whether the steering vehicle (discrete code substitution vs. dense vector addition) is the right abstraction.
@@ -2534,6 +2763,78 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-7, F-2
 **Trigger condition:** Paper demonstrates cosine-distance attractor metric on hidden states with large effect sizes.
 
+### P11-FE1008 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Test whether zero-shot vs few-shot MATH-500 prefill DoM AUROC differs significantly to determine if prefill correctness signal is ICL-anchor-mediated or problem-intrinsic
+
+**Why:** If the anchor hypothesis holds, DoM signal should depend on demonstration presence (few-shot anchors). A zero-shot extraction that maintains AUROC 0.77 would refute the anchor-mediated interpretation and confirm F-2 as problem-intrinsic geometry.
+
+**Cost:** 45min CPU (need one zero-shot forward pass to extract L19 activations, then cached DoM probe)
+**Triggered by:** [2305.14160](https://arxiv.org/abs/2305.14160)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2305.14160 anchor mechanism hypothesis applied to our F-2 interpretation
+
+### P11-FE1009 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Run saliency-based information flow analysis (Taylor expansion attention significance) on Qwen-2.5-1.5B MATH-500 prefill to identify whether DoM signal routes through specific token positions (anchor-like concentration) or distributes uniformly
+
+**Why:** Paper's core finding is that information concentrates at anchor tokens. If our DoM signal shows similar concentration at specific prefill positions (e.g., number tokens, operation tokens), it would fundamentally reframe F-2 from 'distributed residual-stream direction' to 'attention routing quality to anchor tokens'. Would require backprop through attention matrices.
+
+**Cost:** 3h H100
+**Triggered by:** [2305.14160](https://arxiv.org/abs/2305.14160)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** Wang et al. 2305.14160 saliency tracing methodology
+
+### P11-FE1012 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Decompose L19 DoM signal into per-eigenvalue contributions by projecting onto Sigma^-1 eigenvectors and computing per-component AUROC — test whether kernel's Mahalanobis structure explains why cov-spectrum (0.7928) beats DoM (0.7731)
+
+**Why:** The kernel K uses Sigma^-1 which weights small eigenvalues more; our cov-spectrum probe uses log-eigenvalues. If DoM is the kernel's first axis, the remaining axes (weighted by inverse eigenvalues) should account for the 0.7928 - 0.7731 gap
+
+**Cost:** 20min CPU
+**Triggered by:** [2305.12766](https://arxiv.org/abs/2305.12766)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2305.12766 kernel definition + existing cov-spectrum results
+
+### P11-FE1013 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute Mahalanobis distance d_M(hi, mu) = sqrt((hi-mu)^T Sigma^-1 (hi-mu)) for each of 500 L19 prefill activations and compare AUROC against DoM (0.7731) and cov-spectrum (0.7928)
+
+**Why:** If the kernel regression view is correct, Mahalanobis distance (which is the natural distance in the kernel space) should be a competitive or superior correctness predictor to DoM projection
+
+**Cost:** 10min CPU
+**Triggered by:** [2305.12766](https://arxiv.org/abs/2305.12766)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** 2305.12766 defines kernel via Sigma^-1; Mahalanobis distance is the scalar summary of kernel-space distance from centroid
+
+### P11-FE1014 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Extract per-head attention maps at L16-L21 during MATH-500 prefill and identify which heads' attention entropy best predicts correctness — head-level kernel-regression decomposition
+
+**Why:** Paper shows specific heads (not the full residual stream) implement kernel regression at layers 16-21 in GPT-J. If the same holds for Qwen-2.5-1.5B, per-head attribution would identify the actual kernel-computing circuits and potentially beat full-stream DoM AUROC 0.7731
+
+**Cost:** 3h H100
+**Triggered by:** [2305.12766](https://arxiv.org/abs/2305.12766)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2305.12766 Fig.3 showing head-specific kernel regression at layers 16-21
+
+### P11-FE1019 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Implement ICV-style all-layer DoM steering on Qwen-2.5-1.5B MATH-500: compute per-layer DoM from cached activations, add λ·DoM_l at each layer with norm-preservation during generation, sweep λ∈{0.05,0.1,0.15,0.2}, measure accuracy delta
+
+**Why:** Direct test of H-1 using the ICV methodology (all-layer intervention + norm-preservation). If accuracy improves, it validates both H-1 and the ICV framework for math reasoning. If it fails, it rules out contrastive-direction steering for correctness.
+
+**Cost:** 2h H100
+**Triggered by:** [2311.06668](https://arxiv.org/abs/2311.06668)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** 2311.06668 shows all-layer steering outperforms single-layer by ~40pp on detoxification
+
 ### P11-FE102 (P11) — [ROI: 8, READY, HIGH]
 
 **What:** Subspace-orthogonality test for F-3 via LEACE. Fit LEACE on Qwen-1.5B L19 prefill features for K=1 correctness; transform features; refit the final-token DoM and re-measure final-token DoM AUROC (currently 0.7186). If F-3's 'orthogonal' reading is correct, AUROC unchanged. A drop of >0.05 indicates a shared rank-r linear subspace that single-vector cos=0.046 missed.
@@ -2545,6 +2846,66 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-3, F-2
 **Would update:** F-3
 **Trigger condition:** 2306.03819 — LEACE removes all linear classifiers, not just one direction
+
+### P11-FE1020 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute exact-answer cluster count from cached K>=2 MATH-500 completions and measure AUROC against 1024-tok correctness labels. Compare ranking with DoM AUROC 0.7731.
+
+**Why:** Semantic entropy (2302.09664) shows simple cluster-count achieves AUROC 0.79 on TriviaQA. If cluster-count also dominates DoM on MATH-500, the internal-geometry approach is practically dominated by output statistics.
+
+**Cost:** 15min CPU
+**Triggered by:** [2302.09664](https://arxiv.org/abs/2302.09664)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Paper demonstrates output-only method achieves AUROC 0.828 without hidden-state access
+
+### P11-FE1023 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Generate M=10 CoT completions per MATH-500 problem at T=0.5 on Qwen-2.5-1.5B, compute full semantic entropy (with DeBERTa NLI clustering), and produce the definitive AUROC comparison: SE vs DoM vs combined.
+
+**Why:** Kuhn et al. report AUROC 0.828 on TriviaQA with OPT-30B. The definitive head-to-head on our exact setup (1.5B, MATH-500, 1024-tok) determines whether internal geometry is dominated or complementary. This anchors the entire practical motivation for F-2.
+
+**Cost:** 4h H100
+**Triggered by:** [2302.09664](https://arxiv.org/abs/2302.09664)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** FE960-FE962 preliminary results suggest signals may be complementary (rho < 0.6)
+
+### P11-FE1024 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Logit-lens entropy at L19 as correctness predictor: decode cached L19 prefill activations via W_U to get token-prediction distributions, compute entropy, and correlate with correctness. Compare AUROC to DoM (0.7731).
+
+**Why:** Copy suppression theory predicts that residual stream confidence (low entropy = high confidence = less copy suppression needed) should predict correctness. If logit-lens entropy matches or exceeds DoM AUROC, it suggests DoM is a proxy for prediction confidence rather than a geometric primitive.
+
+**Cost:** 30min CPU
+**Triggered by:** [2310.04625](https://arxiv.org/abs/2310.04625)
+**Depends on:** F-5, F-2
+**Would update:** F-2
+**Trigger condition:** 2310.04625 shows copy suppression is gated by intermediate prediction confidence
+
+### P11-FE1027 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Identify copy suppression heads in Qwen-2.5-1.5B via OV diagonal analysis (W_U × W_OV × W_E for all heads L14–L21), then ablate the top-3 copy suppression heads and re-extract L19 prefill activations to measure DoM AUROC change.
+
+**Why:** If ablating copy suppression heads at or before L19 destroys DoM predictive power, it proves the DoM signal is mechanistically downstream of copy suppression rather than an independent geometric property.
+
+**Cost:** 4h H100
+**Triggered by:** [2310.04625](https://arxiv.org/abs/2310.04625)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** 2310.04625 OV circuit method + self-repair phenomenon
+
+### P11-FE1028 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Screen L19 MLP neuron activations for high-kurtosis (>10) / high-norm candidates in cached 500-sample data and test if their activation vector predicts correctness
+
+**Why:** Gurnee et al. show universal neurons have kurtosis >> 3 and carry interpretable signal. If a handful of L19 neurons predict correctness as well as DoM (AUROC 0.7731), DoM may be a neuron-basis artifact.
+
+**Cost:** 30min CPU
+**Triggered by:** [2401.12181](https://arxiv.org/abs/2401.12181)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2401.12181 shows 1-5% of neurons are universal, monosemantic, high-kurtosis
 
 ### P11-FE103 (P11) — [ROI: 8, READY, HIGH]
 
@@ -2558,6 +2919,78 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-9
 **Trigger condition:** 2306.03819 concept scrubbing methodology
 
+### P11-FE1031 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute kurtosis of all 1536 dimensions of cached L19 prefill residuals (neuron basis) across 500 samples; test if high-kurtosis dimensions (>5) carry disproportionate correctness signal vs. Gaussian-like dimensions
+
+**Why:** If correctness signal concentrates in non-Gaussian (high-kurtosis) dimensions, this both explains F-10 null (PH on full space is Gaussian-dominated) and identifies a sparse informative subspace.
+
+**Cost:** 15min CPU
+**Triggered by:** [2401.12181](https://arxiv.org/abs/2401.12181)
+**Depends on:** F-10, F-2
+**Would update:** F-10
+**Trigger condition:** 2401.12181 universal neurons have kurtosis >> 3; non-universal are Gaussian
+
+### P11-FE1036 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Train 8192-latent k=32 SAE on Qwen-2.5-1.5B L19 residual stream over 500M tokens of math/reasoning text. Evaluate: (a) single-latent correctness probe AUROC vs DoM 0.7731, (b) top-k-latent probe vs cov-spectrum 0.7928, (c) cos(best-latent-direction, DoM) to test decomposition.
+
+**Why:** Directly tests whether SAE finds features that outperform or decompose the DoM direction. If single-latent AUROC > 0.7731, F-2's 'single direction' framing is incomplete. If multi-latent probe >> 0.7928, covariance basis is suboptimal.
+
+**Cost:** 4h H100
+**Triggered by:** [2406.04093](https://arxiv.org/abs/2406.04093)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** Gao et al. 2406.04093 scaling laws for probe recovery
+
+### P11-FE1040 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute layer-to-layer Jacobian spectrum at L19 for Qwen-2.5-1.5B on MATH-500. For each of 500 problems at the prefill final position, compute d(h_L19)/d(h_L18) Jacobian singular values via power iteration. Apply SD formula to get inference-time SD per problem. Correlate with correctness.
+
+**Why:** This directly tests whether SD's formal framework (attractor dimension from Jacobian spectrum) transfers to inference time. If inference-SD predicts correctness above DoM (0.7731), it validates H-4's conjecture and provides a principled replacement for the empirical DoM direction.
+
+**Cost:** 4h H100
+**Triggered by:** [2604.19740](https://arxiv.org/abs/2604.19740)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2604.19740 theoretical framework + H-4 hypothesis.
+
+### P11-FE1043 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Directional energy decomposition of L19 prefill activations: compute SVD energy concentration (Eq. 7 from Wang et al. 2604.09780) on cached 500×1536 L19 prefill matrix, quantifying how much variance concentrates in top singular directions and whether the 'shared direction dominance' pattern from MoE analysis appears in dense Qwen-2.5-1.5B.
+
+**Why:** If L19 activations show extreme energy concentration in the first singular direction (like MoE hidden states at depth), this mechanistically explains both why DoM ≈ PC1 (cos=0.9216) and why PH gives null (F-10) — the effective dimensionality is too low for topology. Extends the cos(DoM, PC1) single number to a full spectral decomposition.
+
+**Cost:** 10min CPU
+**Triggered by:** [The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise](https://arxiv.org/abs/2604.09780)
+**Depends on:** F-10, F-2
+**Would update:** F-2, F-10
+**Trigger condition:** Wang et al. 2604.09780 Prop. 1 suggests hidden-state energy concentration at deep layers drives linear-projection behavior
+
+### P11-FE1044 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Data-aware Lipschitz bound on DoM direction: compute ‖DoM·Π_r‖₂ for r=1..50 (Prop. 1 from Wang et al.) on cached L19 prefill activations. This decomposes the DoM projection's discriminative power across PCA subspaces, showing how much of the 0.7731 AUROC is captured by the top-r data principal directions vs. the residual.
+
+**Why:** The paper proves that linear projections (like DoM) are bounded by a data-geometry-aware constant. Computing this bound for DoM shows whether its predictive power is geometrically inevitable (concentrates in top PCA) or surprising (lives in residual directions). If r=1 already captures >90% of the bound, DoM is essentially trivial geometry.
+
+**Cost:** 15min CPU
+**Triggered by:** [The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise](https://arxiv.org/abs/2604.09780)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2604.09780 Prop. 1 tight upper bound on logit distance as function of principal subspace
+
+### P11-FE1048 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute inter-layer cosine similarity cos(h_l, h_{l+1}) for l=0..23 on cached per-layer L19 prefill activations, stratified by correct/incorrect. Test whether correct problems show higher convergence (higher cos) at L17-L21 than incorrect, supporting iterative fixed-point interpretation of DoM.
+
+**Why:** Paper shows iterative computation models converge depth-wise. If Qwen-2.5-1.5B behaves similarly, correct problems should show representation stabilization at L19 — directly explaining WHY DoM works.
+
+**Cost:** 20min CPU
+**Triggered by:** [From Growing to Looping: A Unified View of Iterative Computation in LLMs](https://arxiv.org/abs/2602.16490)
+**Depends on:** F-3, F-2
+**Would update:** F-2
+**Trigger condition:** 2602.16490 shows convergent depth-wise signatures predict reasoning success
+
 ### P11-FE105 (P11) — [ROI: 8, READY, HIGH]
 
 **What:** Per-layer FFN/MHSA cosine + top-50 Jaccard analysis on Qwen-2.5-1.5B last-token prefill activations from MATH-500. Replicates PMET Figure 2 protocol on our model. Goal: locate the FFN-stabilization layer in Qwen and check whether L19 sits at, before, or after it. Predicts L19 should be in the FFN-stable regime if F-2's framing as 'knowledge axis' is right.
@@ -2570,6 +3003,138 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-9, F-3, F-2
 **Trigger condition:** PMET 2308.08742 per-layer analysis methodology; need to verify the GPT-J pattern transfers to Qwen-2.5-1.5B before building further on F-2/F-3 framings.
 
+### P11-FE1053 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Identifiability audit of L19 DoM direction — enumerate near-optimal linear directions and measure angular cone diameter
+
+**Why:** Paper 2502.20914 shows MI explanations are non-identifiable in small networks. Test whether our DoM direction (F-2) is effectively unique or one of a broad family of near-equivalent solutions. The cos(DoM, PC1)=0.9216 suggests near-uniqueness but needs systematic quantification.
+
+**Cost:** 30min CPU
+**Triggered by:** [Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable?](https://arxiv.org/abs/2502.20914)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** 2502.20914 demonstrates systematic non-identifiability of explanatory directions/subspaces
+
+### P11-FE1057 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Convex mixture of prefill and final-token L19 activations — test whether interior α outperforms endpoints for correctness AUROC
+
+**Why:** Paper shows convex interior of token-segment means exceeds vertices. If α*prefill + (1−α)*final at some interior α > max(0.7731, 0.7186), then prefill/final carry complementary information extractable by simple mixing — consistent with F-3 orthogonality enabling additive signal.
+
+**Cost:** 15min CPU
+**Triggered by:** [The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv](https://arxiv.org/abs/2605.09969)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** Wang et al. 2605.09969 convex simplex methodology shows interior optima in token mixtures
+
+### P11-FE1059 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Generation-token DoM rotation curve — compute DoM direction at every 50th generation token, plot cos(DoM_t, prefill_DoM) and cos(DoM_t, final_DoM) to test smooth rotation vs discrete circuit switch
+
+**Why:** If cos rotates smoothly from prefill-aligned to final-aligned across generation, F-3's orthogonality is a trajectory-length consequence rather than evidence of distinct circuits. Wang et al. show smooth phase structure; this tests whether DoM geometry follows the same smooth evolution.
+
+**Cost:** 3h H100
+**Triggered by:** [The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv](https://arxiv.org/abs/2605.09969)
+**Depends on:** F-3, F-2
+**Would update:** F-3
+**Trigger condition:** Wang et al. 2605.09969 demonstrate smooth representational phase structure across generation tokens
+
+### P11-FE1062 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute OT-NNA (nearest-neighbor accuracy via sliced W₂ pairwise matrix) on L19 prefill activations: 500 real activations split correct/incorrect vs 500 draws from same-mean-same-cov Gaussian. If OT-NNA(real) ≫ 0.5 but OT-NNA(Gaussian) ≈ 0.5, distributional geometry carries non-Gaussian signal. Compare against PR (participation ratio) discrimination from F-10.
+
+**Why:** F-10 showed PH can't distinguish from Gaussian. OT-NNA is a different geometric test — if it also fails, the null extends to transport geometry. If it succeeds, the null is PH-specific.
+
+**Cost:** 20min CPU
+**Triggered by:** [Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once](https://arxiv.org/abs/2605.08424)
+**Depends on:** F-2, F-10
+**Would update:** F-10
+**Trigger condition:** 2605.08424 OT-NNA metric + F-10 Gaussian null finding
+
+### P11-FE1063 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Decompose OT cost between correct/incorrect activation clouds into mean-shift component (W₂ between centroids) and shape component (W₂ after mean-centering both clouds). Report ratio. If shape/total < 0.1, the distributional geometry is exhausted by the centroid (≈ DoM direction) and F-2's single-direction result is near-optimal.
+
+**Why:** Directly tests whether F-2's DoM projection is information-lossy or whether correct/incorrect distributions differ only in location (not shape).
+
+**Cost:** 15min CPU
+**Triggered by:** [Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once](https://arxiv.org/abs/2605.08424)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** 2605.08424 decomposition of transport cost into location + shape
+
+### P11-FE1070 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Concept erasure causal test: apply P=I-DoM*DoM^T to L19 residual stream during Qwen-2.5-1.5B forward passes on MATH-500, measure accuracy delta. If negative delta, confirms DoM is entangled with task computation (replicating their result). Compare against 10 random-direction erasures as control
+
+**Why:** This is the definitive causal test for whether our DoM direction is merely correlated or causally mediating correctness computation. Paper shows -3.6pp for their direction. A negative result would close the causal interpretation of F-2 while preserving the predictive utility (F-8)
+
+**Cost:** 2h H100
+**Triggered by:** [Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes](https://arxiv.org/abs/2605.05715)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** 2605.05715 concept erasure methodology with clear positive control
+
+### P11-FE1072 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** ICA decomposition of cached L19 prefill activations: run FastICA on 500×1536 matrix, compute per-IC AUROC for correctness prediction, compare best IC to DoM (0.7731) and PC1 (cos 0.9216)
+
+**Why:** Paper shows ICA produces sparser, more selective directions than PCA on frozen embeddings. If ICA finds a correctness direction with AUROC > 0.7731 that diverges from PC1/DoM, it challenges F-2's single-direction sufficiency.
+
+**Cost:** 10min CPU
+**Triggered by:** [Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer](https://arxiv.org/abs/2605.07407)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** ICA outperforms PCA PC1 for selective health-condition prediction in 256-d embeddings (2605.07407 Table 1)
+
+### P11-FE1078 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Extract activations from layers L1-L28 (all layers) for 500 MATH-500 samples on Qwen-2.5-1.5B. Construct full 28x28 inter-layer relation matrices per sample. Train logistic regression on SVD spectra (28 singular values) for correctness prediction. Test whether relation-matrix features outperform single-layer DoM (0.7731) and cov-spectrum (0.7928).
+
+**Why:** The full inter-layer relation matrix captures global representational structure that partial-layer subsets may miss. If AUROC exceeds 0.7928, this establishes inter-layer relational geometry as the dominant correctness signal over within-layer covariance.
+
+**Cost:** 2h H100
+**Triggered by:** [SR$^2$-LoRA: Self-Rectifying Inter-layer Relations in Low-Rank Adaptation for Class-Incremental Learning](https://arxiv.org/abs/2605.07420)
+**Depends on:** F-4, F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2605.07420 full inter-layer relation framework
+
+### P11-FE1080 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Embedding-norm proxy for DoM: extract Qwen-2.5-1.5B embedding matrix, compute per-token L2 norms, aggregate per-problem mean embedding norm for MATH-500, test correlation with (a) DoM scores and (b) correctness labels.
+
+**Why:** TIDE shows embedding L2 norm is a monotonic proxy for token training quality. If mean embedding norm per problem predicts correctness comparably to DoM, the prefill signal may be shallow.
+
+**Cost:** 15min CPU
+**Triggered by:** [TIDE: Every Layer Knows the Token Beneath the Context](https://arxiv.org/abs/2605.06216)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Figure 1 in TIDE shows rare-token embeddings have 0.61× the norm of common tokens — directly testable against our correctness signal.
+
+### P11-FE1083 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** DoM robustness to Lorem prefix: prepend 10 random Lorem sequences (100-300 tokens each) to MATH-500 prompts, extract L19 prefill activations, measure per-problem cos(DoM_perturbed, DoM_original) and overall AUROC shift
+
+**Why:** Directly tests H-553 (fragility) and H-759 (robustness). LoPE shows Lorem preserves question comprehension in Qwen3; if same holds for Qwen-2.5-1.5B L19 activations, DoM is confirmed robust to strong input perturbations.
+
+**Cost:** 90min CPU (10 Lorem variants × 500 problems × forward pass + cosine analysis)
+**Triggered by:** [Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration](https://arxiv.org/abs/2605.05566)
+**Depends on:** F-5, F-2
+**Would update:** F-5, F-2
+**Trigger condition:** LoPE Figure 6b shows near-natural perturbations cluster with originals in representation space
+
+### P11-FE1088 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** DCD-inspired activation clustering of MATH-500: cluster 500 L19 prefill activations (PCA-50, K-means k=2..8, silhouette-selected) and fit per-cluster logistic DoM probes to test whether correctness prediction conflates multiple sub-mechanisms
+
+**Why:** DCD shows pooled circuit analysis conflates distinct mechanisms. If per-cluster AUROC exceeds pooled 0.7731, F-2's single-direction story needs nuance. If clustering fails to improve, F-2 is strengthened.
+
+**Cost:** 30min CPU
+**Triggered by:** [Data-driven Circuit Discovery for Interpretability of Language Models](https://arxiv.org/abs/2605.09129)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** DCD finding that datasets containing multiple mechanisms produce misleadingly unified circuits when analyzed with single-probe methods
+
 ### P11-FE109 (P11) — [ROI: 8, READY, HIGH]
 
 **What:** Single-vector ActAdd at L19 on Qwen-1.5B MATH-500 K=1 — direct test of refutations 1+3. Build ActAdd vector from a small set of correctness-targeted contrast prompt pairs (e.g., 'solve this carefully and correctly' vs 'guess the answer quickly') at L19, position a=last_user_token, sweep c in {3,5,8,12,15}. Inject once at user-prompt position; generate K=1 with the same temperature/seed used in pathway11_h100/prefill_gated_compute. Measure: (a) MATH-500 accuracy delta vs unsteered baseline, (b) ConceptNet P@1 off-target, (c) per-c degradation curve. Outcome decides whether H-1 needs per-position machinery or whether a single ActAdd vector suffices.
@@ -2581,6 +3146,102 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-7, F-3, F-2
 **Would update:** F-7, F-3
 **Trigger condition:** 2308.10248 (ActAdd canonical recipe)
+
+### P11-FE1093 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Direction non-uniqueness test: train 20 logistic probes with different random seeds on cached L19 prefill activations, compute pairwise cosine similarity of weight vectors and per-probe AUROC
+
+**Why:** If all 20 weight vectors cluster tightly (pairwise cos >0.95), DoM is practically unique and the paper's non-uniqueness thesis does not threaten F-2. If they spread (some cos <0.5 at AUROC >0.75), DoM is one of many.
+
+**Cost:** 15min CPU
+**Triggered by:** [All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs](https://arxiv.org/abs/2605.12671)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.12671 demonstrates <5% IoU overlap between circuits for same task
+
+### P11-FE1095 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Iterative direction peeling: repeatedly project out top discriminative direction, retrain, measure AUROC at each step. Plot AUROC vs number-of-directions-removed curve.
+
+**Why:** Characterizes the dimension of the 'correctness subspace'. If AUROC decays slowly (e.g. still >0.65 after removing 5 directions), correctness is distributed. If it drops sharply after 1-2 removals, DoM is effectively canonical.
+
+**Cost:** 20min CPU
+**Triggered by:** [All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs](https://arxiv.org/abs/2605.12671)
+**Depends on:** F-2
+**Would update:** F-7, F-2
+**Trigger condition:** 2605.12671 argues mechanistic non-uniqueness scales with model width
+
+### P11-FE1097 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute SSB order parameter c^l = mean(||h||²) on cached L19 prefill activations, stratified by correctness label
+
+**Why:** The paper's Eq. 6 order parameter directly measures whether activations are in the broken-symmetry phase. If correct and incorrect problems have different c values, this provides a new single-feature correctness predictor grounded in the Goldstone framework.
+
+**Cost:** 10min CPU
+**Triggered by:** [Spontaneous symmetry breaking and Goldstone modes for deep information propagation](https://arxiv.org/abs/2605.14685)
+**Depends on:** F-1, F-2
+**Would update:** F-1, F-2
+**Trigger condition:** 2605.14685 Eq. 6 defines c^l as the phase-distinguishing order parameter
+
+### P11-FE1099 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Decompose L19 activations into magnitude (radial) and phase (angular) components; test AUROC of each separately against correctness
+
+**Why:** The SSB framework predicts information is carried in the phase (Goldstone mode), not the magnitude. If phase-only features match or exceed DoM AUROC 0.7731, this confirms the Goldstone interpretation. If magnitude alone suffices, the framework doesn't apply.
+
+**Cost:** 30min CPU
+**Triggered by:** [Spontaneous symmetry breaking and Goldstone modes for deep information propagation](https://arxiv.org/abs/2605.14685)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2605.14685 Section 2.2: information stored in phase, not magnitude
+
+### P11-FE1100 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute per-layer order parameter c^l across all 28 Qwen-2.5-1.5B layers to identify the symmetry-breaking phase transition layer
+
+**Why:** If there is a sharp transition in c^l (activation magnitude) at or near L19, this would provide a theoretical explanation for why L19 is special (H-783). The SSB framework predicts the critical layer is where σ_W crosses 1.
+
+**Cost:** 2h H100
+**Triggered by:** [Spontaneous symmetry breaking and Goldstone modes for deep information propagation](https://arxiv.org/abs/2605.14685)
+**Depends on:** F-2, F-1
+**Would update:** F-2, F-1
+**Trigger condition:** 2605.14685 Fig. 2 shows sharp phase transition; H-783 asks why L19 is special
+
+### P11-FE1101 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Activation-space Marchenko-Pastur test: fit MP law to eigenspectrum of L19 prefill activation covariance (500×1536, Q≈0.326), count eigenvalues beyond λ+ + Δ_TW. Determines whether cov-spectrum features are 'Correlation Traps' in activation space.
+
+**Why:** If top eigvals driving AUROC 0.7928 are beyond MP edge, they represent non-self-averaging structure — either genuinely informative modes or overfitting artifacts. Distinguishes 'the signal is real spectral structure' from 'the signal is within random-matrix fluctuations.'
+
+**Cost:** 10min CPU
+**Triggered by:** [Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory](https://arxiv.org/abs/2605.12394)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2605.12394 Correlation Trap method applied to activation covariance
+
+### P11-FE1103 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** DoM alignment with activation-space MP outliers: split L19 prefill activations into correct (243) and incorrect (257) subsets, compute separate covariance spectra, fit MP to each, extract outlier eigenvectors beyond λ+, measure cos(DoM, v_outlier). Tests whether DoM IS a spectral outlier direction.
+
+**Why:** If DoM aligns with a beyond-MP-edge eigenvector, it confirms DoM captures non-random covariance structure. If not, DoM is within the MP bulk and its predictive power arises from a different mechanism than spectral separation.
+
+**Cost:** 15min CPU
+**Triggered by:** [Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory](https://arxiv.org/abs/2605.12394)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.12394 spectral outlier interpretation of informative directions
+
+### P11-FE1106 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Layer-wise convergence residual: compute per-sample ||h_{L+1} - h_L|| / ||h_L|| across all 29 layers from cached prefill_all_layers, test whether convergence rate at L19 predicts correctness
+
+**Why:** Attractor model predicts well-learned (correct) patterns have smaller residuals at the 'backbone/attractor boundary'. If residual norm at L19 achieves AUROC comparable to DoM (0.7731), it reframes F-2 as measuring distance-to-equilibrium rather than a content-specific direction.
+
+**Cost:** 15min CPU
+**Triggered by:** [Solve the Loop: Attractor Models for Language and Reasoning](https://arxiv.org/abs/2605.12466)
+**Depends on:** F-4, F-2
+**Would update:** F-4, F-2
+**Trigger condition:** 2605.12466 equilibrium internalization finding + F-2 L19 specificity
 
 ### P11-FE110625B (P11) — [ROI: 8, READY, HIGH]
 
@@ -2606,6 +3267,30 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-3
 **Trigger condition:** Paper's intermediate-layer saturation framing across six 7–70B models, none of which were tested for prefill/final orthogonality.
 
+### P11-FE1109 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Jacobian spectral radius estimation: from all-layer caches, estimate layer-to-layer Jacobian spectral radius via power iteration on (h_{L+1} - mean) given (h_L - mean), test whether rho(J) < 1 characterizes L19 as a contraction boundary
+
+**Why:** The attractor model's stability guarantee requires rho(J) < 1. If standard Qwen layers have rho > 1 before L19 and rho < 1 after, it validates the backbone/attractor phase transition interpretation and provides a mechanistic explanation for why L19 is the optimal probe layer.
+
+**Cost:** 45min CPU
+**Triggered by:** [Solve the Loop: Attractor Models for Language and Reasoning](https://arxiv.org/abs/2605.12466)
+**Depends on:** F-2, F-1
+**Would update:** F-2, F-1
+**Trigger condition:** 2605.12466 stability analysis via Jacobian spectral radius
+
+### P11-FE1110 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Bootstrap stability of L19 DoM direction: fit logistic regression probe 200 times on bootstrap resamples of 500-sample MATH-500 cached activations, compute cos(DoM_b, DoM_full) distribution and SD(AUROC) across resamples.
+
+**Why:** F-2 reports AUROC 0.7731 as a point estimate. RoSHAP framework shows single-run attributions can be unstable. We have never quantified the stability of the DoM direction or its AUROC under resampling — this is a basic robustness check the finding needs.
+
+**Cost:** 30min CPU
+**Triggered by:** [RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution](https://arxiv.org/abs/2605.15154)
+**Depends on:** F-2
+**Would update:** F-8, F-2
+**Trigger condition:** RoSHAP paper demonstrates that single-run feature attribution can be arbitrarily unstable even when point-estimate accuracy is high (Golub example: perfect F1, but top features change across splits).
+
 ### P11-FE112 (P11) — [ROI: 8, READY, HIGH]
 
 **What:** NRG-style length-stratification audit of prefill L19 DoM AUROC (F-2). Bucket MATH-500 by prompt token count into 5 bins (≤25th, 25-50, 50-75, 75-90, ≥90 percentile). Compute prefill-DoM AUROC within each bin. Compute weighted within-bucket AUROC and compare to overall 0.7731. Also: train univariate LR on prompt-length alone, report AUROC. If length-alone AUROC ≥ 0.65 OR within-bucket weighted AUROC < 0.7, the F-2 headline is partially a length confound.
@@ -2617,6 +3302,234 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-2
 **Would update:** F-9, F-8, F-2
 **Trigger condition:** Reading 2310.03716 — NRG framework directly applies to any AUROC claim conditioned on cached features.
+
+### P11-FE1121 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Per-layer label-weighted moment compositionality test: extract activations at all 28 layers of Qwen-2.5-1.5B on MATH-500 (fresh H100 forward pass), compute C^(ℓ) at each layer, extract leading eigenvectors, concatenate 28 projections into a single feature vector, fit logistic regression. Tests whether per-layer Neural LoFi features are compositionally distinct and collectively beat L19 DoM.
+
+**Why:** Neural LoFi's compositionality principle predicts layers extract distinct features. If the 28-layer ensemble beats L19 DoM (0.7731), it refutes F-9's redundancy conclusion and shows the right multi-layer aggregation exposes non-redundant information. If it doesn't beat L19 DoM, it provides strong evidence that the correctness signal is NOT hierarchically compositional — it's fully formed at L19.
+
+**Cost:** 2h H100
+**Triggered by:** [Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning](https://arxiv.org/abs/2605.13612)
+**Depends on:** F-9, F-2
+**Would update:** F-9
+**Trigger condition:** 2605.13612 Section 3.2 low-degree compositionality + F-9 CoE redundancy
+
+### P11-FE1125 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** LPRM-style MLP value head on L19 prefill activations: train a 2-layer MLP (hidden=128, ReLU) on 500×1536 cached L19 prefill activations to predict binary correctness via 5-fold CV. Compare AUROC to DoM logistic regression (0.7731) and full-dim L2-regularized ceiling (0.7847). If MLP significantly exceeds linear ceiling, the correctness signal has nonlinear structure; if matches, DoM is near-optimal.
+
+**Why:** GRAM's LPRM (Eq. 16) trains a value head to predict correctness from latent states. Testing whether a nonlinear readout extracts more signal than our linear DoM probe from the same activations. This is the cheapest test of whether we're leaving signal on the table.
+
+**Cost:** 15min CPU
+**Triggered by:** [Generative Recursive Reasoning | alphaXiv](https://arxiv.org/abs/2605.19376)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** GRAM's LPRM value head predicting correctness from latent states — same principle as our DoM probe but potentially nonlinear.
+
+### P11-FE1132 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Best-of-K width-scaling test: run K ∈ {5, 10, 25} forward passes through Qwen-2.5-1.5B on MATH-500 with temperature=0.6, extract L19 DoM for each pass, select answer from the pass with highest DoM score (best-DoM@K). Compare against single-pass DoM selective prediction (F-8). Report pass@K, best-DoM@K, and mode@K.
+
+**Why:** PTRM shows width scaling (K rollouts + Q-head selection) dramatically outperforms depth scaling. Our DoM is analogous to Q head. Testing whether best-DoM@K improves selective prediction would validate width-scaling as a practical strategy for F-8's abstention pipeline.
+
+**Cost:** 2h CPU
+**Triggered by:** [Probabilistic Tiny Recursive Model](https://arxiv.org/abs/2605.19943)
+**Depends on:** F-8, F-2
+**Would update:** F-8
+**Trigger condition:** PTRM width-scaling result: +13pp from K rollouts vs +3.1pp from depth scaling
+
+### P11-FE1138 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** DelTA-style discriminative reweighting of L19 prefill DoM: apply entropy-regularized α-coefficient refinement (K=1) to cached 500×1536 L19 prefill activations, extract refined discriminative direction, compare AUROC against standard DoM 0.7731
+
+**Why:** DelTA shows centroid discriminators (which our DoM is) can be improved by suppressing shared-pattern-dominated samples. If refined DoM AUROC > 0.7731, the current DoM is suboptimal and F-2's ceiling claim needs updating. If ≈0.7731, confirms DoM is already close to the centroid-discriminator optimum.
+
+**Cost:** 20min CPU
+**Triggered by:** [DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards](https://arxiv.org/abs/2605.21467)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.21467 Equation 6-7 centroid refinement applied to activation-space (not gradient-space) centroids
+
+### P11-FE1141 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Discriminative covariance spectrum: apply DelTA α-reweighting to samples before computing the covariance matrix for cov-spectrum probe, re-extract top-20 log-eigenvalues, compare AUROC against current 0.7928 (FE881). Tests whether cov-spectrum surplus over DoM comes from shared-pattern fitting.
+
+**Why:** If reweighted-covariance AUROC drops to ≈0.7731 (DoM level), the 0.7928 surplus was fitting shared structure. If it holds or increases, the covariance spectrum genuinely captures discriminative higher-order structure beyond the mean direction.
+
+**Cost:** 30min CPU
+**Triggered by:** [DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards](https://arxiv.org/abs/2605.21467)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.21467 shared-pattern analysis applied to cov-spectrum probe
+
+### P11-FE1142 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Decompose cached 1536-d L19 DoM vector into per-head blocks (assuming 12 heads × 128 dims for Qwen-2.5-1.5B) and measure L2-norm per head block to test whether DoM signal is concentrated in a sparse subset of heads
+
+**Why:** RTPurbo shows ~15% of heads are retrieval heads carrying long-range signal. If DoM is concentrated in a similarly small head subset, it supports H-64/H-525 and reframes F-2 as a retrieval-head gating signal rather than whole-layer geometry
+
+**Cost:** 15min CPU
+**Triggered by:** [Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps](https://arxiv.org/abs/2605.16928)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** RTPurbo finding that only 13.7% of heads carry retrieval signal, directly applicable to cached DoM direction
+
+### P11-FE1145 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Run RTPurbo-style needle-based retrieval head identification on Qwen-2.5-1.5B at L19: single forward pass with output_attentions=True on a long input with duplicated needle, compute retrieval score R_h per head, partition into retrieval vs local
+
+**Why:** Ground-truth head partition for Qwen-2.5-1.5B enables direct test of whether DoM aligns with retrieval-head subspace. RTPurbo only tested Qwen3-30B; our 1.5B model may show different head specialization patterns. Combined with FE130451 results, this would definitively test the retrieval-head hypothesis for F-2
+
+**Cost:** 1h H100
+**Triggered by:** [Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps](https://arxiv.org/abs/2605.16928)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** RTPurbo's head identification methodology is directly applicable to our target model
+
+### P11-FE1146 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Fourier structure test on L19 prefill PCA — order 500 MATH-500 samples by DoM projection, compute DFT of top-k PC time series, measure fraction of variance in first 5 Fourier harmonics vs. shuffled null
+
+**Why:** Karkada et al. predict that if L19 activations reflect co-occurrence symmetry, PCA projections ordered by a semantic axis should show sinusoidal structure. If confirmed, F-2's AUROC ceiling becomes a spectral-gap prediction; if null, L19 geometry is not co-occurrence-driven.
+
+**Cost:** 15min CPU
+**Triggered by:** [Symmetry in language statistics shapes the geometry of model representations](https://arxiv.org/abs/2602.15029)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2602.15029 proves Fourier structure in Gemma 2B residual streams; test whether same structure appears in Qwen L19 prefill for MATH-500
+
+### P11-FE1148 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Fourier basis vs PCA basis subspace overlap — compute DFT matrix for 500 samples (ordered by DoM projection), measure canonical angles between top-r DFT subspace and top-r PCA subspace for r=1..20
+
+**Why:** If the Fourier and PCA bases are aligned, the paper's framework explains why PCA probing works (FE291 AUROC 0.7856) and why PC1 ≈ DoM (cos=0.9216). If misaligned, PCA captures non-Fourier structure — e.g., a learned computation rather than a statistical echo.
+
+**Cost:** 15min CPU
+**Triggered by:** [Symmetry in language statistics shapes the geometry of model representations](https://arxiv.org/abs/2602.15029)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2602.15029 proves PCA ≈ Fourier for co-occurrence-driven embeddings; our cos(DoM,PC1)=0.9216 is suggestive but not a Fourier-basis test
+
+### P11-FE1156 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute effective latent rank (exponentiated SVD entropy) on cached L19 prefill activations, split by correct vs. incorrect. Compare with participation ratio.
+
+**Why:** NextLat shows standard transformers have high effective rank (~160) while belief-state models compress to ~50. If correct problems have lower effective rank than incorrect in our L19 data, this provides a belief-state interpretation of F-4 asymmetric collapse and a new scalar correctness predictor complementary to DoM.
+
+**Cost:** 10min CPU
+**Triggered by:** [Next-Latent Prediction Transformers Learn Compact World Models](https://arxiv.org/abs/2511.05963)
+**Depends on:** F-4, F-2
+**Would update:** F-4
+**Trigger condition:** NextLat effective-rank metric as alternative to PR for measuring representational compactness.
+
+### P11-FE1158 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Measure cross-layer hidden-state predictability: fit linear regression L19 → L20 activations (or L18 → L19) on cached NPZs, compute per-problem R² residual. Test whether higher next-layer-predictability correlates with correctness.
+
+**Why:** NextLat's core insight is that belief states have predictable transitions. If correct problems have more predictable layer-to-layer transitions in a standard model (higher R²), this validates H-803 (fixed-point interpretation) and provides a mechanistic account of F-4 without retraining.
+
+**Cost:** 30min CPU
+**Triggered by:** [Next-Latent Prediction Transformers Learn Compact World Models](https://arxiv.org/abs/2511.05963)
+**Depends on:** F-4, F-2
+**Would update:** F-4
+**Trigger condition:** Admission note: 'measure predictability of L20 activations from L19 (linear regression R²) per-problem on cached NPZs.'
+
+### P11-FE1163 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Spectral-energy-weighted mean pooling for DoM — instead of uniform mean across token positions for the prefill DoM direction, weight each token's contribution by its spectral energy (PC1 projection magnitude). Compare 5-fold OOF AUROC of energy-weighted DoM vs uniform DoM (0.7731). Tests whether token-importance weighting lifts the single-direction correctness signal.
+
+**Why:** The admission note suggested this directly. EGA's τ≈0.35 implies ~36% of tokens carry most information. If uniform pooling dilutes the DoM signal with low-information tokens, energy weighting should lift AUROC.
+
+**Cost:** 20min CPU
+**Triggered by:** [Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention](https://arxiv.org/abs/2605.21842)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** EGA shows ~64% of tokens are 'turbulent background' that should be suppressed. Our DoM uses uniform aggregation across all token positions.
+
+### P11-FE1164 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Project cached L19 prefill DoM direction through Qwen-2.5-1.5B's LayerNorm + unembedding matrix (logit lens) and inspect top-50 tokens for coherence. Determines whether our DoM is an 'answer direction' (tokens relate to correctness) or a 'computational instruction' (incoherent projection, as Nadaf 2604.02608 finds for FVs).
+
+**Why:** Nadaf shows FVs achieving >0.90 steering accuracy project to incoherent token distributions. Our DoM (AUROC 0.7731) is extracted by the same mean-difference method. If DoM also projects incoherently, it encodes a process instruction, not correctness content — reframing F-2's interpretation.
+
+**Cost:** 15min CPU
+**Triggered by:** [Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens](https://arxiv.org/abs/2604.02608)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2604.02608 Fig 5, §5.1: FV vocabulary projection is universally incoherent even at high steering accuracy
+
+### P11-FE1165 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Train Hewitt & Liang control probe: logistic regression on cached L19 prefill activations with deterministic random shuffle of correct/incorrect labels. Compare control AUROC to our 0.7731 DoM AUROC to measure selectivity (real − control). If selectivity is low, our probe may be exploiting label-marginal shortcuts rather than reading genuine correctness signal.
+
+**Why:** Nadaf shows the H&L control vetoes 6 false positives on object_color where probes attain >0.82 by exploiting label-marginal shortcuts. Our 48.6% correct rate (243/500) is not balanced — need to verify our 0.7731 isn't inflated by a probe learning the marginal.
+
+**Cost:** 10min CPU
+**Triggered by:** [Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens](https://arxiv.org/abs/2604.02608)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2604.02608 §5.4: Hewitt & Liang control vetoes 6 false positives on object_color
+
+### P11-FE1168 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Construct steerability–decodability 2×2 matrix for Qwen-2.5-1.5B on MATH-500. For each problem: (a) apply logit lens at L19 to check if correctness is decodable, (b) add DoM to L19 residual stream at varying α and measure accuracy change. Classify each problem into {both succeed, steerable only, decodable only, both fail}. Determines whether our DoM direction exhibits the same steerability–decodability dissociation as Nadaf's FVs.
+
+**Why:** This directly tests H-1 (DoM steering) while simultaneously testing whether F-2's decodability result is independent of steerability — the core question this paper raises for our project.
+
+**Cost:** 3h H100
+**Triggered by:** [Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens](https://arxiv.org/abs/2604.02608)
+**Depends on:** F-3, F-2
+**Would update:** F-3, F-2
+**Trigger condition:** 2604.02608 Table 2, §5.1: The 2×2 steerability–decodability matrix as a systematic framework
+
+### P11-FE1169 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Per-layer SNR decomposition on cached L19 prefill activations: compute signal power (DoM-aligned variance) vs noise power (residual variance) for each of the 28 Qwen-2.5-1.5B layers using cached NPZs.
+
+**Why:** The Shannon framework predicts that layer capacity is bounded by SNR. If L19 has the highest SNR among all layers, this provides an information-theoretic explanation for why the DoM AUROC peaks there (F-2). If L19 does NOT have the highest SNR, the DoM probe is capturing something beyond simple signal-to-noise.
+
+**Cost:** 20min CPU
+**Triggered by:** [LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws](https://arxiv.org/abs/2605.23901)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.23901 finding that δ > β universally means noise dominates — does this apply per-layer to our activations?
+
+### P11-FE1171 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Three-source noise decomposition on L19 covariance matrix: decompose the 1536×1536 covariance into signal subspace (top-k PCs aligned with correctness, from FE291/FE881), structured noise (remaining PCs with non-trivial eigenvalues), and unstructured noise (eigenvalue floor). Map to the paper's data-noise / model-interaction-noise / irreducible-noise taxonomy.
+
+**Why:** The cov-spectrum probe achieves 0.7928 using 20 log-eigenvalues. The Shannon noise decomposition could explain which eigenvalues carry signal vs which are noise, and predict the ceiling more tightly than the current full-1536d ridge ceiling of 0.7847.
+
+**Cost:** 30min CPU
+**Triggered by:** [LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws](https://arxiv.org/abs/2605.23901)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** Paper's three-source noise model (§3.2) applied to our cached covariance spectrum.
+
+### P11-FE1173 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Per-layer DoM AUROC + SNR profile across all 28 Qwen-2.5-1.5B layers on MATH-500 at 1024-tok: extract activations at every layer (not just L19), compute DoM AUROC and per-layer SNR, and fit the simplified Shannon law (Eq. 12) to the AUROC(layer) curve.
+
+**Why:** This is the definitive test of whether the Shannon capacity framework explains the L19 peak. If the Shannon law fits AUROC(layer) with high R², it provides the first theoretical explanation for why L19 specifically. If it fails, the peak must have a non-information-theoretic explanation.
+
+**Cost:** 2h H100
+**Triggered by:** [LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws](https://arxiv.org/abs/2605.23901)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** Paper's macro-level framework, adapted to per-layer probing.
+
+### P11-FE1175 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Per-problem functor parallelism test: for each MATH-500 problem i, compute cos((h_i − h_opposite_class_mean), DoM). Distribution of parallelism scores tests whether individual problems follow additive functor arithmetic (e_target ≈ e_source + f) rather than just class-level separation.
+
+**Why:** If parallelism is high (>0.8) for most problems, DoM acts as a functor vector and F-2's 'single direction' is a structured relational mapping. If parallelism is bimodal, some problems follow functor arithmetic and others don't — potentially identifying the F-8 selective-prediction boundary.
+
+**Cost:** 10min CPU
+**Triggered by:** [Emergent Analogical Reasoning in Transformers](https://arxiv.org/abs/2602.01992)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** 2602.01992 — functor vector arithmetic mechanism
 
 ### P11-FE118 (P11) — [ROI: 8, READY, HIGH]
 
@@ -2630,6 +3543,78 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-7, F-2
 **Trigger condition:** 2310.04861 §5.2 QK constituent plots, induction-head case study
 
+### P11-FE1180 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** BM25-style nonlinear reweighting of existing PCA/cov-spectrum features: apply sqrt transform + IDF weighting to top-20 PC projections (FE881 features), then 5-fold logistic regression. Compare AUROC to current 0.7928 linear ceiling.
+
+**Why:** Paper shows 53% relative performance gap between dot-product and BM25 scoring on same SAE features. If analogous gap exists for our cov-spectrum features, the current 0.7928 ceiling is a scoring artifact, not a signal ceiling.
+
+**Cost:** 20min CPU
+**Triggered by:** [Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies](https://arxiv.org/abs/2605.29384)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.29384 Table 6 shows dot-product vs BM25 scoring asymmetry
+
+### P11-FE1185 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Multi-layer DoM AUROC sweep across all 28 Qwen-2.5-1.5B layers to test whether L19 is uniquely specialized or part of a distributed band. Extract prefill activations at every layer (same 500 MATH-500 problems, 1024-tok), compute per-layer DoM AUROC (5-fold OOF), plot the SP-equivalent landscape, and test a multi-layer logistic regression combining the top-k layers by AUROC.
+
+**Why:** Directly tests whether F-2's L19 concentration is real or an artifact of only probing one layer. The paper shows Gemma has 14/34 layers with SP ≥ 4.0 — if Qwen similarly distributes signal, the 0.7731 AUROC ceiling may be breakable by multi-layer combination.
+
+**Cost:** 4h H100
+**Triggered by:** [Interpretability-Guided Layer Selection over Subspace Projection: SAEs as Stethoscopes, Not Scalpels, for Raw Task Vector Model Editing](https://arxiv.org/abs/2605.28649)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** Paper's bimodal layer-specialization pattern and finding that SAE-guided multi-layer selection outperforms single-layer or mid-layer heuristics.
+
+### P11-FE1186 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Compute Modern Hopfield energy E(ξ|X;β) per sample on cached L19 prefill activations (500×1536) with β sweep {0.001, 0.01, 0.1, 1.0}, compare AUROC vs DoM baseline 0.7731
+
+**Why:** Tests whether the non-linear log-sum-exp energy function captures correctness signal beyond the single linear DoM direction. If AUROC > 0.7731, the correctness signal has non-linear energy-landscape structure.
+
+**Cost:** 15min CPU
+**Triggered by:** [Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models](https://arxiv.org/abs/2605.27975)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** Takeda et al. 2605.27975 Theorem 4.1 connects Hopfield energy to outlier/cluster geometry
+
+### P11-FE1190 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Beta-regression direction localization on cached L19 prefill activations: fit PCA(50) + OLS regression with correctness label as continuous target, extract direction beta, compare cos(beta, DoM) and cos(beta, PC1), and evaluate beta-direction AUROC vs DoM AUROC 0.7731
+
+**Why:** Zhou et al. show that regression-derived directions in PCA space can localize continuous variables more precisely than mean-difference directions. If beta differs from DoM, the regression direction may capture additional variance; if cos(beta, DoM) approx 1, it validates DoM's optimality.
+
+**Cost:** 15min CPU
+**Triggered by:** [Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning](https://arxiv.org/abs/2605.29971)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Zhou et al. 2605.29971 demonstrate PCA+regression localization outperforms simple mean-difference for continuous variables
+
+### P11-FE1192 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Error signal decomposition on cached L19 activations: construct residual e_i = DoM_projection_i - correctness_i, localize error direction via PCA+regression, measure cos(error_dir, DoM) and whether error_dir predicts correctness independently
+
+**Why:** Zhou et al. find error signal is 'present but not naturally deployed' by additive steering. If an analogous error component exists in our DoM decomposition and is orthogonal to the bias component, it may explain why DoM predicts correctness (via bias) but steering (H-1) might fail (error not deployed).
+
+**Cost:** 15min CPU
+**Triggered by:** [Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning](https://arxiv.org/abs/2605.29971)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Zhou et al. 2605.29971 show bias vs error decomposition in steering vectors
+
+### P11-FE1195 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Inter-layer convergence ratio at L19 as label-free correctness predictor: compute ||h_19 - h_18||/||h_19|| per problem from pathway8_layerwise all-layer caches and measure AUROC vs correctness. Tests whether LoopMDM's convergence metric subsumes F-2's DoM direction.
+
+**Why:** LoopMDM shows convergence rate predicts input difficulty in MDMs. If the same scalar predicts correctness in AR Qwen at AUROC ≥ 0.75, F-2's directional interpretation is subsumed by a simpler convergence-rate explanation. Also tests best-layer convergence-ratio AUROC across all 28 layers.
+
+**Cost:** 10min CPU
+**Triggered by:** [Looped Diffusion Language Models | alphaXiv](https://arxiv.org/abs/2605.26106)
+**Depends on:** F-4, F-2
+**Would update:** F-2
+**Trigger condition:** LoopMDM adaptive stopping criterion (||ΔH||/||H|| < ε) achieves near-baseline quality with 2.4× fewer loops
+
 ### P11-FE120 (P11) — [ROI: 8, READY, HIGH]
 
 **What:** Apply the IID mass-mean correction (Σ⁻¹·(μ⁺−μ⁻), Fisher LDA equivalent) to the existing L19 prefill activations and recompute 5-fold OOF AUROC. Compare against the raw-DoM AUROC of 0.7731. Marks & Tegmark §5 establishes that raw DoM is sub-optimal versus Σ⁻¹ DoM under non-spherical covariance; given F-1's dimensional breathing implies anisotropic Σ, the correction may lift AUROC materially.
@@ -2641,6 +3626,54 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-2
 **Would update:** F-2
 **Trigger condition:** Marks & Tegmark 2310.06824 §5.1 IID mass-mean construction.
+
+### P11-FE1203 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Sign-cancellation test for prefill/final orthogonality: decompose both DoM_prefill and DoM_final into positive-activation and negative-activation subpopulations across 500 problems; compute cosine similarity separately within same-sign and cross-sign subgroups to test whether cos=0.046 is driven by sign-cancellation
+
+**Why:** If the F-3 near-orthogonality is sign-cancellation from bipolar features flipping between prefill and generation, then within-sign cosine should be substantially higher than 0.046. This would reframe F-3 from 'different mechanisms' to 'same mechanism, different polarity.'
+
+**Cost:** 10min CPU
+**Triggered by:** [Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations](https://arxiv.org/abs/2605.28149)
+**Depends on:** F-3, F-2
+**Would update:** F-3
+**Trigger condition:** SA-GSAE demonstrates bipolar features are common at mid-depth; F-3's cos=0.046 could be artifactual
+
+### P11-FE1205 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Train SA-GSAE (half-width 8192, L0=64) on Qwen-2.5-1.5B L19 prefill activations from MATH-500 + 50k OpenWebText samples; compare correctness-probe AUROC of top bipolar latent vs DoM 0.7731 and vs Gated SAE baseline at full-width 16384; report dead fraction and bipolar fraction
+
+**Why:** Direct test of whether SA-GSAE's bipolar architecture finds correctness features more efficiently than standard SAEs (H-391/H-539/H-795). If half-width SA-GSAE matches or exceeds DoM AUROC, it confirms the superposition interpretation of F-2 and demonstrates a practical SAE architecture for our pipeline.
+
+**Cost:** 4h H100
+**Triggered by:** [Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations](https://arxiv.org/abs/2605.28149)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** SA-GSAE dominates Gated SAE at half width on Pythia/SmolLM3; our L19 prefill is same dimensionality regime
+
+### P11-FE1207 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Spectral elbow partitioning of L19 activation PCA: split PCs into stiff (above-elbow) and flat (below-elbow) modes using DiReCT's cumulative-energy elbow detection on cached eigenvalues, then train separate correctness probes on each partition.
+
+**Why:** Directly tests whether F-2's DoM AUROC 0.7731 is driven by high-eigenvalue (stiff/optimization-structure) or low-eigenvalue (flat/generalization) modes. If stiff modes carry >80% of AUROC, the confound hypothesis from DiReCT strengthens.
+
+**Cost:** 15min CPU
+**Triggered by:** [Towards Efficient LLMs Annealing with Principled Sample Selection](https://arxiv.org/abs/2605.31175)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** DiReCT paper shows stiff/flat partitioning separates optimization structure from generalization signal
+
+### P11-FE1210 (P11) — [ROI: 8, READY, HIGH]
+
+**What:** Multi-hyperplane BIC sweep on PCA-reduced L19 prefill activations: project 500×1536 to top-k PCA (k=10,20,50), run Cheng et al. 2605.28501 Riemannian EM Phase I+II for K=1..5, record BIC-optimal K and per-K AUROC. Tests whether correctness boundary is rank-1 (F-2) or multi-hyperplane (H-664/H-671/H-829).
+
+**Why:** cos(DoM,PC1)=0.9216 and full-dim ceiling AUROC=0.7847 suggest rank-1, but cov-spectrum probe at 0.7928 leaves room for K>1 explanation. The paper's convergence proof guarantees K=1 recovers PC1; the interesting case is K≥2.
+
+**Cost:** 45min CPU
+**Triggered by:** [Fitting Unknown Number of Hyperplanes with Manifold Optimization](https://arxiv.org/abs/2605.28501)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** Cheng et al. 2605.28501 provide code and a BIC-based model-order selector for hyperplane mixtures on S^{dim-1}
 
 ### P11-FE123985A (P11) — [ROI: 8, READY, HIGH]
 
@@ -6430,6 +7463,58 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-8, F-3
 **Trigger condition:** PPLM (1912.02164) demonstrates that a 1K-param linear discriminator on hidden states is sufficient to steer a 345M LM via per-token gradient ascent on H_t. Our F-2 probe is exactly such a discriminator at L19 of Qwen-2.5-1.5B.
 
+### P11-FE1087 (P11) — [ROI: 8, BLOCKED, HIGH]
+
+**What:** Compare L19 prefill DoM direction between LoPE-GRPO-trained and standard-GRPO-trained Qwen checkpoints: download both if public, extract DoM, measure cos(DoM_LoPE, DoM_standard)
+
+**Why:** Tests H-707/H-774 directly: if the RL training objective rotates the DoM direction, correctness prediction is partially a training-dynamics artifact. LoPE provides the controlled comparison — same architecture, different training signal on hard problems.
+
+**Cost:** 4h H100 (activation extraction on 2 checkpoints × 500 problems)
+**Blocked by:** LoPE checkpoint availability (not yet public as of 2026-05-17)
+**Triggered by:** [Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration](https://arxiv.org/abs/2605.05566)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** LoPE trains Qwen3-1.7B with modified GRPO; if checkpoint released, direct comparison possible
+
+### P11-FE1105 (P11) — [ROI: 8, BLOCKED, HIGH]
+
+**What:** JSD ablation test on L19 weight-space traps: if FE973 finds Correlation Traps at L19, replace each trap direction in the weight matrix with a random vector, run forward passes on MATH-500, measure (a) JS divergence of output logits and (b) change in DoM AUROC. Classifies traps as harmful/benign for correctness prediction.
+
+**Why:** Paper demonstrates the ablation test distinguishes harmful from benign traps. If removing an L19 trap degrades DoM predictive power, it confirms the trap IS the signal. If DoM is unchanged, the correctness signal lives in the MP bulk, not the outliers.
+
+**Cost:** 2h H100
+**Blocked by:** Requires FE973 to find traps at L19 first
+**Triggered by:** [Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory](https://arxiv.org/abs/2605.12394)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.12394 JSD ablation diagnostic
+
+### P11-FE1137 (P11) — [ROI: 8, BLOCKED, HIGH]
+
+**What:** Run F-8 selective-prediction pipeline on VPO vs GRPO checkpoints to test whether DoM-based coverage-accuracy curves degrade under diversity-preserving training
+
+**Why:** F-8's selective prediction assumes a confidence signal that separates easy from hard problems. VPO deliberately maintains diverse strategies, which may flatten the confidence landscape and destroy selective-prediction value. Directly tests H-282 and H-682.
+
+**Cost:** 2-3 H100 days
+**Blocked by:** Requires P11-FE130383 VPO checkpoint + extraction first
+**Triggered by:** [Vector Policy Optimization: Training for Diversity Improves Test-Time Search](https://arxiv.org/abs/2605.22817)
+**Depends on:** F-8, F-2
+**Would update:** F-8
+**Trigger condition:** VPO's explicit diversity maintenance could undermine the confidence-proxy mechanism F-8 relies on
+
+### P11-FE1151 (P11) — [ROI: 8, BLOCKED, HIGH]
+
+**What:** Compute layer-to-layer residual norm ‖h_{L19} − h_{L18}‖ as correctness predictor and compare AUROC to DoM (0.7731). Tests whether DoM is a linear approximation of attractor convergence.
+
+**Why:** EqR shows fixed-point residual ‖f(z) − z‖ tightly tracks task correctness. In autoregressive transformers, the analogous quantity is the layer-to-layer change norm. If this alone matches or beats DoM AUROC, it reduces F-2's directional finding to a special case of convergence dynamics.
+
+**Cost:** 15min CPU
+**Blocked by:** Need L18 activations cached (currently only L19 is cached)
+**Triggered by:** [Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning](https://arxiv.org/abs/2605.21488)
+**Depends on:** F-2
+**Would update:** F-4, F-2
+**Trigger condition:** EqR paper demonstrates residual-correctness coupling in iterative reasoners
+
 ### P11-FE199 (P11) — [ROI: 8, BLOCKED, HIGH]
 
 **What:** Per-(layer, head) MLP probe accuracy heatmap for Qwen-2.5-1.5B on MATH-500 correctness labels. Identify Top-K=48 heads by probe accuracy. This is the analog of NL-ITI Figure 2 in our regime and the data structure H-13 has been waiting for.
@@ -7031,6 +8116,366 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-7
 **Trigger condition:** Paper demonstrates generic semantic clustering as alternative to correctness-specific geometry.
 
+### P11-FE1006 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute R_l cumulative AUROC ratio across all 28 layers using cached layer-wise DoM data to identify whether L19 is a sharp phase-transition or gradual accumulation of correctness signal
+
+**Why:** Paper's R_l metric quantifies how much total discriminative signal concentrates at specific layer depths. If L19 contains >80% of cumulative signal (sharp transition), it suggests an anchor-extraction event at that layer. If gradual, the DoM signal is distributed and the anchor framing is less explanatory.
+
+**Cost:** 15min CPU
+**Triggered by:** [2305.14160](https://arxiv.org/abs/2305.14160)
+**Depends on:** F-9, F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2305.14160 R_l metric applied to our layer-wise DoM data
+
+### P11-FE1011 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute kernel matrix K(xi,xj) = hi^T Sigma^-1 hj from cached L19 prefill activations and test whether per-sample kernel self-similarity (K(xi,xi) / mean_j K(xi,xj)) predicts correctness
+
+**Why:** If ICL is kernel regression, the kernel's Mahalanobis self-distance should separate correct from incorrect — providing an alternative predictor to DoM that doesn't require labels
+
+**Cost:** 15min CPU
+**Triggered by:** [2305.12766](https://arxiv.org/abs/2305.12766)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** 2305.12766 Theorem 1 defines K via inverse covariance; we have the covariance eigenspectrum cached
+
+### P11-FE1015 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Per-head Ridge regression on key/value vectors at L19 of Qwen-2.5-1.5B during MATH-500 to determine whether key vectors encode problem-type similarity and value vectors encode correctness labels, replicating Section 5.4 of Han et al.
+
+**Why:** If key=kernel-feature and value=label holds in our setting, this provides a mechanistic explanation for DoM and identifies which heads actually carry the correctness signal
+
+**Cost:** 3h H100
+**Triggered by:** [2305.12766](https://arxiv.org/abs/2305.12766)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2305.12766 Section 5.4 Ridge regression probing of key/value
+
+### P11-FE1018 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute per-layer DoM directions (L1–L28) from cached activations and measure inter-layer cosine similarity matrix to test whether a single L19 direction is representative across layers
+
+**Why:** ICV applies its vector at ALL layers, implying per-layer directions may differ. If per-layer DoM directions are highly correlated with L19 DoM, single-layer steering is justified. If they diverge (especially at early/late layers), all-layer steering as in ICV would be necessary for H-1.
+
+**Cost:** 30min CPU
+**Triggered by:** [2311.06668](https://arxiv.org/abs/2311.06668)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2311.06668 Table 3 shows single-layer intervention fails; we don't know whether this is because per-layer directions differ or because a single perturbation gets attenuated
+
+### P11-FE1025 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Correlation between DoM and logit-lens top-token unembedding direction at L19: compute cos(DoM, W_U[argmax logit-lens]) per sample and aggregate. If DoM aligns with the most-predicted-token's unembedding, it's mechanistically tied to copy suppression targets.
+
+**Why:** If cos is high, DoM is detecting WHICH token the model is predicting rather than WHETHER it will be correct — a confound for the 'correctness geometry' interpretation of F-2.
+
+**Cost:** 20min CPU
+**Triggered by:** [2310.04625](https://arxiv.org/abs/2310.04625)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2310.04625 shows copy suppression acts along unembedding directions
+
+### P11-FE1032 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Extract per-neuron MLP activations at L19 for all 500 MATH-500 problems (requires forward pass to get intermediate MLP state, not just residual stream output) and build a sparse neuron-basis correctness classifier
+
+**Why:** Cached data has residual-stream outputs but not intermediate MLP activations. Getting the full neuron-activation vector lets us directly replicate Gurnee's kurtosis/universality analysis within our correctness-prediction framework.
+
+**Cost:** 2h H100
+**Triggered by:** [2401.12181](https://arxiv.org/abs/2401.12181)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2401.12181 methodology requires MLP intermediate activations not residual stream
+
+### P11-FE1033 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** TopK-sparsified PCA: keep only top-k PCA components per sample (by |projection|), recompute DoM AUROC as function of k. Tests whether correctness signal concentrates in few PCA directions per sample or requires the full subspace.
+
+**Why:** SAE framework predicts signal is sparse — if top-8 PCA projections per sample already reach AUROC ≥ 0.76, correctness is encoded sparsely even in PCA basis. If AUROC requires k ≥ 100, signal is distributed and superposition framing applies.
+
+**Cost:** 15min CPU
+**Triggered by:** [2406.04093](https://arxiv.org/abs/2406.04093)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Gao et al. 2406.04093 TopK activation and progressive codes
+
+### P11-FE1037 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute activation-space Sharpness Dimension analog from cached L19 covariance eigenspectrum. Treat log-eigenvalues as Lyapunov exponents, apply Kaplan-Yorke formula to find effective expanding dimension j*. Compare j* between correct and incorrect problems.
+
+**Why:** SD theory says generalization depends on the transition index j* — the number of expanding directions. If inference-time activations reflect training-time attractor geometry (H-4), then correct problems should show different j* than incorrect ones. The covariance eigenspectrum is already cached.
+
+**Cost:** 20min CPU
+**Triggered by:** [2604.19740](https://arxiv.org/abs/2604.19740)
+**Depends on:** F-10, F-2
+**Would update:** F-10
+**Trigger condition:** 2604.19740 proves SD governs generalization; applying its formula to cached activation eigenvalues is a zero-cost test of whether the concept transfers to inference time.
+
+### P11-FE1045 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Pooled-mean L19 hidden state cosine similarity: compute sequence-level pooled representations (Eq. 15-17 from Wang et al.) for each of the 500 MATH-500 problems, then test whether pooled-mean cosine distance to the correct-group centroid predicts correctness better or worse than last-token DoM. Directly tests H-780.
+
+**Why:** The paper uses mean-pooled hidden states as the sequence-level representation and shows strong correlation with routing similarity. If mean-pooled L19 gives higher AUROC than last-token-only prefill DoM (0.7731), this validates H-780 and suggests we've been leaving signal on the table by using only the last prefill token.
+
+**Cost:** 20min CPU
+**Triggered by:** [The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise](https://arxiv.org/abs/2604.09780)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2604.09780 Eq. 15-17 sequence-level pooled representations; connects to H-780 mean-pooled DoM hypothesis
+
+### P11-FE1049 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute per-layer residual norm ||h_l|| growth curves for correct vs incorrect on cached per-layer activations. Check for (a) slower norm growth in correct (matching paper's looped model signature), (b) 4-layer periodic structure in growth rate, and (c) whether L19 marks a norm-growth inflection.
+
+**Why:** Paper finds slower residual norm growth characterizes models with stronger iterative computation. If correct problems (those successfully solved by iterative reasoning) show similar norm signatures to looped models, this mechanistically links F-2 to iterative computation.
+
+**Cost:** 15min CPU
+**Triggered by:** [From Growing to Looping: A Unified View of Iterative Computation in LLMs](https://arxiv.org/abs/2602.16490)
+**Depends on:** F-1, F-2
+**Would update:** F-2, F-1
+**Trigger condition:** 2602.16490 demonstrates norm growth rate distinguishes iterative vs non-iterative computation
+
+### P11-FE1052 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute Tuned Lens early-exit accuracy per layer on MATH-500 for Qwen-2.5-1.5B. Train 24 linear probes (one per layer) mapping residual → correct/incorrect. Compare the accuracy-vs-layer curve to the DoM AUROC-vs-layer curve. If they align (both peak at L19), confirms L19 is where task-relevant computation converges.
+
+**Why:** Paper uses Tuned Lens to show iterative models keep improving through late layers while baselines plateau early. Aligning this with our DoM AUROC curve would establish that DoM is measuring computational convergence.
+
+**Cost:** 3h H100
+**Triggered by:** [From Growing to Looping: A Unified View of Iterative Computation in LLMs](https://arxiv.org/abs/2602.16490)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2602.16490 uses Tuned Lens to characterize iterative convergence
+
+### P11-FE1054 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Bootstrap stability of prefill vs final-token DoM orthogonality — test whether cos=0.046 is robust to solution non-uniqueness
+
+**Why:** If both prefill and final-token DoM directions belong to non-identified families, the cos=0.046 between two specific members may not characterize the structural relationship between families. Bootstrap both directions (100 resamples of 500 problems) and compute the distribution of inter-family cosines.
+
+**Cost:** 20min CPU
+**Triggered by:** [Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable?](https://arxiv.org/abs/2502.20914)
+**Depends on:** F-3, F-2
+**Would update:** F-3
+**Trigger condition:** 2502.20914 Section 4 shows a single algorithm can align with different subspaces
+
+### P11-FE1056 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Debiased CKA of L19 prefill activations against correctness kernel — global alignment metric complementing per-sample DoM AUROC
+
+**Why:** Wang et al. show debiased CKA avoids inflation in high-D/low-N (our 1536/500). If CKA is high, the prefill geometry is globally correctness-aligned (supporting F-2). If CKA is low despite AUROC 0.77, the signal is in a narrow subspace not captured by global kernel alignment.
+
+**Cost:** 10min CPU
+**Triggered by:** [The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv](https://arxiv.org/abs/2605.09969)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2605.09969 demonstrate CKA as richer probe metric than per-sample classification
+
+### P11-FE1061 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute sliced Wasserstein distance (M=200 projections) between correct and incorrect L19 prefill activation clouds (243 correct vs 257 incorrect, d=1536). Report scalar SW₂, compare against Euclidean distance between centroids and Mahalanobis distance. Run permutation test (N=1000 shuffles) for significance.
+
+**Why:** Tests whether distributional geometry beyond mean-shift discriminates correct/incorrect — directly probes whether F-2's single-direction result is lossy or nearly optimal.
+
+**Cost:** 15min CPU
+**Triggered by:** [Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once](https://arxiv.org/abs/2605.08424)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2605.08424 sliced Wasserstein framework + admission note suggesting SW₂ on L19 activations
+
+### P11-FE1067 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute within-class variance to inter-centroid distance ratio for correct/incorrect L19 prefill activations. If ratio > 2, linear interventions are structurally limited regardless of decode AUROC
+
+**Why:** Paper shows 2-4x ratio structurally caps linear steering. Combined with specificity < 0.15, this would fully explain the predict-but-not-steer regime our DoM likely occupies
+
+**Cost:** 5min CPU
+**Triggered by:** [Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes](https://arxiv.org/abs/2605.05715)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.05715 reports 2-4x within-class variance exceeding inter-centroid gap
+
+### P11-FE1071 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Full steering null replication on Qwen-2.5-1.5B MATH-500: apply contrastive DoM steering at L19 with alpha in {0.5, 1.0, 1.5, 2.0, 3.0}, measure accuracy delta with TOST equivalence within +/-2.5pp. Positive control: use refusal direction (expect p<0.01)
+
+**Why:** Direct test of H-1 using the paper's exhaustive methodology. With specificity ratio from P11-FE1066 as prior, this becomes confirmatory rather than exploratory. TOST framework properly tests the null rather than failing to reject
+
+**Cost:** 4h H100
+**Triggered by:** [Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes](https://arxiv.org/abs/2605.05715)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.05715 provides the full steering protocol with TOST equivalence
+
+### P11-FE1073 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** CCA alignment between prefill and final-token L19 activations: run CCA on two 500×1536 views of same problems, report top-10 canonical correlations, test if shared subspace carries correctness signal beyond cos(DoM_pre, DoM_fin) = 0.046
+
+**Why:** Paper recovers r≈0.99 shared structure between independently-trained encoders via CCA even when raw transfer is near-chance. Our prefill/final cos=0.046 may mask shared structure in a rotated basis.
+
+**Cost:** 15min CPU
+**Triggered by:** [Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer](https://arxiv.org/abs/2605.07407)
+**Depends on:** F-2, F-3
+**Would update:** F-3
+**Trigger condition:** Cross-modal CCA achieves r≈0.99 alignment between encoders with near-zero raw embedding correlation (2605.07407 §4.2)
+
+### P11-FE1076 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Construct 5x5 inter-layer relation matrices (inner product of mean activations for L17-L21) per MATH-500 sample, extract top-k singular values, train logistic regression for correctness prediction. Compare AUROC against L19 DoM (0.7731) and cov-spectrum (0.7928).
+
+**Why:** SR2-LoRA shows inter-layer relational structure carries robust discriminative information via SVD spectra. If applicable to LLM correctness prediction, this gives a new low-dimensional feature strictly between single-layer DoM and full covariance.
+
+**Cost:** 30min CPU
+**Triggered by:** [SR$^2$-LoRA: Self-Rectifying Inter-layer Relations in Low-Rank Adaptation for Class-Incremental Learning](https://arxiv.org/abs/2605.07420)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2605.07420 inter-layer relation matrix SVD technique
+
+### P11-FE1082 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** D-bucket rare-token density test: for each of 500 MATH-500 problems, compute mean token log-frequency. Test if D-bucket membership is predicted by token rarity (logistic regression AUROC).
+
+**Why:** TIDE shows rare tokens have distinctive geometry. If D-bucket problems are simply those with more rare tokens, F-7's 'collective geometric signature' is a token-frequency artifact.
+
+**Cost:** 20min CPU
+**Triggered by:** [TIDE: Every Layer Knows the Token Beneath the Context](https://arxiv.org/abs/2605.06216)
+**Depends on:** F-7
+**Would update:** F-7
+**Trigger condition:** Figure 1+2 in TIDE: rare tokens have systematically different hidden-state properties across all layers.
+
+### P11-FE1084 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** D-bucket vs zero-advantage overlap: check if MATH-500 problems that Qwen-2.5-1.5B always gets wrong (pass@8=0) are exactly the D-bucket membership set from F-7
+
+**Why:** If D-bucket = zero-advantage set, F-7's geometric signature is a GRPO training artifact (H-708) rather than an intrinsic representational structure. LoPE provides the mechanistic link: zero-advantage → zero gradient → frozen geometry.
+
+**Cost:** 30min CPU (need to identify pass@8=0 set from cached generations or 8 forward passes, then cross-reference with D-bucket labels)
+**Triggered by:** [Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration](https://arxiv.org/abs/2605.05566)
+**Depends on:** F-7
+**Would update:** F-7
+**Trigger condition:** LoPE identifies zero-advantage as the core failure mode; H-708 hypothesizes this causes D-bucket
+
+### P11-FE1089 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Best-of-K probe evaluation: fit K cluster-specific probes from FE670, assign each test example to its nearest centroid's probe, report AUROC vs pooled single-direction baseline
+
+**Why:** DCD's best-of-K faithfulness consistently outperforms single-circuit evaluation. Adapting this to our probe setting tests whether a multi-probe system outperforms the single DoM direction.
+
+**Cost:** 20min CPU
+**Triggered by:** [Data-driven Circuit Discovery for Interpretability of Language Models](https://arxiv.org/abs/2605.09129)
+**Depends on:** F-2
+**Would update:** F-8, F-2
+**Trigger condition:** DCD achieves 22pp improvement (86% vs 64%) with best-of-K at 5% circuit size on GPT-2
+
+### P11-FE1098 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute two-replica correlation phase φ between all problem pairs at L19, test whether phase separates correct/incorrect clusters
+
+**Why:** Paper proves φ is exactly conserved across depth (Eq. 11). If this conserved phase distinguishes correct from incorrect problem pairs, it provides a symmetry-theoretic explanation for why DoM works — it's detecting the Goldstone mode.
+
+**Cost:** 20min CPU
+**Triggered by:** [Spontaneous symmetry breaking and Goldstone modes for deep information propagation](https://arxiv.org/abs/2605.14685)
+**Depends on:** F-3, F-2
+**Would update:** F-3
+**Trigger condition:** 2605.14685 Eq. 10-11: inter-input correlation phase is exactly conserved
+
+### P11-FE1102 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Inverse Participation Ratio (IPR) of top-20 L19 covariance eigenvectors: measure localization of the spectral modes driving cov-spectrum AUROC 0.7928. IPR >> 1/d indicates localized (trap-like); IPR ≈ 1/d indicates delocalized (MP-like).
+
+**Why:** Paper shows harmful traps are localized (IPR concentrated on small coordinate set). If our top eigenvectors are localized, the cov-spectrum signal may be fragile/overfit rather than distributed and robust.
+
+**Cost:** 5min CPU
+**Triggered by:** [Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory](https://arxiv.org/abs/2605.12394)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.12394 localization diagnostic for spectral outliers
+
+### P11-FE1104 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Weight-space Correlation Trap scan of Qwen-2.5-1.5B: run WeightWatcher shuffled-spectrum diagnostic on all 28 transformer layers, report per-layer trap counts. Focus on whether L19 stands out (supports H-711/H-743) or whether traps are uniform.
+
+**Why:** Directly tests H-711 and H-743 from a different angle — instead of alpha (heavy-tail exponent), uses the trap count (MP right-edge outliers after shuffle). If L19 has maximal traps, it reframes L19 as potentially overfit rather than well-trained.
+
+**Cost:** 30min CPU
+**Triggered by:** [Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory](https://arxiv.org/abs/2605.12394)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.12394 per-layer trap profiling on frontier LLMs
+
+### P11-FE1107 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Fixed-point proximity predictor: compute ||h_final - h_L19|| per sample (distance from 'backbone output' to 'attractor equilibrium') and test as correctness predictor vs DoM AUROC 0.7731
+
+**Why:** If standard transformers implicitly implement attractor dynamics, the distance between the L19 state (backbone proposal) and the final layer state (approximate equilibrium) should predict correctness. A positive result would unify F-2 and F-4 under the attractor lens.
+
+**Cost:** 10min CPU
+**Triggered by:** [Solve the Loop: Attractor Models for Language and Reasoning](https://arxiv.org/abs/2605.12466)
+**Depends on:** F-4, F-2
+**Would update:** F-2
+**Trigger condition:** 2605.12466 shows backbone-to-equilibrium distance encodes prediction quality
+
+### P11-FE1111 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute RoSHAP scores for all 1536 L19 prefill dimensions: 200-bootstrap logistic probe, per-dimension SHAP distributions, RoSHAP_j = (1-P0_j)*m_j^2/s_j ranking. Compare against magnitude-only ranking and check whether DoM-aligned dimensions rank high on activity+strength+stability.
+
+**Why:** Current feature selection (PC1, cov-spectrum top-20 eigvals) is magnitude-based. RoSHAP adds a stability axis that could identify a different sparse subspace of reliably discriminative dimensions, potentially improving the cov-spectrum probe (AUROC 0.7928) or finding a better-calibrated feature set for selective prediction.
+
+**Cost:** 40min CPU
+**Triggered by:** [RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution](https://arxiv.org/abs/2605.15154)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** RoSHAP outperforms single-run SHAP, gain, LIME, and information gain on all four benchmark tasks for feature selection stability.
+
+### P11-FE1115 (P11) — [ROI: 7, READY, MEDIUM]
+
+**What:** Compare implicit-reward-based correctness prediction (log π_7B/π_1.5B per token, averaged over problem) against L19 prefill DoM AUROC on MATH-500
+
+**Why:** If the logit-space implicit reward from 2602.12125 is a better correctness predictor than hidden-state DoM, it undercuts the practical case for representation probing. Both signals are per-problem scalars; direct AUROC comparison on same samples.
+
+**Cost:** 4h H100
+**Triggered by:** [Learning beyond Teacher: Generalized On-Policy Distillation with Reward Extrapolation](https://arxiv.org/abs/2602.12125)
+**Depends on:** F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Need to establish whether logit-ratio signals dominate or complement hidden-state probing
+
+### P11-FE1117 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Verify DoM = first-order Neural LoFi component: compute label-weighted mean û = (1/n) Σ yᵢ zᵢ on cached L19 prefill activations, measure cos(DoM, û). Expected ≈ 1.0, confirming DoM is the first-order term of C^(ℓ).
+
+**Why:** Establishes the formal relationship between our DoM computation and the Neural LoFi framework. If confirmed, the cov-spectrum gap (0.7731 → 0.7928) is precisely the second-order signal that Theorem 1 predicts.
+
+**Cost:** 5min CPU
+**Triggered by:** [Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning](https://arxiv.org/abs/2605.13612)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.13612 decomposition of C^(ℓ) into first-order (û) and second-order (eigenvectors) components
+
+### P11-FE1124 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Perturbation sensitivity of L19 DoM: add isotropic Gaussian noise (σ ∈ {0.01, 0.05, 0.1, 0.5}) to cached L19 prefill activations, retrain logistic regression DoM probe on perturbed data (5-fold OOF), measure AUROC degradation curve. Tests whether AUROC 0.7731 is a sharp ridge or broad basin in activation space.
+
+**Why:** GRAM shows deterministic trajectories collapse to single attractors. If DoM AUROC degrades sharply under small perturbations, the signal is fragile / attractor-dependent; if robust, it's a genuine geometric feature. Directly informs whether stochastic interventions during inference could improve or destroy correctness prediction.
+
+**Cost:** 20min CPU
+**Triggered by:** [Generative Recursive Reasoning | alphaXiv](https://arxiv.org/abs/2605.19376)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** GRAM's demonstration that deterministic latent trajectories collapse to single attractors (Fig. 1), raising the question of whether our DoM direction is similarly a collapsed-attractor artifact.
+
+### P11-FE1127 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Direction-space linear mode connectivity: interpolate DoM and PC1 directions, sweep λ, evaluate AUROC concavity
+
+**Why:** Rewarded Soups proves LMC in weight space from shared init. If the same holds for probe directions trained on the same activations, interpolated directions may exceed single-direction AUROC 0.7731 (F-2). Tests whether the correctness signal decomposes into linearly-connected sub-objectives.
+
+**Cost:** 20min CPU
+**Triggered by:** [Rewarded soups: towards Pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards](https://arxiv.org/abs/2306.04488)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2306.04488 shows LMC holds for diverse rewards from shared init
+
 ### P11-FE113 (P11) — [ROI: 7, READY, HIGH]
 
 **What:** Shallow-feature LR baseline AUROC for K=1 correctness on MATH-500 (Qwen-2.5-1.5B). Features: prompt_token_count, # numerals in prompt, # `\` LaTeX macros, # newlines, mean token length, presence of {prove,find,compute,evaluate} keywords. Train logistic regression with 5-fold OOF, report AUROC. Compare to F-2's 0.7731 and F-9's CoE-60 result. If shallow LR ≥ 0.7, the project's geometric-correctness framing for F-2 and F-9 needs heavy qualification.
@@ -7042,6 +8487,294 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-9, F-2
 **Would update:** F-9, F-2
 **Trigger condition:** Reading 2310.03716 — LPPO adversarial baseline pattern for AUROC.
+
+### P11-FE1130 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Noise-robustness sweep on cached L19 prefill DoM: add Gaussian noise N(0, σ²I) at σ ∈ {0.01, 0.05, 0.1, 0.5, 1.0} to cached 500×1536 L19 prefill activations, re-run 5-fold DoM AUROC. Measures whether DoM signal is sharp (basin-like, degrades fast) or diffuse (robust to perturbation).
+
+**Why:** PTRM shows noise injection helps escape bad basins. If DoM AUROC degrades sharply with small noise, the correctness signal is basin-like and potentially escapable; if robust, it's a broad landscape feature. Directly informs whether D-bucket problems (F-7) are in sharp local minima.
+
+**Cost:** 15min CPU
+**Triggered by:** [Probabilistic Tiny Recursive Model](https://arxiv.org/abs/2605.19943)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** PTRM finding that Gaussian noise σ=0.2–1.0 dislodges latent trajectories from bad basins
+
+### P11-FE1133 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute on-policy reward collinearity ρ̄ on L19 prefill activation covariance to assess whether our feature space is 'scalar-like' (predicting when diversity-preserving methods would help vs our single-direction DoM approach)
+
+**Why:** VPO's Table 9 shows ρ̄ predicts when diversity-preserving training helps. If our 500×1536 L19 features have high ρ̄ (near-collinear), DoM is justified; if low ρ̄, we may be leaving signal on the table by collapsing to a single direction.
+
+**Cost:** 15min CPU
+**Triggered by:** [Vector Policy Optimization: Training for Diversity Improves Test-Time Search](https://arxiv.org/abs/2605.22817)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** VPO paper shows ρ̄ diagnostic predicts method effectiveness
+
+### P11-FE1140 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Refined prefill/final DoM cosine: apply DelTA α-reweighting independently to prefill and final-token correct/incorrect centroids, then measure cos between the two refined discriminative directions. Compare against raw cos 0.046 (F-3)
+
+**Why:** If shared-pattern cancellation is driving the near-zero cosine, refined centroids that suppress shared patterns should yield a different (possibly higher) cosine. If cos remains near zero after refinement, F-3's structural orthogonality claim is strengthened.
+
+**Cost:** 20min CPU
+**Triggered by:** [DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards](https://arxiv.org/abs/2605.21467)
+**Depends on:** F-3, F-2
+**Would update:** F-3
+**Trigger condition:** 2605.21467 shared-pattern suppression applied to F-3 orthogonality analysis
+
+### P11-FE1144 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compare PC1 loadings (from FE291, cos(DoM,PC1)=0.9216) across per-head blocks: compute per-head-block contribution to PC1 variance and test whether the 0.9216 alignment is driven by a sparse head subset
+
+**Why:** If PC1 ≈ DoM and both concentrate in the same small set of heads, the 'CAST PC1 ≈ supervised DoM' correspondence (FE291) has a mechanistic explanation via head specialization rather than being a coincidental whole-layer phenomenon
+
+**Cost:** 20min CPU
+**Triggered by:** [Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps](https://arxiv.org/abs/2605.16928)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** RTPurbo's low-dimensional subspace finding combined with our PC1-DoM alignment result
+
+### P11-FE1147 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Eigenspectrum shape test — compute 500×500 Gram matrix of L19 prefill activations, fit exponential-kernel Fourier eigenvalue decay model (λ_k ~ σ²/(1+σ²k²)), compare to empirical spectrum and Marchenko-Pastur null
+
+**Why:** Karkada et al. show eigenvalue decay is predicted by co-occurrence kernel shape. If L19 eigenspectrum matches exponential-kernel prediction, the co-occurrence framework applies and the cov-spectrum probe (AUROC 0.7928) is explained by Fourier mode selection. If it doesn't match, L19 geometry has a different origin.
+
+**Cost:** 20min CPU
+**Triggered by:** [Symmetry in language statistics shapes the geometry of model representations](https://arxiv.org/abs/2602.15029)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2602.15029 provides closed-form eigenvalue predictions; our cov-spectrum probe (FE881) already uses eigenvalues but without a generative model for their shape
+
+### P11-FE1150 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Fourier harmonic localization of prefill vs final DoM — project both DoM vectors onto the DFT basis of the covariance matrix, check whether they localize to different harmonics (which would explain cos=0.046 as Fourier orthogonality)
+
+**Why:** Karkada et al. show PCA components correspond to distinct Fourier harmonics. If prefill DoM ≈ harmonic k₁ and final-token DoM ≈ harmonic k₂ with k₁ ≠ k₂, the cos=0.046 orthogonality (F-3) is a Fourier separation, not two independent circuits. This would be a specific mechanistic explanation for F-3.
+
+**Cost:** 15min CPU
+**Triggered by:** [Symmetry in language statistics shapes the geometry of model representations](https://arxiv.org/abs/2602.15029)
+**Depends on:** F-3, F-2
+**Would update:** F-3
+**Trigger condition:** 2602.15029 Fourier decomposition + F-3's unexplained cos=0.046
+
+### P11-FE1152 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute within-sample activation norm change ‖h_{L19} − mean(h_{L1:L18})‖ as a convergence-from-trajectory metric using the single cached L19 layer. Compare correlation with DoM scores.
+
+**Why:** Without adjacent-layer caches, we can still test the attractor hypothesis indirectly: if L19 activations that are 'far from the global mean' (high norm) correspond to high DoM and correctness, that's consistent with convergence to a distinct attractor. The magnitude of the L19 activation relative to a baseline may serve as a residual proxy.
+
+**Cost:** 10min CPU
+**Triggered by:** [Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning](https://arxiv.org/abs/2605.21488)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** EqR attractor framework applied to cached single-layer data
+
+### P11-FE1157 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute effective latent rank per-problem (each problem's 1536-d vector treated as a 1-sample 'matrix' via rank-1 proxy, or use per-problem multi-position activations if available) and test AUROC for correctness prediction using effective rank as a scalar feature.
+
+**Why:** If effective rank (or a per-sample proxy like L2 norm of residuals after rank-k truncation) predicts correctness, it provides a training-free, unsupervised correctness signal that doesn't require a fitted DoM direction — directly testing whether representational compactness = correctness.
+
+**Cost:** 15min CPU
+**Triggered by:** [Next-Latent Prediction Transformers Learn Compact World Models](https://arxiv.org/abs/2511.05963)
+**Depends on:** F-4, F-2
+**Would update:** F-4, F-2
+**Trigger condition:** NextLat's claim that compact representations correspond to confident/correct predictions.
+
+### P11-FE1160 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Spectral energy gate on cached L19 prefill activations — compute per-problem energy score using PC1 as energy projection direction, z-normalize, apply sigmoid(α(ẽ-τ)) with τ=0.35, α=2.2. Correlate energy scores with correctness labels. Compare AUROC of energy-gated features vs raw DoM projection (0.7731).
+
+**Why:** EGA's core claim is that a single learned linear projection captures the dominant spectral mode. Our PC1 (cos(DoM,PC1)=0.9216) is a candidate for this direction. Testing whether the EGA gating mechanism (z-norm + sigmoid threshold) adds discriminative power over raw projection.
+
+**Cost:** 15min CPU
+**Triggered by:** [Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention](https://arxiv.org/abs/2605.21842)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** EGA paper shows energy gating with τ≈0.35 matches attention quality; our PC1 is the unsupervised analog of their energy direction.
+
+### P11-FE1162 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** POD energy threshold sweep on existing PCA eigenvalues — for the L19 prefill covariance eigenspectrum (from FE291/FE881), compute cumulative energy fraction for correct vs incorrect problems separately. Test whether correct problems concentrate spectral energy in fewer principal components (lower effective rank) than incorrect. Report effective rank (90% energy threshold) per group.
+
+**Why:** EGA's POD framework predicts that 'coherent' representations concentrate energy. If correct-answer problems have lower effective rank (more concentrated spectral energy), this gives a mechanistic interpretation of why cov-spectrum features predict correctness (0.7928 AUROC).
+
+**Cost:** 10min CPU
+**Triggered by:** [Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention](https://arxiv.org/abs/2605.21842)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** EGA frames spectral energy concentration as the key discriminant. Our cov-spectrum probe already exploits eigenvalues but without the POD energy-ordering interpretation.
+
+### P11-FE1167 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Train 2-layer MLP probe (d_model→1024→2, GELU, dropout 0.1) on cached L19 prefill activations for correct/incorrect classification. Compare MLP AUROC to linear DoM AUROC (0.7731). If MLP substantially exceeds 0.7731, correctness information is nonlinearly encoded at L19 — the linear DoM probe is leaving signal on the table.
+
+**Why:** Nadaf shows MLP probe closes 5/10 SAND cases by recovering nonlinearly encoded information. Our cov-spectrum result (0.7928 AUROC) already hints at nonlinear structure; an MLP probe directly tests whether nonlinear decoding exceeds the linear ceiling.
+
+**Cost:** 30min CPU
+**Triggered by:** [Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens](https://arxiv.org/abs/2604.02608)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2604.02608 §5.4: MLP probe recovers information invisible to logit lens in 5/10 SAND cases
+
+### P11-FE1170 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Shannon capacity bound estimation: compute the theoretical information capacity C = B·log₂(1+SNR) per layer using the SNR from FE131050, and compare with empirical DoM AUROC to check whether the probe operates within or beyond the Shannon limit.
+
+**Why:** If DoM AUROC 0.7731 exceeds the Shannon capacity at L19, either (a) the noisy-channel model doesn't apply at per-layer granularity, or (b) the DoM probe is exploiting structure beyond what a Gaussian channel model predicts. Either outcome is informative.
+
+**Cost:** 15min CPU
+**Triggered by:** [LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws](https://arxiv.org/abs/2605.23901)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Paper's Eq. 6 applied per-layer to our cached activations.
+
+### P11-FE1174 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute Dirichlet Energy on L19 prefill activations for correct vs incorrect groups. Define adjacency A_ij=1 for same-class pairs, compute E = Σ A_ij·‖h_i−h_j‖² within-correct, within-incorrect, and cross-group. Compare ratios. Tests whether correct/incorrect groups exhibit functor-like geometric alignment.
+
+**Why:** Paper shows Dirichlet Energy decreases as geometric alignment emerges. If within-group DE is significantly lower than cross-group DE, it supports functor interpretation of DoM and reframes F-2.
+
+**Cost:** 15min CPU
+**Triggered by:** [Emergent Analogical Reasoning in Transformers](https://arxiv.org/abs/2602.01992)
+**Depends on:** F-7, F-2
+**Would update:** F-2
+**Trigger condition:** 2602.01992 — Dirichlet Energy as geometric alignment metric
+
+### P11-FE1176 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Fit additive functor model h_final = h_prefill + f across 500 MATH-500 samples. Estimate f as mean(h_final − h_prefill), compute per-sample residual ‖h_final − (h_prefill + f)‖ / ‖f‖. If residual is small, the prefill→final transformation is well-approximated by additive functor arithmetic, providing an alternative explanation for cos(prefill_DoM, final_DoM) ≈ 0.
+
+**Why:** Paper demonstrates e_target ≈ e_source + f in trained transformers. If the same arithmetic holds for prefill→final, the orthogonality in F-3 is a consequence of functor geometry, not an independent structural finding.
+
+**Cost:** 20min CPU
+**Triggered by:** [Emergent Analogical Reasoning in Transformers](https://arxiv.org/abs/2602.01992)
+**Depends on:** F-3
+**Would update:** F-3
+**Trigger condition:** 2602.01992 — additive functor arithmetic in residual stream
+
+### P11-FE1178 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Layer-wise Dirichlet Energy sweep across all 28 Qwen-2.5-1.5B layers on MATH-500 prefill activations. Track DE(correct), DE(incorrect), DE(cross) at each layer. Does DE decrease monotonically toward L19 (matching the paper's layer-wise progression)? Does the DE minimum coincide with the DoM AUROC peak?
+
+**Why:** Paper shows DE decreases across layers in pretrained LLMs concurrent with reasoning accuracy increase. If DE minimum is at L19, it explains why L19 is the optimal layer for DoM (F-2). If DE minimum is elsewhere, it suggests L19 may not be globally optimal.
+
+**Cost:** 3h H100
+**Triggered by:** [Emergent Analogical Reasoning in Transformers](https://arxiv.org/abs/2602.01992)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2602.01992 — layer-wise Dirichlet Energy progression in LLMs
+
+### P11-FE1179 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Zipfian distribution analysis of L19 prefill activation features: fit rank-frequency distribution of per-dimension activation magnitudes across 500 MATH-500 samples. Test power-law vs exponential vs Gaussian. Compare correct vs incorrect subgroups.
+
+**Why:** Paper shows retrieval model SAE features follow Zipfian distribution. If raw L19 activations (pre-SAE) already show Zipfian structure, this motivates BM25-style scoring; if Gaussian, it explains why linear probes are near-optimal.
+
+**Cost:** 15min CPU
+**Triggered by:** [Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies](https://arxiv.org/abs/2605.29384)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2605.29384 demonstrates Zipfian distributional structure in frozen-model activations
+
+### P11-FE1187 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Compute Hopfield energy for D-bucket vs A-bucket problems on cached L19 prefill activations; test whether D-bucket problems are the high-energy tail
+
+**Why:** Theorem 4.1 predicts outlier-like (high-energy) patterns behave differently. If D-bucket = high-energy tail, F-7's geometric signature reduces to an energy landscape property.
+
+**Cost:** 10min CPU
+**Triggered by:** [Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models](https://arxiv.org/abs/2605.27975)
+**Depends on:** F-7
+**Would update:** F-7
+**Trigger condition:** 2605.27975 proves high-energy patterns are outlier-like and more susceptible to perturbation
+
+### P11-FE1191 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Leave-one-problem-out stability diagnostic for DoM direction: hold out each of 500 MATH-500 problems, recompute DoM on remaining 499, evaluate held-out AUROC and cos(DoM_full, DoM_loo) distribution
+
+**Why:** Zhou et al.'s leave-one-verb-out analysis (Spearman r approx 0.8 for verb bias) validates direction generalizability. Our DoM is computed from only 500 samples; if cos(DoM_full, DoM_loo) varies widely, the direction is unstable and AUROC 0.7731 may be inflated by overfitting.
+
+**Cost:** 20min CPU
+**Triggered by:** [Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning](https://arxiv.org/abs/2605.29971)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Zhou et al. 2605.29971 demonstrate leave-one-out diagnostic for validating direction stability
+
+### P11-FE1196 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Layer-wise convergence profile split by correct/incorrect: compute ||h_l - h_{l-1}||/||h_l|| across all 28 layers for each MATH-500 problem, plot mean curves split by correctness label. Tests whether correct problems converge faster through the layer stack (LoopMDM's adaptive-stopping analogy → F-4 asymmetric collapse interpretation).
+
+**Why:** LoopMDM adaptive stopping shows easy inputs converge after fewer iterations. If correct problems show systematically smaller inter-layer deltas starting at mid-layers, F-4's asymmetric collapse is a convergence artifact, not a geometric correctness signature. Also identifies whether L19's predictive power coincides with the convergence-divergence transition point.
+
+**Cost:** 10min CPU
+**Triggered by:** [Looped Diffusion Language Models | alphaXiv](https://arxiv.org/abs/2605.26106)
+**Depends on:** F-1, F-4
+**Would update:** F-1, F-4
+**Trigger condition:** LoopMDM adaptive looping reduces mean iteration count from 12 to ~5 with quality preservation
+
+### P11-FE1199 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Per-problem RSA-leave-one-out score at L19 as alternative correctness predictor (AUROC vs 0.7731)
+
+**Why:** RSA captures population geometry rather than individual position. If a per-problem RSA contribution score achieves comparable AUROC to DoM, it suggests the signal is geometric-relational rather than directional, changing the interpretation of F-2.
+
+**Cost:** 20min CPU
+**Triggered by:** [Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations](https://arxiv.org/abs/2605.27970)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** 2605.27970 uses RSA as primary geometric measure; may capture structure that single-direction DoM misses
+
+### P11-FE1201 (P11) — [ROI: 7, READY, MEDIUM]
+
+**What:** Correct-only vs incorrect-only layer-wise RSA profiles — test whether attenuation is symmetric or asymmetric
+
+**Why:** If both subsets show identical attenuation profiles (just different peak heights), F-4's asymmetric collapse reduces to differential peak amplitude. If correct subset shows steeper late-layer drop, F-4's collapse interpretation is strengthened through the RSA lens.
+
+**Cost:** 45min CPU
+**Triggered by:** [Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations](https://arxiv.org/abs/2605.27970)
+**Depends on:** F-2, F-4
+**Would update:** F-4
+**Trigger condition:** 2605.27970's attenuation finding provides a null hypothesis for F-4 asymmetric collapse
+
+### P11-FE1202 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Bipolar structure test on cached DoM projections: for 500 MATH-500 L19 prefill activations, project onto DoM direction, compute fraction where sign(projection) == correctness label, and test whether a signed-threshold classifier (positive→correct, negative→incorrect) matches unsigned DoM AUROC 0.7731
+
+**Why:** If DoM is already implicitly bipolar (sign discriminates correct/incorrect), SA-GSAE's bipolar framing applies directly to F-2. A near-perfect sign-correctness correlation (>0.85) confirms the bipolar interpretation without needing to train an SAE.
+
+**Cost:** 5min CPU
+**Triggered by:** [Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations](https://arxiv.org/abs/2605.28149)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** SA-GSAE paper shows bipolar features are common in mid-depth residual streams
+
+### P11-FE1206 (P11) — [ROI: 7, READY, MEDIUM]
+
+**What:** PH on SA-GSAE latent space: train SA-GSAE per FE130453, extract latent activations for 500 MATH-500 problems, compute Vietoris-Rips PH on the 500×K_active sparse activation matrix (K_active≈64 per sample); compare H0/H1 barcodes to Gaussian null at matched dimensionality. Tests whether F-10's PH-null is coordinate-system-dependent.
+
+**Why:** F-10 found PH indistinguishable from Gaussian on raw 1536-d residuals. SA-GSAE transforms to a sparse, interpretable basis where non-Gaussian structure may be visible to PH. A non-null result in SA-GSAE coordinates would reframe F-10 as 'wrong basis' rather than 'no topological signal.'
+
+**Cost:** 5h H100
+**Triggered by:** [Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations](https://arxiv.org/abs/2605.28149)
+**Depends on:** F-2, F-10
+**Would update:** F-10
+**Trigger condition:** SA-GSAE dramatically reduces dead fraction (100-500×), suggesting it finds real structure raw methods miss
+
+### P11-FE1208 (P11) — [ROI: 7, READY, HIGH]
+
+**What:** Per-PC AUROC spectrum: compute individual AUROC for each of the 1536 PCs against correctness labels. Plot AUROC vs eigenvalue rank. Identify whether correctness signal concentrates in top PCs (stiff), is distributed, or peaks in intermediate/low-eigenvalue PCs (flat).
+
+**Why:** Complements FE131175 with finer granularity. If AUROC is monotonically decreasing with PC rank, DoM's success is a pure spectral-concentration artifact. If non-monotonic (peaks in mid-range PCs), flat modes contribute independently and the correctness signal is richer than stiff-mode optimization structure.
+
+**Cost:** 10min CPU
+**Triggered by:** [Towards Efficient LLMs Annealing with Principled Sample Selection](https://arxiv.org/abs/2605.31175)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** DiReCT's stiff/flat decomposition motivates checking per-eigenmode correctness contribution
 
 ### P11-FE123985B (P11) — [ROI: 7, READY, HIGH]
 
@@ -9841,6 +11574,32 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-2
 **Trigger condition:** PMET 2308.08742 ablation showing MHSA-only updates marginally help generalization but hurt specificity.
 
+### P11-FE1092 (P11) — [ROI: 7, BLOCKED, MEDIUM]
+
+**What:** Full DCD pipeline on Qwen-2.5-1.5B MATH-500: compute per-example edge attribution vectors via EAP-IG on all 500 problems, PCA-reduce, cluster, discover per-cluster circuits. Compare circuit structure across correct/incorrect groups.
+
+**Why:** The complete DCD pipeline would definitively test whether MATH-500 correctness prediction involves multiple circuits, going beyond the activation-clustering proxy. However, implementing EAP-IG for Qwen-2.5-1.5B is substantial engineering.
+
+**Cost:** 2 H100 day(s)
+**Blocked by:** Requires implementing EAP-IG patching infrastructure for Qwen-2.5-1.5B, which we don't currently have
+**Triggered by:** [Data-driven Circuit Discovery for Interpretability of Language Models](https://arxiv.org/abs/2605.09129)
+**Depends on:** F-2
+**Would update:** F-7, F-2
+**Trigger condition:** DCD achieves 22pp faithfulness improvement at 5% circuit size; our activation-proxy experiments (FE670-673) would motivate full pipeline if they show significant cluster structure
+
+### P11-FE1114 (P11) — [ROI: 7, BLOCKED, HIGH]
+
+**What:** ExOPD distillation test for H-366: distill Qwen-2.5-7B → 1.5B via G-OPD (λ=1.25, ExOPD) on MATH-500 training split, extract L19 prefill activations on held-out split, compute DoM AUROC and cos(distilled_DoM, original_DoM)
+
+**Why:** ExOPD is a stronger test case for H-366 than RevKD because the student explicitly extrapolates beyond the teacher's reward surface. If accuracy rises but DoM AUROC doesn't, DoM is a behavioral correlate, not a causal mechanism.
+
+**Cost:** 1-2 H100 days
+**Blocked by:** H-366 must be designed first; requires adapting G-OPD code to Qwen-2.5 family
+**Triggered by:** [Learning beyond Teacher: Generalized On-Policy Distillation with Reward Extrapolation](https://arxiv.org/abs/2602.12125)
+**Depends on:** F-3, F-2
+**Would update:** F-2
+**Trigger condition:** ExOPD framework published with code and hyperparameters for Qwen family
+
 ### P11-FE163 (P11) — [ROI: 7, BLOCKED, HIGH]
 
 **What:** Per-layer EigenScore sweep on the K=10 cache from P11-FE162, layers {5, 10, 14, 19, 23, 27}. Test whether the int(L/2)=14 'middle-layer is best' claim from INSIDE holds on Qwen-1.5B MATH-500, or whether the F-2-special L19 still wins under multi-sample covariance.
@@ -10346,6 +12105,186 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-2, F-1
 **Trigger condition:** Layer-dependent non-monotonic convergence dynamics in paper.
 
+### P11-FE1007 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Compute confusion distance metric between correct/incorrect class centroids in L19 prefill activation space and compare to DoM projection to test whether the anchor bottleneck framing adds explanatory power beyond the linear probe
+
+**Why:** Paper's confusion distance (normalized centroid separation) predicts classification errors. If applied to our correct/incorrect dichotomy, agreement with DoM means our probe is already capturing anchor-like structure; divergence would reveal subpopulation structure the probe misses.
+
+**Cost:** 20min CPU
+**Triggered by:** [2305.14160](https://arxiv.org/abs/2305.14160)
+**Depends on:** F-7, F-2
+**Would update:** F-7
+**Trigger condition:** Wang et al. 2305.14160 confusion distance metric
+
+### P11-FE1017 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** Test norm-preservation (ICV Eq. 6) on L19 DoM-shifted activations: compare AUROC of DoM probe with and without post-shift L2 renormalization
+
+**Why:** ICV paper shows norm-preservation is critical for steering quality. Our DoM probe adds a direction without controlling magnitude — if norm drift degrades downstream linear-probe AUROC, it would explain the ceiling below 0.80 and inform H-1 steering design.
+
+**Cost:** 15min CPU
+**Triggered by:** [2311.06668](https://arxiv.org/abs/2311.06668)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2311.06668 Eq. 6 norm-preservation step not tested in our pipeline
+
+### P11-FE1029 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Test whether L19 neuron basis is privileged over random rotations for correctness prediction by comparing logistic regression AUROC on neuron activations vs. random-rotated activations
+
+**Why:** Gurnee et al.'s excess-correlation method uses random rotations as baseline. If correctness prediction is equivalent in random rotations vs neuron basis, the privileged-basis hypothesis fails and DoM lives in a distributed subspace.
+
+**Cost:** 20min CPU
+**Triggered by:** [2401.12181](https://arxiv.org/abs/2401.12181)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2401.12181 excess-correlation method tests privileged-basis hypothesis
+
+### P11-FE1034 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** L1/L2 sparsity ratio of L19 activations: compare correct vs incorrect groups. If incorrect samples have systematically different sparsity, F-4 asymmetric collapse may be a sparsity effect rather than geometric.
+
+**Why:** Gao et al. use (L1/L2)^2 as ablation sparsity metric. Applied to raw activations, group-level sparsity differences would reframe F-4 from geometry to feature-counting.
+
+**Cost:** 10min CPU
+**Triggered by:** [2406.04093](https://arxiv.org/abs/2406.04093)
+**Depends on:** F-2, F-4
+**Would update:** F-4
+**Trigger condition:** Gao et al. 2406.04093 ablation sparsity metric
+
+### P11-FE1039 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** Apply SD-PS (pseudo-spectrum) estimator to cached covariance eigenspectrum. Convert 1536 eigenvalues to M=100 equal-mass quantiles, apply log-transform, compute SD. Test whether per-problem SD-PS (computed from individual-problem activation vectors projected onto cached PCA basis) predicts correctness.
+
+**Why:** SD-PS outperforms SD-KDE in GPT-2 experiments (Fig 5). Can be computed directly from our cached 500×1536 activation matrix by computing per-problem covariance contribution and its spectral decomposition.
+
+**Cost:** 30min CPU
+**Triggered by:** [2604.19740](https://arxiv.org/abs/2604.19740)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** 2604.19740 Appendix C SD-PS algorithm on cached data.
+
+### P11-FE1050 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Test for 4-layer block periodicity in the 24-layer activation sequence. Compute autocorrelation of per-layer mean activation norms and per-layer DoM projections with lag 1..12. Significant autocorrelation at lag 4 supports implicit block structure in Qwen-2.5-1.5B matching paper's finding in SmolLM.
+
+**Why:** Paper universally finds 4-layer periodic patterns in both looped and depth-grown models. If Qwen-2.5-1.5B (a standard untied model) also shows periodicity, this suggests iterative computation structure is emergent, not architectural — strengthening H-489.
+
+**Cost:** 10min CPU
+**Triggered by:** [From Growing to Looping: A Unified View of Iterative Computation in LLMs](https://arxiv.org/abs/2602.16490)
+**Depends on:** F-2, F-1
+**Would update:** F-1
+**Trigger condition:** 2602.16490 finds universal 4-layer periodicity across architectures
+
+### P11-FE1055 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** AUROC identifiability curve — plot single-direction AUROC for all 1536 PCA directions to measure how sharply the predictive signal is concentrated
+
+**Why:** The paper's identifiability concern is that many directions might predict equally well. If the AUROC drops steeply after PC1 (already 0.7856 alone), the signal is concentrated in a narrow cone and effectively identifiable. If multiple PC directions independently achieve AUROC>0.73, non-identifiability is a live concern for F-2.
+
+**Cost:** 15min CPU
+**Triggered by:** [Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable?](https://arxiv.org/abs/2502.20914)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2502.20914 finding that median valid abstractions = 910,000 in k=5 networks
+
+### P11-FE1064 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** For each difficulty bucket (A/B/C/D), compute W₂ after mean-centering between that bucket's activations and all-others. Compare D-bucket centered-W₂ against other buckets. If D-bucket has uniquely high shape-component OT cost, F-7's collective signature survives centering; if not, it's a pure location effect.
+
+**Why:** Tests whether F-7's 'distinctive collective geometric signature' is genuinely about internal structure or just centroid separation.
+
+**Cost:** 20min CPU
+**Triggered by:** [Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once](https://arxiv.org/abs/2605.08424)
+**Depends on:** F-2, F-7
+**Would update:** F-7
+**Trigger condition:** 2605.08424 mean-centering + OT decomposition applied to F-7 bucket analysis
+
+### P11-FE1065 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Add SW₂-to-class-centroid as an additional feature to the cov-spectrum logistic regression (top-20 log-eigvals, AUROC 0.7928). Report marginal AUROC lift and coefficient significance. If SW₂ feature has zero weight, transport distance adds nothing beyond spectral structure.
+
+**Why:** Tests whether transport geometry provides signal orthogonal to the covariance spectrum — probes the sufficiency of second-order statistics.
+
+**Cost:** 25min CPU
+**Triggered by:** [Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once](https://arxiv.org/abs/2605.08424)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.08424 sliced Wasserstein + existing cov-spectrum baseline at 0.7928
+
+### P11-FE1069 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** Permutation-null specificity test (10,000 shuffles): establish null distribution of specificity ratios under random correct/incorrect label assignment, test whether observed DoM specificity is significantly below null
+
+**Why:** Paper uses permutation test to establish that low specificity is not expected by chance (their null mean=0.370, observed=0.119, p<0.0001). Same test on our DoM would establish statistical significance of the entanglement finding
+
+**Cost:** 15min CPU
+**Triggered by:** [Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes](https://arxiv.org/abs/2605.05715)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.05715 permutation framework directly applicable to cached data
+
+### P11-FE1074 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Wasserstein-1 distance between correct/incorrect activation distributions per PC and per IC: compute W1 for each of top-20 PCs and all 500 ICs, compare discriminative power profile to AUROC
+
+**Why:** Paper uses W1 as primary separability metric with z-scoring. W1 is non-parametric and sensitive to distribution shape beyond mean shift, potentially revealing structure AUROC misses.
+
+**Cost:** 10min CPU
+**Triggered by:** [Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer](https://arxiv.org/abs/2605.07407)
+**Depends on:** F-10, F-2
+**Would update:** F-10, F-2
+**Trigger condition:** W1 distance reveals condition-specific activation shifts invisible to mean-based metrics (2605.07407 §3.2)
+
+### P11-FE1085 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** t-SNE clustering of L19 activations with vs without Lorem prefix: test whether perturbed representations cluster with originals (replicating LoPE Figure 6b at our extraction layer)
+
+**Why:** If L19 activations are stable under Lorem prefixing, the DoM direction is measuring something deeper than surface-form sensitivity. If they scatter, DoM's AUROC 0.7731 may be surface-form-dependent.
+
+**Cost:** 45min CPU (extract 500 perturbed activations, run t-SNE on 1000×1536 matrix, measure cluster separation)
+**Triggered by:** [Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration](https://arxiv.org/abs/2605.05566)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** LoPE Figure 6b shows tight clustering for near-natural perturbations at model-internal level
+
+### P11-FE1086 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Perplexity-titrated perturbation curve: generate Lorem prefixes at perplexity bands [10-20, 20-30, 30-50, 50-100, 100-500], measure DoM AUROC at each band to find the robustness boundary
+
+**Why:** LoPE finds optimal exploration at perplexity 20-30. If DoM AUROC degrades at a specific perplexity threshold, this quantifies the boundary between 'robust to perturbation' and 'corrupted by perturbation' — informing the practical deployment envelope for F-8 selective-prediction.
+
+**Cost:** 2h CPU (5 perplexity bands × 10 prefixes × 500 problems × forward pass)
+**Triggered by:** [Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration](https://arxiv.org/abs/2605.05566)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** LoPE Table 2 shows filtered Latin (perp 20-30) outperforms random token (perp ~4.6e5)
+
+### P11-FE1090 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Per-cluster CoE-60 vs DoM comparison: for each DCD-style cluster from FE670, compute both CoE-60-only and DoM-only AUROC. Test whether F-9 redundancy holds uniformly or is dataset-specific.
+
+**Why:** DCD shows that averaging over diverse examples can mask mechanism-specificity. F-9's CoE-60/DoM redundancy might break for specific subpopulations.
+
+**Cost:** 45min CPU
+**Triggered by:** [Data-driven Circuit Discovery for Interpretability of Language Models](https://arxiv.org/abs/2605.09129)
+**Depends on:** F-2, F-9
+**Would update:** F-9
+**Trigger condition:** DCD finding that mixed-mechanism datasets produce misleadingly unified faithfulness scores
+
+### P11-FE1096 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** CoE-60 vs L19 DoM residual probe: train probe on samples where DoM is wrong but CoE-60 is right (or vice versa), check if disagreement set has AUROC >0.55 from the other's residual
+
+**Why:** F-9 claims redundancy. If CoE-60 and DoM are two structurally distinct realizations of the same task (per the paper's framework), their error residuals may carry complementary signal — refuting pure redundancy.
+
+**Cost:** 30min CPU
+**Triggered by:** [All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs](https://arxiv.org/abs/2605.12671)
+**Depends on:** F-9, F-2
+**Would update:** F-9
+**Trigger condition:** 2605.12671 shows structurally distinct circuits produce identical outputs but potentially capture different failure modes
+
 ### P11-FE110625C (P11) — [ROI: 6, READY, MEDIUM]
 
 **What:** Layer-saturation curve for prefill DoM on Qwen-2.5-1.5B and Qwen-2.5-7B. Compute DoM AUROC at every layer 0–27 (1.5B) / 0–27 (7B) on cached MATH-500 prefill activations. Test whether L19 is a peak (our pick) or on a plateau (paper's saturation claim).
@@ -10357,6 +12296,18 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-3, F-2
 **Would update:** F-3, F-2
 **Trigger condition:** Paper's saturation finding directly contradicts the assumption baked into F-2's L19 pick.
+
+### P11-FE1108 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Anderson acceleration on layer trajectory: apply Anderson solver to the 29-layer activation sequence per sample, measure 'effective attractor depth' (number of iterations to convergence at eps=0.01), test whether convergence speed predicts correctness
+
+**Why:** Attractor model uses Anderson acceleration to find fixed points faster. Applied to our layer trajectory, this gives a scalar 'convergence speed' per problem that may carry information beyond the L19 snapshot. If it beats DoM, convergence dynamics matter more than single-layer geometry.
+
+**Cost:** 30min CPU
+**Triggered by:** [Solve the Loop: Attractor Models for Language and Reasoning](https://arxiv.org/abs/2605.12466)
+**Depends on:** F-9, F-2
+**Would update:** F-9
+**Trigger condition:** 2605.12466 Anderson solver + convergence monitoring
 
 ### P11-FE111 (P11) — [ROI: 6, READY, MEDIUM]
 
@@ -10370,6 +12321,90 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-2
 **Trigger condition:** 2308.10248 (mid-layer-optimal prior across 3 model families)
 
+### P11-FE1112 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Bootstrap distribution of cos(DoM, PC1): resample 200 times, compute per-resample DoM via logistic regression, measure cos(DoM_b, PC1_full). Report mean and SD. If SD > 0.15, the cos=0.9216 CAST alignment may be noise-driven.
+
+**Why:** The cos(DoM, PC1)=0.9216 finding is central to the 'CAST PC1 ≈ supervised DoM' interpretation. If this alignment is unstable under bootstrap, the structural claim weakens. PC1 is deterministic from full sample; DoM may jitter.
+
+**Cost:** 20min CPU
+**Triggered by:** [RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution](https://arxiv.org/abs/2605.15154)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** RoSHAP's framework explicitly separates stable from unstable feature directions.
+
+### P11-FE1118 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Feature emergence threshold test: estimate the effective dimension D^eff at L19 using the eigenvalue spectrum of the Gram matrix K = Z Z^T / n, compute the predicted sample-complexity threshold from Equation 18, and check whether n=500 is above or below the emergence threshold for the top-k eigenvectors of C^(ℓ).
+
+**Why:** The Neural LoFi emergence criterion predicts a phase-transition threshold below which spectral features are undetectable. If n=500 is near the threshold for the second or third eigenvector, it would explain why our probes plateau and why bootstrap resampling (H-839) might show instability — we're right at the detection edge.
+
+**Cost:** 30min CPU
+**Triggered by:** [Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning](https://arxiv.org/abs/2605.13612)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.13612 Equations 17-18 emergence criterion
+
+### P11-FE1120 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** PH on label-weighted projected subspace: project L19 prefill activations onto top-k (k=5,10,20) eigenvectors of C^(ℓ), compute Vietoris-Rips PH (H_0, H_1), two-sample test vs Gaussian null at matched mean+covariance. Tests whether F-10's PH null was due to applying topology to the wrong subspace.
+
+**Why:** F-10 found PH indistinguishable from Gaussian on raw 1536-d activations. Neural LoFi predicts the signal lives in the label-weighted spectral directions. Projecting onto these before PH concentrates the data into the signal subspace — any non-Gaussian topological structure should be amplified.
+
+**Cost:** 30min CPU
+**Triggered by:** [Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning](https://arxiv.org/abs/2605.13612)
+**Depends on:** F-10, F-2
+**Would update:** F-10
+**Trigger condition:** 2605.13612 label-weighted subspace selection + F-10 PH null result
+
+### P11-FE1122 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** Asymmetric BCE class weighting on L19 DoM correctness probe — refit logistic regression with class_weight={incorrect:1, correct:8} on cached prefill features, compare AUROC and precision-at-50%-coverage against standard probe
+
+**Why:** LDT's asymmetric BCE (w+=8, w-=1) is designed for abstention-biased classification — directly maps to our selective-prediction goal (F-8) where false negatives on correct answers are costlier than false positives
+
+**Cost:** 10min CPU
+**Triggered by:** [Lattice Deduction Transformers](https://arxiv.org/abs/2605.08605)
+**Depends on:** F-8, F-2
+**Would update:** F-8
+**Trigger condition:** LDT achieves empirical soundness partly via asymmetric loss; our DoM probe uses symmetric loss — worth testing if asymmetric weighting improves the precision-coverage frontier
+
+### P11-FE1129 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** Cross-fold direction averaging: average 5-fold DoM directions (not predictions), compare AUROC to OOF prediction averaging
+
+**Why:** If direction-space averaging yields comparable AUROC to prediction-space averaging (as Rewarded Soups' Lemma 4 predicts for weight space), it confirms that the DoM signal has low curvature in direction space — implying robust single-direction probing. If direction-avg is strictly worse, it suggests the signal is more nonlinear than assumed.
+
+**Cost:** 15min CPU
+**Triggered by:** [Rewarded soups: towards Pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards](https://arxiv.org/abs/2306.04488)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2306.04488 Lemma 4: weight interpolation approximates prediction ensembling
+
+### P11-FE1131 (P11) — [ROI: 6, READY, HIGH]
+
+**What:** Trajectory-mode classification of MATH-500 problems using L19 DoM confidence: bucket problems into quick-success (high DoM, correct), delayed-success (low DoM, correct), and failure (low DoM, incorrect) analogues. Compare geometric signatures (PCA, covariance spectrum) across the three groups. Test whether 'delayed-success' problems have D-bucket-like geometry.
+
+**Why:** PTRM identifies three trajectory modes with distinct latent geometry. Mapping these onto our DoM confidence × correctness labels tests whether D-bucket (F-7) corresponds to 'failure' mode and whether 'delayed success' is a recognizable intermediate category in our cached activations.
+
+**Cost:** 20min CPU
+**Triggered by:** [Probabilistic Tiny Recursive Model](https://arxiv.org/abs/2605.19943)
+**Depends on:** F-7, F-4, F-2
+**Would update:** F-7
+**Trigger condition:** PTRM trajectory-mode analysis (Fig. 2) showing distinct latent geometry per mode
+
+### P11-FE1139 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Per-sample discriminativeness scores for D-bucket analysis: compute DelTA α-coefficients for all 500 MATH-500 L19 prefill activations, check whether D-bucket (36 pathological problems, F-7) has systematically lower α (more shared-pattern-dominated) than other buckets
+
+**Why:** If D-bucket problems have low discriminativeness scores, their 'collective geometric signature' (F-7) may be an artifact of shared-pattern concentration rather than genuine geometry. This would explain why per-problem local PR is indistinguishable across buckets.
+
+**Cost:** 15min CPU
+**Triggered by:** [DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards](https://arxiv.org/abs/2605.21467)
+**Depends on:** F-7, F-2
+**Would update:** F-7
+**Trigger condition:** 2605.21467 discriminative vs shared decomposition applied to F-7's bucket analysis
+
 ### P11-FE114 (P11) — [ROI: 6, READY, MEDIUM]
 
 **What:** Length-only gate vs prefill-DoM gate at matched coverage 0.5 for selective prediction on MATH-500 (F-8). Implement the BAL adversarial: rank problems by `-prompt_token_count` (shorter first), answer the top 50%. Report acc@coverage 0.5 vs F-8's 71.6%. Also run length-balanced selective prediction: subsample to flatten prompt length, recompute F-8.
@@ -10382,6 +12417,150 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-8
 **Trigger condition:** Reading 2310.03716 — LPPO baseline directly applicable to selective-prediction headline.
 
+### P11-FE1149 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Rank-controlled ridge probe error curve — train ridge probes at PCA ranks r=1,2,3,5,10,20,50,100,200,500 predicting correctness label, plot test error vs r, fit ε²~r^{-1/D} to estimate intrinsic dimensionality D of the correctness manifold
+
+**Why:** Karkada et al.'s Proposition 3.3 gives error scaling ε²~r^{-1/D}. Fitting D tells us the intrinsic dimensionality of the correctness-relevant manifold. If D=1 (single direction), F-2's linear probe is optimal. If D>1, multi-direction probes should beat 0.7731. Connects to the 2-feat AUROC 0.7856 (D≈2?) and cov-spectrum 0.7928 (D≈20?).
+
+**Cost:** 20min CPU
+**Triggered by:** [Symmetry in language statistics shapes the geometry of model representations](https://arxiv.org/abs/2602.15029)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2602.15029 Proposition 3.3 provides theoretical framework; we have scattered rank sweeps but no systematic ε²(r) curve
+
+### P11-FE1153 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Reinterpret cov-spectrum AUROC 0.7928 through attractor-stability lens: compute spectral gap (λ₁/λ₂) of per-class covariance matrices and test whether spectral gap predicts correctness better than raw eigenvalue features.
+
+**Why:** EqR's Eq. 7 shows correctness requires (1-L)·γ/G_gap > residual, where L is the Lipschitz constant (≈ spectral radius of Jacobian). The spectral properties of our activation covariance may reflect this Jacobian stability. A large spectral gap (dominant first eigenvalue) suggests a strong attractor with L<<1.
+
+**Cost:** 20min CPU
+**Triggered by:** [Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning](https://arxiv.org/abs/2605.21488)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** EqR links spectral radius of dynamics to attractor stability and correctness
+
+### P11-FE1159 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Compare effective-rank metric vs. participation ratio vs. cov-spectrum top-20 as correctness predictors. Compute AUROC for each on cached L19 prefill data. Test whether effective rank captures the same or different signal as our existing spectral features.
+
+**Why:** Effective rank is a scalar information-theoretic summary of the singular-value spectrum. Our cov-spectrum probe (AUROC 0.7928) uses the top-20 log-eigenvalues as features. If effective rank alone achieves comparable AUROC, it's a simpler, more interpretable feature. If it's orthogonal, combining them could push past 0.7928.
+
+**Cost:** 15min CPU
+**Triggered by:** [Next-Latent Prediction Transformers Learn Compact World Models](https://arxiv.org/abs/2511.05963)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** NextLat's effective-rank metric as potential replacement/complement for cov-spectrum probe.
+
+### P11-FE1166 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Compute cosine similarity distribution between cached L19 DoM direction and each column of Qwen-2.5-1.5B's unembedding matrix W_U. If DoM is aligned with specific vocabulary directions, it is answer-aligned; if the distribution is uniform/diffuse, DoM lives in a subspace orthogonal to W_U — consistent with the 'computational instruction' interpretation.
+
+**Why:** Complementary to FE910's vocabulary projection. The distribution shape tells us whether DoM is in or orthogonal to the unembedding subspace, which determines whether logit-lens-based monitoring could detect DoM-based interventions (safety implication from §6).
+
+**Cost:** 5min CPU
+**Triggered by:** [Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens](https://arxiv.org/abs/2604.02608)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2604.02608 §5.1: FVs encode computational instructions in subspaces orthogonal to W_U
+
+### P11-FE1172 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Mutual information I(DoM_L19; correctness) estimation using KSG k-NN estimator on the cached 500-sample DoM projections vs binary correct/incorrect labels. Compare with Shannon capacity bound from FE131051.
+
+**Why:** AUROC is a rank-based metric that doesn't directly measure information content. MI gives the actual bits of correctness information the DoM direction carries. If MI is much lower than AUROC suggests, the probe may be exploiting distributional quirks rather than genuine signal.
+
+**Cost:** 15min CPU
+**Triggered by:** [LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws](https://arxiv.org/abs/2605.23901)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Paper's information-theoretic framing motivates measuring actual bits rather than rank statistics.
+
+### P11-FE1177 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** PCA topic-category alignment: re-run PCA on L19 prefill activations colored by MATH-500 topic (algebra, geometry, number-theory, etc.) instead of correct/incorrect. Check whether topics form visually and quantitatively aligned sub-categories in PC1–PC9 space. Compute within-topic vs between-topic Dirichlet Energy.
+
+**Why:** Paper shows functor-aligned categories cluster geometrically. If MATH-500 topics cluster in L19 PCA space, it reveals category structure beyond correct/incorrect — potentially explaining why D-bucket has a collective signature (F-7) and why certain topics dominate the selective-prediction boundary (F-8).
+
+**Cost:** 15min CPU
+**Triggered by:** [Emergent Analogical Reasoning in Transformers](https://arxiv.org/abs/2602.01992)
+**Depends on:** F-8, F-7, F-2
+**Would update:** F-7
+**Trigger condition:** 2602.01992 — PCA-based structural alignment visualization
+
+### P11-FE1181 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Feature activation distribution shape test on L19 prefill: per-dimension Kolmogorov-Smirnov test of each of the 1536 L19 feature dimensions against Zipfian, Gaussian, and Laplacian nulls. Compute fraction of dimensions rejecting each null at p<0.01. Separate correct vs incorrect.
+
+**Why:** F-10 says PH can't distinguish from Gaussian null. But PH tests topology, not marginal distributions. Per-dimension distributional tests may reveal non-Gaussian structure PH misses.
+
+**Cost:** 10min CPU
+**Triggered by:** [Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies](https://arxiv.org/abs/2605.29384)
+**Depends on:** F-10
+**Would update:** F-10
+**Trigger condition:** 2605.29384 Zipfian analysis methodology
+
+### P11-FE1188 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Run Hopfield fixed-point iteration on each L19 prefill sample and extract convergence speed + fixed-point distance as features for correctness classification
+
+**Why:** Fixed-point dynamics ξ_{t+1} = X^T softmax(β X ξ_t) encode how each sample relates to the attractor landscape. Convergence speed may capture something orthogonal to DoM.
+
+**Cost:** 20min CPU
+**Triggered by:** [Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models](https://arxiv.org/abs/2605.27975)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** MHN fixed-point theory in 2605.27975 section 3
+
+### P11-FE1193 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Multi-component edit sparsity test: using top-k PCA components (k=1,2,3,5,10,20) from FE291 PCA, fit OLS predicting correctness, evaluate AUROC per k to find the minimal-rank subspace that matches DoM's 0.7731 and the 2-feat 0.7856
+
+**Why:** Zhou et al. find 5 components suffice for causal editing out of 50 retained. Our FE291 shows 2-feat (PC1,PC9) gets 0.7856; this systematically maps the rank-AUROC curve to determine if correctness signal is truly rank-1 (DoM) or has non-trivial multi-component structure.
+
+**Cost:** 10min CPU
+**Triggered by:** [Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning](https://arxiv.org/abs/2605.29971)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Zhou et al. 2605.29971 demonstrate 5-component sufficiency for continuous variable editing
+
+### P11-FE1197 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Effective convergence layer per problem: for each MATH-500 problem, find layer l* where ||h_l - h_{l-1}||/||h_l|| first drops below threshold ε=0.1 (matching LoopMDM's adaptive stopping). Correlate l* with correctness and compare to DoM-based selective prediction (F-8, 71.6% at 50% coverage).
+
+**Why:** If earlier convergence correlates with correctness, l* provides a label-free, direction-free alternative to DoM for selective prediction. Could replace F-8's supervised direction with an unsupervised convergence criterion. Tests whether the architecture-general convergence idea from LoopMDM transfers to AR transformers.
+
+**Cost:** 15min CPU
+**Triggered by:** [Looped Diffusion Language Models | alphaXiv](https://arxiv.org/abs/2605.26106)
+**Depends on:** F-8, F-2
+**Would update:** F-8
+**Trigger condition:** LoopMDM adaptive stopping with ε=0.1 preserves >99% of quality metrics
+
+### P11-FE1200 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** GPA alignment of L19 prefill activation manifold (MDS→3D) with correctness reference structure
+
+**Why:** GPA provides a geometry-preserving alignment score complementary to AUROC. If GPA score is high, it confirms the structure is genuinely geometric; if low despite high AUROC, it suggests DoM captures a statistical regularity rather than manifold structure.
+
+**Cost:** 20min CPU
+**Triggered by:** [Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations](https://arxiv.org/abs/2605.27970)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.27970 uses GPA as second geometric metric alongside RSA
+
+### P11-FE1204 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Bipolar fraction estimation in cov-spectrum features: for the 20 log-eigenvalue features from FE881 (AUROC 0.7928), compute per-feature bipolar fraction — what fraction of problems have the feature active with opposite sign for correct vs incorrect. Report geometric mean bipolar fraction and compare to SA-GSAE's threshold p≈0.5% for d_in=1536
+
+**Why:** If our best features are already bipolar (high fraction with opposite-sign activations for correct/incorrect), SA-GSAE architecture is strongly motivated for L19 decomposition. If not (features are one-sided), SA-GSAE may offer no advantage over standard Gated SAE for correctness probing.
+
+**Cost:** 15min CPU
+**Triggered by:** [Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations](https://arxiv.org/abs/2605.28149)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** SA-GSAE paper derives efficiency threshold; our cached features can be checked against it immediately
+
 ### P11-FE120476A (P11) — [ROI: 6, READY, HIGH]
 
 **What:** Build k-NN graphs (k=5,10,20) from cached 500×1536 L19 prefill activations, compute per-node graph features (effective resistance, algebraic connectivity contribution, Forman curvature, local clustering coeff), train 5-fold logistic regression for correct/incorrect classification, compare AUROC to DoM baseline 0.7731
@@ -10393,6 +12572,18 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-10, F-2
 **Would update:** F-2
 **Trigger condition:** GLT paper demonstrates graph-structural features outperform local metrics on diverse graphs
+
+### P11-FE1209 (P11) — [ROI: 6, READY, MEDIUM]
+
+**What:** Per-layer spectral gap survey: compute spectral gap ratios (λ₁/λ₂, cumulative energy at elbow-k) for all 28 Qwen-2.5-1.5B layers using cached activations (if available) or a lightweight extraction pass. Test whether L19 is an outlier or spectral concentration is universal.
+
+**Why:** Tests H-743 directly. DiReCT's 94.5%-at-k=34 benchmark for GPT-2-Medium gives a reference. If L19's spectral gap ratio is ≥2σ above the cross-layer mean, H-743 holds. If all layers are similar, L19's DoM ≈ PC1 is not explained by spectral gap.
+
+**Cost:** 30min CPU
+**Triggered by:** [Towards Efficient LLMs Annealing with Principled Sample Selection](https://arxiv.org/abs/2605.31175)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** DiReCT's spectral elbow analysis applied to GPT-2-Medium motivates checking whether this structure is layer-specific in Qwen
 
 ### P11-FE122 (P11) — [ROI: 6, READY, MEDIUM]
 
@@ -12214,6 +14405,19 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-9
 **Trigger condition:** PMET 2308.08742 Figure 2 showing MHSA hidden states never stabilize across layers.
 
+### P11-FE1154 (P11) — [ROI: 6, BLOCKED, MEDIUM]
+
+**What:** Test path-independence of DoM: for each problem, compute DoM score on 5 minor paraphrases of the MATH-500 prompt and measure ΔPI — the sensitivity of DoM to input perturbation. Correlate ΔPI with correctness.
+
+**Why:** EqR's ΔPI metric (Table 11) shows that well-shaped landscapes exhibit path independence. If DoM is an attractor-convergence proxy, it should be stable across minor input perturbations for problems in deep basins (easy/correct) and unstable for problems in shallow/spurious basins (hard/incorrect). This tests whether attractor basin depth explains F-2.
+
+**Cost:** 2h H100
+**Blocked by:** Requires generating paraphrased prompts and fresh forward passes
+**Triggered by:** [Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning](https://arxiv.org/abs/2605.21488)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** EqR path-independence diagnostic adapted to probe stability
+
 ### P11-FE187 (P11) — [ROI: 6, BLOCKED, MEDIUM]
 
 **What:** Add ReCoVERR-style clarification baseline as a third arm to H-12 (semantic-entropy probes for refusal). When H-12 is run, evaluate three abstention policies side by side on MATH-500 1.5B: (a) supervised prefill DoM (F-8 baseline), (b) label-free SE probe (H-12 main), (c) label-free clarification wrapper (this FE). Compare answered-set accuracy at matched coverage.
@@ -12475,6 +14679,258 @@ _Generated: 2026-05-09 12:54 UTC_
 **Would update:** F-1
 **Trigger condition:** Already triggered — F-13 (truncation artifact) invalidated the label distribution P1 used.
 
+### P11-FE1016 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Compute ICV-style contrastive direction (unpaired softmax-weighted gradient, Eq. 4 of 2311.06668) from cached L19 prefill activations and compare to DoM via cosine similarity and AUROC
+
+**Why:** ICV's unpaired contrastive formulation may produce a different direction than our mean-difference DoM. If cos(ICV_unpaired, DoM) << 0.92 or AUROC differs, it reveals a methodological sensitivity in F-2's direction.
+
+**Cost:** 20min CPU
+**Triggered by:** [2311.06668](https://arxiv.org/abs/2311.06668)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2311.06668 Eq. 4 defines an alternative to mean-difference for contrastive direction extraction
+
+### P11-FE1035 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Progressive PCA AUROC curve: add PCA components in eigenvalue order, measure correctness AUROC at each cumulative step (k=1 to 1536). Extends the PC1+PC9=0.7856 datapoint to a full saturation curve.
+
+**Why:** Paper's progressive codes show ordered latents give smooth quality curves. Analogous PCA curve reveals where correctness signal saturates — early saturation supports low-rank DoM interpretation; late saturation suggests overcomplete encoding.
+
+**Cost:** 20min CPU
+**Triggered by:** [2406.04093](https://arxiv.org/abs/2406.04093)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Gao et al. 2406.04093 progressive codes evaluation
+
+### P11-FE1038 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Compute Kendall τ and Granulated Kendall Coefficients between all cached correctness-prediction features (DoM, PC1, PC9, cov-spectrum top-20) and binary correctness label. Compare rank-correlation structure against AUROC rankings.
+
+**Why:** The paper uses Kendall τ and GKC as alternatives to simple correlation for measuring how well complexity measures predict generalization gap. Applying these to our features may reveal that cov-spectrum features are more reliably correlated than DoM under certain conditioning — a different view than AUROC alone.
+
+**Cost:** 10min CPU
+**Triggered by:** [2604.19740](https://arxiv.org/abs/2604.19740)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2604.19740 Section 5 methodology; all features already cached.
+
+### P11-FE1041 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** DoM stability under prompt paraphrase — reword 20 MATH-500 problems (preserve math content, change sentence framing), re-extract L19 prefill activations, compare DoM predictions to originals. Measure cos(DoM_original, DoM_reworded) and AUROC change.
+
+**Why:** Wu et al. 2307.13339 show CoT makes gradient saliency more robust to rewordings. If our DoM predictor is fragile under paraphrase, the AUROC 0.7731 overestimates deployment reliability. If robust, this strengthens F-2 and F-8.
+
+**Cost:** 1.5h CPU + 30min H100 for re-extraction
+**Triggered by:** [2307.13339](https://arxiv.org/abs/2307.13339)
+**Depends on:** F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Paper demonstrates prompt-format dependence of internal signals at 1.5B-6B scale
+
+### P11-FE1042 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Prompt-length confound test for F-5 — take 50 MATH-500 problems, create length-matched versions (pad short problems, truncate long ones to median length), compare L19 prefill DoM signal. Correlate breathing amplitude with problem length vs. problem content at fixed length.
+
+**Why:** Wu et al. find CoT's effect on internal signals is partly mechanical (longer prompts → diluted gradients). If our breathing signal (F-5, content-dependent) has a confounding length component, we need to quantify it.
+
+**Cost:** 45min CPU + 20min H100 for re-extraction
+**Triggered by:** [2307.13339](https://arxiv.org/abs/2307.13339)
+**Depends on:** F-5
+**Would update:** F-5
+**Trigger condition:** Paper's dilution hypothesis suggests length-driven rather than content-driven internal signal changes
+
+### P11-FE1058 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** m-kkNN (k=10) between L19 prefill activation neighborhoods and correctness labels — local structure alignment complementing global CKA
+
+**Why:** If m-kkNN is high, correctness clusters locally in activation space (consistent with DoM separability). If low despite AUROC 0.77, DoM exploits a global linear separation that doesn't manifest in local neighborhoods — would suggest the probe is fragile to distribution shift.
+
+**Cost:** 5min CPU
+**Triggered by:** [The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv](https://arxiv.org/abs/2605.09969)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Wang et al. 2605.09969 use m-kkNN as complementary metric to CKA
+
+### P11-FE1068 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** PCA-50 + logistic regression probe on L19 prefill activations for correctness prediction, comparing against full-1536-d L2-reg ceiling (0.7847) and DoM AUROC (0.7731). Tests whether dimensionality reduction changes the picture
+
+**Why:** Paper uses PCA-50 as standard preprocessing; if our AUROC barely changes with 50 components, confirms signal is low-rank and dominated by PC1 (as cos(DoM,PC1)=0.9216 already suggests)
+
+**Cost:** 10min CPU
+**Triggered by:** [Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes](https://arxiv.org/abs/2605.05715)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.05715 uses PCA-50 + logistic regression as standard probing pipeline
+
+### P11-FE1075 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Selectivity Index (SI = Hoyer_sparsity × L1_norm) computed for PC1-PC20 and ICA directions w.r.t. correctness labels: quantify whether correctness signal is concentrated (high SI) or distributed (low SI)
+
+**Why:** Paper's SI metric distinguishes concentrated vs distributed predictive structure. If correctness signal is distributed across many sparse ICs (low SI), it implies multi-direction ensembles could exceed 0.7928 ceiling.
+
+**Cost:** 5min CPU
+**Triggered by:** [Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer](https://arxiv.org/abs/2605.07407)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** ICA symbols show higher selectivity than PCA for individual health targets (2605.07407 Fig 2)
+
+### P11-FE1077 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Using cached L19 500x1536 activation matrix, compute per-sample 'self-relation' via cosine similarity between the sample's activation and all other samples' activations (500x500 Gram matrix). SVD of correct-subgroup vs incorrect-subgroup Gram matrices — compare top-k singular value spectra as group-level discriminant for F-7 D-bucket signature.
+
+**Why:** SR2-LoRA's singular value alignment is robust to perturbation. Applying the same logic to sample-sample (rather than layer-layer) relations tests whether D-bucket has a distinctive spectral signature in the Gram matrix.
+
+**Cost:** 15min CPU
+**Triggered by:** [SR$^2$-LoRA: Self-Rectifying Inter-layer Relations in Low-Rank Adaptation for Class-Incremental Learning](https://arxiv.org/abs/2605.07420)
+**Depends on:** F-2, F-7
+**Would update:** F-7
+**Trigger condition:** 2605.07420 SVD robustness proposition applied to sample-level Gram matrices
+
+### P11-FE1091 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Cluster-composition analysis: examine whether DCD-style activation clusters from FE670 align with problem metadata (topic, difficulty tier, answer length, multi-step vs single-step). Tests whether model-internal clustering recovers human-interpretable task boundaries.
+
+**Why:** DCD shows model-internal clustering recovers task-aligned groups (IOI vs sequence completion cleanly separated). If our clusters align with MATH-500 topics or difficulty, this provides mechanistic grounding for H-5.
+
+**Cost:** 20min CPU
+**Triggered by:** [Data-driven Circuit Discovery for Interpretability of Language Models](https://arxiv.org/abs/2605.09129)
+**Depends on:** F-7, F-2
+**Would update:** F-7
+**Trigger condition:** DCD clusters separate tasks with 100% purity on GPT-2 all-task dataset (Figure 5a)
+
+### P11-FE1113 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Zero-inflated decomposition of per-dimension SHAP: for each of 1536 dims, compute P0 (fraction of bootstrap runs where dimension contributes zero to prediction). Identify 'always-active' vs 'sometimes-active' vs 'never-active' subpopulations. Cross-reference against PCA eigenvalue spectrum.
+
+**Why:** RoSHAP's zero-inflated model separates sparsity from magnitude. If most of the 1536 dims have P0 near 1.0 (never active), this supports the sparse-subspace hypothesis in H-260/H-664. If P0 distribution is bimodal, it reveals a natural dimensionality cutoff.
+
+**Cost:** 25min CPU
+**Triggered by:** [RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution](https://arxiv.org/abs/2605.15154)
+**Depends on:** F-10, F-2
+**Would update:** F-2
+**Trigger condition:** RoSHAP's zero-inflated modeling reveals interpretable sparsity structure in Golub (7129 features → only ~8 consistently active).
+
+### P11-FE1119 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Spectral gap comparison: compute eigenvalue spectra of the label-weighted moment operator C^(ℓ) and the unsupervised covariance Σ on L19 prefill activations. Compare leading eigenvalue gaps, condition numbers, and effective ranks. Test whether C^(ℓ) has a sharper spectral gap (concentrating more label-relevant information in fewer directions).
+
+**Why:** If C^(ℓ) has a sharper gap than Σ, it explains why DoM (first-order of C) works almost as well as PCA (first-order of Σ): the label signal concentrates in few directions. If the gaps are similar, it means the unsupervised covariance already captures most task structure, supporting cos(DoM, PC1) = 0.9216.
+
+**Cost:** 10min CPU
+**Triggered by:** [Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning](https://arxiv.org/abs/2605.13612)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** 2605.13612 spectral decomposition distinguishing label-weighted vs unsupervised operators
+
+### P11-FE1123 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** BOS/first-token position correctness probe — extract position-0 L19 activation (if per-position data is cached) and train logistic regression, compare AUROC against mean-pooled DoM (0.7731)
+
+**Why:** LDT uses a dedicated CLS token sigmoid for conflict detection, separate from per-position logits. Testing whether a single distinguished position (BOS) in our L19 extractions carries correctness signal would reveal if the signal is concentrated or distributed across the prefill sequence
+
+**Cost:** 15min CPU
+**Triggered by:** [Lattice Deduction Transformers](https://arxiv.org/abs/2605.08605)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** LDT's CLS conflict head achieves reliable unsatisfiability detection from a single token position
+
+### P11-FE1126 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** PCA trajectory divergence visualization: project cached L19 activations for correct vs. incorrect groups into 2D via PCA, compute K-D tree interpolated loss landscape (loss = 1-correctness_prob from DoM), visualize whether correct/incorrect clusters occupy distinct basins analogous to GRAM's Fig. 18–19.
+
+**Why:** GRAM visualizes latent reasoning trajectories via PCA + K-D tree interpolation (§D.6). Applying the same visualization to our static L19 activations would reveal whether the correct/incorrect separation has basin-like geometry (supporting DoM as basin-selector) or is a gradual gradient (supporting DoM as hyperplane).
+
+**Cost:** 15min CPU
+**Triggered by:** [Generative Recursive Reasoning | alphaXiv](https://arxiv.org/abs/2605.19376)
+**Depends on:** F-7, F-2
+**Would update:** F-7
+**Trigger condition:** GRAM's PCA + K-D tree latent trajectory visualization technique (Appendix D.6).
+
+### P11-FE1128 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Hypervolume evaluation of multi-probe Pareto front: DoM AUROC vs ECE vs coverage trade-off surface
+
+**Why:** Rewarded Soups' hypervolume metric quantifies dominated volume in multi-objective space. Currently F-8 evaluates selective prediction on a single accuracy-at-coverage curve. Computing the 3D Pareto front (AUROC, ECE, coverage) for DoM + spectral + PC1 probes, and measuring hypervolume, would reveal if our probe portfolio dominates any single probe at all operating points.
+
+**Cost:** 30min CPU
+**Triggered by:** [Rewarded soups: towards Pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards](https://arxiv.org/abs/2306.04488)
+**Depends on:** F-8, F-2
+**Would update:** F-8
+**Trigger condition:** 2306.04488 uses hypervolume as primary multi-objective metric
+
+### P11-FE1134 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Compute Dirichlet-weighted best-of-K selection on cached K-sample MATH-500 completions: sample w ~ Dir(1) over per-problem sub-scores and measure E_w[max_k w⊤r] vs uniform-weight best-of-K
+
+**Why:** VPO's stochastic scalarization framework can be applied post-hoc as an evaluation metric on existing K-sample data to test whether our DoM-based selection outperforms random Dirichlet-weighted selection under diverse reward weightings.
+
+**Cost:** 20min CPU
+**Triggered by:** [Vector Policy Optimization: Training for Diversity Improves Test-Time Search](https://arxiv.org/abs/2605.22817)
+**Depends on:** F-2, F-8
+**Would update:** F-8
+**Trigger condition:** VPO's Dirichlet selection framework as analytical tool on existing data
+
+### P11-FE1135 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Measure reward-space diversity (pairwise L1 of correctness sub-scores) across K=8 MATH-500 completions from our GRPO-trained Qwen-2.5-1.5B to quantify mode collapse and compare to VPO's reported diversity values
+
+**Why:** VPO reports GRPO diversity collapses to ~0.003-0.054 across domains. Measuring this on our model tells us whether the DoM signal's predictive power correlates with the degree of mode collapse in our specific setup.
+
+**Cost:** 15min CPU
+**Triggered by:** [Vector Policy Optimization: Training for Diversity Improves Test-Time Search](https://arxiv.org/abs/2605.22817)
+**Depends on:** F-7, F-2
+**Would update:** F-7, F-2
+**Trigger condition:** VPO provides a concrete diversity metric we can compute on existing data
+
+### P11-FE1161 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Wavelet energy features from cached L19 activations — apply Daubechies db2 DWT to each of the 1536 embedding dimensions of the 500×1536 L19 prefill matrix. Extract per-problem wavelet detail coefficients at 3 decomposition levels. Train 5-fold logistic regression on wavelet energy features for correctness prediction. Compare AUROC against PCA-based 0.7856 and cov-spectrum 0.7928.
+
+**Why:** EGA's wavelet ablation showed fixed wavelets underperform learned projections for attention gating. But for our correctness-prediction task (different objective), wavelet features may capture multi-scale structure that PCA misses. A null result (wavelet ≤ PCA) would further reinforce F-10.
+
+**Cost:** 30min CPU
+**Triggered by:** [Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention](https://arxiv.org/abs/2605.21842)
+**Depends on:** F-10, F-2
+**Would update:** F-10
+**Trigger condition:** EGA wavelet ablation (db2 > db4 > Morlet, all < learned) on a tiny model. Does the hierarchy hold for hidden-state correctness probing on a real LM?
+
+### P11-FE1183 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Modification-budget conservation test: vary number of PCA eigenvalue features (k=1,2,5,10,15,20) in the cov-spectrum logistic regression probe and track optimal_C × k. Test whether n_features × optimal_regularization ≈ constant, analogous to the paper's n_layers × α_opt ≈ 11.2.
+
+**Why:** If the modification-budget conservation holds for our probe feature space, it reveals a universal signal-budget constraint in linear probes of transformer activations, and provides a principled way to set regularization without grid search.
+
+**Cost:** 20min CPU
+**Triggered by:** [Interpretability-Guided Layer Selection over Subspace Projection: SAEs as Stethoscopes, Not Scalpels, for Raw Task Vector Model Editing](https://arxiv.org/abs/2605.28649)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Paper's empirical finding of n_layers × α_opt ≈ 11.2 conservation across layer-selection configurations.
+
+### P11-FE1184 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** SAE specificity-score proxy via per-feature DoM correlation: for each of the 1536 L19 prefill dimensions, compute the absolute Pearson correlation with correctness labels. Plot the specificity landscape (max per-dimension-group if grouping by attention head) and compare to the bimodal mid+late pattern reported in the paper's Figure 2 / Table 6.
+
+**Why:** Tests whether the paper's SAE-derived layer specialization pattern is recoverable from our cached single-layer data using a simpler metric. If the per-dimension specificity landscape shows a small number of highly specific dimensions dominating (analogous to their layer-level result), it would explain why PC1 alone achieves cos(DoM,PC1)=0.9216.
+
+**Cost:** 15min CPU
+**Triggered by:** [Interpretability-Guided Layer Selection over Subspace Projection: SAEs as Stethoscopes, Not Scalpels, for Raw Task Vector Model Editing](https://arxiv.org/abs/2605.28649)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Paper's finding that SP = max_j spec(l,j) is more discriminative than feature count — suggests a similar max-specificity metric could be informative within a single layer.
+
+### P11-FE1189 (P11) — [ROI: 5, READY, MEDIUM]
+
+**What:** Compute Hopfield energy on CoE-60 trajectory features (multi-layer) and compare AUROC to single-layer L19 energy AUROC; test if CoE-60 redundancy with DoM (F-9) breaks under non-linear scoring
+
+**Why:** F-9 established redundancy under linear probing. Hopfield energy is non-linear (log-sum-exp) — if trajectory energy beats single-layer energy, the redundancy is probe-specific, not signal-specific.
+
+**Cost:** 15min CPU
+**Triggered by:** [Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models](https://arxiv.org/abs/2605.27975)
+**Depends on:** F-2, F-9
+**Would update:** F-9
+**Trigger condition:** 2605.27975 energy framework applied to F-9 linear-probe constraint
+
 ### P11-FE120476B (P11) — [ROI: 5, READY, MEDIUM]
 
 **What:** Apply kTree sparsification to k-NN graph of L19 prefill activations (target avg degree 5), compute H_0/H_1 persistent homology on the sparse clique complex for correct vs incorrect vs Gaussian null subgroups, compare to F-10's dense-VR null result
@@ -12498,6 +14954,18 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-10, F-2
 **Would update:** F-2
 **Trigger condition:** GLT paper connects spectral dimensionality to graph learning performance
+
+### P11-FE1211 (P11) — [ROI: 5, READY, HIGH]
+
+**What:** K=1 Riemannian hard-refinement sanity check: run Phase II only on 500×20 PCA-reduced L19 activations and verify converged normal aligns with PC1 (expect cos ≈ 1.0). Validates the method works on our data format before the full BIC sweep.
+
+**Why:** Paper's Theorem A.7 proves hard refinement converges to min-eigenvector of covariance = PC1. A cos < 0.99 would indicate implementation or data-format issues.
+
+**Cost:** 15min CPU
+**Triggered by:** [Fitting Unknown Number of Hyperplanes with Manifold Optimization](https://arxiv.org/abs/2605.28501)
+**Depends on:** F-2
+**Would update:** F-2
+**Trigger condition:** Sanity-check prerequisite for FE130450
 
 ### P11-FE128 (P11) — [ROI: 5, READY, MEDIUM]
 
@@ -13031,6 +15499,18 @@ _Generated: 2026-05-09 12:54 UTC_
 **Depends on:** F-7
 **Would update:** F-7
 **Trigger condition:** Methodological — always applicable.
+
+### P11-FE1010 (P11) — [ROI: 3, READY, LOW]
+
+**What:** TR/TL-inspired DoM decomposition: test whether L19 prefill DoM AUROC varies with estimated pre-training familiarity of MATH-500 problem subtypes
+
+**Why:** Pan et al. 2305.09731 show TR (task recognition from pre-training priors) is scale-invariant while TL (in-context learning) scales with model size. If our DoM signal is partly TR-driven, it should correlate with problem-type familiarity (e.g., algebra vs combinatorics). We can test this cheaply by grouping the 500 MATH-500 problems by subtype and computing per-group DoM AUROC from cached activations.
+
+**Cost:** 15min CPU
+**Triggered by:** [2305.09731](https://arxiv.org/abs/2305.09731)
+**Depends on:** F-5, F-2
+**Would update:** F-5
+**Trigger condition:** Pan et al. 2305.09731 TR/TL decomposition applied to H-5 familiarity hypothesis
 
 ### P11-FE908 (P11) — [ROI: 3, READY, LOW]
 
@@ -13621,30 +16101,31 @@ check whether any experiment's status should change.
 | [2205.14334](https://arxiv.org/abs/2205.14334) | Teaching Models to Express Their Uncertainty in Words | P11-FE814, P11-FE813, P11-FE812, P11-FE811, P11-FE810 | BLOCKED, READY |
 | [2210.00069](https://arxiv.org/abs/2210.00069) | Topological Singularity Detection at Multiple Scales | P8-FE10, P11-FE816, P11-FE815 | READY |
 | [2211.00593](https://arxiv.org/abs/2211.00593) | Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 small | P11-FE86, P11-FE68, P11-FE67, P11-FE66, P11-FE65 | BLOCKED, READY |
-| [2302.09664](https://arxiv.org/abs/2302.09664) | (untitled) | P11-FE192 | READY |
+| [2302.09664](https://arxiv.org/abs/2302.09664) | (untitled) | P11-FE1023, P11-FE1022, P11-FE1021, P11-FE1020, P11-FE192 | READY |
 | [2304.14997](https://arxiv.org/abs/2304.14997) | Towards Automated Circuit Discovery for Mechanistic Interpretability | P11-FE84, P11-FE83, P11-FE82, P11-FE81 | BLOCKED, READY |
 | [2305.00586](https://arxiv.org/abs/2305.00586) | How does GPT-2 compute greater-than?: Interpreting mathematical abilities in a pre-trained language model | P11-FE89, P11-FE88, P11-FE87, P11-FE86, P11-FE85 | READY |
-| [2305.09731](https://arxiv.org/abs/2305.09731) | (untitled) | P11-FE70 | READY |
-| [2305.12766](https://arxiv.org/abs/2305.12766) | (untitled) | P11-FE71 | READY |
-| [2305.14160](https://arxiv.org/abs/2305.14160) | (untitled) | P11-FE69 | BLOCKED |
+| [2305.09731](https://arxiv.org/abs/2305.09731) | (untitled) | P11-FE1010, P11-FE70 | READY |
+| [2305.12766](https://arxiv.org/abs/2305.12766) | (untitled) | P11-FE1015, P11-FE1014, P11-FE1013, P11-FE1012, P11-FE1011, P11-FE71 | READY |
+| [2305.14160](https://arxiv.org/abs/2305.14160) | (untitled) | P11-FE1009, P11-FE1008, P11-FE1007, P11-FE1006, P11-FE69 | BLOCKED, READY |
 | [2306.02873](https://arxiv.org/abs/2306.02873) | DecompX: Explaining Transformers Decisions by Propagating Token Decomposition | P11-FE92, P11-FE91, P11-FE90 | BLOCKED, READY |
-| [2307.13339](https://arxiv.org/abs/2307.13339) | (untitled) | P11-FE844 | READY |
+| [2306.04488](https://arxiv.org/abs/2306.04488) | Rewarded soups: towards Pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards | P11-FE1129, P11-FE1128, P11-FE1127 | READY |
+| [2307.13339](https://arxiv.org/abs/2307.13339) | (untitled) | P11-FE1042, P11-FE1041, P11-FE844 | READY |
 | [2308.08742](https://arxiv.org/abs/2308.08742) | PMET: Precise Model Editing in a Transformer | P11-FE108, P11-FE107, P11-FE106, P11-FE105 | BLOCKED, READY |
 | [2308.10248](https://arxiv.org/abs/2308.10248) | Steering Language Models With Activation Engineering | P10-FE9, P11-FE111, P11-FE109 | READY |
 | [2309.11028](https://arxiv.org/abs/2309.11028) | The Topology and Geometry of Neural Representations | P11-FE871, P11-FE870, P11-FE869 | READY |
-| [2310.04625](https://arxiv.org/abs/2310.04625) | (untitled) | P11-FE195 | READY |
+| [2310.04625](https://arxiv.org/abs/2310.04625) | (untitled) | P11-FE1027, P11-FE1026, P11-FE1025, P11-FE1024, P11-FE195 | READY |
 | [2310.04861](https://arxiv.org/abs/2310.04861) | Uncovering hidden geometry in Transformers via disentangling position and context | P11-FE118, P11-FE117 | READY |
 | [2310.13121](https://arxiv.org/abs/2310.13121) | Understanding Addition in Transformers | P11-FE128, P11-FE127, P11-FE126, P11-FE125, P11-FE124 | READY |
 | [2310.17230](https://arxiv.org/abs/2310.17230) | Codebook Features: Sparse and Discrete Interpretability for Neural Networks | P11-FE131, P11-FE130, P11-FE129 | BLOCKED, READY |
 | [2311.01460](https://arxiv.org/abs/2311.01460) | Implicit Chain of Thought Reasoning via Knowledge Distillation | P11-FE135, P11-FE134, P11-FE133, P11-FE132 | READY |
 | [2311.03757](https://arxiv.org/abs/2311.03757) | Manifold learning: what, how, and why | P11-FE913, P11-FE912, P11-FE911, P11-FE910 | READY |
 | [2311.04897](https://arxiv.org/abs/2311.04897) | Future Lens: Anticipating Subsequent Tokens from a Single Hidden State | P11-FE820, P11-FE819, P11-FE818, P11-FE817 | BLOCKED, READY |
-| [2311.06668](https://arxiv.org/abs/2311.06668) | (untitled) | P11-FE72 | READY |
+| [2311.06668](https://arxiv.org/abs/2311.06668) | (untitled) | P11-FE1019, P11-FE1018, P11-FE1017, P11-FE1016, P11-FE72 | READY |
 | [2312.03813](https://arxiv.org/abs/2312.03813) | Improving Activation Steering in Language Models with Mean-Centring | P11-FE143, P11-FE142, P11-FE141 | READY |
 | [2312.04762](https://arxiv.org/abs/2312.04762) | The Graph Lottery Ticket Hypothesis: Finding Sparse, Informative Graph Structure | P11-FE120476C, P11-FE120476B, P11-FE120476A | READY |
 | [2312.06681](https://arxiv.org/abs/2312.06681) | Steering Llama 2 via Contrastive Activation Addition | P10-FE34, P11-FE149, P11-FE148, P11-FE147, P11-FE146, P11-FE144 | READY |
 | [2401.10474](https://arxiv.org/abs/2401.10474) | LDReg: Local Dimensionality Regularized Self-Supervised Learning | P11-FE153, P11-FE152, P11-FE151, P11-FE150 | READY |
-| [2401.12181](https://arxiv.org/abs/2401.12181) | (untitled) | P11-FE284 | READY |
+| [2401.12181](https://arxiv.org/abs/2401.12181) | (untitled) | P11-FE1032, P11-FE1031, P11-FE1030, P11-FE1029, P11-FE1028, P11-FE284 | READY |
 | [2401.13558](https://arxiv.org/abs/2401.13558) | Task structure and nonlinearity jointly determine learned representational geometry | P11-FE158, P11-FE157, P11-FE156, P11-FE155, P11-FE154 | READY |
 | [2402.00865](https://arxiv.org/abs/2402.00865) | Towards Optimal Feature-Shaping Methods for Out-of-Distribution Detection | P11-FE161, P11-FE160, P11-FE159 | READY |
 | [2402.10528](https://arxiv.org/abs/2402.10528) | Can We Verify Step by Step for Incorrect Answer Detection? | P11-FE172, P11-FE171, P11-FE170, P11-FE169, P11-FE168, P9-FE4 | READY, TRIGGERED |
@@ -13661,7 +16142,7 @@ check whether any experiment's status should change.
 | [2405.20974](https://arxiv.org/abs/2405.20974) | SaySelf: Teaching LLMs to Express Confidence with Self-Reflective Rationales | P11-FE249, P11-FE248, P11-FE247 | READY |
 | [2406.00045](https://arxiv.org/abs/2406.00045) | Personalized Steering of Large Language Models: Versatile Steering Vectors Through Bi-directional Preference Optimization | P11-FE253, P11-FE252, P11-FE251, P11-FE250 | BLOCKED, READY |
 | [2406.04028](https://arxiv.org/abs/2406.04028) | Contrastive Sparse Autoencoders for Interpreting Planning of Chess-Playing Agents | P11-FE256, P11-FE255, P11-FE254 | READY |
-| [2406.04093](https://arxiv.org/abs/2406.04093) | (untitled) | P11-FE481 | READY |
+| [2406.04093](https://arxiv.org/abs/2406.04093) | (untitled) | P11-FE1036, P11-FE1035, P11-FE1034, P11-FE1033, P11-FE481 | READY |
 | [2406.04331](https://arxiv.org/abs/2406.04331) | PaCE: Parsimonious Concept Engineering for Large Language Models | P11-FE259, P10-FE15, P11-FE258, P11-FE257 | READY |
 | [2406.04370](https://arxiv.org/abs/2406.04370) | Large Language Model Confidence Estimation via Black-Box Access | P11-FE262, P11-FE261, P11-FE260 | READY |
 | [2406.11614](https://arxiv.org/abs/2406.11614) | Intrinsic Test of Unlearning Using Parametric Knowledge Traces | P11-FE265, P11-FE264, P11-FE263 | READY |
@@ -13700,6 +16181,7 @@ check whether any experiment's status should change.
 | [2502.06884](https://arxiv.org/abs/2502.06884) | Learning Conformal Abstention Policies for Adaptive Risk Management in Large Language and Vision-Language Models | P11-FE407, P10-FE22 | READY |
 | [2502.11096](https://arxiv.org/abs/2502.11096) | Mixture of Tunable Experts -- Behavior Modification of DeepSeek-R1 at Inference Time | P10-FE24, P11-FE410, P11-FE409, P11-FE408 | BLOCKED, READY |
 | [2502.18862](https://arxiv.org/abs/2502.18862) | One-shot Optimized Steering Vectors Mediate Safety-relevant Behaviors in LLMs | P11-FE837, P11-FE836, P11-FE835 | READY |
+| [2502.20914](https://arxiv.org/abs/2502.20914) | Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable? | P11-FE1055, P11-FE1054, P11-FE1053 | READY |
 | [2503.02233](https://arxiv.org/abs/2503.02233) | Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling | P11-FE414, P11-FE413, P11-FE412, P11-FE411 | BLOCKED, READY |
 | [2503.10602](https://arxiv.org/abs/2503.10602) | TruthPrInt: Mitigating Large Vision-Language Models Object Hallucination Via Latent Truthful-Guided Pre-Intervention | P11-FE418, P11-FE417, P11-FE415 | READY |
 | [2503.12730](https://arxiv.org/abs/2503.12730) | TinySQL: A Progressive Text-to-SQL Dataset for Mechanistic Interpretability Research | P10-FE25, P11-FE424, P11-FE423, P11-FE422, P11-FE420, P11-FE419 | BLOCKED, READY |
@@ -13739,6 +16221,7 @@ check whether any experiment's status should change.
 | [2510.01105](https://arxiv.org/abs/2510.01105) | Geometric Properties of Neural Multivariate Regression | P11-FE576, P11-FE575, P11-FE574 | READY |
 | [2510.01591](https://arxiv.org/abs/2510.01591) | CLUE: Non-parametric Verification from Experience via Hidden-State Clustering | P11-FE580, P11-FE579, P11-FE578, P11-FE577 | READY |
 | [2510.02956](https://arxiv.org/abs/2510.02956) | Confidence and Dispersity as Signals: Unsupervised Model Evaluation and Ranking | P11-FE583, P11-FE582, P11-FE581 | READY |
+| [2511.05963](https://arxiv.org/abs/2511.05963) | Next-Latent Prediction Transformers Learn Compact World Models | P11-FE1159, P11-FE1158, P11-FE1157, P11-FE1156 | READY |
 | [2511.08379](https://arxiv.org/abs/2511.08379) | SOM Directions are Better than One: Multi-Directional Refusal Suppression in Language Models | P11-FE862, P11-FE861, P11-FE860, P11-FE7 | BLOCKED, READY, TRIGGERED |
 | [2511.15210](https://arxiv.org/abs/2511.15210) | Unveiling Intrinsic Dimension of Texts: from Academic Abstract to Creative Story | P11-FE601, P11-FE600, P11-FE599, P11-FE598, P11-FE597 | READY |
 | [2512.07667](https://arxiv.org/abs/2512.07667) | Depth-Wise Activation Steering for Honest Language Models | P11-FE604, P11-FE603, P11-FE602 | READY |
@@ -13757,6 +16240,7 @@ check whether any experiment's status should change.
 | [2601.19375](https://arxiv.org/abs/2601.19375) | Selective Steering: Norm-Preserving Control Through Discriminative Layer Selection | P11-FE865, P11-FE864, P11-FE863 | READY |
 | [2602.00158](https://arxiv.org/abs/2602.00158) | RAPTOR: Ridge-Adaptive Logistic Probes | P11-FE648, P11-FE647, P11-FE646, P11-FE645 | BLOCKED, READY |
 | [2602.01893](https://arxiv.org/abs/2602.01893) | Geometric Analysis of Token Selection in Multi-Head Attention | P11-FE655, P11-FE654, P11-FE653, P11-FE652, P11-FE651, P11-FE650, P11-FE649 | BLOCKED, READY |
+| [2602.01992](https://arxiv.org/abs/2602.01992) | Emergent Analogical Reasoning in Transformers | P11-FE1178, P11-FE1177, P11-FE1176, P11-FE1175, P11-FE1174 | READY |
 | [2602.02103](https://arxiv.org/abs/2602.02103) | No Global Plan in Chain-of-Thought: Uncover the Latent Planning Horizon of LLMs | P11-FE659, P11-FE658, P11-FE657, P11-FE656 | READY |
 | [2602.02343](https://arxiv.org/abs/2602.02343) | Why Steering Works: Toward a Unified View of Language Model Parameter Dynamics | P11-FE664, P11-FE663, P11-FE662, P11-FE661, P11-FE660 | READY |
 | [2602.02710](https://arxiv.org/abs/2602.02710) | Maximum Likelihood Reinforcement Learning | P11-FE895, P11-FE894, P11-FE893, P11-FE892, P11-FE891 | BLOCKED, READY |
@@ -13769,9 +16253,12 @@ check whether any experiment's status should change.
 | [2602.10346](https://arxiv.org/abs/2602.10346) | Geometry-Aware Decoding with Wasserstein-Regularized Truncation and Mass Penalties for Large Language Models | P11-FE886, P11-FE885, P11-FE884, P11-FE883 | READY |
 | [2602.10496](https://arxiv.org/abs/2602.10496) | Low-Dimensional Execution Manifolds in Transformer Learning Dynamics: Evidence from Modular Arithmetic Tasks | P11-FE686, P11-FE685, P11-FE684, P11-FE683 | BLOCKED, READY |
 | [2602.11910](https://arxiv.org/abs/2602.11910) | TADA! Tuning Audio Diffusion Models through Activation Steering | P11-FE691, P11-FE690, P11-FE689, P11-FE688, P11-FE687 | READY |
+| [2602.12125](https://arxiv.org/abs/2602.12125) | Learning beyond Teacher: Generalized On-Policy Distillation with Reward Extrapolation | P11-FE1115, P11-FE1114 | BLOCKED, READY |
 | [2602.13567](https://arxiv.org/abs/2602.13567) | DistillLens: Symmetric Knowledge Distillation Through Logit Lens | P11-FE695, P11-FE694, P11-FE693, P11-FE692 | READY |
+| [2602.15029](https://arxiv.org/abs/2602.15029) | Symmetry in language statistics shapes the geometry of model representations | P11-FE1150, P11-FE1149, P11-FE1148, P11-FE1147, P11-FE1146 | READY |
 | [2602.15293](https://arxiv.org/abs/2602.15293) | The Information Geometry of Softmax: Probing and Steering | P11-FE697, P11-FE696, P10-FE35 | READY |
 | [2602.15438](https://arxiv.org/abs/2602.15438) | Logit Distance Bounds Representational Similarity | P11-FE907, P11-FE906, P11-FE905, P11-FE904 | READY |
+| [2602.16490](https://arxiv.org/abs/2602.16490) | From Growing to Looping: A Unified View of Iterative Computation in LLMs | P11-FE1052, P11-FE1051, P11-FE1050, P11-FE1049, P11-FE1048 | READY |
 | [2602.23696](https://arxiv.org/abs/2602.23696) | Optimizer-Induced Low-Dimensional Drift and Transverse Dynamics in Transformer Training | P11-FE701, P11-FE700, P11-FE699, P11-FE698 | READY |
 | [2603.00437](https://arxiv.org/abs/2603.00437) | Self-Correction Inside the Model: Leveraging Layer Attention to Mitigate Hallucinations in Large Vision Language Models | P11-FE703, P11-FE702 | READY |
 | [2603.01025](https://arxiv.org/abs/2603.01025) | One-Token Verification for Reasoning Correctness Estimation | P11-FE706, P11-FE705, P11-FE704 | READY |
@@ -13783,11 +16270,13 @@ check whether any experiment's status should change.
 | [2603.24787](https://arxiv.org/abs/2603.24787) | ReLope: KL-Regularized LoRA Probes for Multimodal LLM Routing | P11-FE726, P11-FE725, P11-FE724 | READY |
 | [2603.25052](https://arxiv.org/abs/2603.25052) | Closing the Confidence-Faithfulness Gap in Large Language Models | P11-FE731, P11-FE730, P11-FE729, P11-FE728, P11-FE727 | READY |
 | [2604.01170](https://arxiv.org/abs/2604.01170) | Online Reasoning Calibration: Test-Time Training Enables Generalizable Conformal LLM Reasoning | P11-FE735, P11-FE734, P11-FE733, P11-FE732 | READY |
+| [2604.02608](https://arxiv.org/abs/2604.02608) | Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens | P11-FE1168, P11-FE1167, P11-FE1166, P11-FE1165, P11-FE1164 | READY |
+| [2604.09780](https://arxiv.org/abs/2604.09780) | The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise | P11-FE1047, P11-FE1046, P11-FE1045, P11-FE1044, P11-FE1043 | READY |
 | [2604.11962](https://arxiv.org/abs/2604.11962) | The Linear Centroids Hypothesis: How Deep Network Features Represent Data | P11-FE745, P10-FE38, P11-FE744, P11-FE743 | READY |
 | [2604.12016](https://arxiv.org/abs/2604.12016) | Identity as Attractor: Geometric Evidence for Persistent Agent Architecture in LLM Activation Space | P11-FE1005, P11-FE1004, P11-FE1003, P11-FE1002 | READY |
 | [2604.15350](https://arxiv.org/abs/2604.15350) | The Spectral Geometry of Thought: Phase Transitions, Instruction Reversal, Token-Level Dynamics, and Perfect Correctness Prediction in How Transformers Reason | P11-FE752, P11-FE751, P11-FE750, P11-FE6 | READY, TRIGGERED |
 | [2604.15706](https://arxiv.org/abs/2604.15706) | Target-Oriented Pretraining Data Selection via Neuron-Activated Graph | P11-FE917, P11-FE916, P11-FE915, P11-FE914 | READY |
-| [2604.19740](https://arxiv.org/abs/2604.19740) | (untitled) | P11-FE772 | READY |
+| [2604.19740](https://arxiv.org/abs/2604.19740) | (untitled) | P11-FE1040, P11-FE1039, P11-FE1038, P11-FE1037, P11-FE772 | READY |
 | [2604.19974](https://arxiv.org/abs/2604.19974) | Are LLM Uncertainty and Correctness Encoded by the Same Features? A Functional Dissociation via Sparse Autoencoders | P10-FE41, P10-FE40, P11-FE769, P11-FE768, P10-FE5 | BLOCKED, READY, TRIGGERED |
 | [2604.20817](https://arxiv.org/abs/2604.20817) | Convergent Evolution: How Different Language Models Learn Similar Number Representations | P11-FE777, P11-FE776, P11-FE775, P11-FE774, P11-FE773 | BLOCKED, READY |
 | [2604.21016](https://arxiv.org/abs/2604.21016) | SGD at the Edge of Stability: The Stochastic Sharpness Gap | P11-FE933, P11-FE932 | READY |
@@ -13808,8 +16297,40 @@ check whether any experiment's status should change.
 | [2605.04418](https://arxiv.org/abs/2605.04418) | Demystifying Manifold Constraints in LLM Pre-training | P11-FE949, P11-FE948, P11-FE947, P11-FE946, P11-FE942, P11-FE941, P11-FE940, P11-FE939 | BLOCKED, READY |
 | [2605.04971](https://arxiv.org/abs/2605.04971) | Why Geometric Continuity Emerges in Deep Neural Networks: Residual Connections and Rotational Symmetry Breaking | P11-FE983, P11-FE982, P11-FE981, P11-FE980, P11-FE979, P11-FE978, P11-FE977, P11-FE976 | READY |
 | [2605.05115](https://arxiv.org/abs/2605.05115) | Manifold Steering Reveals the Shared Geometry of Neural Network Representation and Behavior | P11-FE1001, P11-FE1000, P11-FE999, P11-FE998, P11-FE997 | READY |
+| [2605.05566](https://arxiv.org/abs/2605.05566) | Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration | P11-FE1087, P11-FE1086, P11-FE1085, P11-FE1084, P11-FE1083 | BLOCKED, READY |
 | [2605.05683](https://arxiv.org/abs/2605.05683) | Spectral Lens: Activation and Gradient Spectra as Diagnostics of LLM Optimization | P11-FE970, P11-FE969, P11-FE968, P11-FE967, P11-FE966, P11-FE965, P11-FE964 | READY |
+| [2605.05715](https://arxiv.org/abs/2605.05715) | Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes | P11-FE1071, P11-FE1070, P11-FE1069, P11-FE1068, P11-FE1067, P11-FE1066 | READY |
 | [2605.05873](https://arxiv.org/abs/2605.05873) | CITE: Anytime-Valid Statistical Inference in LLM Self-Consistency | P11-FE945, P11-FE944, P11-FE943 | READY |
+| [2605.06216](https://arxiv.org/abs/2605.06216) | TIDE: Every Layer Knows the Token Beneath the Context | P11-FE1082, P11-FE1081, P11-FE1080, P11-FE1079 | READY |
+| [2605.07407](https://arxiv.org/abs/2605.07407) | Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer | P11-FE1075, P11-FE1074, P11-FE1073, P11-FE1072 | READY |
+| [2605.07420](https://arxiv.org/abs/2605.07420) | SR$^2$-LoRA: Self-Rectifying Inter-layer Relations in Low-Rank Adaptation for Class-Incremental Learning | P11-FE1078, P11-FE1077, P11-FE1076 | READY |
+| [2605.08424](https://arxiv.org/abs/2605.08424) | Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once | P11-FE1065, P11-FE1064, P11-FE1063, P11-FE1062, P11-FE1061 | READY |
+| [2605.08605](https://arxiv.org/abs/2605.08605) | Lattice Deduction Transformers | P11-FE1123, P11-FE1122 | READY |
+| [2605.09129](https://arxiv.org/abs/2605.09129) | Data-driven Circuit Discovery for Interpretability of Language Models | P11-FE1092, P11-FE1091, P11-FE1090, P11-FE1089, P11-FE1088 | BLOCKED, READY |
+| [2605.09969](https://arxiv.org/abs/2605.09969) | The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv | P11-FE1060, P11-FE1059, P11-FE1058, P11-FE1057, P11-FE1056 | READY |
+| [2605.12394](https://arxiv.org/abs/2605.12394) | Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory | P11-FE1105, P11-FE1104, P11-FE1103, P11-FE1102, P11-FE1101 | BLOCKED, READY |
+| [2605.12466](https://arxiv.org/abs/2605.12466) | Solve the Loop: Attractor Models for Language and Reasoning | P11-FE1109, P11-FE1108, P11-FE1107, P11-FE1106 | READY |
+| [2605.12671](https://arxiv.org/abs/2605.12671) | All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs | P11-FE1096, P11-FE1095, P11-FE1094, P11-FE1093 | READY |
+| [2605.13612](https://arxiv.org/abs/2605.13612) | Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning | P11-FE1121, P11-FE1120, P11-FE1119, P11-FE1118, P11-FE1117, P11-FE1116 | READY |
+| [2605.14685](https://arxiv.org/abs/2605.14685) | Spontaneous symmetry breaking and Goldstone modes for deep information propagation | P11-FE1100, P11-FE1099, P11-FE1098, P11-FE1097 | READY |
+| [2605.15154](https://arxiv.org/abs/2605.15154) | RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution | P11-FE1113, P11-FE1112, P11-FE1111, P11-FE1110 | READY |
+| [2605.16928](https://arxiv.org/abs/2605.16928) | Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps | P11-FE1145, P11-FE1144, P11-FE1143, P11-FE1142 | READY |
+| [2605.19376](https://arxiv.org/abs/2605.19376) | Generative Recursive Reasoning | alphaXiv | P11-FE1126, P11-FE1125, P11-FE1124 | READY |
+| [2605.19943](https://arxiv.org/abs/2605.19943) | Probabilistic Tiny Recursive Model | P11-FE1132, P11-FE1131, P11-FE1130 | READY |
+| [2605.21467](https://arxiv.org/abs/2605.21467) | DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards | P11-FE1141, P11-FE1140, P11-FE1139, P11-FE1138 | READY |
+| [2605.21488](https://arxiv.org/abs/2605.21488) | Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning | P11-FE1155, P11-FE1154, P11-FE1153, P11-FE1152, P11-FE1151 | BLOCKED, READY |
+| [2605.21842](https://arxiv.org/abs/2605.21842) | Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention | P11-FE1163, P11-FE1162, P11-FE1161, P11-FE1160 | READY |
+| [2605.22817](https://arxiv.org/abs/2605.22817) | Vector Policy Optimization: Training for Diversity Improves Test-Time Search | P11-FE1137, P11-FE1136, P11-FE1135, P11-FE1134, P11-FE1133 | BLOCKED, READY |
+| [2605.23901](https://arxiv.org/abs/2605.23901) | LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws | P11-FE1173, P11-FE1172, P11-FE1171, P11-FE1170, P11-FE1169 | READY |
+| [2605.26106](https://arxiv.org/abs/2605.26106) | Looped Diffusion Language Models | alphaXiv | P11-FE1197, P11-FE1196, P11-FE1195 | READY |
+| [2605.27970](https://arxiv.org/abs/2605.27970) | Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations | P11-FE1201, P11-FE1200, P11-FE1199, P11-FE1198 | READY |
+| [2605.27975](https://arxiv.org/abs/2605.27975) | Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models | P11-FE1189, P11-FE1188, P11-FE1187, P11-FE1186 | READY |
+| [2605.28149](https://arxiv.org/abs/2605.28149) | Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations | P11-FE1206, P11-FE1205, P11-FE1204, P11-FE1203, P11-FE1202 | READY |
+| [2605.28501](https://arxiv.org/abs/2605.28501) | Fitting Unknown Number of Hyperplanes with Manifold Optimization | P11-FE1211, P11-FE1210 | READY |
+| [2605.28649](https://arxiv.org/abs/2605.28649) | Interpretability-Guided Layer Selection over Subspace Projection: SAEs as Stethoscopes, Not Scalpels, for Raw Task Vector Model Editing | P11-FE1185, P11-FE1184, P11-FE1183 | READY |
+| [2605.29384](https://arxiv.org/abs/2605.29384) | Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies | P11-FE1182, P11-FE1181, P11-FE1180, P11-FE1179 | READY |
+| [2605.29971](https://arxiv.org/abs/2605.29971) | Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning | P11-FE1194, P11-FE1193, P11-FE1192, P11-FE1191, P11-FE1190 | READY |
+| [2605.31175](https://arxiv.org/abs/2605.31175) | Towards Efficient LLMs Annealing with Principled Sample Selection | P11-FE1209, P11-FE1208, P11-FE1207 | READY |
 | [2601.01552](https://arxiv.org/abs/2601.01552) | HalluZig: Zigzag PH on Attention | P11-FE629, P11-FE628, P11-FE627, P11-FE626, P7-FE2 | BLOCKED, READY, TRIGGERED |
 | [2604.05655](https://arxiv.org/abs/2604.05655) | LLM Reasoning as Trajectories | P11-FE742, P11-FE741, P11-FE740, P11-FE739, P11-FE738, P11-FE737, P11-FE736 | READY |
 | [2604.14084](https://arxiv.org/abs/2604.14084) | TIP: Token Importance in OPD | P11-FE748, P11-FE747, P11-FE746, P10-FE4 | READY, TRIGGERED |

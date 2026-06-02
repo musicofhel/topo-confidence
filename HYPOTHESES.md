@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-782.**
+**Numbering continues monotonically. Next ID: H-895.**
 
 ## Cost + time summary (at a glance)
 
@@ -8416,6 +8416,1063 @@ second-order shape readout that the model doesn't itself use.
 **Test:** Compute pairwise cosine distance matrices within correct (n=243) and within incorrect (n=257) groups at L19 prefill. Run Welch t-test on within-correct vs within-incorrect distances. Report Cohen's d. Prediction from F-4 (asymmetric collapse): within-correct < within-incorrect.
 **Requires:** CPU, cached NPZs.
 **Would change:** On confirm with d > 1: F-4 collapse reinterpretable as attractor convergence. On reject: asymmetric collapse is not geometric (challenges F-4).
+**Blocks:** nothing
+
+---
+
+
+### H-782: Prefill DoM correctness signal is ICL-anchor-mediated rather than problem-intrinsic
+**Priority:** HIGH
+**Motivated by:** 2305.14160 + F-2
+**Test:** Extract L19 prefill activations under zero-shot MATH-500 (no demonstrations). If DoM AUROC drops to <0.60, signal is anchor-mediated; if it stays >0.72, it's problem-intrinsic geometry.
+**Requires:** CPU + one forward pass on Qwen-2.5-1.5B (zero-shot), cached DoM probe coefficients
+**Would change:** On confirm (anchor-mediated): F-2 interpretation shifts from "the model encodes correctness in geometry" to "the model's ICL routing quality predicts correctness." On reject (problem-intrinsic): Strengthens F-2's claim as genuine correctness encoding.
+**Blocks:** nothing
+
+### H-783: L19 is a sharp phase-transition layer where correctness signal concentrates (>80% of cumulative R_l)
+**Priority:** MEDIUM
+**Motivated by:** 2305.14160 + F-2 + F-9
+**Test:** Compute R_l cumulative ratio from existing layer-wise AUROC data. Threshold: >80% at L19 = sharp transition; <60% = distributed.
+**Requires:** CPU only, existing layer-wise data from P8
+**Would change:** On confirm: L19 is a privileged "anchor extraction" layer, motivating head-level decomposition (H-13). On reject: Signal distributes gradually, CoE-60 redundancy (F-9) is coincidental.
+**Blocks:** nothing
+
+---
+
+
+### H-784: Prefill DoM correctness signal has a scale-invariant (TR-like) component and a scale-dependent (TL-like) component
+**Priority:** LOW
+**Motivated by:** 2305.09731 + F-2 + F-6
+**Test:** Extract L19 DoM AUROC at Qwen-2.5-0.5B, 1.5B, 3B, 7B on MATH-500 with identical 1024-tok extraction. Fit a two-component model: constant (TR) + scale-dependent (TL). Check if the residuals from a constant-only model are significantly reduced.
+**Requires:** GPU for fresh extraction at 0.5B and 3B; 1.5B and 7B already cached.
+**Would change:** If confirmed, the DoM signal is a mixture and cross-scale comparisons must decompose it. If rejected (signal is purely scale-dependent or purely scale-invariant), the TR/TL framing adds nothing.
+**Blocks:** nothing
+
+---
+
+
+### H-785: L19 DoM correctness signal is the principal axis of an implicit kernel Mahalanobis distance
+**Priority:** HIGH
+**Motivated by:** 2305.12766 + F-2
+**Test:** Compute Mahalanobis distance d_M(hᵢ, μ) from cached L19 activations using the inverse sample covariance. Compare AUROC against DoM (0.7731). If d_M ≥ DoM, the kernel framing subsumes the directional one.
+**Requires:** CPU only, cached NPZ activations + covariance matrix
+**Would change:** On confirm, F-2 reinterprets DoM as a kernel proxy, motivating full Mahalanobis-based selective prediction. On reject, DoM is not explained by the kernel view.
+**Blocks:** nothing
+
+### H-786: Specific attention heads at L16-L21 of Qwen-2.5-1.5B implement a kernel regression whose confidence predicts MATH-500 correctness
+**Priority:** HIGH
+**Motivated by:** 2305.12766 + F-2 + H-13
+**Test:** Extract per-head attention maps at L16-L21 during MATH-500 prefill. For each head, compute reconstructed output via attention-weighted label averaging. Identify head(s) where reconstruction accuracy > 80% (paper baseline on SST2).
+**Requires:** H100 (attention extraction forward pass), ~3h
+**Would change:** On confirm, provides mechanistic explanation for F-2 and validates H-13. On reject, kernel regression mechanism may not transfer from classification (SST2) to mathematical reasoning.
+**Blocks:** H-13
+
+---
+
+
+### H-787: All-layer DoM steering (ICV-style) outperforms L19-only steering for MATH-500 accuracy
+**Priority:** HIGH
+**Motivated by:** 2311.06668 Table 3 + F-2 + H-1
+**Test:** Compute per-layer DoM directions from cached per-layer activations (needs extraction at all 28 layers). Apply λ·DoM_l at each layer during generation with norm-preservation (Eq. 6 of 2311.06668). Sweep λ∈{0.05, 0.1, 0.15, 0.2}. Compare accuracy delta to L19-only steering. Est. 2–3h H100.
+**Requires:** H100, Qwen-2.5-1.5B, per-layer cached activations (need extraction if not cached for all layers), MATH-500
+**Would change:** On confirm: H-1 becomes "all-layer steering" not "L19 steering"; F-9 reopened for intervention. On reject: steering with contrastive directions is a dead end for math reasoning.
+**Blocks:** H-1
+
+### H-788: ICV's norm-preservation step is load-bearing for DoM-based steering
+**Priority:** MEDIUM
+**Motivated by:** 2311.06668 Eq. 6 + H-1
+**Test:** Compare MATH-500 accuracy under DoM steering with vs without L2-norm renormalization after direction addition. 1h H100.
+**Requires:** H100, Qwen-2.5-1.5B, MATH-500
+**Would change:** On confirm: norm-preservation becomes a required component of any H-1 implementation. On reject: direction-only shift is sufficient.
+**Blocks:** nothing
+
+---
+
+
+### H-789: Output-based semantic entropy dominates internal DoM for MATH-500 correctness prediction
+**Priority:** HIGH
+**Motivated by:** 2302.09664 + F-2
+**Test:** Generate M=10 samples per MATH-500 problem, cluster by answer equivalence, compute SE AUROC. Compare to DoM AUROC 0.7731 and cov-spectrum 0.7928.
+**Requires:** GPU for 10× generation, CPU for clustering. Or: CPU-only with cached K≥2 completions using simplified cluster-count proxy.
+**Would change:** If confirmed, practical motivation for internal-geometry probing shifts from "best available" to "cheapest single-pass" — still useful for pre-generation abstention but no longer AUROC-optimal.
+**Blocks:** nothing
+
+### H-790: DoM and semantic entropy capture orthogonal uncertainty signals
+**Priority:** HIGH
+**Motivated by:** 2302.09664 + F-2 + F-3
+**Test:** Rank-correlate DoM scores with answer-diversity metrics across MATH-500 problems. rho < 0.4 confirms orthogonality; rho > 0.8 confirms redundancy.
+**Requires:** CPU only (cached activations + cached completions).
+**Would change:** If orthogonal, combined model should push AUROC well above 0.7928; F-3's prefill/final distinction gets a concrete operational interpretation (knowledge vs expression). If redundant, F-2's practical value is reduced to "zero-cost approximation of SE."
+**Blocks:** H-789
+
+---
+
+
+### H-791: L19 DoM is a linear proxy for logit-lens prediction entropy at L19
+**Priority:** HIGH
+**Motivated by:** 2310.04625 + F-2
+**Test:** Decode cached L19 activations via W_U, compute per-sample entropy, correlate with DoM magnitude. If r² > 0.7, DoM ≈ entropy.
+**Requires:** CPU, Qwen-2.5-1.5B unembedding matrix (W_U), cached L19 NPZs.
+**Would change:** If confirmed, F-2's "correctness direction" interpretation becomes "calibration direction" — still useful for selective prediction but mechanistically less novel.
+**Blocks:** H-1 (steering interpretation changes if DoM = calibration)
+
+### H-792: Copy suppression self-repair limits DoM-based steering effectiveness (H-1)
+**Priority:** MEDIUM
+**Motivated by:** 2310.04625 Section 4 + H-1
+**Test:** Attempt DoM steering on Qwen-2.5-1.5B; measure whether downstream heads (L20+) compensate by reducing their copy suppression, partially undoing the intervention.
+**Requires:** H100, full inference with interventions.
+**Would change:** If confirmed, H-1 steering experiments need anti-self-repair strategies (e.g., also ablating the compensating heads). If rejected, self-repair is weak in Qwen and steering is viable.
+**Blocks:** nothing
+
+---
+
+
+### H-793: Correctness signal in L19 concentrates in high-kurtosis (non-Gaussian) neuron activations
+**Priority:** HIGH
+**Motivated by:** 2401.12181 + F-2 + F-10
+**Test:** Partition L19 residual dimensions by kurtosis (threshold at 5). Train separate logistic regressors on high-kurtosis and low-kurtosis subsets. If high-kurtosis subset matches DoM AUROC (0.7731) while low-kurtosis subset is near-chance, correctness signal is sparse/non-Gaussian.
+**Requires:** CPU, cached NPZ activations from P11.
+**Would change:** Reframes F-10 (PH null is expected because PH sees Gaussian bulk). Strengthens F-2 if DoM aligns with high-kurtosis subspace.
+**Blocks:** nothing
+
+### H-794: Qwen-2.5-1.5B has entropy neurons at late layers analogous to GPT2's, and their activation correlates with DoM confidence score
+**Priority:** HIGH
+**Motivated by:** 2401.12181 + F-8
+**Test:** Identify high-norm, low-logit-variance neurons in Qwen-2.5-1.5B layers 18–23. Measure Pearson correlation of their mean activation (over prefill positions) with per-problem DoM score. If |r| > 0.5, entropy neurons are a mechanistic substrate for DoM-based confidence.
+**Requires:** Model weight access (CPU), cached activation data.
+**Would change:** Provides causal grounding for F-8 selective prediction. If confirmed, suggests a simpler 1-neuron abstention rule.
+**Blocks:** nothing
+
+---
+
+
+### H-795: SAE decomposition of L19 DoM reveals multiple distinct correctness-predictive latents
+**Priority:** HIGH
+**Motivated by:** 2406.04093 + F-2
+**Test:** Train SAE (≥4096 latents, k=16–64) on Qwen-2.5-1.5B L19 activations; for each latent, train single-latent correctness probe; count latents with AUROC > 0.65 and test whether their weighted sum exceeds DoM AUROC 0.7731.
+**Requires:** H100, ~500M tokens of math-adjacent text for SAE training, Qwen-2.5-1.5B forward passes.
+**Would change:** If confirmed: F-2 needs reframing from "single direction" to "dominant feature axis in superposition." If rejected (DoM is irreducible): strengthens the geometric-signal interpretation.
+**Blocks:** H-796
+
+### H-796: The cov-spectrum ceiling (0.7928) is a basis limitation, not an information ceiling
+**Priority:** MEDIUM
+**Motivated by:** 2406.04093 + F-2 (cov-spectrum FE881)
+**Test:** Compare SAE-latent-based correctness AUROC (using top-20 latents ordered by individual probe AUROC) against cov-spectrum 0.7928. If SAE probe > 0.82 on same data split, covariance basis leaves signal on the table.
+**Requires:** Trained SAE from H-795; same eval protocol as FE881.
+**Would change:** If confirmed: motivates switching from PCA to SAE features for all downstream selective-prediction work. If rejected: validates that covariance basis is near-optimal and superposition is mild at this layer.
+**Blocks:** nothing
+
+---
+
+
+### H-797: Inference-time activation SD (Kaplan-Yorke analog) differs between correct and incorrect MATH-500 problems
+**Priority:** HIGH
+**Motivated by:** 2604.19740 + F-10 + F-2
+**Test:** Compute per-problem covariance eigenspectra from L19 activations across token positions. Apply log-transform and Kaplan-Yorke formula to get activation-SD per problem. Test whether mean(SD|correct) ≠ mean(SD|incorrect) with p < 0.01.
+**Requires:** CPU only, cached NPZ activations from P11 H100 extraction.
+**Would change:** On confirm: H-4 gains strong evidence; F-10 gets nuanced (PH null but SD non-null). On reject: H-4 weakened — training-time SD doesn't transfer to inference activations.
+**Blocks:** H-4
+
+### H-798: The gap between DoM AUROC (0.7731) and cov-spectrum AUROC (0.7928) corresponds to information in Lyapunov directions 2 through j*
+**Priority:** MEDIUM
+**Motivated by:** 2604.19740 Theorem 4.5 + F-2 + FE881
+**Test:** Compute activation-SD j* from cached eigenspectrum. Regress correctness on PC directions 1..j* with ridge regression. Compare AUROC to (a) PC1-only (≈ DoM at cos=0.9216) and (b) top-20 cov-spectrum. If the j*-direction probe matches cov-spectrum AUROC more closely than either PC1 or all-1536, SD theory predicts the information boundary.
+**Requires:** CPU only, cached PCA results.
+**Would change:** On confirm: SD provides principled feature-selection criterion for probe design. On reject: SD doesn't determine which covariance directions are informative for correctness.
+**Blocks:** nothing
+
+---
+
+
+### H-799: Prefill DoM direction is invariant to prompt paraphrase (reworded MATH-500 problems yield cos > 0.9 with original DoM)
+**Priority:** MEDIUM
+**Motivated by:** 2307.13339 + F-2
+**Test:** Reword 20+ MATH-500 problems preserving mathematical content, extract L19 prefill activations under original and reworded prompts, compare per-problem DoM projections and overall fitted DoM direction. Threshold: cos(DoM_orig, DoM_reworded) > 0.9 and AUROC delta < 0.02.
+**Requires:** H100 for 20-problem re-extraction (~20min), CPU for analysis
+**Would change:** Confirm: F-2 and F-8 are robust to deployment variation. Reject: AUROC 0.7731 is prompt-template-specific, selective prediction needs format-matched training.
+**Blocks:** nothing
+
+---
+
+
+### H-800: The DoM direction's predictive power is geometrically inevitable (lives entirely in top-3 PCA directions)
+**Priority:** HIGH
+**Motivated by:** 2604.09780 Prop. 1 + F-2
+**Test:** Compute data-aware Lipschitz bound ‖DoM·Π_r‖₂ for r=1..50 on cached L19 prefill activations. If r=1 captures >95% of DoM's discriminative power, the direction is "trivial geometry."
+**Requires:** CPU only, cached NPZs
+**Would change:** If confirmed, F-2 is demoted from "novel correctness signal" to "restatement of PCA structure." If rejected (significant power in r>3), DoM captures something beyond crude variance structure.
+**Blocks:** nothing
+
+### H-801: L19 prefill activations exhibit MoE-like "router collapse" — near-identical principal subspace across semantically different math problems
+**Priority:** MEDIUM
+**Motivated by:** 2604.09780 Section 5.3 (router collapse during prefilling) + F-3 + F-10
+**Test:** Compute per-problem L19 activation SVD, measure cross-problem cosine similarity of first singular vector. If > 0.95 across all 500 problems, L19 shows the same collapse pattern documented for MoE routers at depth.
+**Requires:** CPU only, cached NPZs
+**Would change:** If confirmed, explains F-10 (PH null is because all problems share the same principal subspace → Gaussian-like), strengthens F-3 (prefill orthogonality is regime effect). If rejected, L19 activations are more diverse than MoE deep-layer states.
+**Blocks:** nothing
+
+### H-802: DoM-orthogonal residual carries independent correctness signal accounting for the 0.7731→0.7928 AUROC gap
+**Priority:** HIGH
+**Motivated by:** 2604.09780 Prop. 2 (direction suppression) + F-2 + H-798
+**Test:** Project out DoM from L19 prefill activations, fit logistic regression on residualized activations. Compare residual AUROC to the 0.0197 gap between DoM (0.7731) and cov-spectrum ceiling (0.7928).
+**Requires:** CPU only, cached NPZs
+**Would change:** If confirmed, identifies the "missing" AUROC as DoM-orthogonal spectral information. If rejected, the gap is noise/overfitting in cov-spectrum probe.
+**Blocks:** H-798
+
+---
+
+
+### H-803: L19 DoM detects convergence of an iterative computation (fixed-point interpretation) rather than dimensional sharpening
+**Priority:** HIGH
+**Motivated by:** 2602.16490 + F-2 (AUROC 0.7731 at L19)
+**Test:** Compute inter-layer cosine similarity cos(h_l, h_{l+1}) stratified by correct/incorrect on cached per-layer activations. If correct problems show significantly higher layer-to-layer similarity at L17–L21 (indicating convergence), and DoM projection correlates with convergence speed, the fixed-point interpretation is confirmed.
+**Requires:** CPU, cached per-layer activations from P11 H100 extraction
+**Would change:** Reframes F-2's mechanism from "geometry predicts correctness" to "convergence of iterative computation predicts correctness" — more mechanistic, more actionable for steering (repeat computation rather than steer direction)
+**Blocks:** H-1 (if confirmed, steering should repeat layers, not push toward DoM direction)
+
+### H-804: Qwen-2.5-1.5B exhibits emergent 4-layer block periodicity despite having untied weights
+**Priority:** MEDIUM
+**Motivated by:** 2602.16490 + F-1 (dimensional breathing universality)
+**Test:** Autocorrelation of per-layer activation statistics (norms, DoM projections, participation ratio) at lags 1–12 across all 24 layers. Significant peak at lag 4 confirms implicit block structure.
+**Requires:** CPU, cached per-layer activations
+**Would change:** If confirmed, explains why L19 is special (final aggregation layer of the last full 4-layer block before output layers 21–24). Strengthens H-489.
+**Blocks:** nothing
+
+### H-805: Inference-time middle-block looping improves MATH-500 accuracy on Qwen-2.5-1.5B without retraining
+**Priority:** HIGH
+**Motivated by:** 2602.16490 (up to 2× improvement on reasoning tasks) + F-2 + F-8
+**Test:** Repeat layers 16–20 of Qwen-2.5-1.5B 2× at inference on full MATH-500. Compare K=1 accuracy to baseline 48.6%. Threshold: ≥2pp improvement (50.6%+) confirms; <1pp = null.
+**Requires:** H100 GPU, ~2h inference time, Qwen-2.5-1.5B weights
+**Would change:** If confirmed, provides a training-free intervention that improves accuracy — complements selective prediction (F-8) with compute scaling. If null, confirms L19's role is not iterative refinement.
+**Blocks:** H-1 (alternative steering paradigm)
+
+---
+
+
+### H-806: The L19 DoM direction is effectively identifiable (unique up to sign within a < 10° cone) among all linear directions predicting correctness at AUROC ≥ 0.75
+**Priority:** HIGH
+**Motivated by:** 2502.20914 + F-2 + cos(DoM, PC1)=0.9216
+**Test:** Enumerate all unit vectors achieving AUROC ≥ 0.75 on cached L19 activations via regularization sweep + random initialization + PCA direction scan. Measure angular diameter of the solution set.
+**Requires:** CPU only, cached 500×1536 L19 prefill activations
+**Would change:** If confirmed (cone < 10°), F-2's "single direction" narrative is validated against identifiability critique. If rejected (cone > 30°), F-2 must be reframed as "a direction from a family of near-equivalent solutions."
+**Blocks:** H-1 (steering depends on which direction is chosen if non-identifiable)
+
+### H-807: The prefill/final-token orthogonality (cos=0.046) is a property of the direction families, not an artifact of selecting one pair from non-identified solution sets
+**Priority:** HIGH
+**Motivated by:** 2502.20914 + F-3
+**Test:** Bootstrap-resample DoM regression 100× for both prefill and final-token. Compute all 100×100 cross-family cosine values. If 95th percentile of |cos| < 0.15, orthogonality is a family-level property.
+**Requires:** CPU only, cached activations for both prefill and final-token
+**Would change:** If confirmed, F-3 is robustified. If rejected, F-3 becomes "one pair happens to be orthogonal" rather than "the modes are structurally orthogonal."
+**Blocks:** nothing
+
+---
+
+
+### H-808: Mean-pooled generation-token hidden states outperform single-position prefill DoM for correctness prediction
+**Priority:** HIGH
+**Motivated by:** 2605.09969 + F-2 (AUROC 0.7731 from single L19 prefill direction)
+**Test:** Extract L19 hidden states at all generation tokens (up to 1024) for MATH-500 on Qwen-2.5-1.5B, mean-pool, train logistic regression for correctness. Compare AUROC to 0.7731.
+**Requires:** H100 GPU for forward pass extraction (~4h), CPU for classification
+**Would change:** If confirmed: F-2's "single direction suffices" framing becomes "single direction is a cheap approximation of a richer trajectory-distributed signal." Selective-prediction (F-8) stack should switch to generation-mean features. If rejected: validates that single-position prefill is already optimal for binary correctness, and the paper's alignment improvements don't transfer to classification tasks.
+**Blocks:** nothing
+
+### H-809: Prefill/final DoM orthogonality (F-3) is a smooth trajectory rotation, not evidence of distinct computational circuits
+**Priority:** HIGH
+**Motivated by:** 2605.09969 (phase structure in generation) + F-3 (cos = 0.046)
+**Test:** Compute DoM at intermediate generation positions (every 50 tokens). If cos(DoM_t, prefill_DoM) decreases monotonically while cos(DoM_t, final_DoM) increases monotonically, the orthogonality is a trajectory-length consequence.
+**Requires:** H100 GPU for extraction at multiple generation positions (~3h)
+**Would change:** If confirmed: F-3's interpretation weakens from "separate circuits" to "same circuit rotated over generation time." H-13 (head-level attribution) becomes less motivated. If rejected (discrete jump at some token position): strengthens F-3 and suggests a phase-transition in computation mid-generation.
+**Blocks:** H-13
+
+### H-810: Convex mixing of prefill and final-token activations yields AUROC above either endpoint
+**Priority:** MEDIUM
+**Motivated by:** 2605.09969 (simplex interior optima) + F-3 (orthogonality implies complementary information)
+**Test:** For α ∈ {0, 0.1, ..., 1}, compute correctness AUROC from α*h_prefill + (1−α)*h_final. If max over interior α exceeds max(0.7731, 0.7186), prefill and final carry extractable complementary signal even without generation tokens.
+**Requires:** CPU only, cached activations
+**Would change:** If confirmed: motivates a two-position probe as cheap alternative to full generation extraction. If rejected: prefill and final information overlaps despite geometric orthogonality (F-3 is about direction, not about correctness-relevant variance).
+**Blocks:** nothing
+
+---
+
+
+### H-811: Sliced Wasserstein distance between correct/incorrect L19 prefill activation clouds exceeds what a Gaussian distribution with matched mean and covariance would produce
+**Priority:** HIGH
+**Motivated by:** 2605.08424 + F-10 (PH null) + F-2 (DoM AUROC 0.7731)
+**Test:** Compute SW₂(correct, incorrect) on real activations and on 1000 Gaussian draws with matched moments. Report p-value of real SW₂ under null distribution.
+**Requires:** CPU, cached NPZ (L19 prefill, 500 samples)
+**Would change:** If confirmed: F-10's null is PH-specific, not geometry-general. If rejected: strengthens the "Gaussian is sufficient" interpretation.
+**Blocks:** nothing
+
+### H-812: The optimal transport cost between correct and incorrect activation clouds is dominated by the mean-shift component (>90%), implying F-2's single-direction projection is near-optimal
+**Priority:** HIGH
+**Motivated by:** 2605.08424 (OT cost decomposition) + F-2 (cos(DoM, PC1)=0.9216)
+**Test:** Compute W₂(correct, incorrect) and W₂(correct_centered, incorrect_centered). Report shape/total ratio.
+**Requires:** CPU, cached NPZ
+**Would change:** If confirmed (>90% from mean): validates DoM as sufficient, closes the "is there more?" question. If rejected (<90%): motivates multi-dimensional probe architectures.
+**Blocks:** H-811
+
+---
+
+
+### H-813: L19 prefill DoM direction has specificity ratio < 0.20 (>80% variance shared with task-critical computation)
+**Priority:** CRITICAL
+**Motivated by:** 2605.05715 + F-2
+**Test:** Compute specificity ratio from cached NPZs: project DoM onto mean(incorrect) − mean(correct) direction, measure residual. 10min CPU.
+**Requires:** CPU, cached L19 prefill activations (existing NPZs)
+**Would change:** On confirm: H-1 (steering) is structurally blocked; F-2 interpretation shifts from "causal direction" to "statistical signature co-occurring with task computation." On reject (ratio > 0.5): H-1 remains viable and paper's result is domain/architecture-specific.
+**Blocks:** H-1
+
+### H-814: Fixed linear steering of the L19 DoM direction produces Δ ≈ 0pp on MATH-500 accuracy (TOST-equivalent within ±2.5pp)
+**Priority:** HIGH
+**Motivated by:** 2605.05715 + F-2 + H-1
+**Test:** Contrastive steering at L19 with α ∈ {0.5, 1.0, 1.5, 3.0}, TOST equivalence. 4h H100.
+**Requires:** H100, Qwen-2.5-1.5B, MATH-500 500-sample set
+**Would change:** On confirm: H-1 formally closed. On reject (Δ > 2.5pp): paper's result is domain-specific, DoM steering viable.
+**Blocks:** H-1
+
+### H-815: Learned non-linear adapter (bottleneck MLP on L19 residual stream) achieves Δ > +2pp on MATH-500 accuracy where linear steering fails
+**Priority:** MEDIUM
+**Motivated by:** 2605.05715 (their MLP achieves +2.8pp, the only non-null intervention) + F-2
+**Test:** Train 1536→64→1536 residual adapter on correct/incorrect prefill activations, evaluate downstream accuracy. 6h H100.
+**Requires:** H100, training pipeline for adapter
+**Would change:** On confirm: establishes that correctness signal IS causally accessible via non-linear intervention (Billa tier-2 regime). On reject: signal may be purely epiphenomenal.
+**Blocks:** nothing
+
+---
+
+
+### H-816: ICA decomposition of L19 prefill activations yields a correctness-predicting independent component with AUROC > 0.78 that is geometrically distinct from DoM (cos < 0.5)
+**Priority:** HIGH
+**Motivated by:** 2605.07407 + F-2
+**Test:** FastICA on cached 500×1536 L19 prefill NPZ; project correct/incorrect labels; per-IC AUROC; cosine with DoM direction. 10min CPU.
+**Requires:** CPU, cached L19 prefill NPZ, scikit-learn
+**Would change:** If confirmed → F-2 insufficiency (single direction is not ceiling); suggests multi-symbol probe. If rejected → strengthens F-2's single-direction dominance.
+**Blocks:** nothing
+
+### H-817: CCA between prefill and final-token L19 activations recovers shared correctness-predictive subspace (top canonical correlation > 0.3) despite raw DoM orthogonality (cos = 0.046)
+**Priority:** HIGH
+**Motivated by:** 2605.07407 + F-3
+**Test:** CCA on two 500×1536 matrices (prefill, final-token); top-10 canonical correlations; project shared variates onto correctness labels. 15min CPU.
+**Requires:** CPU, cached prefill + final-token L19 NPZs
+**Would change:** If confirmed → F-3 needs qualification: directions are orthogonal but representations share a rotated subspace. If rejected → F-3 is robust under CCA.
+**Blocks:** nothing
+
+### H-818: Wasserstein-1 distance between correct/incorrect L19 prefill distributions is dominated by the PC1 (DoM) component (>70% of total W1), confirming F-2's mean-shift dominance
+**Priority:** MEDIUM
+**Motivated by:** 2605.07407 + F-2
+**Test:** W1 per-PC decomposition. If PC1 accounts for >70% of total W1, DoM captures the dominant distributional shift. If not, higher PCs carry non-trivial separability. 10min CPU.
+**Requires:** CPU, cached L19 prefill NPZ
+**Would change:** If confirmed → strengthens F-2. If rejected → higher PCs may have unexploited signal for selective prediction.
+**Blocks:** nothing
+
+---
+
+
+### H-819: Inter-layer relation matrix SVD features predict correctness better than single-layer DoM
+**Priority:** HIGH
+**Motivated by:** 2605.07420 + F-2 (AUROC 0.7731) + F-9 (CoE-60 redundancy)
+**Test:** Construct L×L relation matrices from multi-layer activations (L17–L21 or full 28-layer), extract singular value spectra as features, train logistic regression. AUROC > 0.7731 confirms; > 0.7928 (cov-spectrum ceiling) establishes inter-layer relations as dominant.
+**Requires:** Multi-layer activations (L17–L21 from CoE cache or fresh H100 extraction for full 28 layers), CPU for SVD + LR.
+**Would change:** On confirm: F-2's "single direction suffices" needs qualification — inter-layer relational structure carries additional signal. On reject: validates single-layer sufficiency, strengthens F-2.
+**Blocks:** nothing
+
+### H-820: D-bucket membership is better predicted by anomalous inter-layer relation spectra than by within-layer DoM
+**Priority:** MEDIUM
+**Motivated by:** 2605.07420 Theorem 2 (drift → margin degradation) + F-7 (D-bucket collective signature)
+**Test:** Compute per-sample inter-layer relation matrices, compare SVD spectra of D-bucket vs non-D-bucket samples. If D-bucket samples show systematically different singular value distributions (e.g., higher effective rank, less dominant first SV), this characterizes F-7 in relational terms.
+**Requires:** Multi-layer activations + D-bucket labels from existing MATH-500 pipeline, CPU.
+**Would change:** On confirm: F-7's signature is inter-layer relational, not purely within-layer. On reject: F-7 is genuinely a single-layer phenomenon.
+**Blocks:** nothing
+
+---
+
+
+### H-821: L19 prefill DoM direction is partially aligned with the token-identity (embedding) subspace — partialing out the top-k embedding PCs degrades AUROC by >0.03
+**Priority:** HIGH
+**Motivated by:** 2605.06216 + F-2
+**Test:** Compute PCA of Qwen-2.5-1.5B embedding matrix restricted to MATH-500 vocabulary. Project L19 activations onto complement. Refit DoM. Compare AUROC to 0.7731 baseline.
+**Requires:** CPU only, cached NPZs + model embedding weights (~200MB download)
+**Would change:** If confirmed, F-2's DoM interpretation shifts from "correctness computation" to "partially token-training-quality proxy" — needs factor decomposition. If rejected (AUROC stable), strengthens F-2.
+**Blocks:** H-5
+
+### H-822: Per-problem mean token frequency (log-unigram probability) predicts MATH-500 correctness at AUROC >0.60 without any hidden-state access
+**Priority:** HIGH
+**Motivated by:** 2605.06216 + F-2 + F-7
+**Test:** Tokenize MATH-500 with Qwen-2.5-1.5B tokenizer, compute mean log-frequency from WikiText-103 unigram counts, train logistic regression on mean-frequency → correct/incorrect.
+**Requires:** CPU only, tokenizer + reference corpus frequency table
+**Would change:** If confirmed (>0.60), establishes a shallow-feature baseline that DoM must beat. If the gap between this baseline and DoM is small, the "geometry predicts correctness" story weakens. If rejected (<0.55), token frequency alone is insufficient and the DoM signal is genuinely deeper.
+**Blocks:** nothing
+
+### H-823: D-bucket membership is predicted by prompt token rarity above chance (logistic AUROC >0.60)
+**Priority:** MEDIUM
+**Motivated by:** 2605.06216 + F-7
+**Test:** Compute mean log-token-frequency per problem, predict D-bucket membership via logistic regression.
+**Requires:** CPU only, tokenizer + reference corpus
+**Would change:** If confirmed, F-7's "distinctive collective geometric signature" needs to be re-interpreted as partially driven by vocabulary statistics rather than problem-level difficulty encoding.
+**Blocks:** nothing
+
+---
+
+
+### H-824: Lorem-prefix perturbation (100–300 random Latin tokens) does NOT degrade L19 prefill DoM AUROC by more than 0.02
+**Priority:** HIGH
+**Motivated by:** 2605.05566 + F-2 + H-553 + H-759
+**Test:** Prepend 10 random Lorem prefixes to each MATH-500 problem, extract L19 prefill activations, compute DoM AUROC. Compare to baseline 0.7731.
+**Requires:** CPU, Qwen-2.5-1.5B, cached pipeline
+**Would change:** Confirm: DoM is a deep geometric signal, not surface-form dependent (strengthens F-2, resolves H-553 toward "not fragile"). Reject: DoM is shallow/surface-sensitive, selective-prediction (F-8) needs prompt normalization.
+**Blocks:** H-759
+
+### H-825: D-bucket membership (F-7) has >80% overlap with the zero-advantage set (pass@8=0 problems)
+**Priority:** HIGH
+**Motivated by:** 2605.05566 + F-7 + H-708
+**Test:** Generate 8 rollouts per MATH-500 problem (or use cached if available), identify pass@8=0 set, compare to D-bucket membership labels.
+**Requires:** CPU + 8 forward passes per problem (or cached generations)
+**Would change:** Confirm: D-bucket is a GRPO training artifact, F-7's "geometric signature" is explained by gradient void. Reject: D-bucket exists independently of training dynamics, suggesting an intrinsic representational difficulty structure.
+**Blocks:** nothing
+
+### H-826: LoPE-style perturbation at inference time shifts dimensional breathing (participation ratio) trajectories for identical problems
+**Priority:** MEDIUM
+**Motivated by:** 2605.05566 + F-5
+**Test:** Measure PR trajectories across token positions for 50 problems with and without Lorem prefix. If PR curves differ significantly, AR-mechanics (not just content) drive breathing.
+**Requires:** CPU, generation pipeline (not just prefill)
+**Would change:** Confirm: F-5's "content-dependent not AR-mechanics" is too strong — need to add "prefix-context AR effects also matter." Reject: F-5 stands as-is.
+**Blocks:** nothing
+
+---
+
+
+### H-827: Per-cluster DoM probes outperform pooled single-direction DoM on MATH-500
+**Priority:** HIGH
+**Motivated by:** 2605.09129 + F-2
+**Test:** Cluster MATH-500 L19 prefill activations (PCA-50, K-means k=2..8), fit per-cluster logistic probes, compare max per-cluster AUROC and best-of-K AUROC to pooled 0.7731
+**Requires:** CPU only, cached L19 NPZ, sklearn
+**Would change:** Confirm → F-2 needs "multi-mechanism" qualifier; model uses distinct computational strategies for different problem subsets. Reject → F-2 strengthened as genuinely unitary mechanism.
+**Blocks:** H-828
+
+### H-828: CoE-60/DoM redundancy (F-9) breaks for specific activation-defined subpopulations
+**Priority:** MEDIUM
+**Motivated by:** 2605.09129 + F-9
+**Test:** Per DCD-style cluster (from H-827), compute CoE-60-only and DoM-only AUROC; test whether any cluster shows CoE-60 > DoM + 0.05
+**Requires:** CPU only, cached CoE-60 features + L19 NPZ
+**Would change:** Confirm → F-9's redundancy claim is dataset-specific; CoE-60 has complementary value for certain problem types. Reject → F-9's blanket redundancy holds uniformly.
+**Blocks:** nothing
+
+---
+
+
+### H-829: The L19 prefill DoM direction is not unique — multiple orthogonal directions achieve comparable AUROC
+**Priority:** HIGH
+**Motivated by:** 2605.12671 + F-2
+**Test:** Train 20 logistic probes with orthogonality constraints (sequential deflation) on cached L19 1536-d prefill activations; measure AUROC of each and pairwise cosines
+**Requires:** CPU, cached NPZs (pathway11_h100)
+**Would change:** If confirmed, F-2 must be reframed from "a single direction" to "a family of directions" — would motivate characterizing the correctness subspace dimensionality rather than a single vector
+**Blocks:** H-1 (steering along DoM assumes DoM is canonical; if not, steering protocol needs rethinking)
+
+### H-830: Correctness-prediction redundancy between CoE-60 and L19 DoM arises from mechanism plurality, not information equivalence
+**Priority:** MEDIUM
+**Motivated by:** 2605.12671 + F-9
+**Test:** Identify samples where DoM and CoE-60 disagree on correctness prediction; train probe on disagreement residuals; check if union (DoM + CoE-60 ensemble) exceeds either alone
+**Requires:** CPU, cached NPZs + CoE-60 features
+**Would change:** If confirmed, F-9's "redundant" label becomes "complementary-but-overlapping" — changes architecture for selective prediction (H-8/F-8) to ensemble rather than pick-one
+**Blocks:** nothing
+
+---
+
+
+### H-831: The L19 DoM direction is a Goldstone mode — a symmetry-protected information channel that resists gradient collapse
+**Priority:** HIGH
+**Motivated by:** 2605.14685 + F-2 + H-783
+**Test:** Compute the "protected Jacobian component" (2605.14685 Eq. 7 analogue) at L19 by treating the 1536-d activation space as 768-d complex under a U(1) action. If the protected component's direction aligns with DoM (cos > 0.5), the Goldstone interpretation holds.
+**Requires:** CPU only for cached activations; H100 for Jacobian computation
+**Would change:** F-2 gets a theoretical mechanism; H-783 (why L19) gets a symmetry-breaking explanation
+**Blocks:** nothing
+
+### H-832: Prefill/final-token DoM orthogonality (F-3) is magnitude decay with conserved phase, not directional rotation
+**Priority:** MEDIUM
+**Motivated by:** 2605.14685 Eq. 11 + F-3
+**Test:** Decompose prefill and final-token DoM vectors into radial + angular parts. Check if the angular (phase) component is approximately aligned (cos > 0.3) even though the full vectors have cos = 0.046. If yes, the orthogonality is a Δ-decay artifact.
+**Requires:** CPU, cached activations at prefill and final token
+**Would change:** F-3 reframed from "two independent signals" to "one signal that decays in magnitude"
+**Blocks:** H-1 (steering)
+
+### H-833: Correct/incorrect problem activations occupy different phases of a spontaneously broken symmetry at L19
+**Priority:** HIGH
+**Motivated by:** 2605.14685 Section 2.2 + F-2 + F-4
+**Test:** Compute order parameter c (mean ||h||²) separately for correct and incorrect groups at L19. If they differ significantly (effect size > 0.5 Cohen's d), correctness prediction is a phase-identification problem.
+**Requires:** CPU, cached L19 NPZs
+**Would change:** F-2 and F-4 gain a unified theoretical mechanism via SSB
+**Blocks:** nothing
+
+---
+
+
+### H-834: L19 DoM direction aligns with a Correlation Trap (MP spectral outlier) in the activation covariance, not the MP bulk
+**Priority:** HIGH
+**Motivated by:** 2605.12394 + F-2
+**Test:** Compute MP fit for L19 activation covariance (Q≈0.326), extract eigenvectors of outliers beyond λ+ + Δ_TW, measure cos(DoM, v_outlier). High cosine confirms alignment.
+**Requires:** CPU, cached NPZ activations (500×1536)
+**Would change:** Confirms: DoM is a genuinely non-random spectral mode (strengthens F-2). Rejects: DoM is within bulk fluctuations (mechanism question opens).
+**Blocks:** H-763, H-766
+
+### H-835: Qwen-2.5-1.5B L19 weight matrices harbor Correlation Traps (entry-shuffle outliers beyond MP edge), marking L19 as spectrally distinctive among all layers
+**Priority:** HIGH
+**Motivated by:** 2605.12394 + H-711 + H-743
+**Test:** Run WeightWatcher v0.7.5.5 shuffled-spectrum diagnostic on all 28 layers. L19 trap count > mean + 2σ across layers confirms.
+**Requires:** CPU, Qwen-2.5-1.5B weights (local)
+**Would change:** Confirms: L19 is spectrally special in weight space, not just activation space. Interpretation depends on whether traps are harmful or benign (FE974 follow-up). Rejects: L19 is unremarkable — would weaken the "L19 is special" narrative.
+**Blocks:** nothing
+
+### H-836: The top-20 cov-spectrum eigenvectors (AUROC 0.7928) are delocalized (IPR ≈ 1/d), not localized trap-like modes
+**Priority:** MEDIUM
+**Motivated by:** 2605.12394 + F-2
+**Test:** Compute IPR = Σ v_i^4 for each of top-20 eigenvectors of L19 covariance. Compare to 1/1536 (delocalized null) vs O(1/k) for small k (localized).
+**Requires:** CPU, cached covariance eigenvectors
+**Would change:** Confirms (delocalized): signal is distributed and robust, not fragile trap-like concentration. Rejects (localized): cov-spectrum AUROC may be driven by a few coordinate outliers — fragility concern.
+**Blocks:** nothing
+
+---
+
+
+### H-837: Standard transformers exhibit layer-wise attractor dynamics with a phase transition at ~2/3 depth
+**Priority:** HIGH
+**Motivated by:** 2605.12466 + F-2 (L19 = layer 19 of 28 ≈ 2/3 depth)
+**Test:** Compute Jacobian spectral radius per layer from all-layer caches; check if ρ < 1 emerges consistently after L19
+**Requires:** CPU, cached all-layer NPZs (500 samples × 29 layers × 1536-dim)
+**Would change:** Reframes F-2 as detecting a dynamical phase boundary rather than a semantically meaningful direction
+**Blocks:** H-4
+
+### H-838: Equilibrium proximity (norm of residual at L19) is the underlying signal that DoM captures
+**Priority:** HIGH
+**Motivated by:** 2605.12466 equilibrium internalization + F-2 AUROC 0.7731
+**Test:** Correlate per-sample ‖h_{L20} - h_{L19}‖ with DoM projection, and test residual-norm AUROC against DoM AUROC
+**Requires:** CPU, cached all-layer NPZs
+**Would change:** If confirmed, DoM is a proxy for convergence quality rather than a content-specific "correctness direction"
+**Blocks:** nothing
+
+---
+
+
+### H-839: The L19 DoM direction is unstable under bootstrap resampling of MATH-500
+**Priority:** HIGH
+**Motivated by:** 2605.15154 + F-2
+**Test:** 200-bootstrap logistic probe on cached 500×1536 L19 activations. Measure SD(cos(DoM_b, DoM_full)) and SD(AUROC). Instability threshold: SD(cos) > 0.10 or SD(AUROC) > 0.03.
+**Requires:** CPU only, cached NPZ, sklearn + numpy
+**Would change:** If confirmed (DoM is unstable): F-2 needs a confidence interval, selective prediction (F-8) needs recalibration, and the "single direction" framing becomes "mean direction ± stability cone." If rejected (DoM is stable): F-2 gains a formal robustness guarantee.
+**Blocks:** nothing
+
+### H-840: RoSHAP-ranked features yield a better-calibrated selective-prediction threshold than magnitude-ranked features
+**Priority:** MEDIUM
+**Motivated by:** 2605.15154 + F-8
+**Test:** Compare selective-prediction accuracy@50% using top-k features ranked by RoSHAP vs top-k by absolute coefficient magnitude. k ∈ {1, 5, 20, 50}. Use 5-fold OOF on cached NPZ.
+**Requires:** CPU only, cached NPZ, shap + sklearn
+**Would change:** If confirmed: F-8's selective prediction could be improved by switching to stability-weighted features. If rejected: current magnitude-based approach is already optimal.
+**Blocks:** nothing
+
+---
+
+
+### H-841: The token-level implicit reward (log π_teacher/π_ref) on MATH-500 is a better correctness predictor than L19 prefill DoM
+**Priority:** MEDIUM
+**Motivated by:** 2602.12125 + F-2
+**Test:** Forward-pass Qwen-2.5-7B (teacher) and Qwen-2.5-1.5B (student=reference) on MATH-500 at 1024-tok, compute per-problem average implicit reward, fit AUROC for correct/incorrect. Compare against DoM AUROC 0.7731.
+**Requires:** H100, ~4h for both forward passes. No cached data — need fresh logits.
+**Would change:** If implicit-reward AUROC > 0.77, F-2's practical case weakens (logit ratios are cheaper to compute than residual-stream probing). If < 0.77, hidden-state geometry captures something logits miss.
+**Blocks:** nothing
+
+### H-842: ExOPD-distilled models develop a different prefill DoM direction than their teachers
+**Priority:** HIGH
+**Motivated by:** 2602.12125 + H-366 + F-2
+**Test:** After ExOPD distillation (λ=1.25) of Qwen-2.5-7B → 1.5B, extract L19 prefill on MATH-500, fit DoM, measure cos(distilled_DoM, original_7B_DoM) and cos(distilled_DoM, original_1.5B_DoM).
+**Requires:** H100 distillation (~1-2 days) + extraction (~4h). G-OPD codebase adaptation.
+**Would change:** If cos < 0.3 with either original DoM but accuracy improves, DoM is a behavioral correlate (each training regime develops its own), not a fixed mechanistic feature. Directly updates H-366.
+**Blocks:** H-366
+
+---
+
+
+### H-843: Label-weighted moment eigenvectors at L19 surpass unsupervised cov-spectrum AUROC (0.7928)
+**Priority:** HIGH
+**Motivated by:** 2605.13612 + F-2
+**Test:** Compute C^(ℓ) = (1/n) Σ yᵢ zᵢ zᵢᵀ on cached L19 prefill activations, extract top-k eigenvectors, fit 5-fold logistic regression on projections. Compare AUROC to cov-spectrum (0.7928) and full-dim ceiling (0.7847).
+**Requires:** CPU only, cached NPZs
+**Would change:** On confirm: F-2 reframed — the correctness signal is multi-directional in label-weighted spectral space, and the right operator is C^(ℓ) not Σ. On reject: unsupervised covariance already captures the accessible label signal, validating cos(DoM, PC1) = 0.9216 as evidence of low effective dimension.
+**Blocks:** nothing
+
+### H-844: The correctness signal at L19 is shallow (low-degree), not hierarchically compositional — explaining F-9's CoE redundancy
+**Priority:** MEDIUM
+**Motivated by:** 2605.13612 + F-9
+**Test:** Per-layer label-weighted moment leading eigenvectors across layers 1–28 (needs fresh extraction). If the 28-layer ensemble doesn't beat L19 DoM, the correctness signal has low compositional degree and is fully formed by layer 19.
+**Requires:** H100 for per-layer extraction; CPU for analysis
+**Would change:** On confirm: F-9 is explained theoretically (CoE redundancy follows from shallow signal), and multi-layer probes for correctness are fundamentally limited. On reject: the right multi-layer aggregation (Neural LoFi spectral, not CoE trajectory) exposes non-redundant per-layer features.
+**Blocks:** nothing
+
+### H-845: Our n=500 is near the Neural LoFi emergence threshold for the second eigenvector of C^(ℓ) at L19
+**Priority:** MEDIUM
+**Motivated by:** 2605.13612 + F-2 + H-839
+**Test:** Estimate D^eff at L19 from the Gram matrix eigenvalue spectrum, compute the predicted sample-complexity threshold (Equation 18), check if n=500 is above/below threshold for eigenvectors k=1,2,3.
+**Requires:** CPU only, cached NPZs
+**Would change:** On confirm: explains the AUROC plateau and predicts how much data would be needed to detect additional features. On reject: 500 samples is well above threshold, and the AUROC ceiling is a genuine information ceiling.
+**Blocks:** H-839
+
+---
+
+
+### H-846: DoM AUROC degrades to chance on tasks where model accuracy is ~0% (zero-competence regime)
+**Priority:** MEDIUM
+**Motivated by:** 2605.08605 + F-2
+**Test:** Extract L19 prefill activations on a benchmark where Qwen-2.5-1.5B accuracy is <5% (e.g. hard Sudoku in NL format, or a competitive math benchmark well beyond 1.5B capability). Compute DoM AUROC. If AUROC ≈ 0.50, DoM detects familiarity, not reasoning capacity.
+**Requires:** CPU + new forward passes on a zero-competence benchmark (H100 if using larger prompts)
+**Would change:** Confirms or rules out the H-5 familiarity interpretation of DoM. If confirmed, F-2's signal is scope-limited to tasks within the model's competence range.
+**Blocks:** nothing
+
+---
+
+
+### H-847: DoM AUROC 0.7731 is a sharp attractor ridge that degrades under isotropic Gaussian perturbation of L19 activations
+**Priority:** HIGH
+**Motivated by:** 2605.19376 + F-2
+**Test:** Add Gaussian noise (σ ∈ {0.01, 0.05, 0.1, 0.5}) to cached L19 prefill activations, retrain DoM probe under 5-fold OOF, measure AUROC degradation curve. Sharp drop (>0.05 AUROC at σ=0.05) → confirm; gradual (<0.01 at σ=0.1) → reject.
+**Requires:** CPU, cached L19 NPZs
+**Would change:** If confirmed, suggests DoM is fragile / attractor-dependent, motivating multi-direction ensemble probes. If rejected, strengthens F-2's robustness claim.
+**Blocks:** nothing
+
+### H-848: A nonlinear (MLP) readout of L19 prefill activations significantly exceeds the linear DoM AUROC ceiling (0.7847)
+**Priority:** HIGH
+**Motivated by:** 2605.19376 (LPRM, Eq. 16) + F-2
+**Test:** Train 2-layer MLP (hidden=128, ReLU, dropout=0.3) on 500×1536 cached L19 prefill activations predicting binary correctness, 5-fold CV. Compare to L2-regularized logistic ceiling 0.7847. Exceeds by >0.02 → confirm; within 0.01 → reject.
+**Requires:** CPU, cached L19 NPZs
+**Would change:** If confirmed, opens pathway to substantially better correctness prediction from same data. If rejected, confirms that the L19 correctness signal is essentially linear / rank-1.
+**Blocks:** nothing
+
+---
+
+
+### H-849: Probe directions trained on correctness sub-objectives (arithmetic vs. reasoning) remain linearly connected in activation space
+**Priority:** MEDIUM
+**Motivated by:** 2306.04488 + F-2
+**Test:** Stratify MATH-500 into arithmetic-heavy vs. reasoning-heavy subsets (~250 each), train separate DoM directions on each, interpolate, check if AUROC at λ=0.5 exceeds linear interpolation of individual AUROCs (concavity = LMC holds).
+**Requires:** CPU only, cached NPZs, problem-type labels (derivable from MATH-500 categories)
+**Would change:** If confirmed, motivates decomposing DoM into sub-objective directions. If refuted, single-direction probe is already near-optimal.
+**Blocks:** nothing
+
+### H-850: The near-orthogonality of prefill and final-token DoM (cos=0.046) reflects optimization on antagonistic objectives, analogous to Rewarded Soups' failure mode
+**Priority:** LOW
+**Motivated by:** 2306.04488 (Figure 15: LMC breaks for antagonistic rewards) + F-3
+**Test:** Check if interpolated direction d(λ) = λ·DoM_prefill + (1-λ)·DoM_final has strictly lower AUROC than both endpoints for all λ — i.e., the interpolation curve is *convex* (anti-LMC). This would confirm they encode genuinely competing objectives.
+**Requires:** CPU only, cached directions
+**Would change:** If confirmed, provides theoretical grounding for F-3's orthogonality (they're not just unrelated — they're *antagonistic*). If refuted (concave curve), orthogonality is incidental, not structural.
+**Blocks:** H-1
+
+---
+
+
+### H-851: Width-scaling (best-of-K via DoM selection) improves selective-prediction accuracy beyond single-pass DoM
+**Priority:** HIGH
+**Motivated by:** 2605.19943 + F-2 + F-8
+**Test:** K ∈ {5, 10, 25} forward passes with temperature sampling, L19 DoM extraction each pass, best-DoM@K selection. Compare selective-prediction accuracy at 50% coverage against single-pass baseline (71.6%).
+**Requires:** CPU (2h for K=25 × 500 problems), Qwen-2.5-1.5B, MATH-500
+**Would change:** On confirm: F-8 updated with width-scaled numbers, DoM validated as practical verifier. On reject: confirms single-pass DoM is adequate, width-scaling adds noise not signal.
+**Blocks:** nothing
+
+### H-852: D-bucket problems correspond to "bad basin" latent-space structure that noise perturbation can disrupt
+**Priority:** MEDIUM
+**Motivated by:** 2605.19943 + F-7
+**Test:** Add Gaussian noise to cached L19 prefill activations for D-bucket vs A-bucket problems, measure how DoM AUROC and D-bucket separability degrade as a function of σ. If D-bucket separability degrades faster, D-bucket occupies sharper/narrower basins.
+**Requires:** CPU (15min), cached L19 prefill NPZs
+**Would change:** On confirm: reframes F-7 as basin-structure claim rather than intrinsic-geometry claim, opens path to noise-based D-bucket escape. On reject: strengthens F-7 as robust geometric property.
+**Blocks:** nothing
+
+---
+
+
+### H-853: Prefill DoM AUROC (0.7731) degrades under diversity-preserving RL (VPO) vs mode-collapsing RL (GRPO)
+**Priority:** HIGH
+**Motivated by:** 2605.22817 + F-2 + H-707
+**Test:** Train Qwen-2.5-1.5B with VPO (drop-in GRPO replacement) on MATH-500 or equivalent math corpus. Extract L19 prefill activations, refit DoM direction, compute 5-fold OOF AUROC. Compare to GRPO baseline 0.7731.
+**Requires:** H100 cluster (4×H100 ~48hrs), veRL framework, VPO advantage estimator code
+**Would change:** If AUROC drops significantly (< 0.70), F-2 is RL-objective-specific, not architecture-intrinsic. If stable (≥ 0.75), F-2 is robust to training objective — strengthens the finding considerably.
+**Blocks:** H-707, H-708
+
+### H-854: Reward-space diversity (pairwise L1 of per-problem reward vectors) of our GRPO-trained Qwen is near-zero, confirming VPO's mode-collapse diagnosis applies to our setup
+**Priority:** MEDIUM
+**Motivated by:** 2605.22817 + F-2 + F-7
+**Test:** Compute VPO-style reward-space diversity metric on K=8 MATH-500 completions from our model. Compare to VPO's reported GRPO diversity values (0.003–0.054 across domains).
+**Requires:** CPU only, cached K-sample completions
+**Would change:** If diversity is near-zero, confirms our model is mode-collapsed and DoM direction may be an artifact. If diversity is moderate, our model may not be as collapsed as VPO's GRPO baselines.
+**Blocks:** nothing
+
+### H-855: DoM-based best-of-K selection outperforms random selection more on GRPO-collapsed pools than on VPO-diverse pools
+**Priority:** HIGH
+**Motivated by:** 2605.22817 + F-8 + H-851
+**Test:** Compare DoM-ranked selection vs random selection on K-sample pools from GRPO vs VPO-trained models. If VPO pools already contain near-optimal candidates at every position, DoM selection adds less value.
+**Requires:** VPO checkpoint (blocked on P11-FE1136)
+**Would change:** If DoM selection advantage vanishes on VPO pools, selective prediction (F-8) is a GRPO-specific workaround, not a general capability. If advantage persists, DoM captures genuine problem-difficulty signal beyond training-objective effects.
+**Blocks:** H-851
+
+---
+
+
+### H-856: The L19 prefill DoM direction is suboptimal due to shared-pattern contamination
+**Priority:** HIGH
+**Motivated by:** 2605.21467 + F-2
+**Test:** Apply DelTA's entropy-regularized α-reweighting (K=1 refinement) to cached 500×1536 L19 prefill activations with correct/incorrect labels. Extract refined DoM. Compare AUROC (5-fold OOF) against standard DoM 0.7731. Suboptimality confirmed if refined AUROC > 0.78.
+**Requires:** CPU only, cached NPZs
+**Would change:** If confirmed, F-2's DoM AUROC ceiling needs revision upward and the cov-spectrum probe surplus (0.7928) may be partially explained by its implicit shared-pattern suppression. If rejected, confirms DoM is near-optimal for centroid-based methods and cov-spectrum's surplus is genuinely non-centroid information.
+**Blocks:** nothing
+
+### H-857: Prefill/final DoM orthogonality survives discriminative refinement
+**Priority:** MEDIUM
+**Motivated by:** 2605.21467 + F-3
+**Test:** Apply DelTA α-reweighting independently at prefill and final-token positions, compute cos between refined discriminative directions. Compare to raw 0.046. Orthogonality holds if |cos| < 0.3 post-refinement.
+**Requires:** CPU only, cached NPZs for both prefill and final-token L19
+**Would change:** If orthogonality holds post-refinement, strengthens F-3 (shared patterns are not the explanation). If cos increases substantially (>0.3), F-3's structural orthogonality is weakened — the two circuits may share discriminative structure masked by different shared patterns at each position.
+**Blocks:** nothing
+
+---
+
+
+### H-858: L19 prefill DoM is concentrated in a sparse subset (~15%) of attention heads corresponding to "retrieval heads"
+**Priority:** HIGH
+**Motivated by:** 2605.16928 + F-2
+**Test:** Reshape the cached 1536-d DoM vector into per-head blocks (12 × 128 for Qwen-2.5-1.5B). Compute L2-norm fraction per head. If top 2 heads carry >50% of DoM L2-norm, concentrated. Follow up with per-head-block AUROC decomposition. ~30min CPU.
+**Requires:** CPU, cached DoM direction + L19 prefill activations (500 × 1536)
+**Would change:** On confirm: F-2 gains a mechanistic explanation (retrieval-head gating). On reject: DoM is a distributed whole-layer property, more interesting geometrically.
+**Blocks:** nothing
+
+### H-859: Prefill/final DoM orthogonality (cos=0.046, F-3) arises from a phase transition between retrieval-head-dominated and local-head-dominated processing
+**Priority:** MEDIUM
+**Motivated by:** 2605.16928 + F-3
+**Test:** Decompose both prefill and final DoM vectors into per-head blocks. Compute cosine within each head block. If retrieval-head blocks show positive cosine while local-head blocks show negative/zero, the orthogonality is a mixing artifact. ~20min CPU with cached DoM directions.
+**Requires:** CPU, cached prefill and final-token DoM directions
+**Would change:** On confirm: F-3's "structural orthogonality" becomes "compositional orthogonality" (different head types dominate at different positions). On reject: orthogonality is genuinely layer-wide and not reducible to head partitioning.
+**Blocks:** nothing
+
+---
+
+
+### H-860: L19 prefill DoM direction is the leading Fourier mode of a co-occurrence kernel, not a learned correctness computation
+**Priority:** HIGH
+**Motivated by:** 2602.15029 + F-2 (AUROC 0.7731) + cos(DoM, PC1) = 0.9216
+**Test:** Compute DFT of L19 activation Gram matrix ordered by DoM projection; measure alignment of DoM with k=1 Fourier mode. If alignment > 0.9, the co-occurrence framework explains F-2. Cross-check: does a Word2Vec-scale model on the same corpus produce a comparable direction?
+**Requires:** CPU, cached L19 prefill NPZs (500 × 1536)
+**Would change:** If confirmed, F-2's narrative shifts from "model learns correctness signal" to "model inherits correctness-correlated co-occurrence structure." AUROC ceiling becomes a spectral-gap prediction, not a probe-design question.
+**Blocks:** H-114 (F-2's AUROC ceiling is probe-bound — moot if ceiling is spectral-gap-bound)
+
+### H-861: F-3's prefill/final DoM orthogonality (cos=0.046) is Fourier harmonic separation, not circuit independence
+**Priority:** MEDIUM
+**Motivated by:** 2602.15029 + F-3 (cos=0.046)
+**Test:** Project prefill and final DoM onto DFT basis of the L19 covariance eigenspectrum. If they localize to different harmonics with < 5% overlap, orthogonality is a Fourier artifact. If they spread across harmonics, it's not.
+**Requires:** CPU, cached L19 prefill + final-token NPZs
+**Would change:** If confirmed, F-3's interpretation shifts from "two independent circuits" to "one Fourier manifold, two sampling points." Weakens the argument for separate steering vectors.
+**Blocks:** nothing
+
+### H-862: Intrinsic dimensionality of the L19 correctness manifold determines the AUROC ceiling via ε² ~ r^{-1/D}
+**Priority:** MEDIUM
+**Motivated by:** 2602.15029 Proposition 3.3 + F-2 (0.7731) + FE291 (0.7856) + FE881 (0.7928)
+**Test:** Rank-controlled ridge probe sweep (r=1..500), fit ε²(r) to extract D. If D=1, F-2 is near-optimal. If D≈2, the 2-feat AUROC 0.7856 is the natural ceiling. If D≈20, the cov-spectrum 0.7928 matches the theory.
+**Requires:** CPU, cached L19 prefill NPZs
+**Would change:** Gives a principled answer to "how many features should the correctness probe use?" and whether F-2's 0.7731 is improvable.
+**Blocks:** nothing
+
+---
+
+
+### H-863: L19 DoM direction is the linear projection of an underlying fixed-point residual — DoM AUROC 0.7731 is a lower bound on attractor-convergence-based prediction
+**Priority:** HIGH
+**Motivated by:** 2605.21488 + F-2 (AUROC 0.7731)
+**Test:** Extract all 28 layer activations, compute per-layer ‖h_{l+1} − h_l‖ trajectory. Fit logistic regression on the 27-dimensional residual vector. Compare AUROC to 0.7731 (DoM) and 0.7928 (cov-spectrum).
+**Requires:** H100, 3h for full 28-layer extraction on 500 MATH-500 problems
+**Would change:** If confirmed (residual AUROC > 0.7731): F-2 is reframed from "directional geometry" to "attractor convergence"; DoM is a linear approximation. If rejected (residual AUROC ≤ 0.7731): directional information is strictly richer than convergence information, attractor framing doesn't apply to frozen pretrained transformers.
+**Blocks:** H-1 (steering depends on whether the signal is directional or convergence-based)
+
+### H-864: Correct/incorrect MATH-500 problems occupy distinct attractor basins at L19, distinguishable by within-class activation covariance spectral gap
+**Priority:** MEDIUM
+**Motivated by:** 2605.21488 §4.2 landscape modes + F-7 (D-bucket collective signature)
+**Test:** Compute activation covariance separately for correct and incorrect problems. Compare spectral gap (λ₁/λ₂), effective dimensionality, and Frobenius norm between the two classes. Test whether the correct-class covariance has a larger spectral gap (indicating a deeper/narrower attractor basin).
+**Requires:** CPU, 20min on cached NPZs
+**Would change:** If confirmed: F-7's "collective signature" is attractor basin geometry. If rejected: basin structure isn't linearly readable from single-layer covariance.
+**Blocks:** nothing
+
+---
+
+
+### H-865: Effective latent rank of L19 prefill activations is lower for correct than incorrect MATH-500 problems
+**Priority:** HIGH
+**Motivated by:** 2511.05963 + F-4 + F-2
+**Test:** SVD of cached 500×1536 L19 prefill matrix, split by correctness labels, exponentiated singular-value entropy per class. ~10min CPU.
+**Requires:** CPU, cached NPZs (pathway11_h100/prefill_gated_compute/)
+**Would change:** Confirm: F-4 asymmetric collapse gets a belief-state interpretation; effective rank becomes a new scalar correctness feature. Reject: collapse is not about representational compactness, must be directional.
+**Blocks:** nothing
+
+### H-866: Cross-layer predictability (L19→L20 linear R²) correlates with per-problem correctness
+**Priority:** HIGH
+**Motivated by:** 2511.05963 + H-803 + F-4
+**Test:** Fit linear regression from L19 to L20 cached activations, compute per-problem R² residual, test rank-biserial correlation with correctness. Requires multi-layer cached NPZs. ~30min CPU.
+**Requires:** CPU, cached L19 AND L20 activations (check DATA_MANIFEST.md for availability)
+**Would change:** Confirm: validates H-803 fixed-point interpretation, provides mechanistic account of F-4. Reject: layer transitions are equally (un)predictable for correct and incorrect — belief-state convergence is not the mechanism.
+**Blocks:** H-803
+
+---
+
+
+### H-867: Spectral-energy-weighted token aggregation lifts DoM AUROC above 0.7731
+**Priority:** HIGH
+**Motivated by:** 2605.21842 + F-2
+**Test:** Compute per-token energy score on L19 prefill activations using PC1 projection, weight DoM aggregation by energy score, measure 5-fold OOF AUROC. Compare against uniform pooling baseline (0.7731).
+**Requires:** CPU, cached NPZs (L19 prefill activations, 1024-tok)
+**Would change:** If confirmed (AUROC > 0.78), establishes that token-importance weighting is a free lunch for single-direction probes; revises F-2 upward. If rejected (AUROC ≤ 0.7731), confirms uniform pooling is already optimal for the averaged-prefill regime.
+**Blocks:** nothing
+
+### H-868: Correct MATH-500 problems have lower effective spectral rank at L19 than incorrect ones
+**Priority:** HIGH
+**Motivated by:** 2605.21842 + F-2 + cov-spectrum 0.7928
+**Test:** Compute per-problem covariance of L19 prefill activations (across token positions within each problem), extract eigenvalues, compute effective rank (90% energy threshold). Compare correct vs incorrect group distributions.
+**Requires:** CPU, cached NPZs
+**Would change:** If confirmed, provides a mechanistic interpretation of the cov-spectrum probe's success: correctness correlates with spectral energy concentration (coherent structure formation). If rejected, the cov-spectrum signal is about eigenvalue shape, not concentration.
+**Blocks:** nothing
+
+---
+
+
+### H-869: L19 prefill DoM projects incoherently through Qwen's unembedding — it encodes a computational instruction, not an answer direction
+**Priority:** HIGH
+**Motivated by:** 2604.02608 + F-2
+**Test:** Project DoM through LayerNorm + W_U, inspect top-50 tokens. Coherent = answer direction; incoherent = computational instruction. ~15min CPU on cached DoM + model weights.
+**Requires:** CPU, cached DoM direction, Qwen-2.5-1.5B model weights
+**Would change:** If confirmed, reframes F-2 interpretation: the 0.7731 AUROC reads a process signal, not content. If rejected (coherent projection), DoM is genuinely an answer-aligned direction — strengthening the current F-2 interpretation and diverging from the FV pattern.
+**Blocks:** nothing
+
+### H-870: A nonlinear (MLP) probe on L19 prefill activations exceeds the 0.7731 linear DoM AUROC ceiling
+**Priority:** HIGH
+**Motivated by:** 2604.02608 §5.4 + F-2 + cov-spectrum result (0.7928)
+**Test:** 2-layer MLP (1536→1024→2, GELU, dropout 0.1) on cached L19 prefill activations, 5-fold CV. Compare to 0.7731 (linear DoM) and 0.7928 (cov-spectrum). ~30min CPU.
+**Requires:** CPU, cached L19 NPZs
+**Would change:** If MLP > 0.7928, there's accessible nonlinear signal beyond what cov-spectrum captures — motivates probe architecture search. If MLP ≈ 0.7731, the correctness signal at L19 is genuinely linear.
+**Blocks:** nothing
+
+### H-871: DoM steering on Qwen-2.5-1.5B operates modulatorily (Llama/Gemma-style), not representationally (Mistral-style)
+**Priority:** MEDIUM
+**Motivated by:** 2604.02608 §5.5 dual-mechanism hypothesis + H-1
+**Test:** If/when H-1 steering experiments run, apply logit lens before and after DoM injection at L19. If post-steering logit-lens delta is near zero despite behavioral change, Qwen is modulatory; if delta is large, Qwen is representational. Requires H100 forward passes.
+**Requires:** H100, MATH-500 prompts, Qwen-2.5-1.5B
+**Would change:** Determines which mechanistic family Qwen belongs to, informing steering strategy for H-1 and safety-monitoring implications.
+**Blocks:** H-1
+
+---
+
+
+### H-872: Per-layer Shannon capacity explains the L19 DoM AUROC peak
+**Priority:** HIGH
+**Motivated by:** 2605.23901 + F-2 (L19 DoM AUROC 0.7731)
+**Test:** Compute per-layer SNR and Shannon capacity C_l = B_l·log₂(1 + S_l/N_l) for all 28 layers. If C(L19) is maximal and correlates with DoM AUROC, the information-theoretic explanation holds. FE131050 + FE131051.
+**Requires:** CPU, cached L19 NPZs (Tier 1) or H100 extraction for all layers (Tier 2, FE131054)
+**Would change:** On confirm: F-2 gains a theoretical explanation and a capacity ceiling. On reject: L19 peak is not about raw SNR — probe is exploiting non-Gaussian structure.
+**Blocks:** nothing
+
+### H-873: The cov-spectrum probe's 0.7928 AUROC reflects the Shannon signal subspace boundary
+**Priority:** MEDIUM
+**Motivated by:** 2605.23901 + F-2 (cov-spectrum AUROC 0.7928, full-1536d ceiling 0.7847)
+**Test:** Decompose L19 covariance into signal/structured-noise/unstructured-noise subspaces per the paper's three-source taxonomy. If the signal subspace boundary coincides with the ~20 eigenvalues used by the cov-spectrum probe, Shannon noise decomposition explains the probe design. FE131052.
+**Requires:** CPU, cached covariance matrices
+**Would change:** On confirm: principled eigenvalue cutoff for the cov-spectrum probe. On reject: eigenvalue selection must use a different criterion.
+**Blocks:** nothing
+
+---
+
+
+### H-874: Correct/incorrect L19 prefill activations exhibit functor-like geometric alignment (low within-group Dirichlet Energy relative to cross-group)
+**Priority:** HIGH
+**Motivated by:** 2602.01992 + F-2
+**Test:** Compute Dirichlet Energy within correct group, within incorrect group, and cross-group on cached L19 prefill activations. Ratio test: DE(within) / DE(cross) < 0.5 indicates functor alignment.
+**Requires:** CPU, cached NPZ data
+**Would change:** On confirm: F-2's "direction" reframed as emergent category alignment (functor artifact). On reject: DoM remains best interpreted as a linear separator, not a relational mapping.
+**Blocks:** nothing
+
+### H-875: The prefill→final-token transformation is well-approximated by additive functor arithmetic (h_final ≈ h_prefill + f), explaining the cos≈0 orthogonality in F-3
+**Priority:** HIGH
+**Motivated by:** 2602.01992 + F-3
+**Test:** Estimate f = mean(h_final − h_prefill) over 500 samples. Compute per-sample reconstruction error ‖h_final − (h_prefill + f)‖ / ‖h_final‖. If mean error < 0.3, functor model holds.
+**Requires:** CPU, cached prefill + final-token NPZ data (both exist from P11)
+**Would change:** On confirm: F-3's orthogonality explained by functor geometry — reduces from independent finding to consequence of F-2. On reject: prefill→final transformation is not additive — F-3 remains structurally surprising.
+**Blocks:** nothing
+
+### H-876: Geometric alignment of correct/incorrect representations shows non-monotonic scaling with model width, matching the paper's prediction that analogical structure degrades at large d_model
+**Priority:** MEDIUM
+**Motivated by:** 2602.01992 + F-1 + F-6
+**Test:** Extract L19 prefill activations from Qwen-2.5-0.5B (d=896), 1.5B (d=1536), and 7B (d=3584). Compute Dirichlet Energy at each scale. Non-monotonic pattern (0.5B > 1.5B < 7B for alignment quality) supports the paper's scaling prediction and qualifies F-1.
+**Requires:** H100 for 0.5B and 7B extractions; 1.5B cached
+**Would change:** On confirm: F-1 needs "at intermediate scales" qualifier. On reject: breathing universality stands, non-monotonic scaling is synthetic-task-specific.
+**Blocks:** H-874
+
+---
+
+
+### H-877: BM25-style nonlinear scoring of L19 cov-spectrum features beats the 0.7928 linear AUROC ceiling
+**Priority:** HIGH
+**Motivated by:** 2605.29384 + F-2
+**Test:** Apply sqrt-tf × IDF reweighting to top-20 PC projections from FE881, 5-fold logistic regression on reweighted features. 20min CPU.
+**Requires:** CPU, cached cov-spectrum features from FE881
+**Would change:** If confirmed (AUROC > 0.82), the "ceiling" shifts from 0.7928 to a higher value and the bottleneck is scoring regime, not feature quality. If rejected (AUROC ≈ 0.79), linear scoring is near-optimal for these features.
+**Blocks:** nothing
+
+### H-878: Reconstruction-only SAE on L19 prefill activations recovers correctness-predictive features without supervision
+**Priority:** HIGH
+**Motivated by:** 2605.29384 + H-391 + H-539
+**Test:** Train top-K SAE (K=16, 32K latents) on L19 activations with reconstruction loss only (no correctness labels). Post-hoc correlate latent activations with correctness. 2h H100.
+**Requires:** H100, L19 prefill activations (cached), unlabeled text activations for training distribution
+**Would change:** If confirmed, correctness information is structural (emerges from reconstruction), not supervisory. Reframes F-2 from "a direction we find with labels" to "a direction the model's own geometry exposes." If rejected, supervision is necessary and H-391/H-539 remain the path.
+**Blocks:** H-795
+
+---
+
+
+### H-879: L19 is not uniquely specialized — multi-layer SAE-equivalent sweep reveals distributed math-correctness signal across Qwen-2.5-1.5B
+**Priority:** HIGH
+**Motivated by:** 2605.28649 + F-2 + F-9
+**Test:** Extract prefill activations at all 28 Qwen layers (same 500 MATH-500 problems, 1024-tok regime). Compute per-layer DoM AUROC (5-fold OOF). Compare L19 AUROC (0.7731) against the full layer landscape. Test multi-layer logistic regression combining top-k layers.
+**Requires:** H100 for fresh forward passes at all 28 layers (~4h). Analysis on CPU.
+**Would change:** On confirm: F-2 becomes "L19 is strongest but not unique" — multi-layer probes could break the 0.7731 ceiling. On reject: strengthens F-2's L19 concentration claim.
+**Blocks:** H-70 (which already questions L19 uniqueness from a different angle)
+
+### H-880: Activation-space DoM steering (H-1) encounters the same geometric misalignment as SAE-based weight projection
+**Priority:** MEDIUM
+**Motivated by:** 2605.28649 + H-1 + H-42
+**Test:** Compare activation-space DoM steering (add scaled DoM vector at L19 during generation) against a weight-space alternative (LoRA fine-tune on DoM-high vs DoM-low problems, inject raw task vector at L19 only). If the weight-space version substantially outperforms activation-space steering on MATH-500 accuracy, the geometric misalignment extends to our probing context.
+**Requires:** H100 for LoRA fine-tuning + evaluation (~4h GPU).
+**Would change:** On confirm: H-1 needs reformulation as weight-space editing rather than activation-space steering. On reject: the activation/weight-space misalignment is specific to SAE projection and doesn't apply to direct activation injection.
+**Blocks:** H-1
+
+---
+
+
+### H-881: Hopfield energy on L19 prefill activations discriminates correct/incorrect above DoM AUROC 0.7731
+**Priority:** HIGH
+**Motivated by:** 2605.27975 + F-2
+**Test:** Compute E(ξ|X;β) for each of 500 MATH-500 samples using cached L19 prefill activations as stored patterns; sweep β; compare AUROC to 0.7731.
+**Requires:** CPU, cached NPZs from P11 H100 extraction
+**Would change:** If confirmed, F-2's "single linear direction" framing needs revision — correctness signal has non-linear energy-landscape structure. If rejected, confirms that the linear DoM direction captures essentially all the available signal.
+**Blocks:** nothing
+
+### H-882: D-bucket problems occupy the high-energy tail of the Hopfield energy distribution on L19 prefill activations
+**Priority:** HIGH
+**Motivated by:** 2605.27975 Theorem 4.1 + F-7, H-7
+**Test:** Compute per-sample Hopfield energy; test whether D-bucket membership is predicted by energy rank (top-k% by energy). Compare to existing density-based methods considered in H-7.
+**Requires:** CPU, cached NPZs, D-bucket labels
+**Would change:** If confirmed, H-7's density approach gets a principled energy-theoretic foundation. F-7's geometric signature is subsumed by MHN energy landscape. If rejected, the D-bucket signature is not an energy/density phenomenon.
+**Blocks:** H-7
+
+---
+
+
+### H-883: Beta-regression direction localization recovers a direction distinct from DoM on L19 prefill activations
+**Priority:** HIGH
+**Motivated by:** 2605.29971 + F-2
+**Test:** PCA(50) + OLS regression on 500×1536 cached L19 activations with binary correctness as target. Compare cos(β, DoM) — if < 0.95, β carries non-redundant signal. Evaluate β-direction AUROC vs DoM AUROC 0.7731.
+**Requires:** CPU only, cached NPZs from P11
+**Would change:** If β ≈ DoM (cos > 0.99), validates DoM's optimality. If β ≠ DoM with higher AUROC, motivates replacing DoM with regression-derived direction throughout.
+**Blocks:** nothing
+
+### H-884: The L19 DoM direction decomposes into a bias component and an error component with distinct causal roles
+**Priority:** HIGH
+**Motivated by:** 2605.29971 + F-2 + H-1
+**Test:** Construct residual e_i = DoM_proj_i - y_i, localize error direction, test cos(error_dir, DoM). If near-orthogonal, the decomposition is real. Causal test (Tier 2): edit each component independently and measure downstream generation accuracy.
+**Requires:** CPU for decomposition; H100 for causal test
+**Would change:** On confirm: explains why DoM predicts (bias) but steering might fail (error not deployed). On reject: DoM is a unified signal without separable components.
+**Blocks:** H-1
+
+---
+
+
+### H-885: L19 DoM AUROC 0.7731 is a convergence-rate indicator, not a learned correctness direction
+**Priority:** HIGH
+**Motivated by:** 2605.26106 (adaptive convergence stopping in LoopMDM) + F-2
+**Test:** Compute scalar convergence ratio ||h_19 − h_18||/||h_19|| per problem from cached all-layer activations. AUROC ≥ 0.75 confirms convergence-rate interpretation; < 0.65 rejects it. Also sweep all layers to find best convergence-ratio layer.
+**Requires:** CPU, pathway8_layerwise/data/math500/ NPZs, ~10min
+**Would change:** If confirmed, F-2's mechanistic interpretation shifts from "directional correctness probe" to "convergence-rate indicator" — simpler, more parsimonious, and potentially architecture-general. If rejected, the directional interpretation gains support as non-trivially geometric.
+**Blocks:** nothing
+
+### H-886: F-4's asymmetric collapse is a layer-convergence-speed difference between correct and incorrect problems
+**Priority:** MEDIUM
+**Motivated by:** 2605.26106 (adaptive stopping shows differential convergence rates) + F-4
+**Test:** Plot inter-layer delta norm ||h_l − h_{l-1}|| split by correct/incorrect across all 28 Qwen layers. Correct problems should show smaller deltas starting at mid-layers (L12–L18). Threshold: correct-group mean delta at L19 < 0.8× incorrect-group mean delta.
+**Requires:** CPU, pathway8_layerwise/data/math500/ NPZs, ~10min
+**Would change:** If confirmed, F-4 is reframed from a geometric observation to a convergence-rate phenomenon. If rejected, the geometric collapse interpretation survives.
+**Blocks:** nothing
+
+---
+
+
+### H-887: Correctness-predictive geometry follows a transient emergence profile with peak before L19
+**Priority:** HIGH
+**Motivated by:** 2605.27970 + F-2
+**Test:** Compute layer-wise RSA (correctness dissimilarity vs. cosine dissimilarity) at all 29 layers using cached `prefill_all_layers` from `pathway8_layerwise/data/math500/`. If RSA peaks at layers 10–16 and is significantly lower at L19, the hypothesis confirms.
+**Requires:** CPU, cached NPZs (19GB, already on disk)
+**Would change:** On confirm: F-2's interpretation shifts from "L19 is geometrically special" to "L19 captures a post-peak readout signal." On reject (RSA peaks at or near L19): strengthens F-2's geometric interpretation.
+**Blocks:** nothing
+
+### H-888: Per-problem RSA contribution is a correctness predictor competitive with DoM AUROC
+**Priority:** MEDIUM
+**Motivated by:** 2605.27970 + F-2 + F-9
+**Test:** Compute leave-one-out RSA at L19. Each problem's RSA contribution = RSA_full − RSA_without_i. Evaluate as AUROC predictor against 0.7731 DoM baseline.
+**Requires:** CPU, cached L19 prefill activations
+**Would change:** On confirm (AUROC ≥ 0.75): DoM is a simplified projection of richer relational structure. On reject: single-direction probe is genuinely the right abstraction.
+**Blocks:** nothing
+
+---
+
+
+### H-889: The L19 DoM direction is a bipolar feature axis where sign discriminates correct (positive) from incorrect (negative) activations
+**Priority:** HIGH
+**Motivated by:** 2605.28149 + F-2
+**Test:** Project 500 MATH-500 L19 prefill activations onto DoM; compute correlation between sign(projection) and correctness label; test signed-threshold classifier AUROC vs unsigned DoM AUROC 0.7731 (P11-FE1202)
+**Requires:** CPU only, cached NPZs
+**Would change:** Confirm: F-2 reframed from "single direction" to "bipolar feature axis in superposition"; motivates SA-GSAE over standard SAE for H-391/H-539/H-795. Reject: DoM is genuinely one-sided, SA-GSAE offers no advantage for correctness probing.
+**Blocks:** H-795
+
+### H-890: The near-orthogonality of prefill and final-token DoM (cos=0.046) is a sign-cancellation artifact from bipolar features that flip polarity between computation stages
+**Priority:** HIGH
+**Motivated by:** 2605.28149 + F-3
+**Test:** Decompose DoM projections by sign at prefill and final-token; compute within-sign-group cosine. If within-sign cosine >> 0.046, orthogonality is sign-cancellation (P11-FE1203)
+**Requires:** CPU only, cached NPZs (L19 prefill + final-token)
+**Would change:** Confirm: F-3 needs revision — "different mechanisms" becomes "same mechanism, flipped sign." Reject: orthogonality is genuine, supports distinct prefill vs generation circuits.
+**Blocks:** nothing
+
+### H-891: SA-GSAE at half-width (8192 latents) on L19 prefill achieves correctness-probe AUROC ≥ 0.7731 while Gated SAE at full-width (16384) does not, demonstrating bipolar efficiency for correctness features
+**Priority:** HIGH
+**Motivated by:** 2605.28149 + H-795 + H-539
+**Test:** Train SA-GSAE (half-width 8192, L₀=64) and Gated SAE (full-width 16384, L₀=64) on Qwen-2.5-1.5B L19 activations; compare top-latent correctness AUROC and dead fraction (P11-FE1205)
+**Requires:** H100, ~4h training per SAE variant, math-adjacent pretraining data
+**Would change:** Confirm: SA-GSAE is the right SAE architecture for our pipeline; half-width sufficient. Reject: bipolar structure doesn't help correctness probing; stick with standard Gated SAE.
+**Blocks:** H-391, H-539
+
+---
+
+
+### H-892: The L19 prefill DoM correctness signal is dominated by "stiff-mode" (high-eigenvalue) principal components, indicating it captures optimization structure rather than generalization geometry
+**Priority:** HIGH
+**Motivated by:** 2605.31175 + F-2
+**Test:** Spectral elbow partitioning of PCA eigenvalues → separate correctness probes on stiff vs flat PCs. If stiff AUROC > 0.70 and flat AUROC < 0.60, the optimization-structure explanation dominates.
+**Requires:** CPU, cached L19 prefill activations, cached PCA eigenvalues
+**Would change:** If confirmed, F-2's interpretation shifts from "model encodes correctness in a geometric direction" to "dominant variance captures optimization rigidity, and correctness correlates with input difficulty." If rejected (flat modes carry signal), F-2's geometric interpretation strengthens.
+**Blocks:** nothing
+
+### H-893: Per-layer spectral concentration (cumulative energy at elbow-k) is uniform across Qwen-2.5-1.5B layers, and L19's spectral gap is not an outlier
+**Priority:** MEDIUM
+**Motivated by:** 2605.31175 + H-743
+**Test:** Compute spectral elbow for each of 28 layers. If L19's gap ratio is within 1σ of the mean, H-743 is weakened.
+**Requires:** CPU, per-layer cached activations (L19 available; others may need lightweight extraction)
+**Would change:** If confirmed, need an alternative explanation for why L19 is special (not spectral gap). If rejected, H-743 holds and DiReCT's universal-concentration assumption doesn't apply to activation space.
+**Blocks:** H-743
+
+---
+
+
+### H-894: The cov-spectrum probe's AUROC advantage (0.7928 vs DoM 0.7731) is explained by implicit multi-hyperplane encoding
+**Priority:** MEDIUM
+**Motivated by:** 2605.28501 + F-2 + FE881 (cov-spectrum result)
+**Test:** Run P11-FE1210 (BIC sweep). If K_BIC > 1 and multi-hyperplane AUROC ≈ 0.79, the cov-spectrum advantage is explained by eigenvalue features capturing projections onto multiple hyperplane normals. If K_BIC = 1, reject this hypothesis.
+**Requires:** CPU, cached L19 activations, PCA eigenvectors
+**Would change:** Interpretation of F-2 (single vs multi-direction); mechanistic understanding of cov-spectrum probe
 **Blocks:** nothing
 
 ---
