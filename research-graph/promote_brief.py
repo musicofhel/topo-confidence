@@ -820,6 +820,31 @@ def main() -> None:
     print("\nstep 8: set Paper status='graphed'")
     set_paper_graphed(arxiv_id, args.dry_run)
 
+    print("\nstep 8b: embed Paper for vector search")
+    if not args.dry_run:
+        try:
+            from backfill_embeddings import embed_node
+            drv = GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
+            with drv.session() as s:
+                row = s.run(
+                    "MATCH (p:Paper {arxiv_id: $a}) "
+                    "RETURN p.title AS title, p.relevance_note AS note",
+                    a=arxiv_id,
+                ).single()
+            drv.close()
+            title = (row["title"] or "") if row else ""
+            note = (row["note"] or "") if row else ""
+            text = f"{title} {note}".strip()
+            if text:
+                embed_node("Paper", arxiv_id, text)
+                print(f"  ok embedded {arxiv_id} ({len(text)} chars)")
+            else:
+                print(f"  skipped — no text for {arxiv_id}")
+        except Exception as e:
+            print(f"  WARNING: embedding skipped for {arxiv_id}: {e}")
+    else:
+        print(f"  Would embed Paper {arxiv_id}")
+
     if not args.dry_run:
         try:
             from datetime import datetime as _dt

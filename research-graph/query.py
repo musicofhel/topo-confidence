@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 import textwrap
 from pathlib import Path
@@ -766,6 +767,600 @@ def cmd_watchlist(_args) -> None:
             print(f"      repo: {r['repo_url']}")
 
 
+# ---------------------------------------------------------------------------
+# RAG: Semantic retrieval (Phase 2)
+# ---------------------------------------------------------------------------
+
+_embedding_model = None
+
+
+def _get_embedding_model():
+    global _embedding_model
+    if _embedding_model is None:
+        from sentence_transformers import SentenceTransformer
+        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _embedding_model
+
+
+def _embed_query(query: str) -> list[float]:
+    model = _get_embedding_model()
+    return model.encode(query, normalize_embeddings=True).tolist()
+
+
+def _path_paper_vec(query_vec: list[float], limit: int = 20) -> list[tuple[str, str, int]]:
+    rows = _run(
+        """
+        CALL db.index.vector.queryNodes('paper_embedding_idx', $limit, $vec)
+        YIELD node, score
+        RETURN 'Paper' AS label, node.arxiv_id AS id, score
+        ORDER BY score DESC, node.arxiv_id ASC
+        """,
+        vec=query_vec, limit=limit,
+    )
+    return [("Paper", r["id"], i) for i, r in enumerate(rows)]
+
+
+def _path_finding_vec(query_vec: list[float], limit: int = 10) -> list[tuple[str, str, int]]:
+    rows = _run(
+        """
+        CALL db.index.vector.queryNodes('finding_embedding_idx', $limit, $vec)
+        YIELD node, score
+        RETURN 'Finding' AS label, node.id AS id, score
+        ORDER BY score DESC, node.id ASC
+        """,
+        vec=query_vec, limit=limit,
+    )
+    return [("Finding", r["id"], i) for i, r in enumerate(rows)]
+
+
+def _path_finding_ft(query: str, limit: int = 10) -> list[tuple[str, str, int]]:
+    safe = _escape_lucene(query)
+    rows = _run(
+        """
+        CALL db.index.fulltext.queryNodes('finding_claims', $q)
+        YIELD node, score
+        RETURN 'Finding' AS label, node.id AS id, score
+        ORDER BY score DESC, node.id ASC
+        LIMIT $limit
+        """,
+        q=safe, limit=limit,
+    )
+    return [("Finding", r["id"], i) for i, r in enumerate(rows)]
+
+
+def _path_paper_ft(query: str, limit: int = 20) -> list[tuple[str, str, int]]:
+    safe = _escape_lucene(query)
+    rows = _run(
+        """
+        CALL db.index.fulltext.queryNodes('paper_relevance', $q)
+        YIELD node, score
+        RETURN 'Paper' AS label, node.arxiv_id AS id, score
+        ORDER BY score DESC, node.arxiv_id ASC
+        LIMIT $limit
+        """,
+        q=safe, limit=limit,
+    )
+    return [("Paper", r["id"], i) for i, r in enumerate(rows)]
+
+
+def _path_tag_match(query: str, limit: int = 15) -> list[tuple[str, str, int]]:
+    terms = [t.lower().replace(" ", "_") for t in query.split() if len(t) > 2]
+    if not terms:
+        return []
+    results: list[tuple[str, str, float]] = []
+    for term in terms:
+        rows = _run(
+            """
+            MATCH (t:Tag) WHERE toLower(t.name) CONTAINS $term
+            MATCH (n)-[:TAGGED]->(t)
+            WHERE (n:Paper OR n:Finding)
+            WITH CASE
+                WHEN n:Paper THEN 'Paper'
+                WHEN n:Finding THEN 'Finding'
+            END AS label,
+            CASE
+                WHEN n:Paper THEN n.arxiv_id
+                WHEN n:Finding THEN n.id
+            END AS id,
+            1.0 AS score
+            RETURN DISTINCT label, id, score
+            """,
+            term=term,
+        )
+        for r in rows:
+            results.append((r["label"], r["id"], r["score"]))
+
+    seen: dict[str, int] = {}
+    for label, nid, _ in results:
+        key = f"{label}||{nid}"
+        seen[key] = seen.get(key, 0) + 1
+
+    ranked = sorted(seen.items(), key=lambda x: (-x[1], x[0]))
+    out = []
+    for key, _ in ranked[:limit]:
+        label, nid = key.split("||", 1)
+        out.append((label, nid, len(out)))
+    return out
+
+
+def _path_dataset_match(query: str, limit: int = 10) -> list[tuple[str, str, int]]:
+    terms = [t for t in query.split() if len(t) > 2]
+    if not terms:
+        return []
+    results = []
+    for term in terms:
+        rows = _run(
+            """
+            MATCH (d:Dataset)-[:USED_IN]->(p:Paper)
+            WHERE toLower(coalesce(d.display_name, d.name)) CONTAINS toLower($term)
+            RETURN DISTINCT 'Paper' AS label, p.arxiv_id AS id
+            ORDER BY p.arxiv_id
+            """,
+            term=term,
+        )
+        for r in rows:
+            results.append((r["label"], r["id"]))
+
+    seen: dict[str, int] = {}
+    for label, nid in results:
+        key = f"{label}||{nid}"
+        seen[key] = seen.get(key, 0) + 1
+
+    ranked = sorted(seen.items(), key=lambda x: (-x[1], x[0]))
+    out = []
+    for key, _ in ranked[:limit]:
+        label, nid = key.split("||", 1)
+        out.append((label, nid, len(out)))
+    return out
+
+
+def _path_finding_neighborhood(
+    finding_results: list[tuple[str, str, int]], limit: int = 15,
+) -> list[tuple[str, str, int]]:
+    finding_ids = [nid for label, nid, _ in finding_results if label == "Finding"]
+    if not finding_ids:
+        return []
+    rows = _run(
+        """
+        UNWIND $fids AS fid
+        MATCH (f:Finding {id: fid})-[r]->(p:Paper)
+        WHERE type(r) IN ['CORROBORATED_BY','CONTRADICTED_BY','EXTENDED_BY','METHOD_DIFFERS','EXPLAINS']
+        RETURN DISTINCT 'Paper' AS label, p.arxiv_id AS id, type(r) AS rel
+        ORDER BY p.arxiv_id
+        """,
+        fids=finding_ids,
+    )
+    out = []
+    for r in rows[:limit]:
+        out.append((r["label"], r["id"], len(out)))
+    return out
+
+
+DEFAULT_WEIGHTS = {
+    "paper-vec": 2.0,
+    "finding-vec": 2.0,
+    "finding-ft": 1.5,
+    "paper-ft": 2.5,
+    "tag-match": 1.5,
+    "dataset-match": 2.0,
+    "finding-neighborhood": 1.0,
+}
+
+RESCUE_PATHS = {"tag-match", "dataset-match", "paper-ft", "finding-ft"}
+
+
+CORE_PATHS = set(DEFAULT_WEIGHTS.keys())
+
+
+def rrf_merge(
+    path_results: dict[str, list[tuple[str, str, int]]],
+    weights: dict[str, float] | None = None,
+    rescue_paths: set[str] | None = None,
+    k: int = 60,
+    top_n: int = 10,
+) -> list[dict]:
+    if weights is None:
+        weights = DEFAULT_WEIGHTS
+    if rescue_paths is None:
+        rescue_paths = RESCUE_PATHS
+
+    scores: dict[str, float] = {}
+    appearances: dict[str, set[str]] = {}
+
+    for path_id, results in sorted(path_results.items()):
+        w = weights.get(path_id, 1.0)
+        for label, node_id, rank in results:
+            key = f"{label}||{node_id}"
+            scores[key] = scores.get(key, 0.0) + w / (k + rank)
+            appearances.setdefault(key, set()).add(path_id)
+
+    RESCUE_BOOST = 0.04
+    RESCUE_MAX_RANK = 3
+    for path_id, results in sorted(path_results.items()):
+        if path_id not in rescue_paths:
+            continue
+        for label, node_id, rank in results:
+            key = f"{label}||{node_id}"
+            core_count = len(appearances.get(key, set()) & CORE_PATHS)
+            if core_count <= 1 and rank <= RESCUE_MAX_RANK:
+                scores[key] += RESCUE_BOOST
+
+    ranked = sorted(scores.items(), key=lambda x: (-round(x[1], 10), x[0]))
+
+    # Type-balanced output: reserve slots for findings so papers don't drown them.
+    # With 14 findings vs 308 papers, pure RRF ranking is paper-dominated.
+    FINDING_RESERVE = 3
+    findings = []
+    papers = []
+    for key, score in ranked:
+        label, node_id = key.split("||", 1)
+        entry = {"label": label, "id": node_id, "score": round(score, 10)}
+        if label == "Finding" and len(findings) < FINDING_RESERVE:
+            findings.append(entry)
+        elif label != "Finding" or len(findings) >= FINDING_RESERVE:
+            papers.append(entry)
+
+    paper_slots = top_n - min(len(findings), FINDING_RESERVE)
+    out = papers[:paper_slots] + findings
+    out.sort(key=lambda x: (-x["score"], x["label"], x["id"]))
+    return out[:top_n]
+
+
+# ── LLM enhancements (Phase 3) ──────────────────────────────────────────────
+
+HYDE_PROMPT = """\
+Write a short factual paragraph (3-4 sentences) as if you are a research note \
+in the topo-confidence project about residual-stream geometry and LLM \
+correctness prediction. Reference specific concepts: hidden-state geometry, \
+DoM (difference-of-means direction), AUROC, participation ratio, covariance \
+spectrum, persistent homology, steering vectors, selective prediction, \
+MATH-500 benchmark. Be concrete about methods and results. Do not restate \
+the question."""
+
+CONCEPT_EXPAND_PROMPT = """\
+Given the question below about the topo-confidence research project (LLM \
+correctness prediction via residual-stream geometry), generate 8-10 related \
+technical terms that might appear in paper titles, finding claims, or tag \
+names. Output one term per line, lowercase, hyphenated. No bullets or numbers."""
+
+
+def _call_claude(system: str, user: str, timeout: int = 30) -> str | None:
+    env = os.environ.copy()
+    env.pop("CLAUDECODE", None)
+    prompt = f"{system}\n\n{user}"
+    try:
+        result = subprocess.run(
+            ["claude", "-p", prompt],
+            capture_output=True, text=True, timeout=timeout, env=env,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    return None
+
+
+def _hyde_embed(query: str, no_cache: bool = False) -> list[float] | None:
+    """Generate hypothetical document and average its embedding with query."""
+    from llm_cache import cache_get, cache_set
+
+    cache_key = query
+    if not no_cache:
+        cached = cache_get("hyde", cache_key)
+        if cached is not None:
+            model = _get_embedding_model()
+            import numpy as np
+            q_vec = model.encode(query, normalize_embeddings=True)
+            h_vec = model.encode(cached, normalize_embeddings=True)
+            combined = q_vec + h_vec
+            norm = np.linalg.norm(combined)
+            if norm > 0:
+                combined = combined / norm
+            return combined.tolist()
+
+    text = _call_claude(HYDE_PROMPT, query)
+    if not text:
+        return None
+
+    if not no_cache:
+        cache_set("hyde", cache_key, text)
+
+    model = _get_embedding_model()
+    import numpy as np
+    q_vec = model.encode(query, normalize_embeddings=True)
+    h_vec = model.encode(text, normalize_embeddings=True)
+    combined = q_vec + h_vec
+    norm = np.linalg.norm(combined)
+    if norm > 0:
+        combined = combined / norm
+    return combined.tolist()
+
+
+def _concept_expand(query: str, no_cache: bool = False) -> list[str]:
+    """Generate related technical terms for broader tag/fulltext search."""
+    from llm_cache import cache_get, cache_set
+
+    cache_key = query
+    if not no_cache:
+        cached = cache_get("concept-expand", cache_key)
+        if cached is not None:
+            return [t.strip() for t in cached.split("\n") if t.strip()]
+
+    text = _call_claude(CONCEPT_EXPAND_PROMPT, query)
+    if not text:
+        return []
+
+    if not no_cache:
+        cache_set("concept-expand", cache_key, text)
+
+    return [t.strip() for t in text.split("\n") if t.strip()]
+
+
+def _rerank(query: str, results: list[dict], no_cache: bool = False) -> list[dict]:
+    """Rerank top results using Claude."""
+    from llm_cache import cache_get, cache_set
+
+    if len(results) <= 1:
+        return results
+
+    sorted_keys = sorted(f"{r['label']}||{r['id']}" for r in results)
+    cache_key = f"{query}|||{','.join(sorted_keys)}"
+
+    if not no_cache:
+        cached = cache_get("rerank", cache_key)
+        if cached is not None:
+            import json as _json
+            try:
+                order = _json.loads(cached)
+                id_map = {f"{r['label']}||{r['id']}": r for r in results}
+                reranked = [id_map[k] for k in order if k in id_map]
+                remaining = [r for r in results if f"{r['label']}||{r['id']}" not in set(order)]
+                return reranked + remaining
+            except (ValueError, KeyError):
+                pass
+
+    snippets = []
+    for i, r in enumerate(results):
+        snippets.append(f"{i+1}. [{r['label']}] {r['id']} (score={r['score']:.4f})")
+
+    system = (
+        "You are reranking search results for the topo-confidence research project. "
+        "Given the query and numbered results, return ONLY the numbers in order of "
+        "relevance, one per line. Most relevant first. No explanation."
+    )
+    user = f"Query: {query}\n\nResults:\n" + "\n".join(snippets)
+    text = _call_claude(system, user)
+    if not text:
+        return results
+
+    try:
+        indices = []
+        for line in text.strip().split("\n"):
+            line = line.strip().rstrip(".")
+            if line.isdigit():
+                idx = int(line) - 1
+                if 0 <= idx < len(results) and idx not in indices:
+                    indices.append(idx)
+        if not indices:
+            return results
+        reranked = [results[i] for i in indices]
+        remaining = [results[i] for i in range(len(results)) if i not in set(indices)]
+        reranked.extend(remaining)
+
+        if not no_cache:
+            order = [f"{r['label']}||{r['id']}" for r in reranked]
+            import json as _json
+            cache_set("rerank", cache_key, _json.dumps(order))
+
+        return reranked
+    except (ValueError, IndexError):
+        return results
+
+
+def semantic_search(
+    query: str,
+    weights: dict[str, float] | None = None,
+    top_n: int = 10,
+    hyde: bool = False,
+    concept_expand: bool = False,
+    rerank: bool = False,
+    no_cache: bool = False,
+) -> list[dict]:
+    """Run all 7 retrieval paths and RRF-merge results."""
+    query_vec = _embed_query(query)
+
+    path_results: dict[str, list[tuple[str, str, int]]] = {}
+    path_results["paper-vec"] = _path_paper_vec(query_vec)
+    path_results["finding-vec"] = _path_finding_vec(query_vec)
+
+    if hyde:
+        hyde_vec = _hyde_embed(query, no_cache=no_cache)
+        if hyde_vec:
+            path_results["paper-vec-hyde"] = _path_paper_vec(hyde_vec)
+            path_results["finding-vec-hyde"] = _path_finding_vec(hyde_vec)
+            if weights is None:
+                weights = dict(DEFAULT_WEIGHTS)
+            weights.setdefault("paper-vec-hyde", 1.0)
+            weights.setdefault("finding-vec-hyde", 1.0)
+    path_results["finding-ft"] = _path_finding_ft(query)
+    path_results["paper-ft"] = _path_paper_ft(query)
+    path_results["tag-match"] = _path_tag_match(query)
+    path_results["dataset-match"] = _path_dataset_match(query)
+
+    if concept_expand:
+        terms = _concept_expand(query, no_cache=no_cache)
+        if terms:
+            expanded_query = query + " " + " ".join(terms)
+            expand_tag = _path_tag_match(expanded_query, limit=8)
+            expand_ft_paper = _path_paper_ft(expanded_query, limit=10)
+            expand_ft_finding = _path_finding_ft(expanded_query, limit=5)
+            path_results["expand-tag"] = expand_tag
+            path_results["expand-ft-paper"] = expand_ft_paper
+            path_results["expand-ft-finding"] = expand_ft_finding
+            if weights is None:
+                weights = dict(DEFAULT_WEIGHTS)
+            weights.setdefault("expand-tag", 0.25)
+            weights.setdefault("expand-ft-paper", 0.25)
+            weights.setdefault("expand-ft-finding", 0.25)
+
+    finding_seed = path_results["finding-vec"] + path_results["finding-ft"]
+    path_results["finding-neighborhood"] = _path_finding_neighborhood(finding_seed)
+
+    results = rrf_merge(path_results, weights=weights, top_n=top_n)
+
+    if rerank:
+        results = _rerank(query, results, no_cache=no_cache)
+
+    return results
+
+
+# ── Context assembly ────────────────────────────────────────────────────────
+
+def _fetch_paper_context(arxiv_id: str) -> dict[str, Any]:
+    rows = _run(
+        """
+        MATCH (p:Paper {arxiv_id: $a})
+        OPTIONAL MATCH (p)<-[r]-(f:Finding)
+        WITH p, collect({finding: f.id, rel: type(r)}) AS edges
+        OPTIONAL MATCH (p)-[:TAGGED]->(t:Tag)
+        WITH p, edges, collect(t.name) AS tags
+        RETURN p.arxiv_id AS arxiv_id, p.title AS title, p.year AS year,
+               p.relevance_note AS relevance_note, p.forge_score AS forge_score,
+               edges, tags
+        """,
+        a=arxiv_id,
+    )
+    return dict(rows[0]) if rows else {}
+
+
+def _fetch_finding_context(finding_id: str) -> dict[str, Any]:
+    rows = _run(
+        """
+        MATCH (f:Finding {id: $id})
+        OPTIONAL MATCH (f)-[r]->(p:Paper)
+        WHERE type(r) IN ['CORROBORATED_BY','CONTRADICTED_BY','EXTENDED_BY','METHOD_DIFFERS','EXPLAINS']
+        WITH f, collect({arxiv_id: p.arxiv_id, rel: type(r)}) AS paper_edges
+        RETURN f.id AS id, f.claim AS claim, f.status AS status,
+               f.strength AS strength,
+               f.strongest_counterargument AS counterargument,
+               paper_edges
+        """,
+        id=finding_id,
+    )
+    return dict(rows[0]) if rows else {}
+
+
+def format_context(results: list[dict]) -> str:
+    """Build context string for LLM synthesis."""
+    parts = []
+    for i, r in enumerate(results):
+        rank = i + 1
+        if r["label"] == "Paper":
+            ctx = _fetch_paper_context(r["id"])
+            if not ctx:
+                continue
+            title = ctx.get("title") or "(untitled)"
+            year = ctx.get("year") or "?"
+            note = ctx.get("relevance_note") or ""
+            tags = ", ".join(ctx.get("tags") or [])
+            fs = ctx.get("forge_score") or "?"
+            edges = ctx.get("edges") or []
+            edge_strs = [f"{e['rel']} ← {e['finding']}" for e in edges if e.get("finding")]
+            edge_line = " | ".join(edge_strs) if edge_strs else "none"
+            parts.append(
+                f"[{rank}] Paper: \"{title}\" ({ctx['arxiv_id']}, {year})\n"
+                f"    Relevance: {note}\n"
+                f"    Tags: {tags}\n"
+                f"    ForgeScore: {fs}\n"
+                f"    Edges: {edge_line}"
+            )
+        elif r["label"] == "Finding":
+            ctx = _fetch_finding_context(r["id"])
+            if not ctx:
+                continue
+            status = ctx.get("status") or "?"
+            strength = ctx.get("strength") or "?"
+            claim = ctx.get("claim") or ""
+            counter = ctx.get("counterargument") or ""
+            edges = ctx.get("paper_edges") or []
+            edge_strs = [f"{e['rel']} → {e['arxiv_id']}" for e in edges if e.get("arxiv_id")]
+            edge_line = ", ".join(edge_strs) if edge_strs else "none"
+            parts.append(
+                f"[{rank}] Finding {ctx['id']} [{status}/{strength}]:\n"
+                f"    Claim: {claim}\n"
+                f"    Strongest counterargument: {counter}\n"
+                f"    Paper edges: {edge_line}"
+            )
+    return "\n\n".join(parts)
+
+
+SYSTEM_PROMPT = """\
+You are answering questions about the topo-confidence research project, which \
+investigates whether residual-stream geometry predicts LLM correctness.
+
+The context below contains Findings (F-N: established results with evidence \
+and counterarguments) and Papers (arxiv papers linked to findings via typed \
+edges like CORROBORATED_BY, CONTRADICTED_BY, EXTENDED_BY).
+
+When answering:
+- Cite specific finding IDs (F-2, F-7, etc.) and arxiv IDs
+- Distinguish between ACTIVE, INVALIDATED, and SUPERSEDED findings
+- Note the strength level (STRONG, MODERATE, PRELIMINARY)
+- If a finding has a strongest_counterargument, mention it
+- Reference specific AUROC values, coverage numbers, and benchmarks"""
+
+
+def llm_synthesize(query: str, context: str) -> str:
+    """Send context + query to Claude for synthesis."""
+    env = os.environ.copy()
+    env.pop("CLAUDECODE", None)
+    prompt = f"{SYSTEM_PROMPT}\n\n---\nContext:\n{context}\n---\nQuestion: {query}"
+    result = subprocess.run(
+        ["claude", "-p", prompt],
+        capture_output=True, text=True, timeout=60, env=env,
+    )
+    if result.returncode != 0:
+        return f"LLM synthesis failed: {result.stderr[:200]}"
+    return result.stdout.strip()
+
+
+def cmd_semantic(args) -> None:
+    results = semantic_search(
+        args.query, top_n=args.top_n,
+        hyde=args.hyde, concept_expand=args.expand,
+        rerank=args.rerank, no_cache=args.no_cache,
+    )
+    if args.json:
+        print(json.dumps(results, indent=2))
+        return
+    print(f"\nSemantic search: {args.query!r}\n")
+    for r in results:
+        print(f"  [{r['label']:8}] {r['id']:<16} score={r['score']:.6f}")
+    print(f"\n  {len(results)} results")
+
+
+def cmd_ask(args) -> None:
+    results = semantic_search(
+        args.query, top_n=args.top_n,
+        hyde=args.hyde, concept_expand=args.expand,
+        rerank=args.rerank, no_cache=args.no_cache,
+    )
+    context = format_context(results)
+    if args.skip_llm:
+        print(context)
+        return
+    if args.json:
+        answer = llm_synthesize(args.query, context)
+        print(json.dumps({"query": args.query, "answer": answer, "sources": results}, indent=2))
+        return
+    print(f"\nQuestion: {args.query}\n")
+    print("Sources:")
+    for r in results:
+        print(f"  [{r['label']:8}] {r['id']}")
+    answer = llm_synthesize(args.query, context)
+    print(f"\n{answer}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="topo-confidence research graph CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -851,6 +1446,27 @@ def main() -> None:
     s.add_argument("--reason", default=None,
                    help="Optional rejection reason recorded on the node.")
     s.set_defaults(func=cmd_reject)
+
+    s = sub.add_parser("semantic", help="Semantic search — vector + fulltext + graph, RRF merged")
+    s.add_argument("query")
+    s.add_argument("--json", action="store_true", help="Machine-readable JSON output")
+    s.add_argument("--top-n", type=int, default=10)
+    s.add_argument("--hyde", action="store_true", help="Enable HyDE (hypothetical document embedding)")
+    s.add_argument("--expand", action="store_true", help="Enable concept expansion")
+    s.add_argument("--rerank", action="store_true", help="Enable LLM reranking")
+    s.add_argument("--no-cache", action="store_true", help="Skip LLM cache reads and writes")
+    s.set_defaults(func=cmd_semantic)
+
+    s = sub.add_parser("ask", help="Semantic search + LLM synthesis")
+    s.add_argument("query")
+    s.add_argument("--skip-llm", action="store_true", help="Retrieval only, no LLM")
+    s.add_argument("--json", action="store_true", help="Machine-readable JSON output")
+    s.add_argument("--top-n", type=int, default=10)
+    s.add_argument("--hyde", action="store_true", help="Enable HyDE (hypothetical document embedding)")
+    s.add_argument("--expand", action="store_true", help="Enable concept expansion")
+    s.add_argument("--rerank", action="store_true", help="Enable LLM reranking")
+    s.add_argument("--no-cache", action="store_true", help="Skip LLM cache reads and writes")
+    s.set_defaults(func=cmd_ask)
 
     args = parser.parse_args()
     args.func(args)

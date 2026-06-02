@@ -44,6 +44,22 @@ CREATE INDEX paper_year IF NOT EXISTS
 CREATE INDEX paper_status IF NOT EXISTS
   FOR (p:Paper) ON (p.status);
 
+// ---- Vector indexes (384-dim all-MiniLM-L6-v2) ---------------------
+
+CREATE VECTOR INDEX paper_embedding_idx IF NOT EXISTS
+  FOR (p:Paper) ON (p.embedding)
+  OPTIONS {indexConfig: {
+    `vector.dimensions`: 384,
+    `vector.similarity_function`: 'cosine'
+  }};
+
+CREATE VECTOR INDEX finding_embedding_idx IF NOT EXISTS
+  FOR (f:Finding) ON (f.embedding)
+  OPTIONS {indexConfig: {
+    `vector.dimensions`: 384,
+    `vector.similarity_function`: 'cosine'
+  }};
+
 // ---- Fulltext indexes for RAG --------------------------------------
 
 CREATE FULLTEXT INDEX finding_claims IF NOT EXISTS
