@@ -57,7 +57,22 @@ cd ~/topo-confidence/research-graph && python bridge.py resolve <arxiv-id>
 
 Key files: `research-graph/seed.py` (authoritative seed data),
 `research-graph/query.py` (CLI), `research-graph/bridge.py` (link-forge resolver).
-Start with: `cd research-graph && docker compose up -d`.
+
+### Starting everything
+
+The unified startup script brings up the full pipeline — link-forge, both Neo4j instances, node-graph-substrate, and autopilot daemons:
+
+```bash
+bash ~/start-research-pipeline.sh              # everything
+bash ~/start-research-pipeline.sh --status     # check what's running
+bash ~/start-research-pipeline.sh --no-dashboard   # skip NGS
+bash ~/start-research-pipeline.sh --no-bot         # skip link-forge bot
+bash ~/start-research-pipeline.sh --no-autopilot   # skip autopilot daemons
+bash ~/start-research-pipeline.sh --budget=20      # autopilot daily LLM call cap (default 15)
+bash ~/start-research-pipeline.sh --poll=120        # autopilot poll interval seconds (default 60)
+```
+
+**Manual start (research-graph Neo4j only):** `cd research-graph && docker compose up -d`.
 
 ### Next experiments
 
@@ -127,6 +142,35 @@ isolation) to defend against the confirmation-bias failure mode documented in
 Ríos-García `2604.18805` (68% in agent traces). Default context is headlines-only;
 the subagent must explicitly `Read` F-N bodies on demand and log them in the
 brief footer.
+
+### Autopilot daemon
+
+Three-phase daemon that runs triage → script generation → experiment execution autonomously. Each phase polls independently with its own budget and lock:
+
+```bash
+# PREFERRED — the unified startup script starts all 3 phases:
+bash ~/start-research-pipeline.sh
+
+# MANUAL — individual phases:
+cd ~/topo-confidence
+.venv/bin/python -m pipeline autopilot --phase triage --budget 20 --poll 60
+.venv/bin/python -m pipeline autopilot --phase scriptgen --budget 20 --poll 60
+.venv/bin/python -m pipeline autopilot --phase experiment --budget 15 --poll 60
+
+# Check status:
+.venv/bin/python -m pipeline autopilot-status
+bash ~/start-research-pipeline.sh --status
+```
+
+**Phase 1 (triage):** Polls `.autopilot/trigger` for arxiv IDs, spawns `claude -p` subagent per paper, writes brief to `research-graph/briefs/`, auto-promotes via `promote_brief.py` (flock-serialized). Creates `:FutureExperiment` nodes in Neo4j.
+
+**Phase 2 (scriptgen):** Picks up READY FutureExperiments that are local-runnable and scriptless. Generates `recompute_<fe_num>.py` from 3 exemplars, validates syntax + banned imports.
+
+**Phase 3 (experiment):** Executes scripted FEs, auto-commits results, classifies outcome (HIT ≥0.75 AUROC / NEAR_MISS ≥0.60 / NULL ≥0.52 / INCONCLUSIVE). HIT/NEAR_MISS get follow-up proposals.
+
+**Budget:** Default 15 LLM calls/day per phase. Failures quarantined after 2 retries. Logs at `.autopilot/daemon-{phase}.log`.
+
+**Feed:** Papers arrive from link-forge via Discord → bridge relevance check → `:Paper {status:'pending_triage'}` → trigger file. The bridge runs inside link-forge's processor and fires automatically for any arxiv URL.
 
 ## Smoke test
 
