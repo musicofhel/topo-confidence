@@ -883,7 +883,7 @@ def _path_tag_match(query: str, limit: int = 15) -> list[tuple[str, str, int]]:
     return out
 
 
-def _path_dataset_match(query: str, limit: int = 10) -> list[tuple[str, str, int]]:
+def _path_dataset_match(query: str, limit: int = 25) -> list[tuple[str, str, int]]:
     terms = [t for t in query.split() if len(t) > 2]
     if not terms:
         return []

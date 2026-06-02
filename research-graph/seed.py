@@ -466,7 +466,7 @@ PAPERS: list[dict[str, Any]] = [
 
     # Steering
     {"arxiv_id": "2306.03341", "title": "Inference-Time Intervention (ITI)", "year": 2023, "repo_url": None,
-     "relevance_note": "Canonical activation steering with mass-mean direction. Reference baseline our orthogonality finding builds against."},
+     "relevance_note": "Canonical activation steering with mass-mean direction for truthfulness (TruthfulQA doubles). Reference baseline our orthogonality finding builds against."},
     {"arxiv_id": "2510.04309", "title": "PID Steering", "year": 2025, "repo_url": None,
      "relevance_note": "Proportional-integral-derivative controller for steering — directly addresses the rotation problem."},
     {"arxiv_id": "2604.19018", "title": "LQR Steering", "year": 2026, "repo_url": None,
@@ -538,7 +538,7 @@ PAPERS: list[dict[str, Any]] = [
 
     # Prefill prediction
     {"arxiv_id": "2509.12886", "title": "The LLM Already Knows (Zhu)", "year": 2025, "repo_url": None,
-     "relevance_note": "Initial hidden state predicts correctness on Qwen2.5-VL-7B — independent corroboration of F-2."},
+     "relevance_note": "Initial hidden state (prefill direction) predicts correctness on Qwen2.5-VL-7B — independent corroboration of F-2 prefill DoM finding."},
     {"arxiv_id": "2504.05419", "title": "Reasoning Models Know When They're Right", "year": 2025, "repo_url": "https://github.com/AngelaZZZ-611/reasoning_models_probing",
      "relevance_note": "Mid-trajectory probes at chunk boundaries get >0.9 AUROC on AIME — proposed extension to F-2."},
     {"arxiv_id": "2510.18147", "title": "LLMs Encode Problem Difficulty", "year": 2025, "repo_url": None,
@@ -706,7 +706,7 @@ PAPER_TAGS: dict[str, list[str]] = {
     "2604.05655": ["CoE", "breathing"],
     "2510.10494": ["CoE"],
     "2507.06087": ["CoE", "calibration"],
-    "2306.03341": ["steering", "linear_probing"],
+    "2306.03341": ["steering", "linear_probing", "activation-steering", "truthfulness"],
     "2510.04309": ["steering", "direction_rotation"],
     "2604.19018": ["steering"],
     "2505.18706": ["steering"],
