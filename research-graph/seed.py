@@ -466,7 +466,7 @@ PAPERS: list[dict[str, Any]] = [
 
     # Steering
     {"arxiv_id": "2306.03341", "title": "Inference-Time Intervention (ITI)", "year": 2023, "repo_url": None,
-     "relevance_note": "Canonical activation steering with mass-mean direction for truthfulness (TruthfulQA doubles). Reference baseline our orthogonality finding builds against."},
+     "relevance_note": "Canonical activation steering/editing with mass-mean direction for truthfulness and honesty (TruthfulQA doubles). Reference baseline our orthogonality finding builds against."},
     {"arxiv_id": "2510.04309", "title": "PID Steering", "year": 2025, "repo_url": None,
      "relevance_note": "Proportional-integral-derivative controller for steering — directly addresses the rotation problem."},
     {"arxiv_id": "2604.19018", "title": "LQR Steering", "year": 2026, "repo_url": None,
@@ -546,9 +546,9 @@ PAPERS: list[dict[str, Any]] = [
 
     # Length
     {"arxiv_id": "2310.03716", "title": "A Long Way to Go (length in RLHF)", "year": 2024, "repo_url": None,
-     "relevance_note": "Length-only reward reproduces most RLHF gains — feature-level analogue of F-9."},
+     "relevance_note": "Length-only reward reproduces most RLHF gains — output verbosity biases reward model scores. Feature-level analogue of F-9."},
     {"arxiv_id": "2505.00127", "title": "Between Underthinking and Overthinking", "year": 2025, "repo_url": None,
-     "relevance_note": "Incorrect responses systematically longer — direct support for shorter=correct in F-9."},
+     "relevance_note": "Underthinking and overthinking in LLM reasoning — incorrect responses systematically longer. Direct support for shorter=correct in F-9."},
 
     # Linear representation
     {"arxiv_id": "2311.03658", "title": "Linear Representation Hypothesis", "year": 2023, "repo_url": "https://github.com/KihoPark/linear_rep_geometry",
@@ -706,7 +706,7 @@ PAPER_TAGS: dict[str, list[str]] = {
     "2604.05655": ["CoE", "breathing"],
     "2510.10494": ["CoE"],
     "2507.06087": ["CoE", "calibration"],
-    "2306.03341": ["steering", "linear_probing", "activation-steering", "truthfulness"],
+    "2306.03341": ["steering", "linear_probing", "activation-steering", "activation-editing", "truthfulness"],
     "2510.04309": ["steering", "direction_rotation"],
     "2604.19018": ["steering"],
     "2505.18706": ["steering"],

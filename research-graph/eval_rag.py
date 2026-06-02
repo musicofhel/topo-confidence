@@ -1,18 +1,24 @@
 """Eval harness for research-graph RAG.
 
-25 test cases across 4 categories:
+41 test cases across 8 categories:
   - finding (6): semantic search for project findings
   - paper (8): semantic search for arxiv papers
-  - cross-type (6): queries expecting both findings and papers
+  - cross-type (10): queries expecting both findings and papers
   - control (5): queries handled by existing query.py subcommands
+  - paraphrase (4): vocabulary robustness (rephrased existing queries)
+  - dataset (2): dataset-match path retrieval
+  - tag (2): tag-match path retrieval
+  - broad (2): broad/ambiguous queries
+  - long-tail (2): low-connectivity papers
 
 Modes:
   --mode fulltext-only    Baseline: per-type fulltext indexes only
   --mode vector+fulltext  Phase 2: 7-path retrieval + RRF merge
+  --mode full             All enhancements: HyDE + concept-expand + reranking
 
 Usage:
     python eval_rag.py --mode fulltext-only --out baseline
-    python eval_rag.py --mode vector+fulltext --out phase2
+    python eval_rag.py --mode full --out expanded
 """
 from __future__ import annotations
 
@@ -123,6 +129,50 @@ CASES: list[EvalCase] = [
     EvalCase(25, "Full neighborhood of F-2",
              [("Control", "subgraph")], "control",
              control_cmd="subgraph F-2"),
+
+    # ── Paraphrase (4) — vocabulary robustness ─────────────────────────────
+    EvalCase(26, "How does representation dimensionality change during step-by-step reasoning?",
+             [("Finding", "F-1")], "paraphrase"),
+    EvalCase(27, "How well does the confident-subset prediction strategy perform?",
+             [("Finding", "F-11")], "paraphrase"),
+    EvalCase(28, "Which paper uses activation editing to improve model honesty?",
+             [("Paper", "2306.03341")], "paraphrase"),
+    EvalCase(29, "Papers showing output verbosity biases reward model scores",
+             [("Paper", "2310.03716")], "paraphrase"),
+
+    # ── Dataset-path (2) — dataset-match retrieval ─────────────────────────
+    EvalCase(30, "Chain-of-embedding method evaluated on GSM8K",
+             [("Paper", "2410.13640")], "dataset"),
+    EvalCase(31, "Semantic entropy probes evaluated on TriviaQA",
+             [("Paper", "2406.15927")], "dataset"),
+
+    # ── Tag-path (2) — tag-match retrieval ─────────────────────────────────
+    EvalCase(32, "Sparse autoencoder features for LLM uncertainty",
+             [("Paper", "2604.19974")], "tag"),
+    EvalCase(33, "Linear representation hypothesis in neural networks",
+             [("Paper", "2311.03658")], "tag"),
+
+    # ── Cross-type / neighborhood (4) ──────────────────────────────────────
+    EvalCase(34, "CoE correctness prediction compared to semantic entropy probes",
+             [("Finding", "F-6"), ("Paper", "2406.15927")], "cross-type"),
+    EvalCase(35, "What work extends the DoM rotation finding?",
+             [("Finding", "F-3"), ("Paper", "2510.04309")], "cross-type"),
+    EvalCase(36, "What explains representation dimensionality changes during generation?",
+             [("Finding", "F-1"), ("Paper", "2302.00294")], "cross-type"),
+    EvalCase(37, "What corroborates the output length confound finding?",
+             [("Finding", "F-9"), ("Paper", "2505.00127")], "cross-type"),
+
+    # ── Broad / ambiguous (2) ──────────────────────────────────────────────
+    EvalCase(38, "How can a model recognize when it will get the answer wrong?",
+             [("Finding", "F-2"), ("Finding", "F-11")], "broad"),
+    EvalCase(39, "Methods for probing truth in LLM representations",
+             [("Paper", "2310.06824"), ("Paper", "2311.03658")], "broad"),
+
+    # ── Long-tail (2) ──────────────────────────────────────────────────────
+    EvalCase(40, "Underthinking and overthinking in LLM reasoning",
+             [("Paper", "2505.00127")], "long-tail"),
+    EvalCase(41, "Semantic entropy probes for uncertainty estimation",
+             [("Paper", "2406.15927")], "long-tail"),
 ]
 
 
