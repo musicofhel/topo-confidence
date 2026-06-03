@@ -1,24 +1,20 @@
 """Eval harness for research-graph RAG.
 
-41 test cases across 8 categories:
-  - finding (6): semantic search for project findings
-  - paper (8): semantic search for arxiv papers
-  - cross-type (10): queries expecting both findings and papers
-  - control (5): queries handled by existing query.py subcommands
-  - paraphrase (4): vocabulary robustness (rephrased existing queries)
-  - dataset (2): dataset-match path retrieval
-  - tag (2): tag-match path retrieval
-  - broad (2): broad/ambiguous queries
-  - long-tail (2): low-connectivity papers
+41 hand-written test cases across 9 categories + optional synthetic cases.
 
 Modes:
   --mode fulltext-only    Baseline: per-type fulltext indexes only
   --mode vector+fulltext  Phase 2: 7-path retrieval + RRF merge
   --mode full             All enhancements: HyDE + concept-expand + reranking
 
+Synthetic eval:
+  --synthetic PATH        Load synthetic cases from JSON sidecar
+  --validate-synthetic    Run freshness check before eval, skip stale cases
+  --difficulty TIER       Filter to a specific difficulty tier
+
 Usage:
-    python eval_rag.py --mode fulltext-only --out baseline
     python eval_rag.py --mode full --out expanded
+    python eval_rag.py --mode full --out synth-run --synthetic eval/synthetic-v1.json
 """
 from __future__ import annotations
 
@@ -277,6 +273,7 @@ class CaseResult:
     misses: list[tuple[str, str]]
     precision: float
     mrr: float
+    difficulty: str = ""
 
 
 def evaluate_case(
@@ -376,7 +373,7 @@ class EvalReport:
         self.overall_mrr = round(all_mrr, 3)
 
 
-def print_report(report: EvalReport):
+def print_report(report: EvalReport, synthetic_report: EvalReport | None = None):
     print(f"\n{'='*70}")
     print(f"  Research-Graph RAG Eval — mode: {report.mode}")
     print(f"  {report.timestamp}")
@@ -399,8 +396,33 @@ def print_report(report: EvalReport):
     for cat, stats in sorted(report.by_category.items()):
         print(f"  {cat:<14} {stats['precision']:>10.3f} {stats['mrr']:>10.3f} {stats['count']:>7}")
     print(f"  {'-'*14} {'-'*10} {'-'*10} {'-'*7}")
-    print(f"  {'OVERALL':<14} {report.overall_precision:>10.3f} {report.overall_mrr:>10.3f} {len(report.cases):>7}")
+    print(f"  {'GOLDEN':<14} {report.overall_precision:>10.3f} {report.overall_mrr:>10.3f} {len(report.cases):>7}")
     print()
+
+    if synthetic_report and synthetic_report.cases:
+        print(f"  {'--- Synthetic ---':^46}")
+        print()
+        for c in synthetic_report.cases:
+            status = "PASS" if c.precision == 1.0 else "PARTIAL" if c.precision > 0 else "FAIL"
+            print(f"  [{c.case_id:4d}] [{status:7s}] {c.query[:56]}")
+            print(f"         precision: {c.precision:.3f}  MRR: {c.mrr:.3f}")
+
+        # Per-difficulty
+        diff_buckets: dict[str, list[CaseResult]] = {}
+        for c in synthetic_report.cases:
+            tier = getattr(c, "difficulty", "unknown")
+            diff_buckets.setdefault(tier, []).append(c)
+
+        print()
+        print(f"  {'Difficulty':<22} {'Precision':>10} {'MRR':>10} {'Cases':>7}")
+        print(f"  {'-'*22} {'-'*10} {'-'*10} {'-'*7}")
+        for tier, cases in sorted(diff_buckets.items()):
+            avg_p = sum(c.precision for c in cases) / len(cases)
+            avg_m = sum(c.mrr for c in cases) / len(cases)
+            print(f"  {tier:<22} {avg_p:>10.3f} {avg_m:>10.3f} {len(cases):>7}")
+        print(f"  {'-'*22} {'-'*10} {'-'*10} {'-'*7}")
+        print(f"  {'SYNTHETIC OVERALL':<22} {synthetic_report.overall_precision:>10.3f} {synthetic_report.overall_mrr:>10.3f} {len(synthetic_report.cases):>7}")
+        print()
 
 
 def save_report(report: EvalReport, name: str):
@@ -430,6 +452,55 @@ def save_report(report: EvalReport, name: str):
     print(f"  Saved: {path}")
 
 
+# ── Synthetic case loading ─────────────────────────────────────────────────
+
+def _load_synthetic_cases(
+    path: Path,
+    validate_freshness: bool = False,
+    difficulty_filter: str | None = None,
+) -> list[EvalCase]:
+    """Load synthetic cases from JSON, optionally filtering by freshness/difficulty."""
+    with open(path) as f:
+        data = json.load(f)
+
+    cases_data = data.get("cases", [])
+    fresh_ids: set[int] | None = None
+
+    if validate_freshness:
+        try:
+            from ragas_gen.freshness import check_freshness
+            from ragas_gen.schemas import SyntheticEvalSet
+            eval_set = SyntheticEvalSet(**data)
+            results = check_freshness(eval_set)
+            fresh_ids = {r.case_id for r in results if r.status == "FRESH"}
+            stale = [r for r in results if r.status != "FRESH"]
+            if stale:
+                print(f"  Freshness: {len(fresh_ids)} fresh, {len(stale)} stale/missing (skipped)")
+                for r in stale:
+                    print(f"    [{r.status:7s}] case {r.case_id}: {r.details}")
+        except Exception as e:
+            print(f"  Warning: freshness check failed: {e}")
+
+    eval_cases = []
+    for c in cases_data:
+        case_id = c["id"]
+        if fresh_ids is not None and case_id not in fresh_ids:
+            continue
+
+        difficulty = c.get("difficulty", "")
+        if difficulty_filter and difficulty != difficulty_filter:
+            continue
+
+        expected = [(e[0], e[1]) for e in c["expected"]]
+        eval_cases.append(EvalCase(
+            id=case_id,
+            query=c["query"],
+            expected=expected,
+            category=c.get("category", "synthetic"),
+        ))
+    return eval_cases
+
+
 # ── Main ────────────────────────────────────────────────────────────────────
 
 def main():
@@ -443,14 +514,22 @@ def main():
                         help="Comma-separated case IDs to run (default: all)")
     parser.add_argument("--no-cache", action="store_true",
                         help="Skip LLM cache reads and writes")
+    parser.add_argument("--synthetic", type=str, default=None,
+                        help="Path to synthetic eval set JSON")
+    parser.add_argument("--validate-synthetic", action="store_true",
+                        help="Run freshness check before eval, skip stale cases")
+    parser.add_argument("--difficulty", type=str, default=None,
+                        choices=["single-hop-exact", "single-hop-paraphrase", "multi-hop", "adversarial"],
+                        help="Filter synthetic cases to a difficulty tier")
     args = parser.parse_args()
 
     case_ids = None
     if args.cases:
         case_ids = {int(x) for x in args.cases.split(",")}
 
+    # Golden cases
     cases_to_run = [c for c in CASES if case_ids is None or c.id in case_ids]
-    print(f"\n  Running {len(cases_to_run)} cases in mode: {args.mode}\n")
+    print(f"\n  Running {len(cases_to_run)} golden cases in mode: {args.mode}\n")
 
     results = []
     t0 = time.time()
@@ -462,15 +541,52 @@ def main():
         print(f"  [{case.id:2d}] {status} ({elapsed:.1f}s) {case.query[:55]}")
         results.append(result)
 
+    # Synthetic cases
+    synthetic_results = []
+    if args.synthetic:
+        synth_path = Path(args.synthetic)
+        if not synth_path.is_absolute():
+            synth_path = ROOT / synth_path
+        if synth_path.exists():
+            synth_cases = _load_synthetic_cases(
+                synth_path,
+                validate_freshness=args.validate_synthetic,
+                difficulty_filter=args.difficulty,
+            )
+            print(f"\n  Running {len(synth_cases)} synthetic cases...\n")
+
+            # Load difficulty info for reporting
+            with open(synth_path) as f:
+                synth_data = json.load(f)
+            diff_by_id = {c["id"]: c.get("difficulty", "") for c in synth_data.get("cases", [])}
+
+            for case in synth_cases:
+                t_case = time.time()
+                result = evaluate_case(case, args.mode, no_cache=args.no_cache)
+                result.difficulty = diff_by_id.get(case.id, "")
+                elapsed = time.time() - t_case
+                status = "PASS" if result.precision == 1.0 else "FAIL"
+                print(f"  [{case.id:4d}] {status} ({elapsed:.1f}s) {case.query[:51]}")
+                synthetic_results.append(result)
+        else:
+            print(f"  Warning: synthetic file not found: {synth_path}")
+
     elapsed_total = time.time() - t0
 
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
     report = EvalReport(mode=args.mode, timestamp=ts, cases=results)
     report.compute_aggregates()
 
+    synth_report = None
+    if synthetic_results:
+        synth_report = EvalReport(mode=args.mode, timestamp=ts, cases=synthetic_results)
+        synth_report.compute_aggregates()
+
     print(f"\n  Total time: {elapsed_total:.1f}s")
-    print_report(report)
+    print_report(report, synth_report)
     save_report(report, args.out)
+    if synth_report:
+        save_report(synth_report, f"{args.out}-synthetic")
 
 
 if __name__ == "__main__":
