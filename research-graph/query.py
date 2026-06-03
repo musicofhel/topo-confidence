@@ -948,6 +948,8 @@ DEFAULT_WEIGHTS = {
 
 RESCUE_PATHS = {"tag-match", "dataset-match", "paper-ft", "finding-ft"}
 
+FINDING_RESERVE = 4
+
 
 CORE_PATHS = set(DEFAULT_WEIGHTS.keys())
 
@@ -987,9 +989,6 @@ def rrf_merge(
 
     ranked = sorted(scores.items(), key=lambda x: (-round(x[1], 10), x[0]))
 
-    # Type-balanced output: reserve slots for findings so papers don't drown them.
-    # With 14 findings vs 308 papers, pure RRF ranking is paper-dominated.
-    FINDING_RESERVE = 4
     findings = []
     papers = []
     for key, score in ranked:
@@ -1096,12 +1095,42 @@ def _concept_expand(query: str, no_cache: bool = False) -> list[str]:
     return [t.strip() for t in text.split("\n") if t.strip()]
 
 
-def _rerank(query: str, results: list[dict], no_cache: bool = False) -> list[dict]:
-    """Rerank top results using Claude."""
+def _fetch_rerank_context(results: list[dict]) -> dict[str, str]:
+    """Fetch titles/claims for reranker context."""
+    paper_ids = [r["id"] for r in results if r["label"] == "Paper"]
+    finding_ids = [r["id"] for r in results if r["label"] == "Finding"]
+    context: dict[str, str] = {}
+    if paper_ids:
+        rows = _run(
+            "UNWIND $ids AS aid "
+            "MATCH (p:Paper {arxiv_id: aid}) "
+            "RETURN p.arxiv_id AS id, p.title AS title, p.relevance_note AS note",
+            ids=paper_ids,
+        )
+        for r in rows:
+            parts = [r["title"] or ""]
+            if r["note"]:
+                parts.append(r["note"])
+            context[f"Paper||{r['id']}"] = " — ".join(p for p in parts if p)
+    if finding_ids:
+        rows = _run(
+            "UNWIND $ids AS fid "
+            "MATCH (f:Finding {id: fid}) "
+            "RETURN f.id AS id, f.claim AS claim",
+            ids=finding_ids,
+        )
+        for r in rows:
+            context[f"Finding||{r['id']}"] = r["claim"] or ""
+    return context
+
+
+def _rerank(query: str, results: list[dict], no_cache: bool = False,
+            final_n: int | None = None) -> list[dict]:
+    """Rerank top results using Claude, optionally trimming to final_n."""
     from llm_cache import cache_get, cache_set
 
     if len(results) <= 1:
-        return results
+        return results[:final_n] if final_n else results
 
     sorted_keys = sorted(f"{r['label']}||{r['id']}" for r in results)
     cache_key = f"{query}|||{','.join(sorted_keys)}"
@@ -1115,18 +1144,26 @@ def _rerank(query: str, results: list[dict], no_cache: bool = False) -> list[dic
                 id_map = {f"{r['label']}||{r['id']}": r for r in results}
                 reranked = [id_map[k] for k in order if k in id_map]
                 remaining = [r for r in results if f"{r['label']}||{r['id']}" not in set(order)]
-                return reranked + remaining
+                out = reranked + remaining
+                return out[:final_n] if final_n else out
             except (ValueError, KeyError):
                 pass
 
+    ctx = _fetch_rerank_context(results)
     snippets = []
     for i, r in enumerate(results):
-        snippets.append(f"{i+1}. [{r['label']}] {r['id']} (score={r['score']:.4f})")
+        key = f"{r['label']}||{r['id']}"
+        desc = ctx.get(key, "")
+        line = f"{i+1}. [{r['label']}] {r['id']}"
+        if desc:
+            line += f": {desc}"
+        snippets.append(line)
 
     system = (
-        "You are reranking search results for the topo-confidence research project. "
-        "Given the query and numbered results, return ONLY the numbers in order of "
-        "relevance, one per line. Most relevant first. No explanation."
+        "You are reranking search results for the topo-confidence research project "
+        "about residual-stream geometry and LLM correctness prediction. "
+        "Given the query and numbered results with descriptions, return ONLY the "
+        "numbers in order of relevance, one per line. Most relevant first. No explanation."
     )
     user = f"Query: {query}\n\nResults:\n" + "\n".join(snippets)
     text = _call_claude(system, user)
@@ -1152,9 +1189,12 @@ def _rerank(query: str, results: list[dict], no_cache: bool = False) -> list[dic
             import json as _json
             cache_set("rerank", cache_key, _json.dumps(order))
 
-        return reranked
+        return reranked[:final_n] if final_n else reranked
     except (ValueError, IndexError):
-        return results
+        return results[:final_n] if final_n else results
+
+
+RERANK_OVER_RETRIEVE = 3
 
 
 def semantic_search(
@@ -1206,10 +1246,22 @@ def semantic_search(
     finding_seed = path_results["finding-vec"] + path_results["finding-ft"]
     path_results["finding-neighborhood"] = _path_finding_neighborhood(finding_seed)
 
-    results = rrf_merge(path_results, weights=weights, top_n=top_n)
+    merge_n = top_n + RERANK_OVER_RETRIEVE if rerank else top_n
+    results = rrf_merge(path_results, weights=weights, top_n=merge_n)
 
     if rerank:
-        results = _rerank(query, results, no_cache=no_cache)
+        pre_rerank_findings = [r for r in results if r["label"] == "Finding"]
+        results = _rerank(query, results, no_cache=no_cache, final_n=top_n)
+        post_findings = {r["id"] for r in results if r["label"] == "Finding"}
+        dropped = [f for f in pre_rerank_findings[:FINDING_RESERVE]
+                   if f["id"] not in post_findings]
+        if dropped:
+            papers_in = [r for r in results if r["label"] != "Finding"]
+            findings_in = [r for r in results if r["label"] == "Finding"]
+            findings_in.extend(dropped)
+            results = (papers_in[:top_n - len(findings_in)] + findings_in)
+            results.sort(key=lambda x: (-x["score"], x["label"], x["id"]))
+            results = results[:top_n]
 
     return results
 
