@@ -989,7 +989,7 @@ def rrf_merge(
 
     # Type-balanced output: reserve slots for findings so papers don't drown them.
     # With 14 findings vs 308 papers, pure RRF ranking is paper-dominated.
-    FINDING_RESERVE = 3
+    FINDING_RESERVE = 4
     findings = []
     papers = []
     for key, score in ranked:

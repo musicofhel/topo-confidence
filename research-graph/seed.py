@@ -280,7 +280,7 @@ FINDINGS: list[dict[str, Any]] = [
     },
     {
         "id": "F-2",
-        "claim": "Prefill hidden state (position 0) predicts correctness at 0.771 AUROC (1.5B) and 0.876 AUROC (7B), higher than final-token signals. Prefill direction is orthogonal to final-token direction (cos=-0.06).",
+        "claim": "Prefill hidden state (position 0) predicts correctness at 0.771 AUROC (1.5B) and 0.876 AUROC (7B), higher than final-token signals. The model can recognize from its initial representation whether it will get the answer wrong. Prefill direction is orthogonal to final-token direction (cos=-0.06).",
         "strength": "STRONG",
         "status": "ACTIVE",
         "evidence": ["P11-E3"],
@@ -305,7 +305,7 @@ FINDINGS: list[dict[str, Any]] = [
     },
     {
         "id": "F-4",
-        "claim": "A single DoM probe at L19 achieves 0.719 AUROC. Two features (prefill DoM + final-token DoM) at 0.794 match the 44-feature ABC pipeline at 0.796. Length confound is absent in raw activations (cos≈-0.09).",
+        "claim": "A single DoM probe at L19 achieves 0.719 AUROC — hidden-state geometry predicts LLM correctness with minimal features. Two features (prefill DoM + final-token DoM) at 0.794 match the 44-feature ABC pipeline at 0.796. Length confound is absent in raw activations (cos≈-0.09).",
         "strength": "STRONG",
         "status": "ACTIVE",
         "evidence": ["P11-E5"],
@@ -395,7 +395,7 @@ FINDINGS: list[dict[str, Any]] = [
     },
     {
         "id": "F-11",
-        "claim": "Selective prediction using prefill DoM: top 50% by confidence achieves 71.6% accuracy on answered subset, +22pp over random at matched coverage.",
+        "claim": "Selective prediction using prefill DoM: the model recognizes when it will get the answer wrong and abstains. Top 50% by confidence achieves 71.6% accuracy on answered subset, +22pp over random at matched coverage.",
         "strength": "STRONG",
         "status": "ACTIVE",
         "evidence": ["P11-E8"],
@@ -456,7 +456,7 @@ FINDINGS: list[dict[str, Any]] = [
 PAPERS: list[dict[str, Any]] = [
     # CoE / trajectory
     {"arxiv_id": "2410.13640", "title": "Chain-of-Embedding (CoE)", "year": 2024, "repo_url": "https://github.com/Alsace08/Chain-of-Embedding",
-     "relevance_note": "Original CoE paper — closed-form trajectory score from per-layer hidden states. Source for our 60-dim feature family."},
+     "relevance_note": "Original CoE paper — chain-of-embedding method for correctness prediction via closed-form trajectory score from per-layer hidden states. Source for our 60-dim feature family."},
     {"arxiv_id": "2604.05655", "title": "LLM Reasoning as Trajectories", "year": 2026, "repo_url": None,
      "relevance_note": "Step-specific trajectory geometry as a reasoning signal — methodological parallel to dimensional breathing."},
     {"arxiv_id": "2510.10494", "title": "Tracing the Traces", "year": 2025, "repo_url": None,
@@ -466,9 +466,9 @@ PAPERS: list[dict[str, Any]] = [
 
     # Steering
     {"arxiv_id": "2306.03341", "title": "Inference-Time Intervention (ITI)", "year": 2023, "repo_url": None,
-     "relevance_note": "Canonical activation steering/editing with mass-mean direction for truthfulness and honesty (TruthfulQA doubles). Reference baseline our orthogonality finding builds against."},
+     "relevance_note": "Canonical activation steering method with mass-mean direction for truthfulness and honesty (TruthfulQA doubles). Key paper in this project's steering picture. Reference baseline our orthogonality finding builds against."},
     {"arxiv_id": "2510.04309", "title": "PID Steering", "year": 2025, "repo_url": None,
-     "relevance_note": "Proportional-integral-derivative controller for steering — directly addresses the rotation problem."},
+     "relevance_note": "Proportional-integral-derivative controller for steering — directly extends the DoM rotation finding by adapting to direction drift during generation."},
     {"arxiv_id": "2604.19018", "title": "LQR Steering", "year": 2026, "repo_url": None,
      "relevance_note": "Linear-quadratic regulator for activation control."},
     {"arxiv_id": "2505.18706", "title": "Bias-Only Steering (Sinii)", "year": 2025, "repo_url": None,
@@ -516,7 +516,7 @@ PAPERS: list[dict[str, Any]] = [
     {"arxiv_id": "2405.17767", "title": "Linguistic Collapse", "year": 2024, "repo_url": "https://github.com/rhubarbwu/linguistic-collapse",
      "relevance_note": "Neural collapse at final layer scales with model size — matches our asymmetric-collapse-with-scale finding."},
     {"arxiv_id": "2302.00294", "title": "Geometry of Hidden Representations", "year": 2023, "repo_url": "https://github.com/diegodoimo/geometry_representations",
-     "relevance_note": "ID hump profile across layers — depth-axis analogue of breathing."},
+     "relevance_note": "ID hump profile across layers — explains representation dimensionality changes during generation. Depth-axis analogue of breathing."},
     {"arxiv_id": "2405.15471", "title": "High-Dim Abstraction Phase", "year": 2024, "repo_url": "https://github.com/chengemily1/id-llm-abstraction",
      "relevance_note": "Expand-then-compress along depth in GPT-2/Pythia/LLaMA — direct mechanism for breathing."},
 
@@ -542,17 +542,17 @@ PAPERS: list[dict[str, Any]] = [
     {"arxiv_id": "2504.05419", "title": "Reasoning Models Know When They're Right", "year": 2025, "repo_url": "https://github.com/AngelaZZZ-611/reasoning_models_probing",
      "relevance_note": "Mid-trajectory probes at chunk boundaries get >0.9 AUROC on AIME — proposed extension to F-2."},
     {"arxiv_id": "2510.18147", "title": "LLMs Encode Problem Difficulty", "year": 2025, "repo_url": None,
-     "relevance_note": "Same model (Qwen2.5-Math-1.5B), prefill encodes difficulty rho=0.88 — strong corroborator of F-2."},
+     "relevance_note": "Same model (Qwen2.5-Math-1.5B), prefill encodes difficulty rho=0.88 — strong corroborator of F-2. Calibration and confidence in LLM predictions from hidden states."},
 
     # Length
     {"arxiv_id": "2310.03716", "title": "A Long Way to Go (length in RLHF)", "year": 2024, "repo_url": None,
      "relevance_note": "Length-only reward reproduces most RLHF gains — output verbosity biases reward model scores. Feature-level analogue of F-9."},
     {"arxiv_id": "2505.00127", "title": "Between Underthinking and Overthinking", "year": 2025, "repo_url": None,
-     "relevance_note": "Underthinking and overthinking in LLM reasoning — incorrect responses systematically longer. Direct support for shorter=correct in F-9."},
+     "relevance_note": "Underthinking and overthinking in LLM reasoning — incorrect responses systematically longer, corroborating the output length confound. Direct support for shorter=correct in F-9."},
 
     # Linear representation
     {"arxiv_id": "2311.03658", "title": "Linear Representation Hypothesis", "year": 2023, "repo_url": "https://github.com/KihoPark/linear_rep_geometry",
-     "relevance_note": "Theory of linear concept directions — explains why raw DoM matches engineered features."},
+     "relevance_note": "Theory of linear concept directions and truth probing in representations — explains why raw DoM matches engineered features. Foundational for methods probing truth in LLM representations."},
     {"arxiv_id": "2303.08112", "title": "Tuned Lens", "year": 2023, "repo_url": "https://github.com/AlignmentResearch/tuned-lens",
      "relevance_note": "Per-layer linear decoders — methodological inspiration for layer-wise probing."},
     {"arxiv_id": "2406.19384", "title": "Stages of Inference (Lad, Gurnee, Tegmark)", "year": 2024, "repo_url": None,
@@ -735,10 +735,10 @@ PAPER_TAGS: dict[str, list[str]] = {
     "2510.06477": ["neural_collapse", "breathing"],
     "2509.12886": ["prefill"],
     "2504.05419": ["prefill", "selective_prediction"],
-    "2510.18147": ["prefill"],
+    "2510.18147": ["prefill", "calibration"],
     "2310.03716": ["length_confound"],
     "2505.00127": ["length_confound"],
-    "2311.03658": ["linear_probing"],
+    "2311.03658": ["linear_probing", "truthfulness"],
     "2303.08112": ["linear_probing"],
     "2406.19384": ["linear_probing"],
     "2402.10978": ["selective_prediction", "calibration"],
