@@ -222,6 +222,7 @@ def retrieve_vector_fulltext(
     query: str, case: EvalCase,
     hyde: bool = False, expand: bool = False,
     rerank: bool = False, no_cache: bool = False,
+    decompose: bool = False,
 ) -> list[tuple[str, str, int]]:
     """7-path retrieval via query.py semantic_search."""
     sys.path.insert(0, str(ROOT))
@@ -230,6 +231,7 @@ def retrieve_vector_fulltext(
         query, top_n=10,
         hyde=hyde, concept_expand=expand,
         rerank=rerank, no_cache=no_cache,
+        decompose=decompose,
     )
     return [(r["label"], r["id"], i) for i, r in enumerate(results)]
 
@@ -285,6 +287,7 @@ def evaluate_case(
     hyde = "hyde" in retriever or "full" in retriever
     expand = "expand" in retriever or "full" in retriever
     rerank = "rerank" in retriever or "full" in retriever
+    decompose = "decompose" in retriever
     no_cache = kwargs.get("no_cache", False)
 
     if case.category == "control":
@@ -293,11 +296,12 @@ def evaluate_case(
         retrieved = retrieve_fulltext_only(case.query, case)
     elif retriever.startswith("vector"):
         retrieved = retrieve_vector_fulltext(case.query, case)
-    elif retriever == "full":
+    elif retriever.startswith("full"):
         retrieved = retrieve_vector_fulltext(
             case.query, case,
             hyde=True, expand=True, rerank=True,
             no_cache=no_cache,
+            decompose="decompose" in retriever,
         )
     else:
         raise ValueError(f"Unknown retriever: {retriever}")
@@ -521,21 +525,27 @@ def main():
     parser.add_argument("--difficulty", type=str, default=None,
                         choices=["single-hop-exact", "single-hop-paraphrase", "multi-hop", "adversarial"],
                         help="Filter synthetic cases to a difficulty tier")
+    parser.add_argument("--decompose", action="store_true",
+                        help="Enable query decomposition for multi-hop queries")
     args = parser.parse_args()
 
     case_ids = None
     if args.cases:
         case_ids = {int(x) for x in args.cases.split(",")}
 
+    retriever = args.mode
+    if args.decompose and args.mode == "full":
+        retriever = "full+decompose"
+
     # Golden cases
     cases_to_run = [c for c in CASES if case_ids is None or c.id in case_ids]
-    print(f"\n  Running {len(cases_to_run)} golden cases in mode: {args.mode}\n")
+    print(f"\n  Running {len(cases_to_run)} golden cases in mode: {retriever}\n")
 
     results = []
     t0 = time.time()
     for case in cases_to_run:
         t_case = time.time()
-        result = evaluate_case(case, args.mode, no_cache=args.no_cache)
+        result = evaluate_case(case, retriever, no_cache=args.no_cache)
         elapsed = time.time() - t_case
         status = "PASS" if result.precision == 1.0 else "FAIL"
         print(f"  [{case.id:2d}] {status} ({elapsed:.1f}s) {case.query[:55]}")
@@ -562,7 +572,7 @@ def main():
 
             for case in synth_cases:
                 t_case = time.time()
-                result = evaluate_case(case, args.mode, no_cache=args.no_cache)
+                result = evaluate_case(case, retriever, no_cache=args.no_cache)
                 result.difficulty = diff_by_id.get(case.id, "")
                 elapsed = time.time() - t_case
                 status = "PASS" if result.precision == 1.0 else "FAIL"
@@ -574,12 +584,12 @@ def main():
     elapsed_total = time.time() - t0
 
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    report = EvalReport(mode=args.mode, timestamp=ts, cases=results)
+    report = EvalReport(mode=retriever, timestamp=ts, cases=results)
     report.compute_aggregates()
 
     synth_report = None
     if synthetic_results:
-        synth_report = EvalReport(mode=args.mode, timestamp=ts, cases=synthetic_results)
+        synth_report = EvalReport(mode=retriever, timestamp=ts, cases=synthetic_results)
         synth_report.compute_aggregates()
 
     print(f"\n  Total time: {elapsed_total:.1f}s")

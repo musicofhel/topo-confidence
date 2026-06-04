@@ -1196,6 +1196,44 @@ def _rerank(query: str, results: list[dict], no_cache: bool = False,
 
 RERANK_OVER_RETRIEVE = 3
 
+DECOMPOSE_PROMPT = """\
+You are analyzing a search query for the topo-confidence research project \
+(LLM correctness prediction via residual-stream geometry). Determine if the \
+query compares, contrasts, or asks about multiple specific methods, papers, \
+or techniques. If so, decompose it into focused sub-queries, one per entity.
+
+Rules:
+- If the query mentions 2+ specific named methods/techniques/papers, output \
+one focused sub-query per entity (2-3 queries max)
+- Each sub-query should be a concise retrieval query for that single entity
+- If the query is about a single topic, output just: SINGLE
+- Output only the sub-queries, one per line, no numbering or bullets"""
+
+
+def _decompose_query(query: str, no_cache: bool = False) -> list[str] | None:
+    """Decompose a multi-hop query into focused sub-queries."""
+    from llm_cache import cache_get, cache_set
+
+    cache_key = query
+    if not no_cache:
+        cached = cache_get("decompose", cache_key)
+        if cached is not None:
+            if cached.strip().upper() == "SINGLE":
+                return None
+            return [t.strip() for t in cached.split("\n") if t.strip()]
+
+    text = _call_claude(DECOMPOSE_PROMPT, query)
+    if not text:
+        return None
+
+    if not no_cache:
+        cache_set("decompose", cache_key, text)
+
+    if text.strip().upper() == "SINGLE":
+        return None
+    subs = [t.strip() for t in text.split("\n") if t.strip()]
+    return subs if len(subs) >= 2 else None
+
 
 def semantic_search(
     query: str,
@@ -1205,8 +1243,18 @@ def semantic_search(
     concept_expand: bool = False,
     rerank: bool = False,
     no_cache: bool = False,
+    decompose: bool = False,
 ) -> list[dict]:
     """Run all 7 retrieval paths and RRF-merge results."""
+    if decompose:
+        sub_queries = _decompose_query(query, no_cache=no_cache)
+        if sub_queries:
+            return _decomposed_search(
+                query, sub_queries, weights=weights, top_n=top_n,
+                hyde=hyde, concept_expand=concept_expand,
+                rerank=rerank, no_cache=no_cache,
+            )
+
     query_vec = _embed_query(query)
 
     path_results: dict[str, list[tuple[str, str, int]]] = {}
@@ -1264,6 +1312,47 @@ def semantic_search(
             results = results[:top_n]
 
     return results
+
+
+def _decomposed_search(
+    original_query: str,
+    sub_queries: list[str],
+    weights: dict[str, float] | None = None,
+    top_n: int = 10,
+    hyde: bool = False,
+    concept_expand: bool = False,
+    rerank: bool = False,
+    no_cache: bool = False,
+) -> list[dict]:
+    """Run sub-queries independently and merge via round-robin dedup."""
+    per_sub = max(top_n // len(sub_queries) + 2, 5)
+
+    sub_results = []
+    for sq in sub_queries[:3]:
+        r = semantic_search(
+            sq, weights=weights, top_n=per_sub,
+            hyde=hyde, concept_expand=concept_expand,
+            rerank=rerank, no_cache=no_cache,
+            decompose=False,
+        )
+        sub_results.append(r)
+
+    seen: set[str] = set()
+    merged: list[dict] = []
+    max_len = max(len(r) for r in sub_results)
+    for i in range(max_len):
+        for sr in sub_results:
+            if i < len(sr):
+                key = f"{sr[i]['label']}||{sr[i]['id']}"
+                if key not in seen:
+                    seen.add(key)
+                    merged.append(sr[i])
+
+    if rerank and len(merged) > top_n:
+        merged = _rerank(original_query, merged[:top_n + RERANK_OVER_RETRIEVE],
+                         no_cache=no_cache, final_n=top_n)
+
+    return merged[:top_n]
 
 
 # ── Context assembly ────────────────────────────────────────────────────────
