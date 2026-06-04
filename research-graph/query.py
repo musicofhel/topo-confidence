@@ -1246,14 +1246,7 @@ def semantic_search(
     decompose: bool = False,
 ) -> list[dict]:
     """Run all 7 retrieval paths and RRF-merge results."""
-    if decompose:
-        sub_queries = _decompose_query(query, no_cache=no_cache)
-        if sub_queries:
-            return _decomposed_search(
-                query, sub_queries, weights=weights, top_n=top_n,
-                hyde=hyde, concept_expand=concept_expand,
-                rerank=rerank, no_cache=no_cache,
-            )
+    sub_queries = _decompose_query(query, no_cache=no_cache) if decompose else None
 
     query_vec = _embed_query(query)
 
@@ -1311,7 +1304,53 @@ def semantic_search(
             results.sort(key=lambda x: (-x["score"], x["label"], x["id"]))
             results = results[:top_n]
 
+    if sub_queries:
+        results = _augment_with_decomposed(
+            query, sub_queries, results, weights=weights, top_n=top_n,
+            hyde=hyde, concept_expand=concept_expand,
+            rerank=rerank, no_cache=no_cache,
+        )
+
     return results
+
+
+def _augment_with_decomposed(
+    original_query: str,
+    sub_queries: list[str],
+    monolithic: list[dict],
+    weights: dict[str, float] | None = None,
+    top_n: int = 10,
+    hyde: bool = False,
+    concept_expand: bool = False,
+    rerank: bool = False,
+    no_cache: bool = False,
+) -> list[dict]:
+    """Augment monolithic results with sub-query hits (union strategy)."""
+    per_sub = max(top_n // len(sub_queries) + 2, 5)
+    existing = {f"{r['label']}||{r['id']}" for r in monolithic}
+
+    novel: list[dict] = []
+    for sq in sub_queries[:3]:
+        r = semantic_search(
+            sq, weights=weights, top_n=per_sub,
+            hyde=hyde, concept_expand=concept_expand,
+            rerank=rerank, no_cache=no_cache,
+            decompose=False,
+        )
+        for item in r:
+            key = f"{item['label']}||{item['id']}"
+            if key not in existing:
+                existing.add(key)
+                novel.append(item)
+
+    if not novel:
+        return monolithic
+
+    combined = monolithic + novel
+    if rerank and len(combined) > top_n:
+        combined = _rerank(original_query, combined[:top_n + RERANK_OVER_RETRIEVE],
+                           no_cache=no_cache, final_n=top_n)
+    return combined[:top_n]
 
 
 def _decomposed_search(
