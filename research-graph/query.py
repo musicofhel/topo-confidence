@@ -1353,47 +1353,6 @@ def _augment_with_decomposed(
     return combined[:top_n]
 
 
-def _decomposed_search(
-    original_query: str,
-    sub_queries: list[str],
-    weights: dict[str, float] | None = None,
-    top_n: int = 10,
-    hyde: bool = False,
-    concept_expand: bool = False,
-    rerank: bool = False,
-    no_cache: bool = False,
-) -> list[dict]:
-    """Run sub-queries independently and merge via round-robin dedup."""
-    per_sub = max(top_n // len(sub_queries) + 2, 5)
-
-    sub_results = []
-    for sq in sub_queries[:3]:
-        r = semantic_search(
-            sq, weights=weights, top_n=per_sub,
-            hyde=hyde, concept_expand=concept_expand,
-            rerank=rerank, no_cache=no_cache,
-            decompose=False,
-        )
-        sub_results.append(r)
-
-    seen: set[str] = set()
-    merged: list[dict] = []
-    max_len = max(len(r) for r in sub_results)
-    for i in range(max_len):
-        for sr in sub_results:
-            if i < len(sr):
-                key = f"{sr[i]['label']}||{sr[i]['id']}"
-                if key not in seen:
-                    seen.add(key)
-                    merged.append(sr[i])
-
-    if rerank and len(merged) > top_n:
-        merged = _rerank(original_query, merged[:top_n + RERANK_OVER_RETRIEVE],
-                         no_cache=no_cache, final_n=top_n)
-
-    return merged[:top_n]
-
-
 # ── Context assembly ────────────────────────────────────────────────────────
 
 def _fetch_paper_context(arxiv_id: str) -> dict[str, Any]:
