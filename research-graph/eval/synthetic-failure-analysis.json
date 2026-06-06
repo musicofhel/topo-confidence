@@ -3,23 +3,34 @@
     "total_cases": 239,
     "pass": 203,
     "fail": 36,
-    "overall_precision": 0.906
+    "overall_precision": 0.906,
+    "after_arxiv_id_fix": "5 arxiv-id-lookup-gap cases fixed by _path_arxiv_id_match (weight 5.0)"
   },
   "failure_modes": {
     "arxiv-id-lookup-gap": {
       "count": 5,
       "description": "Query contains explicit arxiv ID but no ID-lookup retrieval path exists",
-      "fix": "Add arxiv-ID exact-match path (low weight, high precision)"
+      "fix": "FIXED: Added _path_arxiv_id_match() with weight 5.0 \u2014 all 5 cases now PASS (rank 1-2)",
+      "status": "resolved"
     },
     "low-connectivity-unreachable": {
       "count": 3,
       "description": "Target paper has few/no finding edges and sparse tags \u2014 no retrieval path reaches it",
-      "fix": "Consider as ground-truth quality issue OR add BM25 fulltext path"
+      "fix": "Accept as ground-truth quality issue \u2014 these papers are structurally unreachable"
     },
     "partial-multi-hop": {
       "count": 27,
-      "description": "Multi-hop query hits some but not all expected targets. Missed target typically has 0 finding edges",
-      "fix": "Inherent difficulty \u2014 most missed targets are low-connectivity papers. Union strategy already helps"
+      "description": "Multi-hop query hits some but not all expected targets. Missed target always has 0 finding edges",
+      "fix": "Architecture ceiling \u2014 union decomposition helps but cannot bridge zero-edge papers",
+      "ceiling_analysis": {
+        "total_missed_papers": 30,
+        "unique_missed_papers": 25,
+        "all_zero_finding_edges": true,
+        "all_findable_by_own_title": true,
+        "precision_distribution": {"50%": 21, "33%": 3, "67%": 3},
+        "targets_per_case": {"2_targets": 21, "3_targets": 6},
+        "root_cause": "Multi-hop queries split attention across topics. Each missed paper IS findable when searched by its own title, but the composite query is too broad to surface all targets in top-10. Zero finding edges means finding-neighborhood path cannot discover them as a second hop."
+      }
     },
     "full-multi-hop-miss": {
       "count": 1,

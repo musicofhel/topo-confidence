@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import textwrap
@@ -914,6 +915,29 @@ def _path_dataset_match(query: str, limit: int = 25) -> list[tuple[str, str, int
     return out
 
 
+_ARXIV_ID_RE = re.compile(r"\b(\d{4}\.\d{4,5})(?:v\d+)?\b")
+
+
+def _extract_arxiv_ids(query: str) -> list[str]:
+    """Extract arxiv ID patterns from a query string."""
+    return list(dict.fromkeys(_ARXIV_ID_RE.findall(query)))
+
+
+def _path_arxiv_id_match(arxiv_ids: list[str]) -> list[tuple[str, str, int]]:
+    """Exact-match retrieval for queries containing arxiv IDs."""
+    if not arxiv_ids:
+        return []
+    rows = _run(
+        """
+        UNWIND $ids AS aid
+        MATCH (p:Paper {arxiv_id: aid})
+        RETURN 'Paper' AS label, p.arxiv_id AS id
+        """,
+        ids=arxiv_ids,
+    )
+    return [("Paper", r["id"], i) for i, r in enumerate(rows)]
+
+
 def _path_finding_neighborhood(
     finding_results: list[tuple[str, str, int]], limit: int = 15,
 ) -> list[tuple[str, str, int]]:
@@ -944,6 +968,7 @@ DEFAULT_WEIGHTS = {
     "tag-match": 1.5,
     "dataset-match": 2.0,
     "finding-neighborhood": 1.0,
+    "arxiv-id-match": 5.0,
 }
 
 RESCUE_PATHS = {"tag-match", "dataset-match", "paper-ft", "finding-ft"}
@@ -1245,12 +1270,17 @@ def semantic_search(
     no_cache: bool = False,
     decompose: bool = False,
 ) -> list[dict]:
-    """Run all 7 retrieval paths and RRF-merge results."""
+    """Run retrieval paths and RRF-merge results."""
     sub_queries = _decompose_query(query, no_cache=no_cache) if decompose else None
 
     query_vec = _embed_query(query)
 
     path_results: dict[str, list[tuple[str, str, int]]] = {}
+
+    arxiv_ids = _extract_arxiv_ids(query)
+    if arxiv_ids:
+        path_results["arxiv-id-match"] = _path_arxiv_id_match(arxiv_ids)
+
     path_results["paper-vec"] = _path_paper_vec(query_vec)
     path_results["finding-vec"] = _path_finding_vec(query_vec)
 
