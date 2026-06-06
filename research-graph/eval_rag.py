@@ -485,10 +485,15 @@ def _load_synthetic_cases(
         except Exception as e:
             print(f"  Warning: freshness check failed: {e}")
 
+    quality_skipped = 0
     eval_cases = []
     for c in cases_data:
         case_id = c["id"]
         if fresh_ids is not None and case_id not in fresh_ids:
+            continue
+
+        if validate_freshness and c.get("quality_flag"):
+            quality_skipped += 1
             continue
 
         difficulty = c.get("difficulty", "")
@@ -502,6 +507,10 @@ def _load_synthetic_cases(
             expected=expected,
             category=c.get("category", "synthetic"),
         ))
+
+    if quality_skipped:
+        print(f"  Quality filter: skipped {quality_skipped} flagged cases")
+
     return eval_cases
 
 

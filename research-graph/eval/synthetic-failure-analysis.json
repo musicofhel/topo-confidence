@@ -1,0 +1,703 @@
+{
+  "summary": {
+    "total_cases": 239,
+    "pass": 203,
+    "fail": 36,
+    "overall_precision": 0.906
+  },
+  "failure_modes": {
+    "arxiv-id-lookup-gap": {
+      "count": 5,
+      "description": "Query contains explicit arxiv ID but no ID-lookup retrieval path exists",
+      "fix": "Add arxiv-ID exact-match path (low weight, high precision)"
+    },
+    "low-connectivity-unreachable": {
+      "count": 3,
+      "description": "Target paper has few/no finding edges and sparse tags \u2014 no retrieval path reaches it",
+      "fix": "Consider as ground-truth quality issue OR add BM25 fulltext path"
+    },
+    "partial-multi-hop": {
+      "count": 27,
+      "description": "Multi-hop query hits some but not all expected targets. Missed target typically has 0 finding edges",
+      "fix": "Inherent difficulty \u2014 most missed targets are low-connectivity papers. Union strategy already helps"
+    },
+    "full-multi-hop-miss": {
+      "count": 1,
+      "description": "Multi-hop query misses all expected targets",
+      "fix": "Review ground-truth validity"
+    }
+  },
+  "cases": [
+    {
+      "case_id": 1005,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "low-connectivity-unreachable",
+      "query": "How does the PID steering mechanism extend the concept of direction_rotation in the context of generative models?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2510.04309"
+        ]
+      ]
+    },
+    {
+      "case_id": 1024,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "low-connectivity-unreachable",
+      "query": "Waht evidnce suports the idea that prefill direcion can predikt corectness in LLMs?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2509.12886"
+        ]
+      ]
+    },
+    {
+      "case_id": 1032,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "arxiv-id-lookup-gap",
+      "query": "What does the paper with identifier 2306.03819 address in the context of machine learning research?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2306.03819"
+        ]
+      ]
+    },
+    {
+      "case_id": 1033,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "arxiv-id-lookup-gap",
+      "query": "What is the methd described in the papr 2103.07353 and who are the authers?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2103.07353"
+        ]
+      ]
+    },
+    {
+      "case_id": 1035,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "arxiv-id-lookup-gap",
+      "query": "what is 2601.01552 about and what evidence supports its approach",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2601.01552"
+        ]
+      ]
+    },
+    {
+      "case_id": 1036,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "arxiv-id-lookup-gap",
+      "query": "What is the significance of the paper 1207.6437 in the context of topological data analysis?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "1207.6437"
+        ]
+      ]
+    },
+    {
+      "case_id": 1039,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "arxiv-id-lookup-gap",
+      "query": "Could you provide a detailed overview of the paper identified by the arXiv identifier 2501.17148, specifically regarding its focus on AxBench as a steering benchmark, including its objectives, methodology, and significance in the context of machine learning research?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2501.17148"
+        ]
+      ]
+    },
+    {
+      "case_id": 1050,
+      "difficulty": "single-hop-exact",
+      "precision": 0.0,
+      "failure_mode": "low-connectivity-unreachable",
+      "query": "what evidence support activation-steering work across domain?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2406.11624"
+        ]
+      ]
+    },
+    {
+      "case_id": 1134,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "How do I use calibration techniques like Semantic Entropy Probes and CalMO together for selective prediction?",
+      "hits": [
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2604.20614"
+        ]
+      ]
+    },
+    {
+      "case_id": 1144,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "mechanistic-interpretability activation steering transfer RNNs vs transformers DoM direction",
+      "hits": [
+        [
+          "Paper",
+          "2404.05971"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2410.04962"
+        ]
+      ]
+    },
+    {
+      "case_id": 1149,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how to use calibration for LLM reasoning confidence estimation",
+      "hits": [
+        [
+          "Paper",
+          "2604.01170"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2509.24988"
+        ]
+      ]
+    },
+    {
+      "case_id": 1152,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "What evidence supports the use of linear probes in mechanistic-interpretability for steering model behavior?",
+      "hits": [
+        [
+          "Paper",
+          "2602.15293"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2603.25052"
+        ]
+      ]
+    },
+    {
+      "case_id": 1159,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "representation-engineering activation steering multi-layer vs single-layer intervention methods",
+      "hits": [
+        [
+          "Paper",
+          "2403.05767"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.04428"
+        ]
+      ]
+    },
+    {
+      "case_id": 1161,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "As a practitioner looking to implement activation-steering techniques for controlling safety-relevant behaviors in large language models, how can I use one-shot gradient-optimized steering vectors and SAE-feature-guided activation additions as complementary or alternative approaches, and what are the practical differences between these two methodologies for steering correctness and refusal behaviors?",
+      "hits": [
+        [
+          "Paper",
+          "2502.18862"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2501.09929"
+        ]
+      ]
+    },
+    {
+      "case_id": 1164,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "what evidence support representation-engineering methods like activation steering and layerwise intervention for improving model performance?",
+      "hits": [
+        [
+          "Paper",
+          "2502.06115"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2410.12877"
+        ]
+      ]
+    },
+    {
+      "case_id": 1169,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how i use activation-steering to align confidence in LLMs, it work like refusal direction thing?",
+      "hits": [
+        [
+          "Paper",
+          "2603.25052"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2406.11717"
+        ]
+      ]
+    },
+    {
+      "case_id": 1170,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how i can use representation-engineering like concept activation vectors and fine-grained activation steering together to make model safer, what is practical way to do this?",
+      "hits": [
+        [
+          "Paper",
+          "2404.12038"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.04428"
+        ]
+      ]
+    },
+    {
+      "case_id": 1171,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how i can use selective-prediction approaches for multi-turn interactions with LLMs, like i want to know how logit-based probes and label-free signals work together and why self-reported confidence from LLMs is not good enough for this kind of task, can someone explain how all this connect and what metrics i should be looking at?",
+      "hits": [
+        [
+          "Paper",
+          "2601.02179"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2412.15296"
+        ]
+      ]
+    },
+    {
+      "case_id": 1173,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "what evidence do sparse-autoencoders provide for activation steering across different domains",
+      "hits": [
+        [
+          "Paper",
+          "2406.11624"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.11910"
+        ]
+      ]
+    },
+    {
+      "case_id": 1177,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "Wat evidnce suports or contradicts the use of activaton-steering across difrent architectures like RNNs and transformers?",
+      "hits": [
+        [
+          "Paper",
+          "2404.05971"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2310.17230"
+        ]
+      ]
+    },
+    {
+      "case_id": 1178,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how activation-steering relate to inference-time intervention on attention heads and what unified theory explain why both this methods works in language models?",
+      "hits": [
+        [
+          "Paper",
+          "2503.14130"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.02343"
+        ]
+      ]
+    },
+    {
+      "case_id": 1181,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how to use activation-steering with logistic probes for inference-time intervention",
+      "hits": [
+        [
+          "Paper",
+          "2025.35346"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.00158"
+        ]
+      ]
+    },
+    {
+      "case_id": 1182,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "what evidence supports hidden-state-probing as a method for detecting hallucinations and improving model alignment across layers in large vision language models",
+      "hits": [
+        [
+          "Paper",
+          "2603.00437"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.13567"
+        ]
+      ]
+    },
+    {
+      "case_id": 1186,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how i use representation-engineering with hypernetworks to do steering at scale, like what method i pick?",
+      "hits": [
+        [
+          "Paper",
+          "2506.03292"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2601.19375"
+        ]
+      ]
+    },
+    {
+      "case_id": 1190,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how to use conformal abstention policies for adaptive risk management in LLMs",
+      "hits": [
+        [
+          "Paper",
+          "2502.06884"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2507.16806"
+        ]
+      ]
+    },
+    {
+      "case_id": 1193,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "How can I use abstention techniques to address LLM overconfidence, and what are the practical differences between label-free abstention probes like DoM and semantic entropy versus supervised refusal-tuning approaches like GRAIT?",
+      "hits": [
+        [
+          "Paper",
+          "2502.05911"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2505.19184"
+        ]
+      ]
+    },
+    {
+      "case_id": 1198,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how to use representation-engineering for adaptive activation steering in LLMs",
+      "hits": [
+        [
+          "Paper",
+          "2601.09269"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2406.00045"
+        ]
+      ]
+    },
+    {
+      "case_id": 1199,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "How does representaion-enginering relate to refusal suppresion as a low-dim manifold vs single direction in LMs?",
+      "hits": [
+        [
+          "Paper",
+          "2511.08379"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2502.04043"
+        ]
+      ]
+    },
+    {
+      "case_id": 1201,
+      "difficulty": "multi-hop",
+      "precision": 0.5,
+      "failure_mode": "partial-multi-hop",
+      "query": "how do i use activaton-stearing for multipel behaviours at once?",
+      "hits": [
+        [
+          "Paper",
+          "2403.05767"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.02343"
+        ]
+      ]
+    },
+    {
+      "case_id": 1205,
+      "difficulty": "multi-hop",
+      "precision": 0.3333333333333333,
+      "failure_mode": "partial-multi-hop",
+      "query": "How can mechanistic-interpretability techniques be used to improve llm-confidence through confidence-estimation methods, and what are the practical alternatives to supervised approaches for achieving this?",
+      "hits": [
+        [
+          "Paper",
+          "2502.01126"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2603.25052"
+        ],
+        [
+          "Paper",
+          "2205.14334"
+        ]
+      ]
+    },
+    {
+      "case_id": 1209,
+      "difficulty": "multi-hop",
+      "precision": 0.3333333333333333,
+      "failure_mode": "partial-multi-hop",
+      "query": "how to use activation steering with linear probes for model interpretability",
+      "hits": [
+        [
+          "Paper",
+          "2410.04962"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2410.12877"
+        ],
+        [
+          "Paper",
+          "2506.18167"
+        ]
+      ]
+    },
+    {
+      "case_id": 1217,
+      "difficulty": "multi-hop",
+      "precision": 0.6666666666666666,
+      "failure_mode": "partial-multi-hop",
+      "query": "How do token decomposition propagation methods like DecompX and mechanistic interpretability studies of multi-step reasoning circuits relate to head-level attribution of prefill vs final-token circuits, and what implications do they have for faithfulness-validated analysis of intermediate-result storage in transformer residual representations?",
+      "hits": [
+        [
+          "Paper",
+          "2306.02873"
+        ],
+        [
+          "Paper",
+          "2402.11917"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2310.13121"
+        ]
+      ]
+    },
+    {
+      "case_id": 1218,
+      "difficulty": "multi-hop",
+      "precision": 0.6666666666666666,
+      "failure_mode": "partial-multi-hop",
+      "query": "What evidence supports the use of mechanistic-intervention techniques on attention heads for improving truthfulness and selective-prediction in large language models, and how do these methods compare across different research contexts?",
+      "hits": [
+        [
+          "Paper",
+          "2503.14130"
+        ],
+        [
+          "Paper",
+          "2403.18680"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2601.13015"
+        ]
+      ]
+    },
+    {
+      "case_id": 1223,
+      "difficulty": "multi-hop",
+      "precision": 0.0,
+      "failure_mode": "full-multi-hop-miss",
+      "query": "How do concpet activation vectors relate to mechanistic-interpretability and linear-probes in stearing LLM behavoir?",
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2404.12038"
+        ],
+        [
+          "Paper",
+          "2501.05764"
+        ],
+        [
+          "Paper",
+          "2501.09929"
+        ]
+      ]
+    },
+    {
+      "case_id": 1230,
+      "difficulty": "multi-hop",
+      "precision": 0.3333333333333333,
+      "failure_mode": "partial-multi-hop",
+      "query": "how to use norm-preserving steering methods with mechanistic-interpretability for adaptive activation steering in LLMs",
+      "hits": [
+        [
+          "Paper",
+          "2601.19375"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.07276"
+        ],
+        [
+          "Paper",
+          "2601.09269"
+        ]
+      ]
+    },
+    {
+      "case_id": 1231,
+      "difficulty": "multi-hop",
+      "precision": 0.6666666666666666,
+      "failure_mode": "partial-multi-hop",
+      "query": "What evidence supports the use of mechanistic-interpretability tools like SAE-feature-guided methods compared to adaptive steering approaches such as RISER for h1-related per-position DoM steering in LLMs?",
+      "hits": [
+        [
+          "Paper",
+          "2601.09269"
+        ],
+        [
+          "Paper",
+          "2501.09929"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2602.07276"
+        ]
+      ]
+    }
+  ]
+}

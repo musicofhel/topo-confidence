@@ -281,6 +281,51 @@ def run_generation(
     print(f"  Total time: {elapsed:.1f}s")
 
 
+def refresh_stale(input_path: Path | None = None) -> None:
+    """Remove stale/missing cases from an existing synthetic eval set."""
+    input_path = input_path or SYNTHETIC_OUTPUT
+    if not input_path.exists():
+        print(f"No synthetic eval set at {input_path}")
+        sys.exit(1)
+
+    with open(input_path) as f:
+        data = json.load(f)
+
+    eval_set = SyntheticEvalSet(**data)
+    total_before = len(eval_set.cases)
+    print(f"\n=== Refresh Stale: {input_path} ===")
+    print(f"  Cases before: {total_before}")
+
+    from ragas_gen.freshness import check_freshness
+    results = check_freshness(eval_set)
+
+    fresh_ids = {r.case_id for r in results if r.status == "FRESH"}
+    stale = [r for r in results if r.status != "FRESH"]
+
+    if not stale:
+        print("  All cases are fresh — nothing to remove.")
+        return
+
+    print(f"  Fresh: {len(fresh_ids)}, removing {len(stale)}:")
+    for r in stale:
+        print(f"    [{r.status:7s}] case {r.case_id}: {r.details}")
+
+    eval_set.cases = [c for c in eval_set.cases if c.id in fresh_ids]
+    eval_set.stats.freshness_valid = len(eval_set.cases)
+
+    by_difficulty: dict[str, int] = {}
+    for c in eval_set.cases:
+        key = c.difficulty.value
+        by_difficulty[key] = by_difficulty.get(key, 0) + 1
+    eval_set.stats.by_difficulty = by_difficulty
+
+    with open(input_path, "w") as f:
+        f.write(eval_set.model_dump_json(indent=2))
+
+    print(f"  Cases after: {len(eval_set.cases)} (removed {total_before - len(eval_set.cases)})")
+    print(f"  Wrote: {input_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate synthetic eval cases")
     parser.add_argument("--size", type=int, default=260,
@@ -292,8 +337,12 @@ def main():
     parser.add_argument("--full", action="store_true",
                         help="Full regeneration (ignore existing)")
     parser.add_argument("--refresh-stale", action="store_true",
-                        help="Regenerate only stale cases")
+                        help="Remove stale/missing cases from existing eval set")
     args = parser.parse_args()
+
+    if args.refresh_stale:
+        refresh_stale(args.output)
+        return
 
     run_generation(
         testset_size=args.size,

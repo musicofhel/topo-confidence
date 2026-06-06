@@ -748,7 +748,8 @@
         "is_valid": true,
         "confidence": 0.9,
         "reason": "ArXiv paper 2306.03819 is indeed about LEACE (Least-squares Concept Erasure), which addresses linear concept erasure in the context of machine learning research."
-      }
+      },
+      "quality_flag": "unreachable-ground-truth: 2306.03819"
     },
     {
       "id": 1033,
@@ -770,7 +771,8 @@
         "is_valid": true,
         "confidence": 0.95,
         "reason": "Paper 2103.07353 on arXiv is indeed authored by Tamal K. Dey and Tao Hou, and describes the Fast Zigzag Persistence method."
-      }
+      },
+      "quality_flag": "unreachable-ground-truth: 2103.07353"
     },
     {
       "id": 1034,
@@ -792,7 +794,8 @@
         "is_valid": true,
         "confidence": 0.85,
         "reason": "TOHA standing for 'Topological Divergence on Attention' is a plausible and relevant answer to what the paper 2504.10063 proposes in the context of attention mechanisms, as it directly addresses both parts of the question about the paper's proposal and TOHA's definition."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2504.10063"
     },
     {
       "id": 1035,
@@ -814,7 +817,8 @@
         "is_valid": true,
         "confidence": 0.85,
         "reason": "ArXiv paper 2601.01552 appears to be 'HalluZig' which uses Zigzag Persistent Homology on attention mechanisms, directly relevant to what the paper is about and its methodological approach."
-      }
+      },
+      "quality_flag": "unreachable-ground-truth: 2601.01552"
     },
     {
       "id": 1036,
@@ -836,7 +840,8 @@
         "is_valid": true,
         "confidence": 0.95,
         "reason": "ArXiv paper 1207.6437 is indeed Peter Bubenik's foundational paper introducing Persistence Landscapes, a significant statistical tool in topological data analysis that provides a vectorization of persistence diagrams amenable to statistical analysis."
-      }
+      },
+      "quality_flag": "unreachable-ground-truth: 1207.6437"
     },
     {
       "id": 1037,
@@ -858,7 +863,8 @@
         "is_valid": true,
         "confidence": 0.95,
         "reason": "The expected retrieval result directly matches the paper referenced in the question by title and author, making it genuinely relevant for answering how to practically apply its findings."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2410.04707"
     },
     {
       "id": 1038,
@@ -880,7 +886,8 @@
         "is_valid": true,
         "confidence": 0.95,
         "reason": "The paper 2604.16217 is titled 'Conformal Prediction via Internal Representations,' which directly matches the question asking how to apply that specific arXiv paper for conformal prediction using internal representations."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2604.16217"
     },
     {
       "id": 1039,
@@ -902,7 +909,8 @@
         "is_valid": true,
         "confidence": 0.95,
         "reason": "The arXiv paper 2501.17148 is indeed titled 'AxBench: Steering LLMs? A Comprehensive Benchmark for Weak-to-Strong Steering Techniques' or similar, making 'AxBench: Steering Benchmark' a directly relevant and correct expected result for the question asked."
-      }
+      },
+      "quality_flag": "unreachable-ground-truth: 2501.17148"
     },
     {
       "id": 1040,
@@ -924,7 +932,8 @@
         "is_valid": true,
         "confidence": 0.85,
         "reason": "The paper 2402.13212 is indeed about Soft Self-Consistency, making 'Soft Self-Consistency' a genuinely relevant expected retrieval result for a question asking about how to use that specific arxiv paper."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2402.13212"
     },
     {
       "id": 1041,
@@ -946,7 +955,8 @@
         "is_valid": true,
         "confidence": 0.85,
         "reason": "DeepSeek-R1 is the correct paper referenced by arxiv ID 2501.12948, and the question asks about techniques and methods discussed in that paper, making the expected retrieval of the DeepSeek-R1 document genuinely relevant."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2501.12948"
     },
     {
       "id": 1042,
@@ -968,7 +978,8 @@
         "is_valid": true,
         "confidence": 0.95,
         "reason": "ArXiv paper 2412.01113 corresponds to 'LLMs Faithfully Compute During CoT' by Kudo, which directly addresses how LLMs perform computation during Chain of Thought reasoning."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2412.01113"
     },
     {
       "id": 1043,
@@ -990,7 +1001,8 @@
         "is_valid": true,
         "confidence": 0.7,
         "reason": "Paper 2404.15255 likely discusses activation patching methodology, and 'How to Use Activation Patching' is a plausibly relevant result, though without verifying the exact paper content, the match between the arxiv ID and this specific topic cannot be fully confirmed."
-      }
+      },
+      "quality_flag": "arxiv-id-in-query: 2404.15255"
     },
     {
       "id": 1044,
@@ -3065,7 +3077,7 @@
       "difficulty": "multi-hop",
       "synthesizer": "multi_hop_specific_query_synthesizer",
       "style": "perfect_grammar",
-      "reference_answer": "Persistent homology (PH) is applied in two related but distinct contexts. In the context of large language models, PH is used to capture meaningful structure in chain-of-thought (CoT) reasoning, specifically by analyzing per-token to per-trajectory representations in trained residual streams, compared against a Gaussian null baseline. This approach either contradicts or extends prior findings depending on the filtration used. In the context of deep neural networks more broadly, TDA including persistent homology is applied to layer-wise neural network activations, serving as methodological prior art for PH-on-activations. The connection between the two is that the latter provides a foundational methodological framework for applying PH to neural network internals, which directly informs the former’s approach of using persistent homology on trained residual streams. However, it is noted that despite this methodological lineage, findings in the LLM context ultimately overturned the topology framing established by the earlier deep neural network work.",
+      "reference_answer": "Persistent homology (PH) is applied in two related but distinct contexts. In the context of large language models, PH is used to capture meaningful structure in chain-of-thought (CoT) reasoning, specifically by analyzing per-token to per-trajectory representations in trained residual streams, compared against a Gaussian null baseline. This approach either contradicts or extends prior findings depending on the filtration used. In the context of deep neural networks more broadly, TDA including persistent homology is applied to layer-wise neural network activations, serving as methodological prior art for PH-on-activations. The connection between the two is that the latter provides a foundational methodological framework for applying PH to neural network internals, which directly informs the former\u2019s approach of using persistent homology on trained residual streams. However, it is noted that despite this methodological lineage, findings in the LLM context ultimately overturned the topology framing established by the earlier deep neural network work.",
       "freshness_hash": "cdae4e0d1620955e",
       "generated_at": "2026-06-03T19:39:50.379765Z",
       "semantic_validation": {
@@ -3674,7 +3686,7 @@
     },
     {
       "id": 1160,
-      "query": "In the context of activation-steering research, how does the composition framework proposed in Steer2Adapt for dynamically composing steering vectors relate to the weight-edit alternative offered by Circuit-Restricted Weight Arithmetic (C-ΔΘ) for selective refusal, and what are the implications of each approach for steering the degree-of-membership (DoM) direction in large language models?",
+      "query": "In the context of activation-steering research, how does the composition framework proposed in Steer2Adapt for dynamically composing steering vectors relate to the weight-edit alternative offered by Circuit-Restricted Weight Arithmetic (C-\u0394\u0398) for selective refusal, and what are the implications of each approach for steering the degree-of-membership (DoM) direction in large language models?",
       "expected": [
         [
           "Paper",
@@ -3689,13 +3701,13 @@
       "difficulty": "multi-hop",
       "synthesizer": "multi_hop_specific_query_synthesizer",
       "style": "perfect_grammar",
-      "reference_answer": "Steer2Adapt introduces a composition framework over steering vectors that enables efficient adaptation of large language models by dynamically composing steering vectors at inference time. This framework is directly relevant to activation-steering and representation engineering, and it bears on per-position DoM steering by offering a principled way to compose or apply prefill-DoM directions during inference. In contrast, Circuit-Restricted Weight Arithmetic (C-ΔΘ) takes a fundamentally different approach by localizing refusal behavior to a sparse circuit and offering a weight-edit alternative to activation steering on the DoM direction. While Steer2Adapt operates at the activation level through dynamic vector composition, C-ΔΘ operates at the weight level by restricting arithmetic operations to a specific circuit associated with selective refusal. The two approaches are complementary in the broader activation-steering research agenda: Steer2Adapt informs how steering vectors can be composed and applied at inference, while C-ΔΘ connects to head-level attribution of prefill versus final-token circuits and provides a weight-editing mechanism that could serve as an alternative when activation-level steering of the DoM direction is insufficient or impractical.",
+      "reference_answer": "Steer2Adapt introduces a composition framework over steering vectors that enables efficient adaptation of large language models by dynamically composing steering vectors at inference time. This framework is directly relevant to activation-steering and representation engineering, and it bears on per-position DoM steering by offering a principled way to compose or apply prefill-DoM directions during inference. In contrast, Circuit-Restricted Weight Arithmetic (C-\u0394\u0398) takes a fundamentally different approach by localizing refusal behavior to a sparse circuit and offering a weight-edit alternative to activation steering on the DoM direction. While Steer2Adapt operates at the activation level through dynamic vector composition, C-\u0394\u0398 operates at the weight level by restricting arithmetic operations to a specific circuit associated with selective refusal. The two approaches are complementary in the broader activation-steering research agenda: Steer2Adapt informs how steering vectors can be composed and applied at inference, while C-\u0394\u0398 connects to head-level attribution of prefill versus final-token circuits and provides a weight-editing mechanism that could serve as an alternative when activation-level steering of the DoM direction is insufficient or impractical.",
       "freshness_hash": "fe5074eb5f3d9463",
       "generated_at": "2026-06-03T19:39:50.379765Z",
       "semantic_validation": {
         "is_valid": true,
         "confidence": 0.85,
-        "reason": "Both expected results are genuinely relevant - Steer2Adapt directly addresses dynamic composition of steering vectors in LLMs, and C-ΔΘ addresses weight-edit approaches for selective refusal, both of which are central to the question's inquiry about activation-steering frameworks and their implications for DoM direction steering."
+        "reason": "Both expected results are genuinely relevant - Steer2Adapt directly addresses dynamic composition of steering vectors in LLMs, and C-\u0394\u0398 addresses weight-edit approaches for selective refusal, both of which are central to the question's inquiry about activation-steering frameworks and their implications for DoM direction steering."
       }
     },
     {
@@ -5595,7 +5607,7 @@
       "semantic_validation": {
         "is_valid": true,
         "confidence": 0.92,
-        "reason": "All three results are genuinely relevant: Steer2Adapt covers dynamic composition of steering vectors, RISER addresses adaptive activation steering via composed reasoning vectors, and Selective Steering directly addresses norm-preserving control methods—together they comprehensively cover the question's intersection of norm-preserving steering, mechanistic interpretability, and adaptive activation steering in LLMs."
+        "reason": "All three results are genuinely relevant: Steer2Adapt covers dynamic composition of steering vectors, RISER addresses adaptive activation steering via composed reasoning vectors, and Selective Steering directly addresses norm-preserving control methods\u2014together they comprehensively cover the question's intersection of norm-preserving steering, mechanistic interpretability, and adaptive activation steering in LLMs."
       }
     },
     {
