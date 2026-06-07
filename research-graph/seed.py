@@ -727,58 +727,6 @@ PAPER_EDGES: list[tuple[str, str, str, dict[str, Any]]] = [
     # F-14
     ("F-14", "CORROBORATED_BY", "2604.20614",
      {"note": "CalMO — calibration for math reasoning corroborates confidence estimation findings"}),
-
-    # --- Batch 2: zero-edge papers from eval failures ---
-
-    # 2502.01126 — Relative Confidence Estimation via Confidence Preferences
-    ("F-2", "METHOD_DIFFERS", "2502.01126",
-     {"theirs": "Pairwise linguistic relative-confidence prompting (AUROC 0.753 cross-model avg)",
-      "ours": "Supervised L19 prefill DoM probe (AUROC 0.7731)"}),
-    ("F-11", "METHOD_DIFFERS", "2502.01126",
-     {"theirs": "TrueSkill-aggregated pairwise confidence for selective classification",
-      "ours": "Prefill DoM-based selective prediction (71.6% at coverage 0.5)"}),
-
-    # 2505.18706 — Bias-Only Steering (Sinii)
-    ("F-3", "CONTRADICTED_BY", "2505.18706",
-     {"note": "Fixed per-layer additive bias recovers full RL-tuned reasoning on same model (Qwen2.5-1.5B) — contradicts rotation-kills-steering"}),
-    ("F-2", "METHOD_DIFFERS", "2505.18706",
-     {"theirs": "RL-trained per-layer bias vectors (causal steering)",
-      "ours": "Correlational L19 prefill DoM probe"}),
-
-    # 2505.20322 — Steering Target Atoms (STA)
-    ("F-2", "EXTENDED_BY", "2505.20322",
-     {"note": "STA generalizes single-direction DoM to sparse multi-dimensional atom code via amplitude+frequency selection"}),
-    ("F-3", "METHOD_DIFFERS", "2505.20322",
-     {"theirs": "Mean-pool-over-answer aggregation with sparse atom selection",
-      "ours": "Per-position DoM showing prefill/final orthogonality"}),
-
-    # 2507.06087 — CoRE: Metacognition via CoE
-    ("F-6", "EXTENDED_BY", "2507.06087",
-     {"note": "CoRE extends CoE with cycle-detection metacognition — windowed auto-correlation on per-step embeddings"}),
-    ("F-9", "METHOD_DIFFERS", "2507.06087",
-     {"theirs": "Windowed cycle-detection trajectory signal (CoRE z_t composite)",
-      "ours": "CoE-60 static trajectory summary shown redundant with L19 DoM"}),
-
-    # 2510.02956 — Confidence and Dispersity as Signals
-    ("F-2", "METHOD_DIFFERS", "2510.02956",
-     {"theirs": "Label-free NuclearNorm of K=N softmax matrix (R²=0.984 in vision OOD)",
-      "ours": "Supervised L19 prefill DoM probe"}),
-    ("F-11", "METHOD_DIFFERS", "2510.02956",
-     {"theirs": "Unsupervised confidence+dispersity ranking for model evaluation",
-      "ours": "Supervised DoM-based selective prediction"}),
-
-    # 2603.03163 — Conditioned Activation Transport (CAT)
-    ("F-2", "EXTENDED_BY", "2603.03163",
-     {"note": "CAT provides non-linear ceiling via regularized-shrinkage precision matrix on prefill features"}),
-    ("F-3", "METHOD_DIFFERS", "2603.03163",
-     {"theirs": "Optimal-transport alignment reduces prefill/final orthogonality",
-      "ours": "Raw cos(prefill_DoM, final_DoM) = 0.046"}),
-
-    # 2603.25052 — Closing the Confidence-Faithfulness Gap
-    ("F-2", "CORROBORATED_BY", "2603.25052",
-     {"note": "Reports cos < 0.04 between correctness and confidence probe directions at same fractional depth as our L19 — clean corroboration"}),
-    ("F-3", "CORROBORATED_BY", "2603.25052",
-     {"note": "Two-stage adaptive steering with probe-driven α corroborates orthogonality between correctness and confidence directions"}),
 ]
 
 # (src_finding, rel_type, dst_finding, properties)
