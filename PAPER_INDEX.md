@@ -30554,3 +30554,644 @@ Note: pathway8_layerwise NPZs are gitignored and were extracted on RunPod. Verif
 - 1902.06964 (Shukla et al., "Geometry of Deep Generative Models for Disentangled Representations") — NOT in graph; marginal relevance. Uses Riemannian geometry on generative model latent spaces. Could be relevant if we pursue manifold-geometric analysis of residual streams, but this paper doesn't directly address hidden-state probing. Recommend: **do not admit** — too tangential.
 
 None of the other papers cited by 2605.28501 appear in our research graph (they are primarily from the optimization/clustering literature, not ML interpretability).
+
+## 2606.01249 — Trust Region On-Policy Distillation (Xing, Wang, Gao, Li, Tang, 2026)
+
+**Relevance:** TrOPD proposes a trust-region-based on-policy distillation framework for reasoning LLMs that partitions student-generated tokens by teacher-student distributional agreement. Uses the same Qwen-2.5-1.5B architecture as our primary model and achieves +3.06 avg math points over vanilla OPD. The trust-region concept (acceptance via πT/πS ratio, inspired by speculative decoding) offers both a distillation recipe for H-366 and a new diagnostic for F-2: whether teacher-student agreement regions have distinct L19 geometry.
+
+**Key claim we tested:** Their claim is that partitioning tokens by teacher-student agreement and applying region-specific KL objectives stabilizes on-policy distillation. We have not tested this directly, but the trust-region concept maps to a testable question in our framework: does cross-model agreement predict correctness independently of DoM?
+
+**Our result:** **TO TEST** — Two cheap CPU experiments (P11-FE1212, P11-FE1213) can probe the geometric analogue of their trust-region concept using cached NPZs. The full distillation experiment (P11-FE1214) tests H-366 with TrOPD as the recipe.
+
+**Related experiments:** P11-FE1212, P11-FE1213, P11-FE1214, H-366, H-367, H-895, H-896
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Trust-region token partitioning via speculative-decoding acceptance probability** — For each student-generated token x, compute P_trust(x) = min(πT(x)/πS(x), 1); tokens with high acceptance are in the trust region, others are outliers. Apply reverse KL in trust region, forward KL in outlier region.
+  *Replication cost*: Requires teacher+student forward passes on same sequences; ~2h H100 for MATH-500 at 1024 tokens.
+  *We'd plausibly run this*: no — we don't have a distillation pipeline, and this is a training-time method.
+
+- **Adaptive outlier estimation with top-k forward KL** — For outlier tokens (where πT(x)/πS(x) ≪ 1), compute FKL over teacher's top-k vocabulary instead of masking entirely. Recovers informative signal from distribution-mismatch regions without destabilizing gradients.
+  *Replication cost*: Part of TrOPD training loop; ~1 day H100 for full distillation.
+  *We'd plausibly run this*: no — training-time technique, not applicable to our inference-time analysis.
+
+- **Off-policy guidance with cosine-annealed teacher prefix** — Student continues generation from teacher-generated prefixes; prefix length anneals from max to zero during training. Uses K1-estimated forward KL for the teacher-prefix portion.
+  *Replication cost*: Part of TrOPD training loop; ~1 day H100.
+  *We'd plausibly run this*: no — training-time technique, but the *concept* of hybrid teacher-prefix/student-continuation is testable as an activation-extraction experiment for F-3.
+
+- **K1 reverse-KL estimator for memory-efficient token-level distillation** — Estimates reverse KL using only the sampled token's probability ratio log(πS(x)/πT(x)), achieving O(n) memory instead of O(nk) for full-vocabulary KL.
+  *Replication cost*: Trivial to implement if you have both model logits.
+  *We'd plausibly run this*: yes — the K1 ratio log(π_7B(x)/π_1.5B(x)) per token is a cheap feature we could extract alongside hidden states in a future GPU pass to test whether it complements DoM.
+
+### Approaches & framings
+
+- **Supervision reliability as the bottleneck in on-policy learning.** TrOPD reframes distillation failure not as "student is too weak" but as "teacher's supervision is unreliable in student-explored regions." This intersects our F-2/H-11 framing: when we ask whether the 7B DoM direction transfers to 1.5B, TrOPD suggests the transfer quality depends on *where in distribution space the distillation happens*, not just on the final checkpoint.
+
+- **Speculative-decoding acceptance as a trust criterion.** Using min(πT/πS, 1) as a Bernoulli acceptance probability draws a direct parallel to speculative decoding. For our work, this suggests a diagnostic: at inference time, tokens where the 7B model would "accept" the 1.5B's generation (πT ≥ πS) might be exactly the tokens where L19 DoM is most predictive — a cheap test of whether DoM's correctness signal aligns with cross-model agreement.
+
+- **Three-region optimization (trust / outlier / off-policy).** Partitioning the token stream into three learning regimes by supervision quality. For our hidden-state analysis, this suggests an analogous partitioning: trust-region tokens might show different L19 geometry than outlier tokens, providing a finer-grained decomposition of F-5's content-dependence finding.
+
+### Datasets & benchmarks
+
+- **AIME 2024/2025** — competitive math (30 problems each), avg of 32 evaluations per config. Applicable? no — too small and specialized for our MATH-500 pipeline, but results are comparable in difficulty level.
+- **AMC 2023** — competition math multiple-choice. Applicable? no — different format from MATH-500.
+- **LiveCodeBench v6** — code generation benchmark. Applicable? yes — potential cross-domain test for H-3 (breathing on code generation). HF | open.
+- **GPQA Diamond** — graduate-level science QA. Applicable? potentially — if we extend beyond MATH-500 per H-12/H-13. HF | open.
+- **OpenThoughts3** — distillation prompt corpus covering math/code/science. Applicable? yes — provides training prompts if we run H-366 with TrOPD instead of RevKD. HF | open.
+- **IFBench** — instruction following benchmark. Applicable? no — orthogonal to our reasoning focus.
+
+### Implementation details worth capturing
+
+- Student models: DeepSeek-R1-Distill-Qwen-1.5B, Qwen3-SFT-1.7B (both ~1.5B params, same scale as our Qwen-2.5-1.5B).
+- Teacher models: Skywork-OR1-Math-7B (single-domain), Skywork-OR1-7B (multi-domain), Qwen3-Nemotron-4B.
+- Training: 200 steps, LR 5×10⁻⁶ fixed, batch size 128 prompts × 4 rollouts, max generation 8096 tokens.
+- Top-k for FKL: k=64 vocabulary items from teacher distribution.
+- Off-policy guidance coefficient: β=0.001 for imitation learning.
+- Off-policy prefix length: cosine-annealed from max to 0 during training.
+- Code: https://github.com/Xingrun-Xing2/TrOPD/tree/main (public).
+- TrOPD FKL variant is best overall; TrOPD Mask and TrOPD Clip are ablation alternatives.
+- Concurrent work AOPD (2605.06387) is orthogonal and combinable (+1.04 points when combined).
+
+### Replicable intermediates
+
+- **Cross-model agreement partition analysis.** We have MATH-500 correctness labels for both 1.5B (48.6%) and 7B (73.2%) from `pathway11_h100/prefill_gated_compute/results.json`. Partition problems into 4 buckets (both-correct, 7B-only-correct, 1.5B-only-correct, both-incorrect) and check whether L19 DoM AUROC differs across these buckets. This tests TrOPD's core premise — that teacher-student agreement regions have different learning/prediction dynamics — using cached data. Script: load results.json, partition by dual-model labels, compute per-bucket DoM statistics from cached L19 prefill NPZs.
+
+### Cross-paper signals
+
+- 2602.12125 — already in graph (status: pending_triage). ExOPD / generalized on-policy distillation with reward extrapolation. Directly adjacent: both address OPD for reasoning models at similar scales. TrOPD cites it as concurrent work.
+- 2605.06387 — NOT in graph; recommend admission. AOPD (Asymmetric On-Policy Distillation). TrOPD Table 6 shows it's orthogonal and combinable with TrOPD. Same distillation setting with Qwen-2.5-1.5B student.
+- 2603.11137 — NOT in graph; recommend admission. REOPOLD (Relaxed On-Policy Distillation). Direct baseline in TrOPD; uses reward clipping for outlier suppression. Same student/teacher models.
+
+## 2606.01495 — CART: Context-Anchored Recurrent Transformer (Capps, 2026)
+
+**Relevance:** Architecture paper on depth-recurrent transformers with parameter sharing. Not directly about hidden-state probing or correctness prediction, but provides a dynamical-systems framework (learned spectral radius, fixed-point convergence, prelude-vs-core separation) that offers mechanistic interpretations of our F-1 (breathing), F-2 (prefill dominance), F-3 (prefill/final orthogonality), F-9 (CoE redundancy), and F-10 (PH null). The vestigiality ablation methodology is directly transferable to our probe pipeline.
+
+**Key claim we tested:** Prelude depth dominates recurrence depth; recurrent-core machinery components are vestigial in shared-weight regime.
+
+**Our result:** **CITED ONLY** — paper is about LM architecture design, not hidden-state probing. No direct replication applies, but the spectral radius and vestigiality findings motivate four new experiments (P11-FE1215–131004) that reinterpret our existing findings through CART's dynamical-systems lens.
+
+**Related experiments:** P11-FE1215, P11-FE1216, P11-FE1217, P11-FE1218, H-897, H-898
+
+**Status:** CITED ONLY
+
+### Methodologies extracted
+
+- **Sigmoid-gated LTI filter for learned stability (h ← σ(a)⊙h_in + f(h))** — A simple learned gate that controls state retention across depth iterations. The spectral radius ρ = σ(a) is bounded (0,1) and converges to a narrow learned band.
+  *Replication cost*: 20min CPU (apply gate formula to cached activations).
+  *We'd plausibly run this*: yes — can compute an "implied spectral radius" between adjacent-layer cached activations to test if the residual connection in Qwen-2.5-1.5B behaves like a linear contractive map.
+
+- **Variable-R inference (running more/fewer iterations than trained)** — Testing whether a model's representation quality degrades symmetrically or asymmetrically when you change the number of refinement steps at inference time.
+  *Replication cost*: H100 hours (requires fresh forward passes with modified architecture).
+  *We'd plausibly run this*: no — requires a looped transformer we don't have cached.
+
+- **Prelude-depth vs. recurrence-depth factorial sweep** — Systematically varying "context encoding depth" vs. "iterative refinement depth" and measuring the relative importance of each.
+  *Replication cost*: H100 days (full training sweep).
+  *We'd plausibly run this*: no — architectural experiment, not a probe experiment.
+
+- **Diagnostic ablation battery (strip components one at a time from a baseline)** — Systematic removal of individual architectural components (HyperConnection, LTI gate, LIE) to test vestigiality.
+  *Replication cost*: Analytical for cached data; could strip components from our probing pipeline.
+  *We'd plausibly run this*: yes — we could test whether individual features in our cov-spectrum probe are vestigial by ablation.
+
+- **Spectral radius tracking across training (ρ trajectory)** — Monitoring the spectral radius of a learned gate across training steps to identify transient vs. converged values.
+  *Replication cost*: H100 days (requires training-time logging).
+  *We'd plausibly run this*: no — we use frozen pretrained models, not training.
+
+### Approaches & framings
+
+**Context encoding vs. iterative refinement separation.** CART architecturally separates "encoding the context" (prelude) from "refining the representation" (core loops). This framing maps cleanly onto our prefill-vs-generation distinction: the prefill phase is context encoding, generation is iterative refinement. Our F-2/F-3 findings that prefill dominates and is orthogonal to final-token are the implicit version of CART's explicit architectural separation. This suggests treating our layer-wise analysis through a "prelude/core/coda" lens — early layers as prelude, L19 as the prelude-core boundary, late layers as coda.
+
+**Fixed-point convergence as a framework for correctness signals.** CART frames the recurrent core as converging to a fixed point h*, with the prelude determining what h* is and R controlling how close you get. Translating: the L19 DoM direction may be the "fixed-point direction" of the representation, and DoM magnitude may measure distance-to-fixed-point. Problems where the model converges quickly to h* (high DoM) are ones it gets right; problems where it hasn't converged (low DoM) are ones it gets wrong. This is a dynamical-systems reframing of F-2 and F-8.
+
+**Vestigiality testing as a methodological norm.** CART's finding that 3 out of 3 machinery components are vestigial demonstrates the value of systematic ablation before claiming a component matters. This is relevant to our own probe design: we should routinely test whether components of our probing pipeline (e.g., the specific choice of L19, the DoM direction vs. PC1 vs. random direction, the logistic regression vs. threshold) are vestigial or load-bearing.
+
+### Datasets & benchmarks
+
+- **TinyStories** — ~300M tokens, synthetic narrow-vocabulary text. HF: `roneneldan/TinyStories`. Applicable? no — not relevant to MATH-500 / reasoning.
+- **FineWeb-Edu** — ~400M tokens used, much larger corpus available. HF: `HuggingFaceFW/fineweb-edu`. Applicable? no — text-only, not math reasoning.
+- **HellaSwag, ARC-Challenge, LAMBADA, PIQA** — Standard zero-shot benchmarks. All public via lm-evaluation-harness. Applicable? marginally — could test if our L19 DoM generalizes to commonsense benchmarks (H-3 territory), but these aren't our primary benchmarks.
+
+### Implementation details worth capturing
+
+- CART trains on consumer GPUs: RTX 3050 (8GB) for Stage 1, RTX 3090 (24GB) for Stage 2 — comparable to our 2060 Super constraint.
+- Code at https://github.com/ccapps42/CART with full SQLite results database and figure-generation scripts.
+- Gradient checkpointing disabled due to tensor aliasing between HyperConnection ring buffer and frozen K,V — a relevant gotcha for anyone implementing similar cached-tensor architectures.
+- MLA compression factor d_kv = d/4 for KV cache; SwiGLU FFN with d_ff = ceil((8/3)·d/256)×256.
+- AdamW8bit optimizer (bitsandbytes), lr 3e-4 cosine decay to 3e-5, 100-step warmup, weight decay 0.1, grad clip 1.0.
+
+### Replicable intermediates
+
+- **Implied per-layer spectral radius from cached activations.** Using our cached L19 prefill activations (500×1536), compute the spectral radius of the covariance matrix (= largest eigenvalue / trace, or simply the largest eigenvalue). Compare correct vs. incorrect groups. This tests whether the "stability" signal CART finds in its LTI gate is detectable in the static geometry of a standard transformer's activations. Script: could be done with `numpy.linalg.eigvalsh` on the cached covariance matrices from FE881.
+- **Vestigiality test on cov-spectrum features.** Our cov-spectrum probe uses top-20 log-eigenvalues (FE881, AUROC 0.7928). Systematically drop each eigenvalue feature and re-fit the logistic regression to test whether individual spectral components are vestigial (analogous to CART's machinery ablations). Script: modify `pathway11_h100/cov_spectrum/` scripts.
+
+### Cross-paper signals
+
+- 2502.05171 — NOT in graph (despite repeated prior recommendations); recommend admission. Geiping et al. "Scaling Up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach." Direct predecessor architecture to CART; open weights (Huginn-3.5B). Essential for testing Refutation #3 (prelude/coda DoM orthogonality). Multiple prior briefs have recommended admission.
+- 2604.12946 — NOT in graph; recommend admission. Prairie et al. "Parcae: Scaling Laws for Stable Looped Language Models." Introduces negative-diagonal parameterization for stability. The ρ<1 constraint via ZOH discretization is a structural alternative to CART's learned gate. Directly relevant to the spectral-radius / breathing connection.
+- 2604.21106 — NOT in graph; recommend admission. Schwethelm et al. "How Much is One Recurrence Worth? Iso-Depth Scaling Laws for Looped Language Models." Introduces the recurrence-equivalence exponent φ. Directly quantifies what "one more layer of depth" is worth — central to understanding why L19 is special (is it the "prelude exit" layer?).
+- 2604.21254 — NOT in graph; weak recommend. Zeitoun et al. "Hyperloop Transformers." Three-zone architecture with standard self-attention core (recomputes K,V each iteration). The CART vs. Hyperloop comparison is the frozen-vs-recomputed-KV test that exonerates frozen K,V.
+
+## 2606.02765 — Representational Capacity: Geometric Limits on Feature Representation in Transformer Language Models (Guha, 2026)
+
+**Relevance:** Directly characterizes the geometric constraints on feature representation in transformer latent spaces, with Qwen-2.5-1.5B (our primary model) classified as Class 1 (ε = 0.26, indeterminate representational capacity) and Qwen-2.5-7B as Class 2 (ε = 0.075, capacity ≈ 1.2 × 10^8). The adjusted Johnson-Lindenstrauss capacity formula provides the first quantitative tool to test whether F-3's cos = 0.046 is distinguishable from the geometric null and whether the AUROC ceiling is a capacity constraint.
+
+**Key claim we tested:** Qwen-2.5-1.5B embeddings are in a regime (Class 1, ε = 0.26) where near-orthogonal feature superposition does not hold at the embedding level. The paper's adjusted capacity formula predicts that k/d ratio, not k alone, determines packing efficiency.
+
+**Our result:** **TO TEST** — ε_latent at L19 not yet measured. The paper's embedding-level classification of our model as Class 1 is novel and directly testable against our cached activations. If L19 latents are also Class 1, it qualifies (does not refute) F-2's DoM interpretation and strengthens F-10's PH-null result.
+
+**Related experiments:** P11-FE1219, P11-FE1220, P11-FE1221, P11-FE1222, P11-FE1223, H-445, H-693, H-694, H-862, H-899, H-900, H-901
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Embedding ε estimation (μ + 2σ of pairwise cosine similarity distribution)** — compute all-pairs cosine similarity of a set of vectors, fit mean and std, take ε = μ + 2σ as the boundary between incidental and meaningful similarity.
+  *Replication cost*: 5min CPU on cached 500×1536 activations.
+  *We'd plausibly run this*: yes — directly applicable to L19 prefill activations to get ε_latent.
+
+- **Optimized vector packing (Gram-matrix penalty minimization)** — initialize k random unit vectors in R^d, minimize L = Σ_{i≠j} |G_ij|^p on the Gram matrix via Adam (5000 steps, p ∈ [40,60]) to find the tightest achievable ε* for given (k,d).
+  *Replication cost*: 10-30min CPU per (k,d) pair; sweep over multiple pairs ~2hr.
+  *We'd plausibly run this*: yes — could validate the adjusted JL formula at d=1536 specifically, and test whether our L19 activations achieve packing closer to the optimized or random regime.
+
+- **Adjusted JL capacity formula: ε = √(C·ln(k/d)/d)** — single-parameter modification to the JL bound (replacing ln(k) with ln(k/d)) that reduces MAPE from 975% to 8% on optimized vectors.
+  *Replication cost*: trivial computation once ε and d are known.
+  *We'd plausibly run this*: yes — plug in ε_latent from L19 activations and d=1536 to get capacity bound.
+
+- **Two-class model taxonomy via ε threshold** — classify models as Class 1 (ε > 0.2, no near-orthogonal structure) or Class 2 (ε < 0.1, active superposition) based on embedding cosine similarity distributions.
+  *Replication cost*: 5min CPU per model (requires embedding matrix access).
+  *We'd plausibly run this*: yes — extend to latent-space classification at each layer to find if/where Class 1 → Class 2 transition occurs in the residual stream.
+
+### Approaches & framings
+
+- **Representational capacity as shared resource.** Embeddings, unembeddings, and features all draw from the same pool of near-orthogonal directions in R^d_model. This reframes our DoM direction as consuming one of a finite number of distinguishable directions — and the question becomes whether the model has *capacity* for a dedicated correctness direction vs. overloading existing directions. Intersects F-2 and the cos(DoM, PC1) = 0.9216 finding: DoM ≈ PC1 suggests the correctness signal rides the dominant variance direction rather than being a dedicated feature.
+
+- **ε as emergent property, not hyperparameter.** The paper frames near-orthogonality tolerance as something that *emerges* from training, not something set by design. This reframes H-693 (superposition regime): instead of asking "is the model in the superposition regime?" we can measure ε_latent layer by layer and find where (if anywhere) the model transitions to structured feature superposition during forward processing.
+
+- **Stability-capacity trade-off.** Larger models favor tighter ε (less capacity but more stability) rather than maximizing raw capacity. This is a new lens for understanding why the 7B model (Class 2, ε = 0.075) doesn't show a better DoM AUROC than the 1.5B (Class 1, ε = 0.26) — tighter orthogonality may actually make single-direction probing harder by distributing signal across more competing directions.
+
+### Datasets & benchmarks
+
+- **48-model embedding analysis dataset** — pairwise cosine similarity distributions computed across 48 open-source LLMs (Table 1 in Appendix D). Not released as a separate dataset, but reproducible from public model weights.
+  Applicable? yes — Qwen-2.5-1.5B and Qwen-2.5-7B are both included, providing direct ε_embedding values for our models.
+
+- **Optimized vector packing dataset** — (k,d) sweep with d ∈ {32,...,4096}, k ∈ {2000,...,32000}, optimized via Gram matrix penalty minimization.
+  Applicable? yes — d=1536 is included in the sweep, giving us baseline packing efficiency for our specific dimensionality.
+
+### Implementation details worth capturing
+
+- Gram matrix penalty: L = Σ_{i≠j} |G_ij|^p with p ∈ [40,60], Adam optimizer, 5000 steps. Higher p approximates L∞ (minimax) norm, encouraging tight packing.
+- Adjusted JL formula (single-parameter): C ≈ 1.293, R² = 0.9984, MAPE = 7.9%.
+- Fully parameterized: C = 0.458, a = 1.067, b = 1.447, c = 0.972, R² = 0.9998, MAPE = 5.4%.
+- Qwen 2.5 1.5B: d_model = 1536, ε = 0.25998, capacity = indeterminate (Class 1).
+- Qwen 2.5 7B: d_model = 3584, ε = 0.07501, capacity ≈ 1.20 × 10^8 (Class 2).
+- Code: https://github.com/Alex-Guha/representational-capacity
+
+### Replicable intermediates
+
+- **Test F-3 null hypothesis immediately:** Generate 10,000 random unit-vector pairs in R^1536, compute |cos|. Check what fraction has |cos| ≤ 0.046. Uses no cached data — pure Monte Carlo. Expected result: p ≈ 0.07–0.10 (marginal), confirming H-445 / H-694 are worth pursuing with the full ε_latent analysis.
+- **Compute ε_latent from cached L19 prefill activations:** Load the 500×1536 L19 prefill activation matrix from P11 H100 cache, compute all-pairs cosine similarity (500×500 = 124,750 unique pairs), fit μ and σ, compute ε_latent = μ + 2σ. Compare to ε_embedding = 0.26. Requires: `pathway11_h100/` NPZ cache.
+- **Compute capacity at L19:** Plug ε_latent and d = 1536 into the adjusted JL formula k ≤ d · exp(d·ε²/C) with C = 1.293. Compare to vocabulary size (151,936 for Qwen-2.5) and to the number of feature directions SAEs would extract.
+
+### Cross-paper signals
+
+- 2311.03658 — already in graph (status: graphed, seed_paragraph). Park et al. LRH geometry — the paper builds directly on this for the LRH foundation. Already deeply connected to our F-2 DoM interpretation.
+- 2309.08600 — NOT in graph; recommend admission. Cunningham et al. (2023) on SAE-based feature decomposition — foundational for the superposition hypothesis evidence this paper builds on. Relevant to any future SAE-based decomposition of L19 activations (H-693).
+- 2407.10671 — NOT in graph; recommend admission. Qwen 2 technical report — architectural details of our primary model family. Qwen 2.5 builds on this architecture; knowing the embedding/unembedding tying status and d_model choices is directly relevant to interpreting ε.
+
+## 2606.03503 — ThoughtFold: Folding Reasoning Chains via Introspective Preference Learning (Liu, Shen, Gu, Gao, Liu, Cheng, Lyu, Lin, Zhang, Chen, ICML 2026)
+
+**Relevance:** Training-time method for efficient reasoning via fine-grained preference learning that removes redundant reasoning steps. Introduces attention-based step importance scoring, quantile radius analysis of representation geometry, and masked DPO. Tests on MATH-500 (our primary benchmark) with Qwen-family models. The geometric analysis tools (Mahalanobis distance, quantile radius profiles) and the attention-importance framework are directly applicable to our probing pipeline.
+
+**Key claim we tested:** Attention-based step importance from middle transformer layers identifies redundant vs. essential reasoning steps; representation geometry (quantile radius) reveals training-induced changes in the hidden-state distribution.
+
+**Our result:** **TO TEST** — FE131050 (quantile radius profiles on cached activations), FE131051 (redundancy as correctness predictor), FE131052 (Mahalanobis distance predictor), FE131053 (attention-based importance extraction).
+
+**Related experiments:** P11-FE1224, P11-FE1225, P11-FE1226, P11-FE1227, H-902, H-903
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Attention-based step importance scoring (Eq. 7, 13)** — Averages attention weights from answer tokens to reasoning-step tokens at a selected transformer layer to rank step importance. Middle layer performs best (Table 4).
+  *Replication cost*: 30min CPU if we have cached attention weights; ~2h GPU if we need fresh extraction from Qwen-2.5-1.5B on MATH-500.
+  *We'd plausibly run this*: yes — if we extract attention weights alongside our existing hidden-state extraction pipeline, we get a free competing predictor for DoM.
+
+- **Introspective redundancy identification via prune-and-verify** — Iteratively removes reasoning steps from correct trajectories and checks if the model still produces the correct answer (K=4 parallel verification rollouts, acceptance threshold p̂_verify ≥ 0.75). Two phases: tail truncation (binary search on prefix length) then internal folding (binary search on retention ratio using importance scores).
+  *Replication cost*: ~4h GPU per dataset (needs multiple forward passes per problem).
+  *We'd plausibly run this*: no — too GPU-intensive for local hardware, and primarily a training-data construction method.
+
+- **Quantile radius analysis (Appendix A)** — Computes effective radius R_q as minimum Mahalanobis ball radius to capture q% of step centroids (PCA-normalized). Compares ΔR_q = R_q(Base) − R_q(Model) across quantiles to characterize how training reshapes representation geometry.
+  *Replication cost*: 15min CPU on cached activations.
+  *We'd plausibly run this*: yes — directly applicable to our 500×1536 activation matrix. No new data needed.
+
+- **Dynamic mask strategy for fine-grained DPO (Sec. 3.2)** — Constructs per-token binary masks (M_w, M_l) that activate/suppress gradients at "Fold Anchor" positions, preventing gradient conflicts on shared correct prefixes. Implements step-level credit assignment within DPO.
+  *Replication cost*: Days of GPU training.
+  *We'd plausibly run this*: no — training method, not a probing technique.
+
+- **Minimum Average Length@k (ML@k, Eq. 11)** — Metric estimating expected minimum sequence length given k rollouts (analogous to pass@k but for length). Better captures generation efficiency than simple mean length.
+  *Replication cost*: 5min CPU implementation.
+  *We'd plausibly run this*: yes — if we had multiple rollouts per problem, but currently we only have K=1 cached.
+
+### Approaches & framings
+
+- **Redundancy as the primary source of overthinking.** ThoughtFold reframes the "overthinking" problem not as trajectory length per se but as the presence of redundant exploration steps that don't contribute to the answer. This is a stronger claim than length-penalizing approaches. Intersects H-5: if the prefill signal detects problems where models will over-explore, it's detecting anticipated redundancy rather than difficulty.
+
+- **Reasoning topology as a quality metric.** Figure 4 and the concept-graph analysis (adapted from Minegishi et al. 2506.05744) frame reasoning quality as topological structure: good reasoning is linear, bad reasoning has loops and backtracking. This directly parallels our trajectory geometry analysis, though at the semantic level rather than hidden-state level.
+
+- **Training as geometric regularization.** Appendix A's finding that ThoughtFold acts as a "dual geometric regularizer" (expanding core, compressing tails) reframes RL-for-reasoning as a geometry problem. This connects to our core question: the geometry of hidden states is not just diagnostic (as in F-1 through F-10) but can be actively shaped by training objectives.
+
+### Datasets & benchmarks
+
+- **MATH-500** — 500 problems from MATH (Hendrycks et al. 2021b). Public, widely used. Applicable? **yes** — our primary benchmark.
+- **GSM8K** — 1,319 grade-school math problems. Public (HF). Applicable? yes — standard reasoning benchmark, complementary difficulty level to MATH-500.
+- **AIME 2024/2025** — Competition math (30 problems each). Public (MAA). Applicable? moderate — very small sample sizes, high variance (they run 16 trials).
+- **GPQA Diamond** — Graduate-level science QA (Rein et al. 2023). Public (HF, gated). Applicable? moderate — tests domain transfer but not our current focus.
+- **DeepMath-103K** — Training dataset (He et al. 2025). Public. Applicable? no — training data, not evaluation.
+
+### Implementation details worth capturing
+
+- Training: DeepMath-103K, batch size 128×8, max response 30k tokens, learning rate 1×10⁻⁶, λ=0.1 (GRPO vs MDPO tradeoff)
+- Attention computation for importance: middle transformer layer, single forward pass per correct sample
+- Prune-and-verify: K=4 parallel rollouts, acceptance threshold ≥3/4 correct
+- Binary search iterations: N_max,1 for tail truncation, N_max,2 for internal folding (exact values in Appendix C)
+- Layer sensitivity (Table 4, Qwen3-8B): First=78.72%, Middle=79.00%, Last=78.85% accuracy; Middle=5874, First=5899, Last=5911 tokens — mild sensitivity
+- Code link mentioned but URL redacted in paper ("Code: Link" on page 1)
+
+### Replicable intermediates
+
+- **Quantile radius analysis on cached L19 prefill activations:** Apply the Mahalanobis-ball quantile radius R_q (Appendix A, Eq. for R_q) to our 500×1536 L19 prefill activation matrix, separately for correct (243) and incorrect (257) problems. Compare quantile radius profiles. Uses: `pathway11_h100/prefill_gated_compute/` cached NPZs + `pathway11_h100/pca_covariance/` PCA results. 15min CPU.
+- **Step importance scoring on cached CoT outputs (text-level only):** If we have cached attention weights from our MATH-500 generation runs, apply Eq. 13 to rank reasoning steps. Even without cached attention, we could approximate step importance using the model's own probabilities on a single forward pass. Needs: cached CoT text + one forward pass per problem (~1h GPU).
+
+### Cross-paper signals
+
+- 2505.04881 — already in graph (status: rejected, "duplicate confidence-guided early termination"). ConCISE: confidence-guided step-by-step efficient reasoning. ThoughtFold cites it; their introspective redundancy identification is a training-time counterpart to ConCISE's inference-time approach.
+- 2506.05744 — NOT in graph; recommend admission. Minegishi et al., "Topology of reasoning: Understanding large reasoning models through reasoning graph properties." ThoughtFold uses their concept-graph analysis (Figure 4) to visualize reasoning topology. Directly relevant to our trajectory/topology framing (F-1, F-10).
+- 2601.19001 — NOT in graph; recommend admission. FROST (Luo et al., 2026): "Filtering reasoning outliers with attention for efficient reasoning." Uses attention sparsity over reasoning steps — closely related to ThoughtFold's importance scoring and our attention-based analysis.
+- 2405.04776 — NOT in graph; weak admission. Stechly et al., "Chain of thoughtlessness? an analysis of CoT in planning." Analyzes CoT quality structure. Tangential but touches reasoning topology.
+
+## 2606.03883 — Reasoning Structure of Large Language Models (Berdoz, Lanzendörfer, Farestam, Wattenhofer, ICML 2026)
+
+**Relevance:** Introduces reasoning-graph extraction pipeline and η metric that captures reasoning quality beyond accuracy and token count. Directly applicable to our MATH-500 CoT traces: η could be a complementary correctness predictor to L19 prefill DoM (F-2), and reasoning-graph topology could explain what makes D-bucket problems geometrically distinctive (F-7). The absorbing-Markov-chain formalization of logical flow provides an information-theoretic lens on what F-4 (asymmetric collapse) captures geometrically.
+
+**Key claim we tested:** Reasoning structure (graph topology, flow efficiency η) captures correctness quality that accuracy and token count miss. η is uncorrelated with token count (r = −0.05) but positively correlated with accuracy (r = 0.368) and solution-supporting fraction (r = 0.58).
+
+**Our result:** **TO TEST** — Need to extract reasoning graphs from our MATH-500 CoT traces and correlate η with cached L19 prefill features. Primary question: is η redundant with or complementary to DoM? If complementary, it identifies a concrete path past AUROC 0.7731.
+
+**Related experiments:** P11-FE1228, P11-FE1229, P11-FE1230, H-904, H-905
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Reasoning graph extraction pipeline** — Converts free-form CoT traces into directed acyclic claim graphs via deterministic + LLM hybrid extraction (chunking → claim extraction → merge/screen → claim verification → rule extraction → edge set). Uses GPT-5.2 for claim extraction and GPT-5-mini for rule extraction.
+  *Replication cost*: 2-4hr implementation + LLM API costs (~$5-20 per 500 traces depending on trace length).
+  *We'd plausibly run this*: yes — applying to our MATH-500 1024-tok CoT traces would produce reasoning graphs whose topology can be correlated with cached L19 prefill features.
+
+- **Reasoning-flow efficiency η** — η = (log|V| − H_str(G)) / (log|V| − log|C*|), where H_str is the structural entropy of the absorbing Markov chain's logical mass distribution. Measures concentration of logical flow relative to the minimal claim set.
+  *Replication cost*: 30min CPU once graphs are built; needs the graph extraction pipeline first.
+  *We'd plausibly run this*: yes — η is the key metric to correlate with DoM.
+
+- **Absorbing Markov chain model of logical flow** — Models the reasoning DAG as an absorbing Markov chain with transition matrix P, computes logical mass m(v) = πN where N is the fundamental matrix. Structural entropy H_str(G) = −Σ (m(v)/‖m‖) log(m(v)/‖m‖).
+  *Replication cost*: 20min CPU — pure linear algebra on the adjacency matrix of the reasoning graph.
+  *We'd plausibly run this*: yes — the Markov chain formalization is model-agnostic and could be applied to any DAG, including hypothetical graph structures derived from hidden-state trajectories.
+
+- **Minimal claim set C* identification** — Computes the minimal set of claims needed to reconstruct the solution via the executable puzzle environment. Enables measuring "reasoning waste."
+  *Replication cost*: Puzzle-specific (needs executable verifier). For MATH-500, would need a math verification oracle.
+  *We'd plausibly run this*: no — MATH-500 lacks the executable environment for C* computation. Could approximate via solution-step alignment.
+
+- **First-error depth tracking** — Locates the depth in the reasoning graph where the first incorrect claim appears. Correlated with η (r = 0.28, p = 0.015).
+  *Replication cost*: Needs claim verification against ground truth.
+  *We'd plausibly run this*: partially — could track first error in MATH-500 step-by-step traces if we build a verifier.
+
+### Approaches & framings
+
+- **Reasoning structure as a measurable object distinct from accuracy/token-count.** The paper argues that identical accuracy + token budget hides fundamentally different reasoning quality. This intersects F-2/F-8: our DoM probe predicts binary correctness, but the paper suggests a finer-grained quality spectrum that correctness labels don't capture.
+
+- **Structural entropy of logical flow as an information-theoretic formalization of "focused vs. diffuse reasoning."** The Markov-chain absorbing model provides a principled way to quantify reasoning concentration. This could formalize what F-4 (asymmetric collapse) captures geometrically: correct solutions have low structural entropy (concentrated flow), while incorrect solutions have high structural entropy (diffuse flow).
+
+- **Graph bloat as a failure mode distinct from incorrectness.** The paper identifies that extra tokens translate into verification overhead (|V_ver|/|V_sol|), not into expanded solution paths. This reframes our D-bucket analysis (F-7): D-bucket problems may be those where the model's reasoning graph is structurally incapable of converging, not just those where it gets the wrong answer.
+
+### Datasets & benchmarks
+
+- **PUZZLES benchmark (21 grid puzzle families × 4 difficulty levels × 5 instances = 420 instances)** — Deterministic logic puzzles with executable verification. Derived from Simon Tatham's puzzle collection. Publicly available.
+  Applicable? no — different task domain (logic puzzles vs. MATH-500). However, the evaluation *framework* (reasoning graph extraction + η) is domain-transferable.
+
+- **Code + pipeline: github.com/ETH-DISCO/llm-reasoning-efficiency** — Full extraction pipeline, benchmark instances, and evaluation code. CC-BY 4.0.
+  Applicable? yes — the graph extraction pipeline code is directly reusable for MATH-500 CoT traces.
+
+### Implementation details worth capturing
+
+- Claim extraction uses GPT-5.2 for semantic extraction and GPT-5-mini for rule extraction; both are behind an API. Open-source alternatives would need calibration.
+- Temperature T=1 for all model evaluations (deterministic sampling would suppress reasoning structure variation).
+- Extraction pipeline processes traces in token-balanced chunks to satisfy context-length constraints.
+- Claims are globally deduplicated by puzzle-specific identifiers; restated claims are linked to first occurrence.
+- Pipeline validated with six-extractor ablation: η varies by only 1.9% across extractors (no self-bias).
+- Manual inspection: 75.5% of 200 rule applications fully correct under strict criterion.
+- η robust to graph perturbations: single-perturbation CV below 5% for 6×6 and larger puzzles.
+
+### Replicable intermediates
+
+- **Correlate MATH-500 CoT trace length with correctness label:** We already have binary correctness labels and trace lengths from the 1024-tok regime. A simple check: does trace length correlate with correctness in our data? The paper says token count is not a proxy for reasoning quality (r = −0.05, p = 0.64 with η), so if trace length *does* correlate with correctness in our data, the correctness label is capturing something different from reasoning quality.
+  - Cached artifact: `pathway11_h100/prefill_gated_compute/results.json` has per-problem correctness labels.
+  - Script: Could extract trace lengths from the generation logs if available.
+
+- **Apply Markov-chain structural entropy to the cached 500×1536 activation matrix:** Treat the 500 problems' L19 prefill activations as nodes in a kNN graph, compute the absorbing Markov chain structural entropy H_str on that graph. This tests whether the activation space has concentrated vs. diffuse structure that parallels the paper's η metric.
+  - Cached artifact: L19 prefill activations (500×1536) from NPZ cache.
+  - Script: ~30min new implementation, pure numpy/scipy.
+
+### Cross-paper signals
+
+- 2509.12886 — already in graph (status: graphed). Zhu et al. "The LLM Already Knows" — corroborates F-2. Berdoz et al. operate on reasoning traces rather than hidden states; the two papers are complementary: one shows hidden states predict correctness, the other shows reasoning *structure* predicts quality beyond correctness.
+- 2604.18805 — already in graph (status: graphed). Ríos-García agent confirmation-bias study. Cited in our triage methodology but not by this paper.
+- 2509.19284 — NOT in graph; recommend admission. Feng et al. "What Characterizes Effective Reasoning?" — directly relevant: proposes failed-step fraction for reranking and editing of CoT traces. Intersects F-8 (selective prediction) and this paper's η metric.
+
+## 2606.04010 — The Variance Brain Foundation Models Forgot: Third-Order Statistics Predict Cognition Where Billion-Parameter Models Fail (Marraffini, Mahuas, Borrell, Shevchenko, Wassermann, 2026)
+
+**Relevance:** The paper demonstrates that third-order co-skewness (κ₃) carries downstream-predictive signal that second-order covariance (κ₂) misses, using Tucker/HOSVD to extract a κ₃-optimal subspace. Although applied to fMRI (not LLMs), the methodology transfers directly to our cached L19 prefill activations: our probe hierarchy (DoM = κ₁, cov-spectrum = κ₂) naturally extends to κ₃ via Tucker decomposition. The paper's finding that PCA (κ₂-maximizing) is consistently outperformed by Tucker (κ₃-maximizing) at matched dimensionality directly challenges whether our 0.7928 cov-spectrum AUROC is a true linear ceiling.
+
+**Key claim we tested:** Third-order co-skewness tensor decomposition reveals task-relevant structure invisible to second-order covariance analysis, and Tucker basis outperforms PCA basis for downstream prediction.
+
+**Our result:** **TO TEST** — P11-FE1231 will apply Tucker/HOSVD to L19 activations and compare correctness-probe AUROC in Tucker vs PCA basis. P11-FE1232 will test whether κ₃ norm differs between correct/incorrect subgroups vs Gaussian null, stress-testing F-10.
+
+### Methodologies
+- Tucker/HOSVD decomposition of third-order cumulant tensor (§3.2)
+- Per-cumulant preservation metrics: Log-Cholesky relative error and NMSE at κ₂ and κ₃ (§3.6, Appendix M)
+- Log-Cholesky distance on SPD manifold for covariance comparison (§3.7)
+- Cumulant expansion as a diagnostic hierarchy for representation analysis (§3.1)
+
+### Approaches
+- Variance allocation problem framing: pretraining objectives allocate capacity to dominant (uninformative) variance
+- Basis selection (κ₃ vs κ₂ criterion) matters more than compression amount for downstream prediction
+
+### Datasets
+- AOMIC-ID1000 (N=876, OpenNeuro CC0), HCP (N=955) — brain fMRI, not directly applicable
+
+### Implementation
+- Tucker via tensorly HOSVD, rank R=80 default, broad plateau R≥80
+- Code: https://anonymous.4open.science/r/E4C0/
+
+**Related experiments:** P11-FE1231, P11-FE1232, P11-FE1233, P11-FE1234, H-906, H-907
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Tucker/HOSVD decomposition of co-skewness tensor** — Decomposes the third-order cumulant tensor S ∈ ℝ^{P×P×P} via higher-order SVD to extract factor matrix U ∈ ℝ^{P×R} whose columns span the subspace maximizing third-order structure. Analogous to how PCA maximizes variance (κ₂), Tucker maximizes co-skewness (κ₃).
+  *Replication cost*: 30min CPU on our 500×1536 matrix (tensor is 1536³ ≈ 3.6B entries, but rank-R Tucker with R=80 is tractable via iterative HOSVD).
+  *We'd plausibly run this*: **yes** — directly applicable to cached L19 prefill activations. The paper's code is available.
+
+- **Per-cumulant preservation metrics** — Quantifies how much κ₂ and κ₃ structure a transformation preserves via Log-Cholesky relative error and Frobenius NMSE, computed in the Tucker subspace. Allows diagnosis of *which statistical order* carries a given signal.
+  *Replication cost*: 15min CPU once Tucker basis is computed.
+  *We'd plausibly run this*: **yes** — compute on L19 activations to characterize whether the correct/incorrect split lives in κ₂ vs κ₃.
+
+- **Log-Cholesky distance on SPD manifold** — Riemannian distance between positive definite matrices via Cholesky factorization Σ = LL^⊤, combining strict lower-triangular L₂ norm with log-diagonal L₂ norm. Used as both a finetuning loss and an evaluation metric.
+  *Replication cost*: 10min CPU implementation, trivial.
+  *We'd plausibly run this*: **yes** — could replace Euclidean distance when comparing per-problem covariance matrices.
+
+- **Dual-moment (κ₂ + κ₃) finetuning loss** — Weighted combination L(λ) = λ · d_LC(FC(Z), FC(Z̃)) + (1−λ) · d_{κ₃}(Z, Z̃) with two κ₃ surrogates: coskew_mse (direct tensor MSE) and fc_tucker (Log-Cholesky on FC computed in κ₃-optimal Tucker subspace). fc_tucker consistently outperforms coskew_mse.
+  *Replication cost*: Requires retraining, not applicable to our cached data.
+  *We'd plausibly run this*: **no** — our pipeline doesn't train models; we extract and probe.
+
+- **Cumulant expansion as a diagnostic hierarchy** — Frame any representation analysis as a cumulant hierarchy: κ₁ (mean), κ₂ (covariance/FC), κ₃ (co-skewness), κ₄ (co-kurtosis)... Each order isolates genuinely new structure. For Gaussians, κ_n = 0 for n ≥ 3.
+  *Replication cost*: Conceptual framework, 0 cost.
+  *We'd plausibly run this*: **yes** — reframes our DoM → cov-spectrum progression as a κ₁ → κ₂ hierarchy and motivates testing κ₃.
+
+### Approaches & framings
+
+- **Variance allocation problem** — Self-supervised objectives allocate model capacity to dominant variance components, which may be uninformative for the downstream task. This is a general diagnosis applicable to any pretraining → probing pipeline. Intersects our setup: if L19 activations are shaped by the pretraining loss to represent dominant variance (next-token prediction), the correctness signal may live in higher-order residuals that the main variance direction (PC1 ≈ DoM) partially overlaps by accident rather than by design.
+
+- **Basis selection matters more than compression amount** — At matched dimensionality, Tucker (κ₃) basis consistently outperforms PCA (κ₂) basis. The choice of subspace criterion, not the number of features, is the primary lever. Directly relevant to how we select features for the cov-spectrum probe.
+
+- **κ₃ is the useful cue, but it enters the pipeline through the basis, not through its entries** — Direct κ₃ tensor entries are too noisy; the Tucker basis denoises them. The informative object is the subspace geometry, not the tensor values. Parallels our finding that DoM (a direction) carries more signal than the raw activation values.
+
+### Datasets & benchmarks
+
+- **AOMIC-ID1000** — N=876, movie-watching fMRI, OpenNeuro ds003097, CC0. Applicable? **no** — brain imaging, not LLM activations.
+- **Human Connectome Project (HCP)** — N=955, resting-state fMRI, WU-Minn consortium. Applicable? **no** — same.
+
+### Implementation details worth capturing
+
+- Tucker decomposition via higher-order SVD (HOSVD): fit factor matrix U ∈ ℝ^{P×R} on training set, freeze, project test data.
+- Co-skewness tensor S_{ijk} = (1/T) Σ_t z_i(t) z_j(t) z_k(t) for z-scored data. For our LLM setting: z_i(n) z_j(n) z_k(n) across N=500 problems, yielding S ∈ ℝ^{1536×1536×1536} — too large to materialize fully. Must use iterative HOSVD or randomized Tucker (tensorly library).
+- Rank R=80 is the paper's working point; sweep R ∈ [40, 333] shows broad plateau above R=80.
+- Log-Cholesky: Σ = LL^⊤, d_LC = √(||strict(L₁−L₂)||²_F + ||log diag(L₁) − log diag(L₂)||²₂), with εI regularization (ε=10⁻⁴).
+- KRR evaluation: Pearson-correlation kernel, nested CV (20 reps × 10 folds), Nadeau-Bengio corrected t-test with BH-FDR.
+- Code: https://anonymous.4open.science/r/E4C0/
+
+### Replicable intermediates
+
+- **Tucker decomposition of L19 co-skewness tensor**: Using cached L19 prefill activations (500 samples × 1536 dims, `pathway11_h100/`), compute the empirical co-skewness tensor via iterative HOSVD (tensorly), extract the rank-R factor matrix U, project activations into the Tucker subspace, and compare correctness-probe AUROC of covariance features in Tucker basis vs PCA basis. This is a direct transfer of the paper's main result to our setting.
+  - Cached artifact: L19 prefill activations NPZ (DATA_MANIFEST.md)
+  - Script: new ~100-line Python script using tensorly + sklearn
+  - Runtime: ~30min CPU (1536³ tensor is large but rank-80 HOSVD is iterative)
+
+- **κ₃ non-Gaussianity test**: Compute the Frobenius norm of the co-skewness tensor ∥S∥_F for correct vs incorrect problem subgroups and compare to the matched-Gaussian null (for which κ₃ = 0 theoretically, but sampling noise gives a nonzero floor). If ∥S_correct∥ vs ∥S_incorrect∥ differ significantly, there's non-Gaussian structure that PH missed — stress-testing F-10.
+  - Cached artifact: same NPZs
+  - Runtime: ~15min CPU
+
+### Cross-paper signals
+
+- 2509.12886 — already in graph (status: graphed). Corroborates F-2 via independent hidden-state correctness prediction. Marraffini's cumulant hierarchy would contextualize Zhu et al.'s result as a κ₁ finding.
+- 2402.11337 — NOT in graph; recommend admission. Balestriero & LeCun "Learning by reconstruction produces uninformative features" — directly cited as theoretical foundation for the variance allocation problem. Relevant to understanding why pretraining objectives may miss correctness-predictive structure in LLM activations.
+- 2306.09479 — NOT in graph; recommend admission. McKenzie et al. "Inverse scaling: When bigger isn't better" — cited for the inverse-scaling phenomenon that Marraffini replicates with BrainLM (650M worse than 111M). Relevant to H-876 (non-monotonic scaling) and scale-dependent geometry questions.
+
+## 2606.04036 — Self-Distilled Policy Gradient (Liu, Zhang, Zhang, Gu, 2026)
+
+**Relevance:** SDPG introduces a training variant (GRPO + on-policy self-distillation + KL regularization) that provides dense per-token supervision for sparse-reward RL. Directly relevant to the H-707/H-774 family of hypotheses testing whether F-2's prefill DoM correctness signal is GRPO-specific or RL-objective-invariant. The paper's entropy-stability results (Figure 3e) connect to H-853/H-854 on mode collapse and its relationship to hidden-state geometry. Tested on Qwen3-1.7B, close to our Qwen-2.5-1.5B scale.
+
+**Key claim we tested:** Dense per-token OPD combined with outcome RL produces better and more stable math reasoning than GRPO alone (Table 1: SDPG-UFKL 0.192 vs GRPO 0.096 on AIME24, Qwen3-1.7B).
+
+**Our result:** **TO TEST** — SDPG's claims are about training outcomes, not hidden-state geometry. The key test for our program is whether SDPG-trained models produce the same L19 prefill DoM direction as GRPO-trained models (H-908) and whether F-4's asymmetric collapse persists (H-909). Requires training an SDPG checkpoint, which is blocked by H100 availability.
+
+**Related experiments:** P11-FE1236, P11-FE1237, H-908, H-909, H-707, H-774, H-853
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Full-vocabulary reverse-KL on-policy self-distillation (OPD)** — The same model provides dense per-token KL targets by conditioning on privileged context (solutions) vs unprivileged (question only). Proposition 3.1 shows this is equivalent to a policy-gradient update with centered log-ratio token advantages.
+  *Replication cost*: 8×H100 for 400 steps (~1 day for Qwen3-4B).
+  *We'd plausibly run this*: no — requires H100 cluster for training, not applicable to inference-time analysis.
+
+- **Positive-advantage gating** — Gate the OPD loss by m_i = 1[A_out > 0], trusting self-distillation only on verifier-endorsed rollouts.
+  *Replication cost*: trivial to implement once training loop exists.
+  *We'd plausibly run this*: no — training-time technique, not applicable to cached activations.
+
+- **Warmup-decay distillation schedule** — β(k) = β_base × min(1, k/T_warm) × min(1, (T−k)/T_decay). Warms up OPD after outcome learning has begun finding correct trajectories, then decays to release the student.
+  *Replication cost*: trivial scheduling code.
+  *We'd plausibly run this*: no — training-time technique. But the conceptual framing (early features are noisy, late features are over-constrained) could inform how we weight per-layer features in multi-layer probes.
+
+- **Unnormalized KL divergence (UKL)** — Adds mass correction term to standard KL to handle sub-vocabulary distributions. Equivalent to Schulman's k3 estimator with lower variance.
+  *Replication cost*: 5min implementation.
+  *We'd plausibly run this*: no — KL between model distributions, not applicable to activation analysis.
+
+- **Group-relative advantage with normalized standard deviation** — Standard GRPO advantage normalization A = (R − μ) / (σ + ε).
+  *Replication cost*: already implemented everywhere.
+  *We'd plausibly run this*: no — training-time.
+
+### Approaches & framings
+
+- **Distillation-as-policy-gradient identity:** The gradient of D_KL(p_t || SG[q_t]) is locally identical to a detached-sampling policy-gradient with centered log-ratio advantage A_dist = D̄_t − log(p̄_t(a)/q̄_t(a)). This reframes KL distillation as just another advantage signal, unifying the distillation and RL views. Intersects our framing at a meta-level: if the "correctness direction" in F-2 is best understood as a direction that a verifier-grounded policy gradient pushes the model toward, then different policy gradient formulations (GRPO vs SDPG) should produce different directions — directly testable via H-707/H-774.
+
+- **Privileged-context self-distillation as dense supervision for sparse rewards:** The core insight is that the same model, conditioned on solutions, provides per-token guidance to the version without solutions. Analogous to our setup: the model "knows" the answer (when given the solution) and this knowledge is transferred to the unprivileged version. Our F-2 finding can be read as: the prefill geometry already encodes whether the model will produce this privileged knowledge or not, even before generation begins.
+
+- **Entropy collapse as a mode-collapse diagnostic:** SDPG uses actor entropy decay as a training failure mode indicator (Figure 3e). This framing could be applied to our per-problem analysis: if a problem's L19 activation is "low entropy" (concentrated in few principal components), that might indicate the model has mode-collapsed on that problem, predicting the D-bucket signature (F-7).
+
+### Datasets & benchmarks
+
+- **DAPO-Math-17k** — 13.9k English math problems used for SDPG training. Unknown license, referenced from DAPO (Yu et al., 2025). Applicable? no — training dataset for RL, we use MATH-500 for evaluation.
+- **AIME2024 / AIME2025** — Competition math (30 problems each). Public, from MAA. Applicable? marginally — very small, competition-level, different difficulty distribution than MATH-500.
+- **AMC23** — Competition math, ~25 problems. Public. Applicable? no — too small for hidden-state analysis.
+
+### Implementation details worth capturing
+
+- Training on 8×H100, 400 steps, AdamW lr=1e-6, weight decay 0.1, gradient clipping 1.0, global batch 128, 8 responses per prompt, temp 1.0, max prompt 2048 / response 4096.
+- SDPG hyperparams: α=1e-3 (KL reg), β_base=1e-3 (OPD), T_warm=50, T_decay=350.
+- GRPO baseline uses ε_std=1e-6, clipping (0.2, 0.2), KL coefficient 1e-3.
+- Privileged context generated by Gemini 2.5 Pro (solutions for teacher model).
+- Framework: verl + vLLM engine.
+- Code: https://github.com/lauyikfung/SDPG
+
+### Cross-paper signals
+
+- 2604.03128 — NOT in graph; recommend admission. RLSD (Self-Distilled RLVR), the primary baseline for SDPG. Same self-distillation concept applied differently (likelihood ratio reweighting vs full-vocabulary KL). Would provide another training-variant anchor point for H-707/H-774.
+- 2601.20802 — NOT in graph; weak recommendation. Reinforcement learning via self-distillation (Hübotter et al.). Foundational self-distillation paper, but less directly relevant than RLSD.
+- 2505.09388 — NOT in graph; NOT recommended. Qwen3 technical report — useful reference but no direct methodology for our probing work.
+
+## 2606.04212 — Edge of Stability Selectively Shapes Learning Across the Data Distribution (Kwag, Ganesh, Poggio, Beneventano, MIT, 2026)
+
+**Relevance:** Shows that EoS during training is selective — it redistributes learning across data subsets via alignment of per-subset gradients with the top Hessian eigenvector. Raises the possibility that our inference-time directional signals (DoM, PC1, asymmetric collapse) are downstream consequences of which MATH-type problems dominated v1 during Qwen pretraining, rather than active inference-time confidence computations. Provides a prototype taxonomy (inlier/boundary/outlier) applicable to our activation space and a cos²θ × ‖∇ℓ‖² factorization that maps onto our DoM × spectrum decomposition.
+
+**Key claim we tested:** "Centroid distance predicts per-example alignment with v1 at EoS (Spearman ρ = 0.39)" — tested as: does centroid distance in L19 activation space predict DoM projection magnitude?
+
+**Our result:** **TO TEST** (P11-FE1238 through P11-FE1241 queued)
+
+**Related experiments:** P11-FE1238, P11-FE1239, P11-FE1240, P11-FE1241, H-910, H-911
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Branching intervention at EoS onset** — fork training trajectory at the moment λ_max(H) reaches 2/η, continue one branch at η (EoS) and drop the other to η/2 (exit). Causal identification of EoS effects on per-subset learning.
+  *Replication cost*: ~10min CPU per MLP run (their setup); ~hours for LLM-scale.
+  *We'd plausibly run this*: no — requires training from scratch, and our pipeline is inference-only on frozen Qwen models.
+
+- **Prototype taxonomy** — partition data into inlier/boundary/input-outlier/output-outlier by centroid distance and k-NN label ambiguity (k=50), independent of trained model.
+  *Replication cost*: 10min CPU on cached activations.
+  *We'd plausibly run this*: yes — directly applicable to L19 prefill activations (500 × 1536) as an unsupervised partitioning that doesn't use correctness labels. Comparing this partition to our correctness-based D-bucket partition is cheap and informative.
+
+- **Directional coupling metric** cos²θ_k = (∇ℓ_k · v1)² / ‖∇ℓ_k‖² — measures how strongly a group's gradient aligns with the top Hessian eigenvector.
+  *Replication cost*: requires training gradients (not available for frozen models).
+  *We'd plausibly run this*: no — we don't have access to training gradients.
+
+- **Curvature influence metric** (∇ℓ_k · v1)² = ‖∇ℓ_k‖² · cos²θ_k — factorizes into alignment × magnitude.
+  *Replication cost*: same as above (needs training gradients).
+  *We'd plausibly run this*: no — but the factorization *idea* (decomposing a directional signal into alignment and magnitude) is directly applicable to our DoM projections. We can compute (h_i · DoM)² = ‖h_i‖² · cos²(h_i, DoM) for each example and check which factor drives the correctness signal.
+
+- **Centroid-distance → per-example alignment correlation** — Spearman ρ between ‖x_i − μ_c‖ and cos²(∇ℓ_i, v1) at different training stages.
+  *Replication cost*: 5min CPU on cached activations (replacing training gradients with DoM projections).
+  *We'd plausibly run this*: yes — compute centroid distance in L19 activation space and correlate with DoM projection.
+
+### Approaches & framings
+
+- **EoS as inductive bias, not regularizer.** The paper reframes EoS from "keeps sharpness low" to "determines which data subsets get optimized." This intersects H-4 by suggesting that breathing/sharpness patterns at inference time are downstream consequences of *which data subsets dominated v1 during training*, not properties of the test input itself.
+
+- **Flatness is directional, not scalar.** Curvature matters only in the direction of v1; perpendicular curvature is irrelevant. This reframes our F-10 (PH null): PH is rotation-invariant and thus blind to the *directional* structure that EoS creates. The null might be a measurement mismatch, not evidence of isotropic Gaussianity.
+
+- **Alignment × persistence as the selector.** Two independently necessary conditions for a data subset to benefit from EoS: (1) aggregate gradient aligns with v1, (2) gradient norm doesn't vanish. This decomposition maps onto our DoM (alignment with a direction) × spectrum (magnitude/spread of eigenvalues) factorization in the cov-spectrum probe (AUROC 0.7928).
+
+### Datasets & benchmarks
+
+- **CIFAR-10 binary (automobile vs truck)** — n=10,000 training examples, 200 prototype-labeled points (50 per group). Proprietary/available: public. Applicable? no — image classification, not math reasoning or LLM hidden states.
+
+## Implementation details
+
+- Code: extends https://github.com/arseniqum/edge-of-stochastic-stability (Apache 2.0)
+- Architecture: 2-hidden-layer MLP (width 512, ReLU), also CNN (3 conv layers, 64-64-128) and BN-free ResNet-14
+- Training: full-batch GD, η=0.01, MSE (default) or CE, 10,000 steps
+- Top Hessian eigenvalue: via Hessian-vector products, logged every 32 steps
+- Prototype construction: m=25 per class per group, α=3 or α=10 for input-outlier displacement
+- Hardware: single NVIDIA L40S (48GB), ~15 GPU-hours total
+- Branching: fork at t* (first step where λ_max reaches 2/η), exit branch halves η
+
+### Replicable intermediates
+
+- **Centroid-distance distribution in L19 activation space**: compute ‖h_i − μ_c‖ for c ∈ {correct, incorrect} from cached `pathway11_h100/` NPZ activations (500 × 1536). Check distribution shape and whether centroid distance predicts DoM projection (Spearman ρ). Script: load NPZ, compute class centroids, compute distances, correlate with DoM projections. ~5min CPU.
+
+- **Alignment × magnitude decomposition of DoM**: factorize (h_i · DoM)² into ‖h_i‖² and cos²(h_i, DoM) for correct vs incorrect. Determine which factor carries the AUROC signal. This directly tests whether the paper's cos²θ_k framework explains our correctness prediction. Script: same NPZ, compute both factors, compute per-factor AUROC. ~5min CPU.
+
+### Cross-paper signals
+
+- 2604.19740 — already in graph (status: PARTIALLY CONFIRMED). Same EoS domain; that paper connects PH null to Sharpness Dimension. This paper adds subset-level selective learning, a complementary mechanism.
+- 2412.20553 (Andreyev & Beneventano, "Edge of stochastic stability") — NOT in graph; recommend admission only if we extend to SGD-trained models. Provides the codebase this paper extends. Low priority.
+- 2605.05683 — already in graph (status: pending_triage or graphed). "Spectral Lens: Activation and Gradient Spectra as Diagnostics of LLM Optimization." Shares the spectral/eigenvalue angle. Connection: their gradient spectrum analysis could measure whether v1 rotation is visible in LLM activation spectra.
+
+## 2606.04272 — RL Excursions during Pre-Training: Re-examining Policy Optimization for LLM training (Bansal, Mohri, Qin, Alvarez-Melis, Kakade, 2026)
+
+**Relevance:** Directly probes how different training pipelines (direct RL, SFT, SFT→RL, parallel averaging) affect internal representations of a 1B math-reasoning model. The central finding — that distribution sharpening is an artifact of SFT preceding RL, not of RL itself — raises a concrete threat to F-2: the DoM direction may be pipeline-specific rather than intrinsic. The parallel-averaging recipe creates a new representational regime (high pass@k + preserved general capabilities) that is the ideal test case for H-853.
+
+**Key claim we tested:** Distribution sharpening (and by extension, residual-stream geometry like DoM) depends on the training pipeline, not just the RL objective.
+
+**Our result:** **TO TEST** — paper provides the framework and motivation but no direct experiment on residual-stream geometry. FE131052 and FE131053 are the critical follow-ups.
+
+**Related experiments:** P11-FE1242, P11-FE1243, P11-FE1244, P11-FE1245, H-912, H-913, H-463, H-707, H-853, H-8
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Parallel averaging of RL and SFT gradients (Algorithm 1):** At each training step, compute RL and SFT gradients from the same parameter snapshot with independent Adam optimizer states, then average the parameter updates. Achieves best pass@32 across all recipes.
+  *Replication cost*: Requires training from scratch; not applicable to our inference-time pipeline.
+  *We'd plausibly run this*: no — requires GPU training; our pipeline is inference-only on pretrained models.
+
+- **Base pass@k as RL-effectiveness predictor (§3.4):** The base model's 8-shot pass@k on the test set monotonically predicts post-RL pass@k. A lightweight diagnostic before committing to RL training.
+  *Replication cost*: 20min CPU to evaluate 8-shot pass@k on MATH-500 with cached model.
+  *We'd plausibly run this*: no — we don't do RL training, but the *framing* (base capability predicts post-training outcome) maps to our DoM: prefill geometry predicts generation outcome.
+
+- **Pretraining-checkpoint sweep for capability analysis:** Saving checkpoints every few billion tokens and applying different post-training recipes to each, measuring both target-domain and general-capability metrics.
+  *Replication cost*: Days of GPU training; requires access to OLMo2 training infrastructure.
+  *We'd plausibly run this*: no — requires pre-training compute.
+
+- **Distribution expansion vs sharpening diagnostic (§4.1):** Compare pass@1 and pass@k (k=32) before/after a training intervention. If pass@k drops while pass@1 rises → sharpening. If both rise → expansion. A clean two-number diagnostic for representational regime.
+  *Replication cost*: 1h GPU to run pass@32 on MATH-500 with vLLM.
+  *We'd plausibly run this*: yes — we could compare pass@1 vs pass@32 for Qwen-2.5-1.5B base vs instruct to determine which regime our DoM model is in, using cached hidden states to check if DoM correlates differently with pass@1 vs pass@32 correctness labels.
+
+### Approaches & framings
+
+- **RL as distribution expander vs SFT as distribution sharpener:** Reframes the RL-vs-SFT debate from "which is better" to "which modifies the output distribution in which way." Intersects F-2/H-707: if DoM is a sharpening artifact, the direction exists *because of* SFT concentration, not despite it.
+
+- **Pipeline-specificity of internal representations:** The claim that "distribution sharpening is an artifact of SFT preceding RL, not of RL itself" implies internal representational geometry (like DoM) could be pipeline-specific. This is a threat to the generality of F-2.
+
+- **Data composition as the binding constraint on RL:** Pre-training data mix matters more than model scale for RL effectiveness. Intersects F-5 (content-dependence): the representations that our DoM probes may be downstream of data composition choices more than architecture or training procedure.
+
+### Datasets & benchmarks
+
+- **OpenMathInstruct (Toshniwal et al., 2024)** — math problems with ~23 ground-truth solutions per problem. HF: available. Applicable? yes — overlaps with MATH-500; could be used to compare DoM on problems where pass@k is known.
+
+- **GSM8K (Cobbe et al., 2021)** — grade-school math, 8.5K problems. HF: available. Applicable? yes — easier benchmark than MATH-500; useful for cross-benchmark DoM validation per H-3.
+
+- **DOLMino pretraining mix (OLMo Team, 2025)** — 50B token high-quality pretraining corpus. HF: `allenai/dolmino-mix-1124`. Applicable? no — pretraining data, not useful for our inference-time pipeline.
+
+### Implementation details worth capturing
+
+- OLMo2 1B architecture, 4096 sequence length, batch size 512; pretrained on 50B tokens (~2.5× Chinchilla optimal)
+- GRPO hyperparameters: lr=1e-6, 32 rollouts/prompt, KL coefficient 1e-3, AdamW (β1=0.9, β2=0.999)
+- SFT: lr=4e-5, 5 epochs to convergence (Fig 14), 100 epochs for interleaved mode
+- Parallel averaging: independent Adam states for RL and SFT branches, equal-weight averaging of parameter updates
+- Base model evaluated with 8-shot prompting; post-trained models evaluated 0-shot
+- Infrastructure: A100 and H100 GPUs; pretraining takes days, GRPO days, SFT hours
+- Code: uses OLMo pretraining library and VeRL library
+
+### Replicable intermediates
+
+- **pass@1 vs pass@32 sharpening diagnostic on cached activations:** We have MATH-500 L19 prefill activations for Qwen-2.5-1.5B-Instruct. We can compute DoM projection for all 500 problems, then split by whether the problem is "easy" (correct at K=1) vs "hard" (incorrect at K=1). If DoM projection magnitude correlates more strongly with pass@1 correctness than with pass@k correctness, this is evidence that DoM is a sharpening-regime signal. Uses: `pathway11_h100/prefill_gated_compute/` cached data.
+
+- **PC1 explained-variance ratio as expansion/sharpening proxy:** On cached 500×1536 L19 prefill activation matrix, compute PCA. If PC1 explains >30% of variance, the representation is "sharp" (concentrated along one direction). Compare this to a theoretical direct-RL model where expansion would predict lower PC1 explained variance. Uses: `pathway11_h100/pca_covariance/` cached results (FE291 already computed cos(DoM,PC1)=0.9216).
+
+### Cross-paper signals
+
+- 2501.17161 (Chu et al., "SFT memorizes, RL generalizes") — NOT in graph; recommend admission. Directly relevant: their claim that SFT memorizes while RL generalizes maps to whether DoM captures memorization-patterns (SFT regime) vs generalization-patterns (RL regime).
+- 2504.13837 (Yue et al., "Does RL really incentivize reasoning capacity beyond base model?") — NOT in graph; recommend admission. Central to the sharpening-vs-expansion debate that threatens F-2's generality.
+- 2505.22756 (Qin et al., "Decomposing elements of problem solving: What 'math' does RL teach?") — NOT in graph; recommend admission. Same group (Bansal is a co-author on both). Decomposes what RL teaches — directly relevant to understanding what DoM captures.
+- 2510.15020 (Chen et al., "The coverage principle: How pre-training enables post-training") — NOT in graph; recommend admission. Formalizes the base-model capability threshold for post-training — relevant to H-8 (DoM stability across checkpoints).

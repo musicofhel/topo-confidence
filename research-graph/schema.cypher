@@ -66,7 +66,7 @@ CREATE FULLTEXT INDEX finding_claims IF NOT EXISTS
   FOR (f:Finding) ON EACH [f.claim, f.strongest_counterargument];
 
 CREATE FULLTEXT INDEX paper_relevance IF NOT EXISTS
-  FOR (p:Paper) ON EACH [p.relevance_note, p.title];
+  FOR (p:Paper) ON EACH [p.relevance_note, p.title, p.description];
 
 CREATE FULLTEXT INDEX experiment_hypotheses IF NOT EXISTS
   FOR (e:Experiment) ON EACH [e.hypothesis, e.result];

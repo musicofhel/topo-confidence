@@ -161,6 +161,53 @@ def enrich_all_papers(verbose: bool = True) -> dict[str, Any]:
     return {"enriched": len(found), "missing": len(missing), "missing_ids": missing}
 
 
+def enrich_descriptions(verbose: bool = True) -> dict[str, Any]:
+    """Copy description text from link-forge to Paper nodes in the research graph.
+
+    Only fills in missing descriptions (won't overwrite existing ones).
+    """
+    with _research_session() as rg:
+        papers = list(
+            rg.run(
+                "MATCH (p:Paper) WHERE p.description IS NULL "
+                "RETURN p.arxiv_id AS arxiv_id"
+            )
+        )
+
+    if verbose:
+        print(f"  Papers missing descriptions: {len(papers)}")
+
+    found, missing = [], []
+    with _link_forge_session() as lf:
+        if lf is None:
+            return {"enriched": 0, "missing": len(papers), "missing_ids": [r["arxiv_id"] for r in papers]}
+        for r in papers:
+            arxiv_id = r["arxiv_id"]
+            needle = _arxiv_to_url_substr(arxiv_id)
+            rows = list(lf.run(
+                "MATCH (l:Link) WHERE l.url CONTAINS $needle "
+                "AND l.description IS NOT NULL "
+                "RETURN l.description AS description LIMIT 1",
+                needle=needle,
+            ))
+            if not rows:
+                missing.append(arxiv_id)
+                if verbose:
+                    print(f"  miss   {arxiv_id}")
+                continue
+            desc = rows[0]["description"]
+            found.append(arxiv_id)
+            with _research_session() as rg:
+                rg.run(
+                    "MATCH (p:Paper {arxiv_id: $a}) SET p.description = $desc",
+                    a=arxiv_id, desc=desc,
+                )
+            if verbose:
+                print(f"  hit    {arxiv_id}  desc={desc[:60]}...")
+
+    return {"enriched": len(found), "missing": len(missing), "missing_ids": missing}
+
+
 def find_ungraphed_papers(tag: str, limit: int = 25) -> list[dict[str, Any]]:
     """Find arxiv links in link-forge whose URL/title/concepts match a tag and
     that are NOT yet present in the research graph.
