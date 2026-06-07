@@ -939,24 +939,35 @@ def _path_arxiv_id_match(arxiv_ids: list[str]) -> list[tuple[str, str, int]]:
 
 
 def _path_finding_neighborhood(
-    finding_results: list[tuple[str, str, int]], limit: int = 15,
+    finding_results: list[tuple[str, str, int]], limit: int = 25,
 ) -> list[tuple[str, str, int]]:
-    finding_ids = [nid for label, nid, _ in finding_results if label == "Finding"]
-    if not finding_ids:
+    ranked = [(nid, rank) for label, nid, rank in finding_results if label == "Finding"]
+    if not ranked:
         return []
+    fid_rank = {}
+    for nid, rank in ranked:
+        if nid not in fid_rank:
+            fid_rank[nid] = rank
     rows = _run(
         """
         UNWIND $fids AS fid
         MATCH (f:Finding {id: fid})-[r]->(p:Paper)
         WHERE type(r) IN ['CORROBORATED_BY','CONTRADICTED_BY','EXTENDED_BY','METHOD_DIFFERS','EXPLAINS']
-        RETURN DISTINCT 'Paper' AS label, p.arxiv_id AS id, type(r) AS rel
-        ORDER BY p.arxiv_id
+        RETURN DISTINCT fid AS finding, 'Paper' AS label, p.arxiv_id AS id
         """,
-        fids=finding_ids,
+        fids=list(fid_rank.keys()),
     )
+    scored = []
+    seen = set()
+    for r in rows:
+        if r["id"] in seen:
+            continue
+        seen.add(r["id"])
+        scored.append((fid_rank.get(r["finding"], 99), r["id"]))
+    scored.sort()
     out = []
-    for r in rows[:limit]:
-        out.append((r["label"], r["id"], len(out)))
+    for _, pid in scored[:limit]:
+        out.append(("Paper", pid, len(out)))
     return out
 
 
@@ -967,7 +978,7 @@ DEFAULT_WEIGHTS = {
     "paper-ft": 2.5,
     "tag-match": 1.5,
     "dataset-match": 2.0,
-    "finding-neighborhood": 1.0,
+    "finding-neighborhood": 2.0,
     "arxiv-id-match": 5.0,
 }
 
