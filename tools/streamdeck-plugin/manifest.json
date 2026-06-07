@@ -1,0 +1,132 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "Name": "Daemon Monitor",
+  "Version": "1.0.0.0",
+  "Author": "topo-confidence",
+  "UUID": "com.topoconfidence.daemon-monitor",
+  "SDKVersion": 2,
+  "CodePath": "bin/plugin.js",
+  "Description": "Monitor topo-confidence autopilot daemon status with animated indicators.",
+  "Software": {
+    "MinimumVersion": "6.6"
+  },
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
+  "Category": "Monitoring",
+  "CategoryIcon": "imgs/category",
+  "Actions": [
+    {
+      "Name": "Daemon Phase",
+      "UUID": "com.topoconfidence.daemon-monitor.phase",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Displays status of a topo-confidence autopilot daemon phase.",
+      "PropertyInspectorPath": "ui/daemon-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Forge Queue",
+      "UUID": "com.topoconfidence.daemon-monitor.forge-queue",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Link-forge queue depth monitor.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Forge Stage",
+      "UUID": "com.topoconfidence.daemon-monitor.forge-stage",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Current link-forge processing stage (scrape/claude/embed/store).",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Graph Pending",
+      "UUID": "com.topoconfidence.daemon-monitor.graph-pending",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Research graph papers pending triage.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Pipeline Health",
+      "UUID": "com.topoconfidence.daemon-monitor.pipeline-health",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Docker and service health overview.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Trigger Watch",
+      "UUID": "com.topoconfidence.daemon-monitor.trigger-watch",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Autopilot trigger file paper count.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Pipeline Start",
+      "UUID": "com.topoconfidence.daemon-monitor.pipeline-start",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Start the research pipeline if it's not running. Shows UP/START status.",
+      "PropertyInspectorPath": "ui/pipeline-start.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    }
+  ]
+}

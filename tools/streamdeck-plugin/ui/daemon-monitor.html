@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script src="sdpi-components.js"></script>
+</head>
+<body>
+  <sdpi-item label="Phase">
+    <sdpi-select setting="phase">
+      <option value="triage">Triage</option>
+      <option value="scriptgen">Script Generation</option>
+      <option value="experiment">Experiment</option>
+    </sdpi-select>
+  </sdpi-item>
+
+  <sdpi-item label="Server URL">
+    <sdpi-textfield setting="serverUrl" placeholder="http://localhost:9876"></sdpi-textfield>
+  </sdpi-item>
+
+  <sdpi-item label="Daily Budget Cap">
+    <sdpi-textfield setting="budgetCap" placeholder="15" type="number"></sdpi-textfield>
+  </sdpi-item>
+</body>
+</html>

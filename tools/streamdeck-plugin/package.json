@@ -1,0 +1,17 @@
+{
+  "name": "streamdeck-daemon-monitor",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/plugin.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/bin/plugin.js --external:@anthropic-ai/* --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\"",
+    "deploy": "bash deploy.sh"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0"
+  }
+}
