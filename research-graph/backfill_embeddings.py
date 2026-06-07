@@ -44,11 +44,10 @@ def _get_driver():
 
 def _build_paper_text(rec: dict) -> str:
     title = rec.get("title") or ""
-    desc = rec.get("description") or ""
     note = rec.get("relevance_note") or ""
     tags_raw = rec.get("tags") or []
     tags = " ".join(t.replace("_", " ") for t in tags_raw)
-    parts = [p for p in [title, desc, note, tags] if p]
+    parts = [p for p in [title, note, tags] if p]
     return " ".join(parts)
 
 
@@ -92,7 +91,6 @@ def backfill_papers(force: bool = False, dry_run: bool = False) -> int:
             OPTIONAL MATCH (p)-[:TAGGED]->(t:Tag)
             WITH p, collect(t.name) AS tags
             RETURN p.arxiv_id AS arxiv_id, p.title AS title,
-                   p.description AS description,
                    p.relevance_note AS relevance_note, tags
             ORDER BY p.arxiv_id
         """))

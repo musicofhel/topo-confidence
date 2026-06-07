@@ -1,0 +1,2954 @@
+{
+  "mode": "full",
+  "timestamp": "2026-06-07 15:58:21",
+  "overall_precision": 0.915,
+  "overall_mrr": 0.595,
+  "by_category": {
+    "broad": {
+      "precision": 1.0,
+      "mrr": 0.583,
+      "count": 2
+    },
+    "control": {
+      "precision": 1.0,
+      "mrr": 0.8,
+      "count": 5
+    },
+    "cross-type": {
+      "precision": 0.75,
+      "mrr": 0.478,
+      "count": 10
+    },
+    "dataset": {
+      "precision": 1.0,
+      "mrr": 1.0,
+      "count": 2
+    },
+    "finding": {
+      "precision": 1.0,
+      "mrr": 0.359,
+      "count": 6
+    },
+    "long-tail": {
+      "precision": 0.5,
+      "mrr": 0.167,
+      "count": 2
+    },
+    "paper": {
+      "precision": 1.0,
+      "mrr": 0.729,
+      "count": 8
+    },
+    "paraphrase": {
+      "precision": 1.0,
+      "mrr": 0.656,
+      "count": 4
+    },
+    "tag": {
+      "precision": 1.0,
+      "mrr": 0.75,
+      "count": 2
+    }
+  },
+  "cases": [
+    {
+      "case_id": 1,
+      "query": "What predicts LLM correctness from hidden states?",
+      "category": "finding",
+      "expected": [
+        [
+          "Finding",
+          "F-2"
+        ],
+        [
+          "Finding",
+          "F-4"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2604.15350",
+          0
+        ],
+        [
+          "Paper",
+          "2510.01591",
+          1
+        ],
+        [
+          "Paper",
+          "2510.18147",
+          2
+        ],
+        [
+          "Paper",
+          "2311.04897",
+          3
+        ],
+        [
+          "Finding",
+          "F-4",
+          4
+        ],
+        [
+          "Finding",
+          "F-2",
+          5
+        ],
+        [
+          "Paper",
+          "2604.19974",
+          6
+        ],
+        [
+          "Paper",
+          "2410.13640",
+          7
+        ],
+        [
+          "Finding",
+          "F-10",
+          8
+        ],
+        [
+          "Finding",
+          "F-5",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-2"
+        ],
+        [
+          "Finding",
+          "F-4"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.2,
+      "difficulty": ""
+    },
+    {
+      "case_id": 2,
+      "query": "Does persistent homology add signal beyond covariance?",
+      "category": "finding",
+      "expected": [
+        [
+          "Finding",
+          "F-7"
+        ],
+        [
+          "Finding",
+          "F-10"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2103.14743",
+          0
+        ],
+        [
+          "Paper",
+          "2106.00012",
+          1
+        ],
+        [
+          "Paper",
+          "2512.15285",
+          2
+        ],
+        [
+          "Paper",
+          "2402.03744",
+          3
+        ],
+        [
+          "Paper",
+          "1811.00852",
+          4
+        ],
+        [
+          "Paper",
+          "2512.19135",
+          5
+        ],
+        [
+          "Finding",
+          "F-7",
+          6
+        ],
+        [
+          "Finding",
+          "F-6",
+          7
+        ],
+        [
+          "Finding",
+          "F-5",
+          8
+        ],
+        [
+          "Finding",
+          "F-10",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-7"
+        ],
+        [
+          "Finding",
+          "F-10"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.14285714285714285,
+      "difficulty": ""
+    },
+    {
+      "case_id": 3,
+      "query": "What happens to participation ratio during chain of thought?",
+      "category": "finding",
+      "expected": [
+        [
+          "Finding",
+          "F-1"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2412.01113",
+          0
+        ],
+        [
+          "Paper",
+          "2311.01460",
+          1
+        ],
+        [
+          "Paper",
+          "2509.26560",
+          2
+        ],
+        [
+          "Paper",
+          "1804.08838",
+          3
+        ],
+        [
+          "Paper",
+          "2410.13640",
+          4
+        ],
+        [
+          "Paper",
+          "2507.02199",
+          5
+        ],
+        [
+          "Finding",
+          "F-1",
+          6
+        ],
+        [
+          "Finding",
+          "F-12",
+          7
+        ],
+        [
+          "Finding",
+          "F-3",
+          8
+        ],
+        [
+          "Finding",
+          "F-14",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-1"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.14285714285714285,
+      "difficulty": ""
+    },
+    {
+      "case_id": 4,
+      "query": "How does the DoM direction change during generation?",
+      "category": "finding",
+      "expected": [
+        [
+          "Finding",
+          "F-3"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2510.04309",
+          0
+        ],
+        [
+          "Paper",
+          "2505.17306",
+          1
+        ],
+        [
+          "Finding",
+          "F-3",
+          2
+        ],
+        [
+          "Finding",
+          "F-6",
+          3
+        ],
+        [
+          "Paper",
+          "2302.00294",
+          4
+        ],
+        [
+          "Paper",
+          "2407.11094",
+          5
+        ],
+        [
+          "Finding",
+          "F-4",
+          6
+        ],
+        [
+          "Finding",
+          "F-2",
+          7
+        ],
+        [
+          "Paper",
+          "2407.12404",
+          8
+        ],
+        [
+          "Paper",
+          "2406.19384",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-3"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.3333333333333333,
+      "difficulty": ""
+    },
+    {
+      "case_id": 5,
+      "query": "What accuracy can selective prediction achieve?",
+      "category": "finding",
+      "expected": [
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2205.14334",
+          0
+        ],
+        [
+          "Paper",
+          "2402.15610",
+          1
+        ],
+        [
+          "Finding",
+          "F-11",
+          2
+        ],
+        [
+          "Paper",
+          "2406.15927",
+          3
+        ],
+        [
+          "Paper",
+          "2512.16030",
+          4
+        ],
+        [
+          "Paper",
+          "2604.15350",
+          5
+        ],
+        [
+          "Paper",
+          "2412.15296",
+          6
+        ],
+        [
+          "Finding",
+          "F-8",
+          7
+        ],
+        [
+          "Finding",
+          "F-13",
+          8
+        ],
+        [
+          "Finding",
+          "F-2",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.3333333333333333,
+      "difficulty": ""
+    },
+    {
+      "case_id": 6,
+      "query": "Is output length a confound for correctness prediction?",
+      "category": "finding",
+      "expected": [
+        [
+          "Finding",
+          "F-9"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Finding",
+          "F-9",
+          0
+        ],
+        [
+          "Paper",
+          "2505.00127",
+          1
+        ],
+        [
+          "Paper",
+          "2310.03716",
+          2
+        ],
+        [
+          "Finding",
+          "F-4",
+          3
+        ],
+        [
+          "Finding",
+          "F-13",
+          4
+        ],
+        [
+          "Finding",
+          "F-14",
+          5
+        ],
+        [
+          "Paper",
+          "2505.04881",
+          6
+        ],
+        [
+          "Paper",
+          "2604.15350",
+          7
+        ],
+        [
+          "Paper",
+          "2509.24988",
+          8
+        ],
+        [
+          "Paper",
+          "2402.10528",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-9"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 7,
+      "query": "Papers about activation steering for truthfulness",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2306.03341"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2402.18048",
+          0
+        ],
+        [
+          "Paper",
+          "2306.03341",
+          1
+        ],
+        [
+          "Paper",
+          "2403.18680",
+          2
+        ],
+        [
+          "Paper",
+          "2501.09929",
+          3
+        ],
+        [
+          "Paper",
+          "2509.22067",
+          4
+        ],
+        [
+          "Paper",
+          "2409.05907",
+          5
+        ],
+        [
+          "Finding",
+          "F-12",
+          6
+        ],
+        [
+          "Finding",
+          "F-3",
+          7
+        ],
+        [
+          "Finding",
+          "F-10",
+          8
+        ],
+        [
+          "Finding",
+          "F-14",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2306.03341"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.5,
+      "difficulty": ""
+    },
+    {
+      "case_id": 8,
+      "query": "Linear probes on LLM representations for truth",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2310.06824"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2311.03658",
+          0
+        ],
+        [
+          "Paper",
+          "2310.06824",
+          1
+        ],
+        [
+          "Paper",
+          "2509.10625",
+          2
+        ],
+        [
+          "Paper",
+          "2602.00158",
+          3
+        ],
+        [
+          "Paper",
+          "2508.19505",
+          4
+        ],
+        [
+          "Finding",
+          "F-4",
+          5
+        ],
+        [
+          "Paper",
+          "2410.02707",
+          6
+        ],
+        [
+          "Finding",
+          "F-12",
+          7
+        ],
+        [
+          "Finding",
+          "F-11",
+          8
+        ],
+        [
+          "Finding",
+          "F-10",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2310.06824"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.5,
+      "difficulty": ""
+    },
+    {
+      "case_id": 9,
+      "query": "Chain of embedding for correctness",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2410.13640"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2509.24988",
+          0
+        ],
+        [
+          "Paper",
+          "2402.10528",
+          1
+        ],
+        [
+          "Paper",
+          "2410.13640",
+          2
+        ],
+        [
+          "Paper",
+          "2501.12934",
+          3
+        ],
+        [
+          "Paper",
+          "2604.05655",
+          4
+        ],
+        [
+          "Paper",
+          "2507.02199",
+          5
+        ],
+        [
+          "Finding",
+          "F-4",
+          6
+        ],
+        [
+          "Finding",
+          "F-10",
+          7
+        ],
+        [
+          "Finding",
+          "F-2",
+          8
+        ],
+        [
+          "Finding",
+          "F-3",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2410.13640"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.3333333333333333,
+      "difficulty": ""
+    },
+    {
+      "case_id": 10,
+      "query": "Papers showing LLMs encode problem difficulty",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2510.18147"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2510.18147",
+          0
+        ],
+        [
+          "Paper",
+          "2509.12886",
+          1
+        ],
+        [
+          "Paper",
+          "2410.02707",
+          2
+        ],
+        [
+          "Paper",
+          "2604.22271",
+          3
+        ],
+        [
+          "Paper",
+          "2602.02103",
+          4
+        ],
+        [
+          "Paper",
+          "2502.01657",
+          5
+        ],
+        [
+          "Finding",
+          "F-5",
+          6
+        ],
+        [
+          "Finding",
+          "F-2",
+          7
+        ],
+        [
+          "Finding",
+          "F-14",
+          8
+        ],
+        [
+          "Finding",
+          "F-4",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2510.18147"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 11,
+      "query": "Persistent topological features in language models",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2410.11042"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2410.11042",
+          0
+        ],
+        [
+          "Paper",
+          "1906.00722",
+          1
+        ],
+        [
+          "Paper",
+          "2512.19135",
+          2
+        ],
+        [
+          "Paper",
+          "1811.00852",
+          3
+        ],
+        [
+          "Paper",
+          "2512.23348",
+          4
+        ],
+        [
+          "Paper",
+          "2309.11028",
+          5
+        ],
+        [
+          "Finding",
+          "F-7",
+          6
+        ],
+        [
+          "Finding",
+          "F-4",
+          7
+        ],
+        [
+          "Finding",
+          "F-12",
+          8
+        ],
+        [
+          "Finding",
+          "F-9",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2410.11042"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 12,
+      "query": "Length bias in RLHF reward models",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2310.03716"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2310.03716",
+          0
+        ],
+        [
+          "Paper",
+          "2509.26560",
+          1
+        ],
+        [
+          "Finding",
+          "F-9",
+          2
+        ],
+        [
+          "Finding",
+          "F-4",
+          3
+        ],
+        [
+          "Paper",
+          "2408.10764",
+          4
+        ],
+        [
+          "Paper",
+          "2505.00127",
+          5
+        ],
+        [
+          "Paper",
+          "2602.12125",
+          6
+        ],
+        [
+          "Paper",
+          "2510.18147",
+          7
+        ],
+        [
+          "Finding",
+          "F-14",
+          8
+        ],
+        [
+          "Finding",
+          "F-5",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2310.03716"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 13,
+      "query": "Intrinsic dimension and truthfulness",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2402.18048"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2402.18048",
+          0
+        ],
+        [
+          "Paper",
+          "1804.08838",
+          1
+        ],
+        [
+          "Paper",
+          "2012.13255",
+          2
+        ],
+        [
+          "Paper",
+          "2511.15210",
+          3
+        ],
+        [
+          "Paper",
+          "2311.03658",
+          4
+        ],
+        [
+          "Paper",
+          "2302.00294",
+          5
+        ],
+        [
+          "Finding",
+          "F-10",
+          6
+        ],
+        [
+          "Finding",
+          "F-7",
+          7
+        ],
+        [
+          "Finding",
+          "F-1",
+          8
+        ],
+        [
+          "Finding",
+          "F-2",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2402.18048"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 14,
+      "query": "Small steering vectors with large effects",
+      "category": "paper",
+      "expected": [
+        [
+          "Paper",
+          "2509.06608"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2501.09929",
+          0
+        ],
+        [
+          "Paper",
+          "2509.06608",
+          1
+        ],
+        [
+          "Paper",
+          "2411.08790",
+          2
+        ],
+        [
+          "Paper",
+          "2502.18862",
+          3
+        ],
+        [
+          "Paper",
+          "2410.12877",
+          4
+        ],
+        [
+          "Paper",
+          "2506.18167",
+          5
+        ],
+        [
+          "Finding",
+          "F-3",
+          6
+        ],
+        [
+          "Finding",
+          "F-9",
+          7
+        ],
+        [
+          "Finding",
+          "F-6",
+          8
+        ],
+        [
+          "Finding",
+          "F-4",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2509.06608"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.5,
+      "difficulty": ""
+    },
+    {
+      "case_id": 15,
+      "query": "What's the full picture on steering in this project?",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-3"
+        ],
+        [
+          "Paper",
+          "2306.03341"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2501.09929",
+          0
+        ],
+        [
+          "Paper",
+          "2410.12877",
+          1
+        ],
+        [
+          "Paper",
+          "2509.06608",
+          2
+        ],
+        [
+          "Paper",
+          "2602.04428",
+          3
+        ],
+        [
+          "Finding",
+          "F-3",
+          4
+        ],
+        [
+          "Paper",
+          "2605.29971",
+          5
+        ],
+        [
+          "Paper",
+          "2605.16928",
+          6
+        ],
+        [
+          "Finding",
+          "F-7",
+          7
+        ],
+        [
+          "Finding",
+          "F-4",
+          8
+        ],
+        [
+          "Finding",
+          "F-2",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-3"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2306.03341"
+        ]
+      ],
+      "precision": 0.5,
+      "mrr": 0.2,
+      "difficulty": ""
+    },
+    {
+      "case_id": 16,
+      "query": "Evidence for and against topological features",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-7"
+        ],
+        [
+          "Paper",
+          "2410.11042"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2410.11042",
+          0
+        ],
+        [
+          "Paper",
+          "1811.00852",
+          1
+        ],
+        [
+          "Paper",
+          "2210.00069",
+          2
+        ],
+        [
+          "Paper",
+          "2309.11028",
+          3
+        ],
+        [
+          "Paper",
+          "2512.23348",
+          4
+        ],
+        [
+          "Finding",
+          "F-7",
+          5
+        ],
+        [
+          "Paper",
+          "2106.00012",
+          6
+        ],
+        [
+          "Finding",
+          "F-4",
+          7
+        ],
+        [
+          "Finding",
+          "F-10",
+          8
+        ],
+        [
+          "Finding",
+          "F-12",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-7"
+        ],
+        [
+          "Paper",
+          "2410.11042"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 17,
+      "query": "What corroborates the prefill direction finding?",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-2"
+        ],
+        [
+          "Paper",
+          "2509.12886"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2406.11717",
+          0
+        ],
+        [
+          "Finding",
+          "F-2",
+          1
+        ],
+        [
+          "Finding",
+          "F-11",
+          2
+        ],
+        [
+          "Finding",
+          "F-3",
+          3
+        ],
+        [
+          "Finding",
+          "F-14",
+          4
+        ],
+        [
+          "Finding",
+          "F-4",
+          5
+        ],
+        [
+          "Paper",
+          "2311.04897",
+          6
+        ],
+        [
+          "Paper",
+          "2410.02707",
+          7
+        ],
+        [
+          "Paper",
+          "2505.17306",
+          8
+        ],
+        [
+          "Paper",
+          "2503.10602",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-2"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2509.12886"
+        ]
+      ],
+      "precision": 0.5,
+      "mrr": 0.5,
+      "difficulty": ""
+    },
+    {
+      "case_id": 18,
+      "query": "Calibration and confidence in LLM predictions",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-11"
+        ],
+        [
+          "Paper",
+          "2510.18147"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2412.15296",
+          0
+        ],
+        [
+          "Paper",
+          "2512.16030",
+          1
+        ],
+        [
+          "Paper",
+          "2604.20614",
+          2
+        ],
+        [
+          "Paper",
+          "2405.20974",
+          3
+        ],
+        [
+          "Paper",
+          "2505.23224",
+          4
+        ],
+        [
+          "Finding",
+          "F-11",
+          5
+        ],
+        [
+          "Paper",
+          "2505.21772",
+          6
+        ],
+        [
+          "Finding",
+          "F-4",
+          7
+        ],
+        [
+          "Finding",
+          "F-14",
+          8
+        ],
+        [
+          "Finding",
+          "F-2",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "misses": [
+        [
+          "Paper",
+          "2510.18147"
+        ]
+      ],
+      "precision": 0.5,
+      "mrr": 0.16666666666666666,
+      "difficulty": ""
+    },
+    {
+      "case_id": 19,
+      "query": "Papers evaluated on MATH-500",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Paper",
+          "2510.18147"
+        ],
+        [
+          "Paper",
+          "2601.06002"
+        ],
+        [
+          "Paper",
+          "2602.02710"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Finding",
+          "F-13",
+          0
+        ],
+        [
+          "Finding",
+          "F-12",
+          1
+        ],
+        [
+          "Finding",
+          "F-6",
+          2
+        ],
+        [
+          "Finding",
+          "F-14",
+          3
+        ],
+        [
+          "Paper",
+          "2605.05566",
+          4
+        ],
+        [
+          "Paper",
+          "2502.06703",
+          5
+        ],
+        [
+          "Paper",
+          "2501.04519",
+          6
+        ],
+        [
+          "Paper",
+          "2501.12948",
+          7
+        ],
+        [
+          "Paper",
+          "2506.03292",
+          8
+        ],
+        [
+          "Paper",
+          "2203.11171",
+          9
+        ]
+      ],
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2510.18147"
+        ],
+        [
+          "Paper",
+          "2601.06002"
+        ],
+        [
+          "Paper",
+          "2602.02710"
+        ]
+      ],
+      "precision": 0.0,
+      "mrr": 0.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 20,
+      "query": "Papers evaluated on TruthfulQA",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Paper",
+          "2306.03341"
+        ],
+        [
+          "Paper",
+          "2312.06681"
+        ],
+        [
+          "Paper",
+          "2405.20974"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2306.03341",
+          0
+        ],
+        [
+          "Paper",
+          "2403.18680",
+          1
+        ],
+        [
+          "Paper",
+          "2512.07667",
+          2
+        ],
+        [
+          "Paper",
+          "2312.06681",
+          3
+        ],
+        [
+          "Paper",
+          "2405.20974",
+          4
+        ],
+        [
+          "Finding",
+          "F-6",
+          5
+        ],
+        [
+          "Paper",
+          "2310.06824",
+          6
+        ],
+        [
+          "Finding",
+          "F-11",
+          7
+        ],
+        [
+          "Finding",
+          "F-7",
+          8
+        ],
+        [
+          "Finding",
+          "F-13",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2306.03341"
+        ],
+        [
+          "Paper",
+          "2312.06681"
+        ],
+        [
+          "Paper",
+          "2405.20974"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 21,
+      "query": "What high-ROI experiments should we run?",
+      "category": "control",
+      "expected": [
+        [
+          "Control",
+          "highest-roi"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Control",
+          "highest-roi",
+          0
+        ]
+      ],
+      "hits": [
+        [
+          "Control",
+          "highest-roi"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 22,
+      "query": "What experiments are blocked?",
+      "category": "control",
+      "expected": [
+        [
+          "Control",
+          "blocked"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Control",
+          "blocked",
+          0
+        ]
+      ],
+      "hits": [
+        [
+          "Control",
+          "blocked"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 23,
+      "query": "What papers contradict F-10?",
+      "category": "control",
+      "expected": [
+        [
+          "Paper",
+          "2402.18048"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2402.18048",
+          0
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2402.18048"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 24,
+      "query": "FEs triggered by the ITI paper",
+      "category": "control",
+      "expected": [
+        [
+          "Control",
+          "triggered"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Control",
+          "watchlist",
+          0
+        ]
+      ],
+      "hits": [
+        [
+          "Control",
+          "triggered"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 25,
+      "query": "Full neighborhood of F-2",
+      "category": "control",
+      "expected": [
+        [
+          "Control",
+          "subgraph"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Control",
+          "subgraph",
+          0
+        ]
+      ],
+      "hits": [
+        [
+          "Control",
+          "subgraph"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 26,
+      "query": "How does representation dimensionality change during step-by-step reasoning?",
+      "category": "paraphrase",
+      "expected": [
+        [
+          "Finding",
+          "F-1"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2604.05655",
+          0
+        ],
+        [
+          "Paper",
+          "2302.00294",
+          1
+        ],
+        [
+          "Paper",
+          "2012.13255",
+          2
+        ],
+        [
+          "Paper",
+          "2405.15302",
+          3
+        ],
+        [
+          "Paper",
+          "2402.11917",
+          4
+        ],
+        [
+          "Finding",
+          "F-2",
+          5
+        ],
+        [
+          "Paper",
+          "2601.06002",
+          6
+        ],
+        [
+          "Finding",
+          "F-1",
+          7
+        ],
+        [
+          "Finding",
+          "F-9",
+          8
+        ],
+        [
+          "Finding",
+          "F-3",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-1"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.125,
+      "difficulty": ""
+    },
+    {
+      "case_id": 27,
+      "query": "How well does the confident-subset prediction strategy perform?",
+      "category": "paraphrase",
+      "expected": [
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Finding",
+          "F-11",
+          0
+        ],
+        [
+          "Paper",
+          "2402.15610",
+          1
+        ],
+        [
+          "Paper",
+          "2405.20974",
+          2
+        ],
+        [
+          "Paper",
+          "2311.03658",
+          3
+        ],
+        [
+          "Paper",
+          "2512.16030",
+          4
+        ],
+        [
+          "Paper",
+          "2412.15296",
+          5
+        ],
+        [
+          "Paper",
+          "2604.16217",
+          6
+        ],
+        [
+          "Finding",
+          "F-2",
+          7
+        ],
+        [
+          "Finding",
+          "F-4",
+          8
+        ],
+        [
+          "Finding",
+          "F-8",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 28,
+      "query": "Which paper uses activation editing to improve model honesty?",
+      "category": "paraphrase",
+      "expected": [
+        [
+          "Paper",
+          "2306.03341"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2308.08742",
+          0
+        ],
+        [
+          "Paper",
+          "2306.03341",
+          1
+        ],
+        [
+          "Paper",
+          "2512.07667",
+          2
+        ],
+        [
+          "Paper",
+          "2410.04962",
+          3
+        ],
+        [
+          "Paper",
+          "2404.15255",
+          4
+        ],
+        [
+          "Paper",
+          "2503.10602",
+          5
+        ],
+        [
+          "Finding",
+          "F-2",
+          6
+        ],
+        [
+          "Finding",
+          "F-11",
+          7
+        ],
+        [
+          "Finding",
+          "F-5",
+          8
+        ],
+        [
+          "Finding",
+          "F-1",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2306.03341"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.5,
+      "difficulty": ""
+    },
+    {
+      "case_id": 29,
+      "query": "Papers showing output verbosity biases reward model scores",
+      "category": "paraphrase",
+      "expected": [
+        [
+          "Paper",
+          "2310.03716"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2310.03716",
+          0
+        ],
+        [
+          "Finding",
+          "F-9",
+          1
+        ],
+        [
+          "Paper",
+          "2408.10764",
+          2
+        ],
+        [
+          "Paper",
+          "2509.24988",
+          3
+        ],
+        [
+          "Finding",
+          "F-11",
+          4
+        ],
+        [
+          "Finding",
+          "F-2",
+          5
+        ],
+        [
+          "Paper",
+          "2602.12125",
+          6
+        ],
+        [
+          "Finding",
+          "F-1",
+          7
+        ],
+        [
+          "Paper",
+          "2407.12404",
+          8
+        ],
+        [
+          "Paper",
+          "2406.00045",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2310.03716"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 30,
+      "query": "Chain-of-embedding method evaluated on GSM8K",
+      "category": "dataset",
+      "expected": [
+        [
+          "Paper",
+          "2410.13640"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2410.13640",
+          0
+        ],
+        [
+          "Paper",
+          "2504.01002",
+          1
+        ],
+        [
+          "Paper",
+          "2604.22709",
+          2
+        ],
+        [
+          "Paper",
+          "2602.10346",
+          3
+        ],
+        [
+          "Paper",
+          "2311.01460",
+          4
+        ],
+        [
+          "Finding",
+          "F-3",
+          5
+        ],
+        [
+          "Paper",
+          "2203.11171",
+          6
+        ],
+        [
+          "Finding",
+          "F-11",
+          7
+        ],
+        [
+          "Finding",
+          "F-7",
+          8
+        ],
+        [
+          "Finding",
+          "F-6",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2410.13640"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 31,
+      "query": "Semantic entropy probes evaluated on TriviaQA",
+      "category": "dataset",
+      "expected": [
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2406.15927",
+          0
+        ],
+        [
+          "Paper",
+          "2410.02707",
+          1
+        ],
+        [
+          "Paper",
+          "2509.10625",
+          2
+        ],
+        [
+          "Paper",
+          "2412.15296",
+          3
+        ],
+        [
+          "Finding",
+          "F-6",
+          4
+        ],
+        [
+          "Paper",
+          "2409.02228",
+          5
+        ],
+        [
+          "Paper",
+          "2503.02233",
+          6
+        ],
+        [
+          "Finding",
+          "F-7",
+          7
+        ],
+        [
+          "Finding",
+          "F-11",
+          8
+        ],
+        [
+          "Finding",
+          "F-4",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 32,
+      "query": "Sparse autoencoder features for LLM uncertainty",
+      "category": "tag",
+      "expected": [
+        [
+          "Paper",
+          "2604.19974"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2310.17230",
+          0
+        ],
+        [
+          "Paper",
+          "2604.19974",
+          1
+        ],
+        [
+          "Paper",
+          "2604.23829",
+          2
+        ],
+        [
+          "Paper",
+          "2501.11036",
+          3
+        ],
+        [
+          "Paper",
+          "2505.23556",
+          4
+        ],
+        [
+          "Paper",
+          "2605.28149",
+          5
+        ],
+        [
+          "Finding",
+          "F-4",
+          6
+        ],
+        [
+          "Finding",
+          "F-14",
+          7
+        ],
+        [
+          "Finding",
+          "F-7",
+          8
+        ],
+        [
+          "Finding",
+          "F-10",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2604.19974"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.5,
+      "difficulty": ""
+    },
+    {
+      "case_id": 33,
+      "query": "Linear representation hypothesis in neural networks",
+      "category": "tag",
+      "expected": [
+        [
+          "Paper",
+          "2311.03658"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2311.03658",
+          0
+        ],
+        [
+          "Paper",
+          "2604.11962",
+          1
+        ],
+        [
+          "Finding",
+          "F-2",
+          2
+        ],
+        [
+          "Finding",
+          "F-4",
+          3
+        ],
+        [
+          "Paper",
+          "2506.00653",
+          4
+        ],
+        [
+          "Paper",
+          "2405.07987",
+          5
+        ],
+        [
+          "Paper",
+          "2605.05115",
+          6
+        ],
+        [
+          "Paper",
+          "2401.13558",
+          7
+        ],
+        [
+          "Finding",
+          "F-7",
+          8
+        ],
+        [
+          "Finding",
+          "F-10",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2311.03658"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 34,
+      "query": "CoE correctness prediction compared to semantic entropy probes",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-6"
+        ],
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2509.24988",
+          0
+        ],
+        [
+          "Paper",
+          "2604.15350",
+          1
+        ],
+        [
+          "Paper",
+          "2406.15927",
+          2
+        ],
+        [
+          "Paper",
+          "2402.10528",
+          3
+        ],
+        [
+          "Finding",
+          "F-11",
+          4
+        ],
+        [
+          "Finding",
+          "F-6",
+          5
+        ],
+        [
+          "Paper",
+          "2509.24202",
+          6
+        ],
+        [
+          "Paper",
+          "2502.01126",
+          7
+        ],
+        [
+          "Finding",
+          "F-4",
+          8
+        ],
+        [
+          "Finding",
+          "F-5",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-6"
+        ],
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.3333333333333333,
+      "difficulty": ""
+    },
+    {
+      "case_id": 35,
+      "query": "What work extends the DoM rotation finding?",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-3"
+        ],
+        [
+          "Paper",
+          "2510.04309"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2311.03658",
+          0
+        ],
+        [
+          "Paper",
+          "2601.19375",
+          1
+        ],
+        [
+          "Paper",
+          "2310.04861",
+          2
+        ],
+        [
+          "Paper",
+          "2510.04309",
+          3
+        ],
+        [
+          "Finding",
+          "F-3",
+          4
+        ],
+        [
+          "Finding",
+          "F-6",
+          5
+        ],
+        [
+          "Paper",
+          "2602.08169",
+          6
+        ],
+        [
+          "Paper",
+          "2406.19384",
+          7
+        ],
+        [
+          "Finding",
+          "F-10",
+          8
+        ],
+        [
+          "Finding",
+          "F-4",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-3"
+        ],
+        [
+          "Paper",
+          "2510.04309"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.25,
+      "difficulty": ""
+    },
+    {
+      "case_id": 36,
+      "query": "What explains representation dimensionality changes during generation?",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-1"
+        ],
+        [
+          "Paper",
+          "2302.00294"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2012.13255",
+          0
+        ],
+        [
+          "Paper",
+          "2509.26560",
+          1
+        ],
+        [
+          "Paper",
+          "2302.00294",
+          2
+        ],
+        [
+          "Paper",
+          "2405.07987",
+          3
+        ],
+        [
+          "Paper",
+          "2505.10465",
+          4
+        ],
+        [
+          "Finding",
+          "F-3",
+          5
+        ],
+        [
+          "Finding",
+          "F-2",
+          6
+        ],
+        [
+          "Finding",
+          "F-1",
+          7
+        ],
+        [
+          "Paper",
+          "2401.10474",
+          8
+        ],
+        [
+          "Finding",
+          "F-10",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-1"
+        ],
+        [
+          "Paper",
+          "2302.00294"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.3333333333333333,
+      "difficulty": ""
+    },
+    {
+      "case_id": 37,
+      "query": "What corroborates the output length confound finding?",
+      "category": "cross-type",
+      "expected": [
+        [
+          "Finding",
+          "F-9"
+        ],
+        [
+          "Paper",
+          "2505.00127"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Finding",
+          "F-9",
+          0
+        ],
+        [
+          "Paper",
+          "2505.00127",
+          1
+        ],
+        [
+          "Paper",
+          "2310.03716",
+          2
+        ],
+        [
+          "Finding",
+          "F-4",
+          3
+        ],
+        [
+          "Finding",
+          "F-13",
+          4
+        ],
+        [
+          "Finding",
+          "F-14",
+          5
+        ],
+        [
+          "Paper",
+          "2505.04881",
+          6
+        ],
+        [
+          "Paper",
+          "2604.18805",
+          7
+        ],
+        [
+          "Paper",
+          "2311.03658",
+          8
+        ],
+        [
+          "Paper",
+          "2603.18280",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-9"
+        ],
+        [
+          "Paper",
+          "2505.00127"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 38,
+      "query": "How can a model recognize when it will get the answer wrong?",
+      "category": "broad",
+      "expected": [
+        [
+          "Finding",
+          "F-2"
+        ],
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2509.24988",
+          0
+        ],
+        [
+          "Paper",
+          "2504.05419",
+          1
+        ],
+        [
+          "Paper",
+          "2509.10625",
+          2
+        ],
+        [
+          "Paper",
+          "2604.22271",
+          3
+        ],
+        [
+          "Paper",
+          "2604.02608",
+          4
+        ],
+        [
+          "Finding",
+          "F-2",
+          5
+        ],
+        [
+          "Finding",
+          "F-11",
+          6
+        ],
+        [
+          "Paper",
+          "2410.02707",
+          7
+        ],
+        [
+          "Finding",
+          "F-4",
+          8
+        ],
+        [
+          "Finding",
+          "F-13",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Finding",
+          "F-2"
+        ],
+        [
+          "Finding",
+          "F-11"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.16666666666666666,
+      "difficulty": ""
+    },
+    {
+      "case_id": 39,
+      "query": "Methods for probing truth in LLM representations",
+      "category": "broad",
+      "expected": [
+        [
+          "Paper",
+          "2310.06824"
+        ],
+        [
+          "Paper",
+          "2311.03658"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2311.03658",
+          0
+        ],
+        [
+          "Paper",
+          "2310.06824",
+          1
+        ],
+        [
+          "Paper",
+          "2510.18147",
+          2
+        ],
+        [
+          "Finding",
+          "F-4",
+          3
+        ],
+        [
+          "Paper",
+          "2306.03341",
+          4
+        ],
+        [
+          "Paper",
+          "2410.02707",
+          5
+        ],
+        [
+          "Finding",
+          "F-2",
+          6
+        ],
+        [
+          "Paper",
+          "2402.18048",
+          7
+        ],
+        [
+          "Finding",
+          "F-10",
+          8
+        ],
+        [
+          "Finding",
+          "F-12",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2310.06824"
+        ],
+        [
+          "Paper",
+          "2311.03658"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 1.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 40,
+      "query": "Underthinking and overthinking in LLM reasoning",
+      "category": "long-tail",
+      "expected": [
+        [
+          "Paper",
+          "2505.00127"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2506.18167",
+          0
+        ],
+        [
+          "Paper",
+          "2412.15296",
+          1
+        ],
+        [
+          "Paper",
+          "2604.05655",
+          2
+        ],
+        [
+          "Paper",
+          "2507.06203",
+          3
+        ],
+        [
+          "Paper",
+          "2504.07986",
+          4
+        ],
+        [
+          "Paper",
+          "2603.12372",
+          5
+        ],
+        [
+          "Finding",
+          "F-11",
+          6
+        ],
+        [
+          "Finding",
+          "F-4",
+          7
+        ],
+        [
+          "Finding",
+          "F-2",
+          8
+        ],
+        [
+          "Finding",
+          "F-9",
+          9
+        ]
+      ],
+      "hits": [],
+      "misses": [
+        [
+          "Paper",
+          "2505.00127"
+        ]
+      ],
+      "precision": 0.0,
+      "mrr": 0.0,
+      "difficulty": ""
+    },
+    {
+      "case_id": 41,
+      "query": "Semantic entropy probes for uncertainty estimation",
+      "category": "long-tail",
+      "expected": [
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "retrieved": [
+        [
+          "Paper",
+          "2509.24202",
+          0
+        ],
+        [
+          "Paper",
+          "2205.14334",
+          1
+        ],
+        [
+          "Paper",
+          "2406.15927",
+          2
+        ],
+        [
+          "Paper",
+          "2505.01595",
+          3
+        ],
+        [
+          "Paper",
+          "2412.15296",
+          4
+        ],
+        [
+          "Paper",
+          "2502.01126",
+          5
+        ],
+        [
+          "Finding",
+          "F-10",
+          6
+        ],
+        [
+          "Finding",
+          "F-14",
+          7
+        ],
+        [
+          "Finding",
+          "F-4",
+          8
+        ],
+        [
+          "Finding",
+          "F-13",
+          9
+        ]
+      ],
+      "hits": [
+        [
+          "Paper",
+          "2406.15927"
+        ]
+      ],
+      "misses": [],
+      "precision": 1.0,
+      "mrr": 0.3333333333333333,
+      "difficulty": ""
+    }
+  ]
+}
