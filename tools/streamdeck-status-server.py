@@ -35,6 +35,26 @@ DOCKER_CONTAINERS = [
 _neo4j_cache: dict = {"ts": 0, "val": 0}
 _NEO4J_CACHE_TTL = 5
 
+_bot_cache: dict = {"ts": 0.0, "alive": False}
+_BOT_CACHE_TTL = 5
+
+
+def _is_bot_alive() -> bool:
+    now = time.time()
+    if now - _bot_cache["ts"] < _BOT_CACHE_TTL:
+        return _bot_cache["alive"]
+    try:
+        out = subprocess.run(
+            ["pgrep", "-f", "tsx src/index"],
+            capture_output=True, text=True, timeout=5,
+        )
+        alive = bool(out.stdout.strip())
+    except Exception:
+        alive = False
+    _bot_cache["ts"] = now
+    _bot_cache["alive"] = alive
+    return alive
+
 ACTIVITY_PATTERNS = {
     "triage": re.compile(r"Triaging (\S+)"),
     "scriptgen": re.compile(r"(P\d+-FE\d+): generating recompute script"),
@@ -330,8 +350,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
 
-        if parsed.path == "/health":
+        if parsed.path == "/ping":
             self._json_response({"ok": True})
+            return
+
+        if parsed.path == "/health":
+            bot_up = _is_bot_alive()
+            self._json_response(
+                {"ok": bot_up, "bot": bot_up},
+                status=200 if bot_up else 503,
+            )
             return
 
         if parsed.path == "/status":
@@ -349,9 +377,9 @@ class Handler(BaseHTTPRequestHandler):
 
         self.send_error(404)
 
-    def _json_response(self, data: dict):
+    def _json_response(self, data: dict, status: int = 200):
         body = json.dumps(data, indent=2).encode()
-        self.send_response(200)
+        self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-Length", str(len(body)))
