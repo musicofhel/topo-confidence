@@ -1,0 +1,12 @@
+{
+  "source_npz": "pathway11_h100/prefill_inversion/cache/m15b_prefill.npz",
+  "layer_semantics": "hidden_states[19] = output of model.model.layers[18]; hook layers[18] for 'L19'",
+  "n": 500,
+  "n_correct": 243,
+  "accuracy": 0.486,
+  "dim": 1536,
+  "r_norm": 4.724320411682129,
+  "cos_full_vs_fold0_oof": 0.9940541982650757,
+  "method": "full-data DoM = mean(prefill[correct]) - mean(prefill[~correct]), unit-normalized, float32",
+  "seed": 9999
+}

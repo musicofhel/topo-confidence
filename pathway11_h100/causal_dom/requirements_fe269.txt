@@ -1,0 +1,10 @@
+# FE269 pod deps. transformers PINNED — the hook is written for 4.57.6's bare-Tensor
+# Qwen2DecoderLayer.forward return; a different version may return a tuple and silently
+# change hook semantics.
+torch>=2.4
+transformers==4.57.6
+math-verify
+datasets
+numpy<2.0
+scikit-learn
+accelerate
