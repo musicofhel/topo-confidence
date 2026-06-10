@@ -2,23 +2,11 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-10 03:22 UTC_
+_Generated: 2026-06-10 23:50 UTC_
 
 ---
 
 ## CRITICAL (ROI 9-10) — Do these first
-
-### P11-FE19 (P11) — [ROI: 10, READY, CRITICAL]
-
-**What:** C_exact verification routing — Desktop's highest-leverage proposal. For 500 MATH-500 problems: take K=1 greedy answer, prompt model to verify its own answer, extract PANL-equivalent activation, use as routing signal. Route verification-failed problems to K=8 sampling, keep verification-passed at K=1. Compare against (a) pure C_infer (uniform K=8), (b) pure C_exact (verify-then-correct, no sampling) at matched compute. Total avg K = 3-4.
-
-**Why:** Combines Rybin compute-allocation framework (C_train / C_infer / C_exact decomposition) with Kumaran PANL signal. E2 prefill-gated compute allocation failed because B-bucket lives at mid-confidence and sits within C_infer. Verification routing is C_exact, where the framework predicts the win. If C_exact > C_infer at matched compute, the entire selective-prediction story (F-8) shifts from predict-difficulty-at-prefill to verify-and-route-failures.
-
-**Cost:** 30min H100 + verification pass per problem
-**Triggered by:** [How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals](https://arxiv.org/abs/2604.22271)
-**Depends on:** F-8, F-7, F-2
-**Would update:** F-8
-**Trigger condition:** Rybin compute-allocation blog provides C_infer / C_exact framework. Kumaran 2604.22271 provides the PANL routing signal.
 
 ### P11-FE214 (P11) — [ROI: 10, READY, CRITICAL]
 
@@ -15989,6 +15977,19 @@ _Generated: 2026-06-10 03:22 UTC_
 **Trigger condition:** 2402.13212 — soft self-consistency uses mean/min/product token probabilities for selection without any hidden-state probing.
 **Outcome:** Token-probability baseline does NOT subsume F-2 prefill DoM. Mean log-prob AUROC = 0.6721 (1.5B) / 0.6336 (7B) — both materially below DoM 0.7731. Sum log-prob = 0.8478 (1.5B) / 0.8672 (7B) — appears stronger but is length-confounded (FE448 already established length-alone AUROC 0.7986). Joint [mean_logp, prefill_DoM_proj] = 0.7836, only +1pp over DoM alone — DoM carries geometric signal beyond what mean token-likelihood encodes.
 
+### P11-FE19 (P11) — [ROI: 10, COMPLETED, CRITICAL]
+
+**What:** C_exact verification routing — Desktop's highest-leverage proposal. For 500 MATH-500 problems: take K=1 greedy answer, prompt model to verify its own answer, extract PANL-equivalent activation, use as routing signal. Route verification-failed problems to K=8 sampling, keep verification-passed at K=1. Compare against (a) pure C_infer (uniform K=8), (b) pure C_exact (verify-then-correct, no sampling) at matched compute. Total avg K = 3-4.
+
+**Why:** Combines Rybin compute-allocation framework (C_train / C_infer / C_exact decomposition) with Kumaran PANL signal. E2 prefill-gated compute allocation failed because B-bucket lives at mid-confidence and sits within C_infer. Verification routing is C_exact, where the framework predicts the win. If C_exact > C_infer at matched compute, the entire selective-prediction story (F-8) shifts from predict-difficulty-at-prefill to verify-and-route-failures.
+
+**Cost:** 30min H100 + verification pass per problem
+**Triggered by:** [How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals](https://arxiv.org/abs/2604.22271)
+**Depends on:** F-8, F-7, F-2
+**Would update:** F-8
+**Trigger condition:** Rybin compute-allocation blog provides C_infer / C_exact framework. Kumaran 2604.22271 provides the PANL routing signal.
+**Outcome:** C_exact LOSES. Verification routing (post-hoc PANL) does NOT beat the achievable uniform-K frontier (upper convex hull = random K=1/K=8 routing) beyond noise (best routed point +0.1 SE, n=500 SE=0.022); mirrors the prior prefill-gating C_infer failure. H-19 refuted at 1.5B. PANL probe for K=1-wrong peaks at L22 AUROC 0.7555 — BELOW the pre-hoc prefill-DoM 0.7731, so the post-hoc signal is weaker than the pre-hoc one (opposite of Kumaran's 7B/27B prediction). Verbalized self-verification is anti-informative (AUROC 0.480, says-correct only 21.8%); the activation probe (0.7555) far exceeds it, so the signal lives in activations not words. Verify-then-correct HURTS at 1.5B: full-coverage 0.474 vs K=1 0.486 (Δ−1.2pp; 46 right→wrong, 40 wrong→right) — Kumaran's +3.7pp at 7B/27B does not replicate at 1.5B. Applied story stays prefill-DoM selective prediction (F-8), not verify-and-route.
+
 ### P11-FE269 (P11) — [ROI: 10, COMPLETED, CRITICAL]
 
 **What:** Causal sufficiency test for prefill L19 DoM. Apply directional ablation x' = x - r̂r̂ᵀx at every layer and every position on Qwen-2.5-1.5B-Instruct, where r̂ is the unit-norm prefill_L19_DoM. Generate K=1 greedy completions on MATH-500 and measure accuracy delta from the 48.6% baseline. Mirror with activation addition at L19 (all positions) on the K=1 incorrect subset and measure whether any flip toward correctness. Capability check via MMLU + GSM8K to confirm general competence preserved.
@@ -16757,7 +16758,7 @@ check whether any experiment's status should change.
 | [2604.18805](https://arxiv.org/abs/2604.18805) | AI scientists produce results without reasoning scientifically | P11-FE765, P11-FE764, P11-FE763, P11-FE762, P11-FE761, P11-FE760, P11-FE759, P11-FE758 | READY |
 | [2604.19018](https://arxiv.org/abs/2604.19018) | LQR Steering | P11-FE767, P11-FE766, P10-FE39 | BLOCKED, READY |
 | [2604.20614](https://arxiv.org/abs/2604.20614) | Too Sharp Too Sure (CalMO) | P11-FE772, P11-FE771, P11-FE770 | READY |
-| [2604.22271](https://arxiv.org/abs/2604.22271) | How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals | P11-FE787, P11-FE786, P11-FE785, P11-FE784, P11-FE783, P11-FE782, P11-FE781, P11-FE780, P11-FE779, P11-FE778, P11-FE487, P11-FE484, P11-FE312, P11-FE19, P11-FE18 | BLOCKED, READY |
+| [2604.22271](https://arxiv.org/abs/2604.22271) | How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals | P11-FE787, P11-FE786, P11-FE785, P11-FE784, P11-FE783, P11-FE782, P11-FE781, P11-FE780, P11-FE779, P11-FE778, P11-FE487, P11-FE484, P11-FE312, P11-FE18 | BLOCKED, READY |
 | [2604.22709](https://arxiv.org/abs/2604.22709) | Thinking Without Words: Efficient Latent Reasoning with Abstract Chain-of-Thought | P11-FE801, P11-FE800, P11-FE799, P11-FE798, P11-FE797, P11-FE796, P11-FE795, P11-FE794, P11-FE793, P11-FE792, P11-FE791, P11-FE790, P11-FE789, P11-FE788, P11-FE22 | BLOCKED, READY |
 | [2604.24712](https://arxiv.org/abs/2604.24712) | When Prompt Under-Specification Improves Code Correctness | P11-FE868, P11-FE867, P11-FE866, P11-FE21 | READY |
 | [2501.04519](https://arxiv.org/abs/2501.04519) | rStar-Math | P11-FE360, P11-FE359, P11-FE358, P11-FE357, P11-FE356 | BLOCKED, READY |

@@ -67,16 +67,26 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-**FE269 (P11-FE269) — causal lever-vs-diagnostic test. Verdict DIAGNOSTIC.**
-Arditi 2406.11717 protocol on Qwen-2.5-1.5B L19 prefill DoM. Ablation no-op
-(ΔMATH ≈ 0 at L19-only and all-layer), addition degrades (47.8→33.4%). Graph
-node P11-FE269 → COMPLETED. Results in `pathway11_h100/causal_dom/results/`.
-Pod stopped + removed; no GPU running.
+**FE19 (P11-FE19) — verification routing C_exact vs prefill-gating C_infer, + verify-then-correct.
+Verdict C_exact LOSES.** Kumaran 2604.22271 PANL post-hoc signal on Qwen-2.5-1.5B, MATH-500 n=500,
+local. No non-degenerate verify-routed policy beats the achievable uniform-K frontier (upper convex
+hull = random K=1/K=8 routing) beyond noise — best routed point +0.1 SE (SE=0.022). PANL "K=1-wrong"
+probe peaks L22 AUROC 0.7555 < pre-hoc prefill-DoM 0.7731 (post-hoc weaker than pre-hoc). Verbalized
+self-verdict anti-informative (0.4801). Verify-then-correct HURTS (0.474 vs K=1 0.486). **H-19
+refuted at 1.5B**; applied story stays prefill-DoM selective prediction (F-8). Graph node P11-FE19 →
+COMPLETED. Results in `pathway11_h100/verify_route/results/` (verdict.json). No GPU; all local.
 
-Prior: EXP-79 (P11-FE42 Ridge-LR on [prefill, final] concat). Ridge-LR concat
-AUROC 0.8509; final-only 0.8493 nearly matches, prefill-only 0.7844
-confirms directional ceiling. The final token at L19 carries ~12.8pp
-more correctness signal than DoM reveals (0.8493 vs 0.7210).
+## Refutes
+- **H-19** (verification routing beats prefill gating): refuted at 1.5B.
+- **Kumaran 2604.22271** at small scale: verify-then-correct and verbalized
+  self-verification both fail to transfer to 1.5B (the PANL *activation* signal
+  partially transfers, but is dominated by the pre-hoc prefill signal).
+
+## Cross-paper
+- Confirms and extends the prefill-gating finding (`results.json:headline.
+  does_prefill_gating_beat_uniform_K8_at_lower_K=false`): C_exact joins C_infer in
+  failing to beat random routing. Rybin C_infer/C_exact framing: neither pre-hoc nor
+  post-hoc per-problem routing beats the mixed-strategy baseline for this model/benchmark.
 
 ## Queued — next session
 

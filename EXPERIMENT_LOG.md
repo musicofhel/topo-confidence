@@ -1623,6 +1623,40 @@ EXP-71 (2026-05-07).
 F-2 from "prefill direction is the probe" to "prefill direction is a
 convenient but lossy projection of a richer L19 signal."
 
+## EXP-80: P11-FE19 — Verification routing (C_exact) vs prefill-gating (C_infer), + verify-then-correct
+
+**Date:** 2026-06-10. **Compute:** local (2060 Super, CPU), Qwen-2.5-1.5B-Instruct, MATH-500 n=500.
+**Trigger:** Kumaran 2604.22271 (PANL post-answer activation confidence) + Rybin C_infer/C_exact framework.
+
+**Question:** Does a post-hoc verification signal route the recoverable B-bucket (68 problems:
+K=1-wrong but K=8-majority-right) better than the pre-hoc prefill DoM did, so that C_exact
+(verify-then-route) beats C_infer (prefill-gating) at matched compute? (H-19.)
+
+**Method (S0–S6, `pathway11_h100/verify_route/`):** S1 reproduced K=1 greedy 0.486 (243/500) from
+the stage2 cache. S2 ran a self-grade verification pass (Yes/No) and captured all-layer residual
+activation at the post-answer PANL-equivalent token (500×29×1536). S3 ran verify-then-correct on
+all 500 (max_new=1024). S4 fit a 5-fold OOF DoM + per-layer logistic probe predicting "K=1 wrong".
+S5 simulated accuracy vs avg-K (charging verify ~0.1 + correct ~1.0) for every router × arm against
+the **upper convex hull** of uniform-K points (= random K=1/K=8 routing). S6 applied pre-registered
+significance (≥1.96 SE, n=500) + non-degeneracy (frac_routed ≤ 0.70) guards.
+
+**Result — C_exact LOSES (H-19 refuted at 1.5B):**
+- No non-degenerate verification-routed policy beats the achievable uniform-K frontier beyond noise;
+  best signal-driven routed point 0.512 @ avg-K 3.6 = **+0.1 SE** vs the hull.
+- PANL "K=1-wrong" probe peaks at L22 AUROC **0.7555** (L19 0.7276), **below** the pre-hoc
+  prefill-DoM 0.7731 — post-hoc weaker than pre-hoc, opposite of Kumaran's 7B/27B prediction.
+- Verbalized self-verdict is anti-informative (AUROC 0.4801, says-"correct" only 21.8%); the
+  activation probe far exceeds it — signal is in activations, not words.
+- Verify-then-correct **hurts**: full-coverage 0.474 vs K=1 0.486 (46 right→wrong, 40 wrong→right);
+  Kumaran's +3.7pp at 7B/27B does not replicate at 1.5B.
+- Two false-WIN comparator artifacts were caught by fresh-eyes scrutiny: (1) a degenerate verbalized
+  router sending 85%→K=8 (uniform-K8 in disguise, +0.6pp = 0.27 SE), (2) uniform-frontier
+  interpolation through the dominated K=2 (0.413) / K=4 (0.495) points; the honest baseline is the
+  upper convex hull.
+
+**Net:** the applied story stays prefill-DoM refuse-and-spend selective prediction (F-8), not
+verify-and-route. Result JSON `pathway11_h100/verify_route/results/verdict.json`.
+
 ## Template for new experiments
 
 ```markdown
@@ -1900,4 +1934,4 @@ convenient but lossy projection of a richer L19 signal."
 **Depends on:** F-2 (DoM), EXP-040 (cross-model PR ratios)
 **Enables:** Cross-model DoM transfer; universal difficulty landscape claim
 
-Next ID: **EXP-80**.
+Next ID: **EXP-81**.
