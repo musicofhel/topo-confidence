@@ -26,7 +26,7 @@ Grouped by rung so you can pick a session's worth of work without scrolling.
 | **Free / local** | H-16 | Marchenko-Pastur PR bias correction | 1 h CPU | $0 | Methodology check on F-1, F-4. Cached NPZs. |
 | **Free / local** | H-17 | RoPE de-rotation of DoM | 1 h CPU | $0 | Could revive E1 steering and retire H-1 if F-3 is mechanical. |
 | **Cheap GPU** | H-18 | PANL-equivalent correctability gate | ~30 min H100 | ~$1 | Could explain F-7 (D-bucket) via second-order confidence. |
-| **Cheap GPU** | H-19 | C_exact verification routing ★ | ~30 min H100 | ~$1 | Highest-leverage; converts F-8 from predictor to recipe. |
+| ~~Cheap GPU~~ | ~~H-19~~ | ~~C_exact verification routing ★~~ | done | — | **REFUTED (FE19, 2026-06-10):** routing ≯ uniform beyond noise; F-8 stays a predictor, not a recipe. |
 | **Free / local** | H-20 | Cross-model kernel alignment fluctuation | 2 h CPU | $0 | Extends F-1 to dynamic Platonic hypothesis. |
 | **Cheap GPU** | H-21 | D-bucket prefill attention entropy | ~30 min GPU | ~$1 | Mechanism for F-7 fragility. |
 | **Big swing** | H-22 | Abstract-CoT compressed breathing | ~1 week H100 | ~$300 | Tests whether breathing is verbalization or computation. |
@@ -331,6 +331,15 @@ recoverable problems to K=8. F-7 gains a mechanism.
 **Blocks:** H-19 (verification routing builds on this signal).
 
 ### H-19: C_exact verification routing beats C_infer scaling at matched compute
+**STATUS: REFUTED (P11-FE19, 2026-06-10).** Verification routing does NOT beat the
+achievable uniform-K frontier (upper convex hull = random K=1/K=8 routing) beyond noise
+(best routed point +0.1 SE, n=500). The post-hoc PANL "K=1-wrong" probe peaks at L22 AUROC
+0.7555 — *below* the pre-hoc prefill-DoM 0.7731, so the C_exact signal is weaker than the
+C_infer one it was meant to beat. Verbalized self-verdict is anti-informative (AUROC 0.480)
+and verify-then-correct HURTS at 1.5B (0.474 vs K=1 0.486). F-8 stays predict-difficulty-
+at-prefill, NOT verify-and-route. See `pathway11_h100/verify_route/results/verdict.json`
+and brief `result-2026-06-10-P11-FE19.md`. (Original hypothesis below, for the record.)
+
 **Priority:** CRITICAL (Desktop's highest-leverage call, user-prioritized 2026-04-28)
 **Motivated by:** Rybin compute-allocation framework
 (C_train / C_infer / C_exact decomposition) + Kumaran 2604.22271 PANL

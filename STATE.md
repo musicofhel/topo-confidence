@@ -2,14 +2,32 @@
 
 *Overwritten at the end of every session. Not appended. For append-only history see `EXPERIMENT_LOG.md`.*
 
-**Date:** 2026-06-09
+**Date:** 2026-06-10
 
 ## Where the project actually is
 
+**FE19 verification-routing test complete — verdict C_exact LOSES (2026-06-10, local 2060).**
+The post-hoc routing follow-up that FE269 pointed at is now closed too. Self-grade
+the K=1 answer and route verify-failures to K=8 / self-correction (Kumaran 2604.22271
+PANL signal) does **NOT** beat the achievable uniform-K frontier (upper convex hull
+= random K=1/K=8 routing) beyond noise — best routed point +0.1 SE (n=500, SE=0.022).
+PANL "K=1-wrong" probe peaks at **L22 AUROC 0.7555, below pre-hoc prefill-DoM 0.7731**
+(post-hoc weaker than pre-hoc — opposite of Kumaran's 7B/27B claim). Verbalized
+self-verdict is anti-informative (AUROC 0.480); **verify-then-correct HURTS**
+(0.474 vs K=1 0.486; 46 right→wrong, 40 wrong→right). **H-19 refuted at 1.5B.**
+Two false-win artifacts were caught by fresh-eyes scrutiny (a degenerate verbalized
+router sending 85%→K=8, and dominated-point frontier interpolation through K=2/K=4).
+Net: the applied story stays **prefill-DoM refuse-and-spend selective prediction (F-8)**,
+not verify-and-route. Harness + results under `pathway11_h100/verify_route/`
+(run_fe19.sh, verdict.json); brief `research-graph/briefs/result-2026-06-10-P11-FE19.md`.
+**Graph bookkeeping deferred** (Docker Desktop was down): run `update_status.py P11-FE19
+COMPLETED`, `promote_result.py briefs/result-2026-06-10-P11-FE19.md`, and
+`generate_next_experiments.py` once topo-research-graph (bolt 7688) is back up.
+
 **FE269 causal test complete — verdict DIAGNOSTIC (2026-06-09).** The L19
-prefill DoM is a *correlational readout, not a causal lever*. This closes the
-single open question that gated the finish line: pursue selective-prediction /
-routing (F-8 / FE19), NOT steering (H-1). Run on a now-removed H100 SXM pod;
+prefill DoM is a *correlational readout, not a causal lever*. This closed the
+question that gated the finish line: pursue selective-prediction / routing
+(F-8), NOT steering (H-1). Run on a now-removed H100 SXM pod;
 harness + 14 result JSONs committed under `pathway11_h100/causal_dom/`.
 - Ablation (necessity) FAILED: removing the direction is a no-op on math —
   L19-only ΔMATH −0.2pp (survives 48.4%), all-layer ΔMATH +2.0pp (46.2%);
@@ -27,9 +45,10 @@ is now STRONG across 3 architectures. `exp1_cross_model/dom_auroc_results.json`.
 **Methodology phase complete.** The `nocompute/` experiment suite landed
 2026-05-06 (commit 1921e3a, merged to main). Branch
 `max-depth-retriage-2026-04-28` is up to date with origin.
-`validate_claims.py` invariant: **208/208 internal PASS, 252 claims tracked total**
-(208 internal + 41 external + 3 PENDING_FE) — +6 internal this session (2 cross-arch
-AUROC, 4 FE269). Verify with `python validate_claims.py`.
+`validate_claims.py` invariant: **214/214 internal PASS, 258 claims tracked total**
+(214 internal + 41 external + 3 PENDING_FE) — +6 internal this session (FE19: PANL
+best/L19 AUROC, verbalized AUROC, verify-then-correct acc + helps-flag, C_exact verdict).
+Verify with `python validate_claims.py`.
 
 The `nocompute/` suite runs all paper-defense experiments against committed
 NPZ caches without GPU: 6 scripts, 39 result JSONs, 14 figures. Key

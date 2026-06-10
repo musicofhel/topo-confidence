@@ -1,0 +1,240 @@
+[12:17:27] START S0 preflight
+torch 2.10.0+cu128 cuda True
+transformers 4.57.6
+caches OK: stage2=500 k8=500 phase1=True phase2=True
+[12:17:30] OK   S0
+[12:17:30] START S1 : python load_k1.py
+  loaded 500/500 K=1 greedy answers | accuracy = 0.4860 (243/500)
+  wrote /home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/k1_greedy.json
+  GATE PASSED (acc in [47%,50%], reproduces published 48.6%)
+[12:17:31] OK   S1
+[12:17:31] DONE (stages: S0 S1)
+[12:18:28] START S2 : python verify_pass.py --batch 16
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  verify 16/500
+  verify 32/500
+  verify 48/500
+  verify 64/500
+  verify 80/500
+  verify 96/500
+  verify 112/500
+  verify 128/500
+  verify 144/500
+  verify 160/500
+  verify 176/500
+  verify 192/500
+  verify 208/500
+  verify 224/500
+  verify 240/500
+  verify 256/500
+  verify 272/500
+  verify 288/500
+  verify 304/500
+  verify 320/500
+  verify 336/500
+  verify 352/500
+  verify 368/500
+  verify 384/500
+  verify 400/500
+  verify 416/500
+  verify 432/500
+  verify 448/500
+  verify 464/500
+  verify 480/500
+  verify 496/500
+  verify 500/500
+Traceback (most recent call last):
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/verify_pass.py", line 175, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/musicofhel/miniforge3/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/verify_pass.py", line 156, in main
+    assert (stds > 0).all(), "degenerate (zero-variance) layer captured"
+           ^^^^^^^^^^^^^^^^
+AssertionError: degenerate (zero-variance) layer captured
+[12:20:24] FAIL S2 (see /home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/run.log) — continuing so earlier results survive
+[12:20:24] START S3 : python correct_pass.py --batch 16
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  correct 16/500
+  correct 32/500
+  correct 48/500
+  correct 64/500
+  correct 80/500
+  correct 96/500
+  correct 112/500
+  correct 128/500
+  correct 144/500
+  correct 160/500
+  correct 176/500
+  correct 192/500
+  correct 208/500
+  correct 224/500
+  correct 240/500
+  correct 256/500
+  correct 272/500
+  correct 288/500
+  correct 304/500
+  correct 320/500
+  correct 336/500
+  correct 352/500
+  correct 368/500
+  correct 384/500
+  correct 400/500
+  correct 416/500
+  correct 432/500
+  correct 448/500
+  correct 464/500
+  correct 480/500
+  correct 496/500
+  correct 500/500
+
+  full-coverage corrected accuracy: 0.4740  (K=1 was 0.4860, Δ=-0.0120)
+  flips: right->wrong 46, wrong->right 40
+  wrote results/correct_pass.json
+[13:44:03] OK   S3
+[13:44:03] START S4 : python fit_panl_probe.py
+Traceback (most recent call last):
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/fit_panl_probe.py", line 147, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/fit_panl_probe.py", line 63, in main
+    d = np.load(HERE / "results" / "verify_acts.npz", allow_pickle=True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/musicofhel/miniforge3/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/verify_acts.npz'
+[13:44:04] FAIL S4 (see /home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/run.log) — continuing so earlier results survive
+[13:44:04] START S5 : python route_sim.py
+Traceback (most recent call last):
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/route_sim.py", line 146, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/route_sim.py", line 76, in main
+    panl = np.load(HERE / "results" / "panl_oof.npz", allow_pickle=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/musicofhel/miniforge3/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/panl_oof.npz'
+[13:44:04] FAIL S5 (see /home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/run.log) — continuing so earlier results survive
+[13:44:04] START S6 : python decision.py
+Traceback (most recent call last):
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/decision.py", line 134, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/musicofhel/topo-confidence/pathway11_h100/verify_route/decision.py", line 36, in main
+    fr = json.loads((R / "route_frontier.json").read_text())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/musicofhel/miniforge3/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/musicofhel/miniforge3/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/route_frontier.json'
+[13:44:04] FAIL S6 (see /home/musicofhel/topo-confidence/pathway11_h100/verify_route/results/run.log) — continuing so earlier results survive
+[13:44:04] DONE (stages: S2 S3 S4 S5 S6)
+[13:45:03] START S2 : python verify_pass.py --batch 16
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  verify 16/500
+  verify 32/500
+  verify 48/500
+  verify 64/500
+  verify 80/500
+  verify 96/500
+  verify 112/500
+  verify 128/500
+  verify 144/500
+  verify 160/500
+  verify 176/500
+  verify 192/500
+  verify 208/500
+  verify 224/500
+  verify 240/500
+  verify 256/500
+  verify 272/500
+  verify 288/500
+  verify 304/500
+  verify 320/500
+  verify 336/500
+  verify 352/500
+  verify 368/500
+  verify 384/500
+  verify 400/500
+  verify 416/500
+  verify 432/500
+  verify 448/500
+  verify 464/500
+  verify 480/500
+  verify 496/500
+  verify 500/500
+  note: zero-variance layer slots [0] (slot 0 = constant embedding, expected)
+
+  verbalized verdict says-correct rate: 0.218  (true K=1 acc 0.486)
+  verbalized verdict accuracy vs truth: 0.488
+  acts shape (500, 29, 1536), per-layer std range [0.000, 0.522]
+  wrote results/verify.json + results/verify_acts.npz
+[13:47:00] OK   S2
+[13:47:00] SKIP S3 (done)
+[13:47:00] START S4 : python fit_panl_probe.py
+  acts (500, 29, 1536) | K=1 acc 0.4860
+  L 0: DoM(wrong)=0.5000  LR(wrong)=0.4952  DoM(B)=0.5000
+  L 1: DoM(wrong)=0.6784  LR(wrong)=0.6561  DoM(B)=0.4753
+  L 2: DoM(wrong)=0.6974  LR(wrong)=0.6703  DoM(B)=0.4954
+  L 3: DoM(wrong)=0.6841  LR(wrong)=0.6888  DoM(B)=0.5141
+  L 4: DoM(wrong)=0.7103  LR(wrong)=0.6668  DoM(B)=0.4811
+  L 5: DoM(wrong)=0.7053  LR(wrong)=0.6788  DoM(B)=0.4908
+  L 6: DoM(wrong)=0.7052  LR(wrong)=0.6816  DoM(B)=0.5384
+  L 7: DoM(wrong)=0.7043  LR(wrong)=0.7149  DoM(B)=0.5306
+  L 8: DoM(wrong)=0.7088  LR(wrong)=0.7253  DoM(B)=0.5268
+  L 9: DoM(wrong)=0.7159  LR(wrong)=0.7203  DoM(B)=0.5282
+  L10: DoM(wrong)=0.7130  LR(wrong)=0.7488  DoM(B)=0.5331
+  L11: DoM(wrong)=0.7115  LR(wrong)=0.7354  DoM(B)=0.5345
+  L12: DoM(wrong)=0.7031  LR(wrong)=0.7297  DoM(B)=0.5361
+  L13: DoM(wrong)=0.7049  LR(wrong)=0.7203  DoM(B)=0.5307
+  L14: DoM(wrong)=0.7039  LR(wrong)=0.7391  DoM(B)=0.5253
+  L15: DoM(wrong)=0.7082  LR(wrong)=0.7548  DoM(B)=0.5248
+  L16: DoM(wrong)=0.7133  LR(wrong)=0.7543  DoM(B)=0.5155
+  L17: DoM(wrong)=0.7129  LR(wrong)=0.7577  DoM(B)=0.5030
+  L18: DoM(wrong)=0.7223  LR(wrong)=0.7689  DoM(B)=0.5173
+  L19: DoM(wrong)=0.7276  LR(wrong)=0.7458  DoM(B)=0.5528
+  L20: DoM(wrong)=0.7396  LR(wrong)=0.7543  DoM(B)=0.5711
+  L21: DoM(wrong)=0.7509  LR(wrong)=0.7637  DoM(B)=0.5868
+  L22: DoM(wrong)=0.7555  LR(wrong)=0.7496  DoM(B)=0.5961
+  L23: DoM(wrong)=0.7416  LR(wrong)=0.7528  DoM(B)=0.6007
+  L24: DoM(wrong)=0.7392  LR(wrong)=0.7515  DoM(B)=0.6016
+  L25: DoM(wrong)=0.7418  LR(wrong)=0.7505  DoM(B)=0.6004
+  L26: DoM(wrong)=0.7349  LR(wrong)=0.7619  DoM(B)=0.6001
+  L27: DoM(wrong)=0.7337  LR(wrong)=0.7614  DoM(B)=0.5982
+  L28: DoM(wrong)=0.7379  LR(wrong)=0.7337  DoM(B)=0.5857
+
+  BEST PANL layer for K=1-wrong: L22  DoM AUROC=0.7555 (LR 0.7496)
+  PANL L19 DoM AUROC(wrong) = 0.7276
+  comparator — prefill-DoM AUROC(wrong) = 0.7731; verbalized verdict acc = 0.4880, AUROC(wrong) = 0.4801
+  wrote results/panl_probe.json + results/panl_oof.npz
+[13:49:42] OK   S4
+[13:49:42] START S5 : python route_sim.py
+  uniform-K frontier: {'K1': (1.0, 0.486), 'K2': (2.0, 0.4132), 'K4': (4.0, 0.49496), 'K8': (8.0, 0.55)}
+  best PANL layer = L22
+  --- best accuracy at matched budget (charging verify+correct) ---
+  budget~2: A_gate|prefill_dom=0.488  B_resample|panl_best=0.494  B_resample|panl_l19=0.492  B_resample|prefill_dom=0.488  B_resample|verbalized=0.494  C_correct|panl_best=0.492  C_correct|panl_l19=0.486  C_correct|prefill_dom=0.488  C_correct|verbalized=0.49  uniform=0.486
+  budget~4: A_gate|prefill_dom=0.496  B_resample|panl_best=0.512  B_resample|panl_l19=0.506  B_resample|prefill_dom=0.496  B_resample|verbalized=0.502  C_correct|panl_best=0.492  C_correct|panl_l19=0.486  C_correct|prefill_dom=0.488  C_correct|verbalized=0.49  uniform=0.495
+  budget~8: A_gate|prefill_dom=0.55  B_resample|panl_best=0.548  B_resample|panl_l19=0.548  B_resample|prefill_dom=0.548  B_resample|verbalized=0.556  C_correct|panl_best=0.492  C_correct|panl_l19=0.486  C_correct|prefill_dom=0.488  C_correct|verbalized=0.49  uniform=0.55
+  wrote results/route_frontier.json
+[13:49:42] OK   S5
+[13:49:42] START S6 : python decision.py
+========================================================================
+  P11-FE19 VERDICT: C_exact WINS
+    best policy: B_resample|verbalized  acc=0.556 @ avg-K=7.036 (uniform here 0.5367, gate here 0.534)
+    uniform-K8 = 0.55  oracle = 0.589
+  routing signal: PANL best L22 AUROC(wrong)=0.7555 | PANL L19=0.7276 | verbalized=0.4801 | prefill-DoM=0.7731
+  verify-then-correct: 0.4740 (K=1 0.4860, Δ=-0.0120)
+========================================================================
+[13:49:42] OK   S6
+[13:49:42] DONE (stages: S2 S3 S4 S5 S6)

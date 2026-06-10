@@ -1,0 +1,92 @@
+{
+ "experiment": "P11-FE19",
+ "date": "2026-06-10",
+ "C_exact_verdict": "LOSES",
+ "verdict_basis": "no non-degenerate verification-routed policy beats the uniform-K frontier beyond noise (1.96 SE = +/-0.044 at n=500)",
+ "best_winning_policy": null,
+ "n_winning_operating_points": 0,
+ "best_meaningful_signal_point": {
+  "policy": "B_resample|panl_best",
+  "avg_K": 3.606,
+  "accuracy": 0.512,
+  "frac_routed": 0.358,
+  "vs_uniform_SE": 0.1
+ },
+ "loose_preregistered_passes": {
+  "note": "cond_i ('acc>=55% at avg-K<8') / cond_ii ('+2pp over frontier') WITHOUT the significance+degeneracy guards. Recorded for transparency; these are gameable by a near-K=8 degenerate router on noise and do NOT establish a win.",
+  "n": 57,
+  "top": {
+   "policy": "B_resample|verbalized",
+   "avg_K": 7.036,
+   "accuracy": 0.556,
+   "frac_routed": 0.848,
+   "above_uniform_frontier_by": 0.0148,
+   "uniform_at_this_K": 0.5412,
+   "gate_at_this_K": 0.5414,
+   "exceeds_uniform_by_SE": 0.67,
+   "degenerate_router": true
+  }
+ },
+ "comparison": {
+  "uniform_K8_accuracy": 0.55,
+  "oracle_accuracy": 0.589,
+  "binomial_SE_n500": 0.0222,
+  "significance_margin_1p96SE": 0.0436,
+  "prefill_gating_is_C_infer_baseline": true
+ },
+ "routing_signal": {
+  "panl_best_layer": 22,
+  "panl_best_auroc_wrong": 0.7554883028294184,
+  "panl_l19_auroc_wrong": 0.7276424716978112,
+  "verbalized_verdict_auroc_wrong": 0.480088389297209,
+  "prefill_dom_auroc_wrong": 0.7730860995020096,
+  "panl_beats_verbalized": true,
+  "panl_beats_prefill_dom": false
+ },
+ "verify_then_correct": {
+  "full_coverage_corrected_accuracy": 0.474,
+  "k1_accuracy": 0.486,
+  "delta_vs_k1": -0.01200000000000001,
+  "self_correction_helps": false,
+  "flipped_right_to_wrong": 46,
+  "flipped_wrong_to_right": 40
+ },
+ "budget_summary": {
+  "budget~2": {
+   "uniform": 0.486,
+   "A_gate|prefill_dom": 0.488,
+   "B_resample|panl_best": 0.494,
+   "B_resample|panl_l19": 0.492,
+   "B_resample|prefill_dom": 0.488,
+   "B_resample|verbalized": 0.494,
+   "C_correct|panl_best": 0.492,
+   "C_correct|panl_l19": 0.486,
+   "C_correct|prefill_dom": 0.488,
+   "C_correct|verbalized": 0.49
+  },
+  "budget~4": {
+   "uniform": 0.495,
+   "A_gate|prefill_dom": 0.496,
+   "B_resample|panl_best": 0.512,
+   "B_resample|panl_l19": 0.506,
+   "B_resample|prefill_dom": 0.496,
+   "B_resample|verbalized": 0.502,
+   "C_correct|panl_best": 0.492,
+   "C_correct|panl_l19": 0.486,
+   "C_correct|prefill_dom": 0.488,
+   "C_correct|verbalized": 0.49
+  },
+  "budget~8": {
+   "uniform": 0.55,
+   "A_gate|prefill_dom": 0.55,
+   "B_resample|panl_best": 0.548,
+   "B_resample|panl_l19": 0.548,
+   "B_resample|prefill_dom": 0.548,
+   "B_resample|verbalized": 0.556,
+   "C_correct|panl_best": 0.492,
+   "C_correct|panl_l19": 0.486,
+   "C_correct|prefill_dom": 0.488,
+   "C_correct|verbalized": 0.49
+  }
+ }
+}

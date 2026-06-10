@@ -1,5 +1,5 @@
-# validate_claims.py — 252 claims
-PASS:           208
+# validate_claims.py — 258 claims
+PASS:           214
 FAIL:           0
 MISSING/ERROR:  0
 REGISTERED:     41  (external paper anchors, no project readback)
@@ -258,6 +258,12 @@ ext-2510.18147-beta-neg       external_anchor     REGISTERED              —   
 ext-2601.19375-ss-asr-qwen    external_anchor     REGISTERED              —                       74.04           None              2601.19375 SS HarmBench ASR 74.04% (Qwen2.5-1.5B                                                              
 ext-2601.19375-sas-asr-qwen   external_anchor     REGISTERED              —                       13.46           None              2601.19375 SAS HarmBench ASR 13.46% (Qwen2.5-1.5                                                              
 ext-2601.19375-perp-violatio  external_anchor     REGISTERED              —                       0               None              2601.19375 SS perplexity-threshold violations: 0                                                              
+fe19-panl-best-auroc          1024tok             PASS                    —                       0.7555          0.755488          FE19 PANL probe AUROC (K=1-wrong) best layer L22  pathway11_h100/verify_route/results/panl_probe.json         
+fe19-panl-l19-auroc           1024tok             PASS                    —                       0.7276          0.727642          FE19 PANL probe AUROC (K=1-wrong) at L19 = 0.727  pathway11_h100/verify_route/results/panl_probe.json         
+fe19-verbalized-auroc         1024tok             PASS                    —                       0.4801          0.480088          FE19 verbalized self-verdict AUROC (wrong) = 0.4  pathway11_h100/verify_route/results/panl_probe.json         
+fe19-correct-fullcov          1024tok             PASS                    —                       0.474           0.474             FE19 verify-then-correct full-coverage acc = 0.4  pathway11_h100/verify_route/results/correct_pass.json       
+fe19-correct-helps            1024tok             PASS                    —                       False           False             FE19 self-correction helps? = False               pathway11_h100/verify_route/results/verdict.json            
+fe19-cexact-verdict           1024tok             PASS                    —                       LOSES           LOSES             FE19 C_exact verdict = LOSES (verification routi  pathway11_h100/verify_route/results/verdict.json            
 fwd-h71-dom-stability         forward_looking     PENDING_FE              —                       0.733           None              H-71 threshold: prefill L19 DoM AUROC ≥ 0.733 un                                                              
 fwd-h72-bucket-migration      forward_looking     PENDING_FE              —                       0.33            None              H-72 threshold: D→{A,B} migration ≥ 33%, A→D ≤ 1                                                              
 fwd-h73-namedcue-acc-gain     forward_looking     PENDING_FE              —                       2               None              H-73 threshold: K=1 accuracy on named-cue subset                                                              
@@ -308,6 +314,10 @@ fwd-h73-namedcue-acc-gain     forward_looking     PENDING_FE              —   
 - [ext-2601.19375-ss-asr-qwen] labels=external_anchor: 2601.19375
 - [ext-2601.19375-sas-asr-qwen] labels=external_anchor: 2601.19375
 - [ext-2601.19375-perp-violations] labels=external_anchor: 2601.19375
+- [fe19-panl-best-auroc] labels=1024tok: post-hoc verification activation probe; BELOW pre-hoc prefill-DoM 0.7731
+- [fe19-verbalized-auroc] labels=1024tok: 1.5B cannot self-verify in words; signal is in activations not verdict text
+- [fe19-correct-fullcov] labels=1024tok: self-correction HURTS at 1.5B; Kumaran 2604.22271 +3.7pp at 7B/27B does not replicate
+- [fe19-cexact-verdict] labels=1024tok: H-19 refuted at 1.5B; applied story stays prefill-DoM selective prediction (F-8)
 - [fwd-h71-dom-stability] labels=forward_looking: from triage-2026-04-29-2604.24712.md; ≤0.04 drop from 0.7731. Live after P11-FE71 result JSON.
 - [fwd-h72-bucket-migration] labels=forward_looking: from triage-2026-04-29-2604.24712.md. Live after P11-FE72 result JSON.
 - [fwd-h73-namedcue-acc-gain] labels=forward_looking: from triage-2026-04-29-2604.24712.md; expressed in pp. Live after P11-FE73-adjacent result JSON.

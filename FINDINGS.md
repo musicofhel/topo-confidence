@@ -308,6 +308,21 @@ the uplift might be smaller.
 prefill-driven refusal doesn't beat random — would suggest the Qwen-1.5B
 signal is model-specific.
 
+**Updated scope (FE19, 2026-06-10 — what does NOT extend F-8):** A *post-hoc*
+verification-routing alternative (C_exact: self-grade the K=1 answer, route
+verify-failures to K=8 or to self-correction; Kumaran 2604.22271 PANL signal)
+was tested directly and **LOSES** — no non-degenerate routed policy beats the
+achievable uniform-K frontier (the upper convex hull = random K=1/K=8 routing)
+beyond noise (best routed point +0.1 SE, n=500). The PANL activation probe for
+"K=1-wrong" peaks at L22 AUROC **0.7555**, *below* the pre-hoc prefill-DoM
+**0.7731** — so the post-hoc signal is weaker than the pre-hoc one (opposite of
+Kumaran's 7B/27B prediction). Verbalized self-verification is anti-informative
+(AUROC 0.480), and **verify-then-correct HURTS** (full-coverage 0.474 vs K=1
+0.486; 46 right→wrong vs 40 wrong→right). **H-19 refuted at 1.5B.** Net: the
+selective-prediction story stays *refuse-and-spend on the pre-hoc prefill score*
+(this finding), not verify-and-route. Evidence: `pathway11_h100/verify_route/
+results/verdict.json`; brief `research-graph/briefs/result-2026-06-10-P11-FE19.md`.
+
 ### F-9: CoE-60 trajectory features are redundant with single-layer L19 DoM
 
 **Updated evidence line (append):**

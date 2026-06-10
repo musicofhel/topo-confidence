@@ -1173,6 +1173,32 @@ CLAIMS: list[Claim] = [
           "", [], 0, labels="external_anchor", kind="external",
           note="2601.19375"),
 
+    # ----- P11-FE19: verification routing (C_exact) vs prefill-gating + verify-then-correct -----
+    # Run 2026-06-10 (local). Verdict LOSES: post-hoc verification routing does not beat
+    # the achievable uniform-K frontier (convex hull = random K=1/K=8 routing) beyond noise.
+    Claim("fe19-panl-best-auroc", "FE19 PANL probe AUROC (K=1-wrong) best layer L22 = 0.7555",
+          "pathway11_h100/verify_route/results/panl_probe.json",
+          ["best_dom_auroc_wrong"], 0.7555, 0.01, "1024tok",
+          note="post-hoc verification activation probe; BELOW pre-hoc prefill-DoM 0.7731"),
+    Claim("fe19-panl-l19-auroc", "FE19 PANL probe AUROC (K=1-wrong) at L19 = 0.7276",
+          "pathway11_h100/verify_route/results/panl_probe.json",
+          ["L19_dom_auroc_wrong"], 0.7276, 0.01, "1024tok"),
+    Claim("fe19-verbalized-auroc", "FE19 verbalized self-verdict AUROC (wrong) = 0.480 (below random)",
+          "pathway11_h100/verify_route/results/panl_probe.json",
+          ["comparators", "verbalized_verdict_auroc_wrong"], 0.4801, 0.01, "1024tok",
+          note="1.5B cannot self-verify in words; signal is in activations not verdict text"),
+    Claim("fe19-correct-fullcov", "FE19 verify-then-correct full-coverage acc = 0.474 (Δ−1.2pp vs K=1)",
+          "pathway11_h100/verify_route/results/correct_pass.json",
+          ["full_coverage_corrected_accuracy"], 0.474, 0.005, "1024tok",
+          note="self-correction HURTS at 1.5B; Kumaran 2604.22271 +3.7pp at 7B/27B does not replicate"),
+    Claim("fe19-correct-helps", "FE19 self-correction helps? = False",
+          "pathway11_h100/verify_route/results/verdict.json",
+          ["verify_then_correct", "self_correction_helps"], False, 0.0, "1024tok"),
+    Claim("fe19-cexact-verdict", "FE19 C_exact verdict = LOSES (verification routing ≯ uniform)",
+          "pathway11_h100/verify_route/results/verdict.json",
+          ["C_exact_verdict"], "LOSES", 0.0, "1024tok",
+          note="H-19 refuted at 1.5B; applied story stays prefill-DoM selective prediction (F-8)"),
+
     # 2604.24712 — Lopez-Vazquez paraphrase / mutation thresholds
     # Forward-looking: these become live readbacks against
     # P11-FE71/72/73 result JSONs once those experiments run.

@@ -1,0 +1,4 @@
+# run-state and large binaries — results JSONs ARE committed (per repo convention)
+.done/
+results/*.npz
+results/orchestrator.out
