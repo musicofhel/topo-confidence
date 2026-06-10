@@ -2,15 +2,34 @@
 
 *Overwritten at the end of every session. Not appended. For append-only history see `EXPERIMENT_LOG.md`.*
 
-**Date:** 2026-05-09
+**Date:** 2026-06-09
 
 ## Where the project actually is
 
+**FE269 causal test complete — verdict DIAGNOSTIC (2026-06-09).** The L19
+prefill DoM is a *correlational readout, not a causal lever*. This closes the
+single open question that gated the finish line: pursue selective-prediction /
+routing (F-8 / FE19), NOT steering (H-1). Run on a now-removed H100 SXM pod;
+harness + 14 result JSONs committed under `pathway11_h100/causal_dom/`.
+- Ablation (necessity) FAILED: removing the direction is a no-op on math —
+  L19-only ΔMATH −0.2pp (survives 48.4%), all-layer ΔMATH +2.0pp (46.2%);
+  GSM8K/MMLU drops ≤2.6pp (no general damage either).
+- Addition (sufficiency) FAILED: α-sweep degrades MATH 47.8→33.4%. Entangled,
+  not surgical — flips 18–20% of incorrect but retention falls 80→54%; no α
+  meets flip≥15% with retention≥85%. First DIRECT test of fixed-vector steering
+  on this direction; confirms the prior F-3-rotation *inference* (P10-v2 E1 was
+  never executed). See `causal_dom/results/verdict.json`.
+
+**Also locked this session:** F-2 cross-architecture generalization SATISFIED
+(Phi-3-mini ⅔-depth 0.8089, Llama-3.2-1B 0.7458 vs Qwen-1.5B ref 0.7731) — F-2
+is now STRONG across 3 architectures. `exp1_cross_model/dom_auroc_results.json`.
+
 **Methodology phase complete.** The `nocompute/` experiment suite landed
 2026-05-06 (commit 1921e3a, merged to main). Branch
-`max-depth-retriage-2026-04-28` is merged and up to date with `main`.
-`validate_claims.py` invariant: **202/202 internal PASS, 246 claims tracked total**
-(202 internal + 41 external + 3 PENDING_FE).
+`max-depth-retriage-2026-04-28` is up to date with origin.
+`validate_claims.py` invariant: **208/208 internal PASS, 252 claims tracked total**
+(208 internal + 41 external + 3 PENDING_FE) — +6 internal this session (2 cross-arch
+AUROC, 4 FE269). Verify with `python validate_claims.py`.
 
 The `nocompute/` suite runs all paper-defense experiments against committed
 NPZ caches without GPU: 6 scripts, 39 result JSONs, 14 figures. Key
@@ -29,7 +48,13 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-EXP-79 (P11-FE42 Ridge-LR on [prefill, final] concat). Ridge-LR concat
+**FE269 (P11-FE269) — causal lever-vs-diagnostic test. Verdict DIAGNOSTIC.**
+Arditi 2406.11717 protocol on Qwen-2.5-1.5B L19 prefill DoM. Ablation no-op
+(ΔMATH ≈ 0 at L19-only and all-layer), addition degrades (47.8→33.4%). Graph
+node P11-FE269 → COMPLETED. Results in `pathway11_h100/causal_dom/results/`.
+Pod stopped + removed; no GPU running.
+
+Prior: EXP-79 (P11-FE42 Ridge-LR on [prefill, final] concat). Ridge-LR concat
 AUROC 0.8509; final-only 0.8493 nearly matches, prefill-only 0.7844
 confirms directional ceiling. The final token at L19 carries ~12.8pp
 more correctness signal than DoM reveals (0.8493 vs 0.7210).

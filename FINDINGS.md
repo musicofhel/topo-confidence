@@ -65,6 +65,24 @@ ridge-LR than DoM extracts (0.8493 vs 0.7210).
   prefill-only 0.7844 matches EXP-58's 0.7847 ceiling. DoM concat
   0.7574 < DoM prefill 0.7699, confirming EXP-51's naive-concat-dilutes
   finding.
+- **Cross-architecture generalization — SATISFIED (2026-06-09,
+  `exp1_cross_model/dom_auroc_results.json`)**: the prefill DoM-predicts-
+  correctness effect replicates on two non-Qwen architectures at the same
+  ~⅔-depth layer. Phi-3-mini (33L, ⅔-depth L21) AUROC **0.8089** (peak
+  0.8148 at L17); Llama-3.2-1B (17L, ⅔-depth L11) AUROC **0.7458** — both
+  ≈ or above the Qwen-1.5B L19 reference 0.7731. The L19 prefill direction
+  is an architecture-general correctness readout, not a Qwen artifact. With
+  3 architectures + controls, F-2 is **STRONG**.
+- **Causal lever-vs-diagnostic — SATISFIED (FE269, 2026-06-09,
+  `causal_dom/results/verdict.json`)**: directional ablation of the L19
+  prefill DoM (Arditi 2406.11717 protocol) does NOT remove math ability
+  (L19-only ΔMATH −0.2pp, all-layer ΔMATH +2.0pp; GSM8K/MMLU drops ≤2.6pp)
+  and activation addition does NOT induce correctness (α-sweep degrades
+  MATH 47.8→33.4%; entangled, not surgical — flips 18–20% of incorrect but
+  retention falls 80→54%, no α meets flip≥15% with retention≥85%). Verdict:
+  **DIAGNOSTIC** — the direction is a *correlational readout*, not a causal
+  lever. This bounds F-2's interpretation: use it for selective prediction
+  / routing (F-8), not steering.
 
 ### F-3: Prefill and final-token DoM directions are orthogonal, *structurally — not positionally*
 

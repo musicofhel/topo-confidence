@@ -135,7 +135,7 @@ entry), writes `(:Method)-[:USED_IN]->(:Paper)` and
 `(:Dataset)-[:USED_IN]->(:Paper)` edges, regenerates `NEXT_EXPERIMENTS.md`, and
 sets the paper to `status='graphed'`. **Refuses to promote** if the brief
 declares new quantitative claims and `validate_claims.py` hasn't been updated
-since the brief was written — protects the claims invariant (202 internal PASS / 41 external REGISTERED / 3 PENDING_FE = 246 tracked, 202/202 internal PASS).
+since the brief was written — protects the claims invariant (208 internal PASS / 41 external REGISTERED / 3 PENDING_FE = 252 tracked, 208/208 internal PASS).
 
 The `/paper-triage` skill spawns a fresh subagent per paper (per-paper context
 isolation) to defend against the confirmation-bias failure mode documented in
@@ -178,7 +178,7 @@ bash ~/start-research-pipeline.sh --status
 python validate_claims.py > validation_report.txt
 ```
 
-246 claims tracked. **202 internal back-checked against committed JSONs (202/202 PASS), 41 external paper anchors registered (REGISTERED, no readback), 3 forward-looking H-N thresholds (PENDING_FE, become live when their FE result JSON lands).** Tier-1 regen annotates 105 of the internals with cached-intermediate recompute commands (FE749 spectral α excluded — its regen takes ~2h45m, exceeds the 600s per-claim timeout; manual: `python pathway11_h100/spectral_alpha/recompute_fe749.py`). If you change any number in the narrative docs, update the matching `Claim` entry and re-run; if you cite a new external number, add a `kind="external"` entry.
+252 claims tracked. **208 internal back-checked against committed JSONs (208/208 PASS), 41 external paper anchors registered (REGISTERED, no readback), 3 forward-looking H-N thresholds (PENDING_FE, become live when their FE result JSON lands).** Tier-1 regen annotates 105 of the internals with cached-intermediate recompute commands (FE749 spectral α excluded — its regen takes ~2h45m, exceeds the 600s per-claim timeout; manual: `python pathway11_h100/spectral_alpha/recompute_fe749.py`). If you change any number in the narrative docs, update the matching `Claim` entry and re-run; if you cite a new external number, add a `kind="external"` entry.
 
 ## What the project is, in two sentences
 
@@ -237,7 +237,7 @@ Full chronology in PROJECT_RECORD §1a. One-liner per pathway:
 
 - **Numbers come from JSONs, not narrative docs.** If you see a discrepancy, the JSON wins and the narrative doc gets updated.
 - **Label scheme matters.** Tag every number you cite with `1024tok` (current canonical), `256tok_NEW`, or `256tok_manifest`. The 256-tok numbers are not directly comparable to 1024-tok — see PROJECT_RECORD §1d.
-- **Don't add a new claim without updating `validate_claims.py`.** The 202/202 internal-PASS invariant is load-bearing; external paper-cited numbers go in as `kind="external"` entries.
+- **Don't add a new claim without updating `validate_claims.py`.** The 208/208 internal-PASS invariant is load-bearing; external paper-cited numbers go in as `kind="external"` entries.
 - **NPZ caches are gitignored.** Regeneration commands are in DATA_MANIFEST.md. Don't assume a cache exists on a fresh machine.
 
 ## Compute

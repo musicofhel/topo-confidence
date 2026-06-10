@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-07 17:45 UTC_
+_Generated: 2026-06-10 03:22 UTC_
 
 ---
 
@@ -31,18 +31,6 @@ _Generated: 2026-06-07 17:45 UTC_
 **Depends on:** F-2
 **Would update:** F-8, F-2
 **Trigger condition:** Heimersheim & Nanda 2404.15255 §2.3 (noising tests necessity) and §3.2 (correlational evidence ≠ circuit involvement)
-
-### P11-FE269 (P11) — [ROI: 10, READY, CRITICAL]
-
-**What:** Causal sufficiency test for prefill L19 DoM. Apply directional ablation x' = x - r̂r̂ᵀx at every layer and every position on Qwen-2.5-1.5B-Instruct, where r̂ is the unit-norm prefill_L19_DoM. Generate K=1 greedy completions on MATH-500 and measure accuracy delta from the 48.6% baseline. Mirror with activation addition at L19 (all positions) on the K=1 incorrect subset and measure whether any flip toward correctness. Capability check via MMLU + GSM8K to confirm general competence preserved.
-
-**Why:** Refutation 3. F-2 and F-8 are correlation-only; Arditi et al.'s standard for 'direction encodes X' requires both ablate→remove-X and add→induce-X with capability preservation. Without this, our 'prefill DoM encodes correctness' framing is overreaching.
-
-**Cost:** 4h H100 (intervention + MATH-500 K=1 + MMLU + GSM8K)
-**Triggered by:** [Refusal in Language Models Is Mediated by a Single Direction](https://arxiv.org/abs/2406.11717)
-**Depends on:** F-9, F-8, F-2
-**Would update:** F-8, F-2
-**Trigger condition:** Arditi et al. demonstrate ablation removes refusal AND addition induces refusal on harmless prompts, with MMLU/ARC/GSM8K within 99% CI.
 
 ### P11-FE283 (P11) — [ROI: 10, READY, CRITICAL]
 
@@ -16001,6 +15989,19 @@ _Generated: 2026-06-07 17:45 UTC_
 **Trigger condition:** 2402.13212 — soft self-consistency uses mean/min/product token probabilities for selection without any hidden-state probing.
 **Outcome:** Token-probability baseline does NOT subsume F-2 prefill DoM. Mean log-prob AUROC = 0.6721 (1.5B) / 0.6336 (7B) — both materially below DoM 0.7731. Sum log-prob = 0.8478 (1.5B) / 0.8672 (7B) — appears stronger but is length-confounded (FE448 already established length-alone AUROC 0.7986). Joint [mean_logp, prefill_DoM_proj] = 0.7836, only +1pp over DoM alone — DoM carries geometric signal beyond what mean token-likelihood encodes.
 
+### P11-FE269 (P11) — [ROI: 10, COMPLETED, CRITICAL]
+
+**What:** Causal sufficiency test for prefill L19 DoM. Apply directional ablation x' = x - r̂r̂ᵀx at every layer and every position on Qwen-2.5-1.5B-Instruct, where r̂ is the unit-norm prefill_L19_DoM. Generate K=1 greedy completions on MATH-500 and measure accuracy delta from the 48.6% baseline. Mirror with activation addition at L19 (all positions) on the K=1 incorrect subset and measure whether any flip toward correctness. Capability check via MMLU + GSM8K to confirm general competence preserved.
+
+**Why:** Refutation 3. F-2 and F-8 are correlation-only; Arditi et al.'s standard for 'direction encodes X' requires both ablate→remove-X and add→induce-X with capability preservation. Without this, our 'prefill DoM encodes correctness' framing is overreaching.
+
+**Cost:** 4h H100 (intervention + MATH-500 K=1 + MMLU + GSM8K)
+**Triggered by:** [Refusal in Language Models Is Mediated by a Single Direction](https://arxiv.org/abs/2406.11717)
+**Depends on:** F-9, F-8, F-2
+**Would update:** F-8, F-2
+**Trigger condition:** Arditi et al. demonstrate ablation removes refusal AND addition induces refusal on harmless prompts, with MMLU/ARC/GSM8K within 99% CI.
+**Outcome:** DIAGNOSTIC: L19 prefill DoM is a correlational readout, not a causal lever. Ablation (necessity) FAILED — removing the direction at L19-only leaves MATH at 48.4% (ΔMATH -0.2pp) and all-layer at 46.2% (ΔMATH +2.0pp), with GSM8K/MMLU intact (drops ≤2.6pp). Addition (sufficiency) FAILED — α-sweep monotonically degrades MATH 47.8→33.4%; entangled not surgical (flips 18-20% of incorrect but retention falls 80%→54%, no α meets flip≥15% AND retention≥85%). Baselines: MATH 48.2%, GSM8K 67.6%, MMLU 55.3% (gate passed). Per Arditi 2406.11717 the direction does NOT encode correctness causally. Decision: pursue FE19 selective-prediction/routing, NOT H-1 steering. Results: pathway11_h100/causal_dom/results/verdict.json
+
 ### P11-FE448 (P11) — [ROI: 10, COMPLETED, CRITICAL]
 
 **What:** Partial-correlation control for prefill DoM. Train length-from-prefill-activation regressor on Qwen-2.5-1.5B MATH-500 (cached L19 prefill NPZs). Compute (a) length-prediction R^2 from L19, (b) residual DoM AUROC after partialing out predicted-length. Test whether 0.7731 -> ~0.5 (length-only) or stays high (genuine correctness direction).
@@ -16556,7 +16557,7 @@ check whether any experiment's status should change.
 | [2406.04370](https://arxiv.org/abs/2406.04370) | Large Language Model Confidence Estimation via Black-Box Access | P11-FE262, P11-FE261, P11-FE260 | READY |
 | [2406.11614](https://arxiv.org/abs/2406.11614) | Intrinsic Test of Unlearning Using Parametric Knowledge Traces | P11-FE265, P11-FE264, P11-FE263 | READY |
 | [2406.11624](https://arxiv.org/abs/2406.11624) | Words in Motion: Extracting Interpretable Control Vectors for Motion Transformers | P11-FE267, P10-FE17, P11-FE266, P10-FE16 | BLOCKED, READY |
-| [2406.11717](https://arxiv.org/abs/2406.11717) | Refusal in Language Models Is Mediated by a Single Direction | P11-FE553, P11-FE271, P11-FE270, P11-FE269, P11-FE268, P11-FE7 | READY, TRIGGERED |
+| [2406.11717](https://arxiv.org/abs/2406.11717) | Refusal in Language Models Is Mediated by a Single Direction | P11-FE553, P11-FE271, P11-FE270, P11-FE268, P11-FE7 | READY, TRIGGERED |
 | [2406.17563](https://arxiv.org/abs/2406.17563) | Multi-property Steering of Large Language Models with Dynamic Activation Composition | P2-FE2, P10-FE18, P11-FE281, P11-FE280 | READY |
 | [2407.11094](https://arxiv.org/abs/2407.11094) | Robust Score-Based Quickest Change Detection | P11-FE931, P8-FE11, P11-FE929 | READY |
 | [2408.10764](https://arxiv.org/abs/2408.10764) | Predicting Rewards Alongside Tokens: Non-disruptive Parameter Insertion for Efficient Inference Intervention in Large Language Model | P11-FE827, P11-FE826, P11-FE825, P11-FE824 | BLOCKED, READY |

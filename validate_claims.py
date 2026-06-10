@@ -155,6 +155,32 @@ CLAIMS: list[Claim] = [
           regen="python pathway11_h100/prefill_gated_compute/recompute_dom_auroc.py --key=final_oof",
           regen_key="final_oof"),
 
+    # ----- Cross-architecture generalization of F-2 (exp1_cross_model, 2026-06-09) -----
+    # The prefill DoM-predicts-correctness effect replicates on two non-Qwen
+    # architectures at ~⅔-depth. Confirms F-2 is architecture-general (STRONG).
+    Claim("cross-arch-phi3-auroc", "Phi-3-mini ⅔-depth (L21) prefill DoM AUROC = 0.8089",
+          "pathway11_h100/exp1_cross_model/dom_auroc_results.json",
+          ["models", "phi3mini", "auroc_twothirds"], 0.8089, 0.002, "1024tok"),
+    Claim("cross-arch-llama-auroc", "Llama-3.2-1B ⅔-depth (L11) prefill DoM AUROC = 0.7458",
+          "pathway11_h100/exp1_cross_model/dom_auroc_results.json",
+          ["models", "llama32_1b", "auroc_twothirds"], 0.7458, 0.002, "1024tok"),
+
+    # ----- FE269: causal lever-vs-diagnostic test of the L19 prefill DoM -----
+    # Arditi 2406.11717 protocol: ablate→remove-X AND add→induce-X with capability
+    # preserved. Verdict DIAGNOSTIC — ablation no-op + addition degrades.
+    Claim("fe269-verdict", "FE269 causal-intervention verdict = DIAGNOSTIC",
+          "pathway11_h100/causal_dom/results/verdict.json",
+          ["verdict"], "DIAGNOSTIC", 0, "1024tok"),
+    Claim("fe269-gate-math-off", "FE269 baseline gate MATH-500 off accuracy = 0.482",
+          "pathway11_h100/causal_dom/results/math_off.json",
+          ["accuracy"], 0.482, 0.003, "1024tok"),
+    Claim("fe269-ablate-l19-acc", "FE269 L19-ablate MATH accuracy 0.484 (ΔMATH ≈ 0, ablation no-op)",
+          "pathway11_h100/causal_dom/results/math_ablate_L19.json",
+          ["accuracy"], 0.484, 0.003, "1024tok"),
+    Claim("fe269-add-a4-acc", "FE269 addition α=4×‖r‖ MATH accuracy 0.334 (degrades, not induces)",
+          "pathway11_h100/causal_dom/results/math_add_a4.json",
+          ["accuracy"], 0.334, 0.003, "1024tok"),
+
     # ----- FE719: Leave-One-Subject-Out CV on F-2 -----
     # Refutation test from 2603.18280: random-split CV is non-diagnostic; LOCO is.
     # Mean LOCO AUROC < 0.65 would refute F-2 as a correctness signal.
