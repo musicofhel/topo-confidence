@@ -1,0 +1,13 @@
+{
+  "benchmark": "gsm8k",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "mode": "off",
+  "layers_arg": "all",
+  "n_layers_hooked": 28,
+  "alpha_mult": 0.0,
+  "alpha": 0.0,
+  "subsample_seed": 1234,
+  "n": 500,
+  "n_correct": 338,
+  "accuracy": 0.676
+}

@@ -1,0 +1,163 @@
+[02:29:17] START S0 preflight
+torch 2.4.1+cu124 cuda True
+transformers 4.57.6
+r_hat ok (1536,) 0.9999999403953552
+ablate: max |h_edited · r_hat| = 4.731e-07  (expect ~0)
+add:    max |Δ(h·r_hat) - alpha| = 7.153e-07  (expect ~0)
+intervention self-test PASSED
+[02:29:21] OK   S0
+[02:29:21] START S1 : python eval_math500.py --mode off --layers all --batch 32 --out /workspace/causal_dom/results/math_off.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+Generating test split:   0%|          | 0/500 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 500/500 [00:00<00:00, 43199.27 examples/s]
+[math500] mode=off layers=all(28) alpha_mult=0.0 alpha=0.0000 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.4820 (241/500)  -> /workspace/causal_dom/results/math_off.json
+[02:35:35] OK   S1
+GATE math_off acc=48.20%  (expect 47.0–50.2)
+[02:35:35] GATE PASSED
+[02:35:35] START S2_math : python eval_math500.py --mode ablate --layers 18 --batch 32 --out /workspace/causal_dom/results/math_ablate_L19.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[math500] mode=ablate layers=18(1) alpha_mult=0.0 alpha=0.0000 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.4840 (242/500)  -> /workspace/causal_dom/results/math_ablate_L19.json
+[02:40:56] OK   S2_math
+[02:40:56] START S2_gsmoff : python eval_gsm8k.py --mode off --layers all --batch 32 --out /workspace/causal_dom/results/gsm8k_off.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+Generating train split:   0%|          | 0/7473 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 7473/7473 [00:00<00:00, 310036.14 examples/s]
+Generating test split:   0%|          | 0/1319 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 1319/1319 [00:00<00:00, 212944.07 examples/s]
+[gsm8k] mode=off layers=all(28) n=500
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.6760 (338/500)  -> /workspace/causal_dom/results/gsm8k_off.json
+[02:43:32] OK   S2_gsmoff
+[02:43:32] START S2_gsmab : python eval_gsm8k.py --mode ablate --layers 18 --batch 32 --out /workspace/causal_dom/results/gsm8k_ablate_L19.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[gsm8k] mode=ablate layers=18(1) n=500
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.7020 (351/500)  -> /workspace/causal_dom/results/gsm8k_ablate_L19.json
+[02:46:06] OK   S2_gsmab
+[02:46:06] START S3_math : python eval_math500.py --mode ablate --layers all --batch 32 --out /workspace/causal_dom/results/math_ablate_all.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[math500] mode=ablate layers=all(28) alpha_mult=0.0 alpha=0.0000 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.4620 (231/500)  -> /workspace/causal_dom/results/math_ablate_all.json
+[02:52:53] OK   S3_math
+[02:52:53] START S3_gsmall : python eval_gsm8k.py --mode ablate --layers all --batch 32 --out /workspace/causal_dom/results/gsm8k_ablate_all.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[gsm8k] mode=ablate layers=all(28) n=500
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.6700 (335/500)  -> /workspace/causal_dom/results/gsm8k_ablate_all.json
+[02:55:52] OK   S3_gsmall
+[02:55:52] START S3_mmoff : python eval_mmlu.py --mode off --layers all --batch 32 --out /workspace/causal_dom/results/mmlu_off.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+Generating test split:   0%|          | 0/14042 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 14042/14042 [00:00<00:00, 447833.82 examples/s]
+Generating validation split:   0%|          | 0/1531 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 1531/1531 [00:00<00:00, 202986.55 examples/s]
+Generating dev split:   0%|          | 0/285 [00:00<?, ? examples/s]Generating dev split: 100%|██████████| 285/285 [00:00<00:00, 59542.57 examples/s]
+Generating auxiliary_train split:   0%|          | 0/99842 [00:00<?, ? examples/s]Generating auxiliary_train split:  11%|█         | 11000/99842 [00:00<00:00, 104243.04 examples/s]Generating auxiliary_train split:  25%|██▌       | 25000/99842 [00:00<00:00, 117912.50 examples/s]Generating auxiliary_train split:  39%|███▉      | 39000/99842 [00:00<00:00, 124450.26 examples/s]Generating auxiliary_train split:  53%|█████▎    | 53000/99842 [00:00<00:00, 126802.80 examples/s]Generating auxiliary_train split:  76%|███████▌  | 76000/99842 [00:00<00:00, 132459.42 examples/s]Generating auxiliary_train split: 100%|██████████| 99842/99842 [00:00<00:00, 146362.81 examples/s]
+[mmlu] mode=off layers=all(28) n=1000 letter_ids=[32, 33, 34, 35]
+  acc = 0.5530 (553/1000)  -> /workspace/causal_dom/results/mmlu_off.json
+[02:56:15] OK   S3_mmoff
+[02:56:15] START S3_mmL19 : python eval_mmlu.py --mode ablate --layers 18 --batch 32 --out /workspace/causal_dom/results/mmlu_ablate_L19.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[mmlu] mode=ablate layers=18(1) n=1000 letter_ids=[32, 33, 34, 35]
+  acc = 0.5500 (550/1000)  -> /workspace/causal_dom/results/mmlu_ablate_L19.json
+[02:56:29] OK   S3_mmL19
+[02:56:29] START S3_mmall : python eval_mmlu.py --mode ablate --layers all --batch 32 --out /workspace/causal_dom/results/mmlu_ablate_all.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[mmlu] mode=ablate layers=all(28) n=1000 letter_ids=[32, 33, 34, 35]
+  acc = 0.5520 (552/1000)  -> /workspace/causal_dom/results/mmlu_ablate_all.json
+[02:56:44] OK   S3_mmall
+[02:56:44] START S4_add_0p5 : python eval_math500.py --mode add --layers 18 --alpha-mult 0.5 --batch 32 --out /workspace/causal_dom/results/math_add_a0p5.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[math500] mode=add layers=18(1) alpha_mult=0.5 alpha=2.3622 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.4780 (239/500)  -> /workspace/causal_dom/results/math_add_a0p5.json
+[03:02:05] OK   S4_add_0p5
+[03:02:05] START S4_add_1 : python eval_math500.py --mode add --layers 18 --alpha-mult 1 --batch 32 --out /workspace/causal_dom/results/math_add_a1.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[math500] mode=add layers=18(1) alpha_mult=1.0 alpha=4.7243 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.4580 (229/500)  -> /workspace/causal_dom/results/math_add_a1.json
+[03:07:28] OK   S4_add_1
+[03:07:28] START S4_add_2 : python eval_math500.py --mode add --layers 18 --alpha-mult 2 --batch 32 --out /workspace/causal_dom/results/math_add_a2.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[math500] mode=add layers=18(1) alpha_mult=2.0 alpha=9.4486 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.4480 (224/500)  -> /workspace/causal_dom/results/math_add_a2.json
+[03:12:44] OK   S4_add_2
+[03:12:44] START S4_add_4 : python eval_math500.py --mode add --layers 18 --alpha-mult 4 --batch 32 --out /workspace/causal_dom/results/math_add_a4.json
+  Model loaded: Qwen/Qwen2.5-1.5B-Instruct (bf16, sdpa) on cuda:0
+[math500] mode=add layers=18(1) alpha_mult=4.0 alpha=18.8973 batch=32
+The following generation flags are not valid and may be ignored: ['top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  acc = 0.3340 (167/500)  -> /workspace/causal_dom/results/math_add_a4.json
+[03:18:03] OK   S4_add_4
+[03:18:03] START S5 decision
+{
+  "experiment": "FE269_causal_dom",
+  "baselines": {
+    "math_off": 48.199999999999996,
+    "gsm8k_off": 67.60000000000001,
+    "mmlu_off": 55.300000000000004
+  },
+  "gate_ok": true,
+  "ablation_configs": [
+    {
+      "config": "L19",
+      "math_off": 48.199999999999996,
+      "math_ablate": 48.4,
+      "delta_math": -0.20000000000000284,
+      "gsm8k_drop": -2.59999999999998,
+      "mmlu_drop": 0.29999999999999716,
+      "math_survives_pct": 48.4,
+      "necessity_class": "DIAGNOSTIC"
+    },
+    {
+      "config": "all",
+      "math_off": 48.199999999999996,
+      "math_ablate": 46.2,
+      "delta_math": 1.999999999999993,
+      "gsm8k_drop": 0.6000000000000085,
+      "mmlu_drop": 0.10000000000000142,
+      "math_survives_pct": 46.2,
+      "necessity_class": "DIAGNOSTIC"
+    }
+  ],
+  "addition_runs": [
+    {
+      "file": "math_add_a0p5.json",
+      "alpha_mult": 0.5,
+      "flip_rate": null,
+      "retention": null,
+      "accuracy": 47.8
+    },
+    {
+      "file": "math_add_a1.json",
+      "alpha_mult": 1.0,
+      "flip_rate": null,
+      "retention": null,
+      "accuracy": 45.800000000000004
+    },
+    {
+      "file": "math_add_a2.json",
+      "alpha_mult": 2.0,
+      "flip_rate": null,
+      "retention": null,
+      "accuracy": 44.800000000000004
+    },
+    {
+      "file": "math_add_a4.json",
+      "alpha_mult": 4.0,
+      "flip_rate": null,
+      "retention": null,
+      "accuracy": 33.4
+    }
+  ],
+  "best_addition": null,
+  "addition_sufficient": false,
+  "verdict": "DIAGNOSTIC"
+}
+
+-> /workspace/causal_dom/results/verdict.json
+
+=== FE269 VERDICT: DIAGNOSTIC ===
+[03:18:03] OK   S5
+[03:18:03] run_fe269 done. Results in /workspace/causal_dom/results (commit the *.json; npz stays ignored).

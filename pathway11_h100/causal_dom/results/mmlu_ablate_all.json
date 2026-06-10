@@ -1,0 +1,19 @@
+{
+  "benchmark": "mmlu",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "mode": "ablate",
+  "layers_arg": "all",
+  "n_layers_hooked": 28,
+  "alpha_mult": 0.0,
+  "alpha": 0.0,
+  "subsample_seed": 4321,
+  "n": 1000,
+  "n_correct": 552,
+  "accuracy": 0.552,
+  "letter_ids": [
+    32,
+    33,
+    34,
+    35
+  ]
+}

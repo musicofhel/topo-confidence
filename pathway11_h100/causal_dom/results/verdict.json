@@ -1,0 +1,64 @@
+{
+  "experiment": "FE269_causal_dom",
+  "baselines": {
+    "math_off": 48.199999999999996,
+    "gsm8k_off": 67.60000000000001,
+    "mmlu_off": 55.300000000000004
+  },
+  "gate_ok": true,
+  "ablation_configs": [
+    {
+      "config": "L19",
+      "math_off": 48.199999999999996,
+      "math_ablate": 48.4,
+      "delta_math": -0.20000000000000284,
+      "gsm8k_drop": -2.59999999999998,
+      "mmlu_drop": 0.29999999999999716,
+      "math_survives_pct": 48.4,
+      "necessity_class": "DIAGNOSTIC"
+    },
+    {
+      "config": "all",
+      "math_off": 48.199999999999996,
+      "math_ablate": 46.2,
+      "delta_math": 1.999999999999993,
+      "gsm8k_drop": 0.6000000000000085,
+      "mmlu_drop": 0.10000000000000142,
+      "math_survives_pct": 46.2,
+      "necessity_class": "DIAGNOSTIC"
+    }
+  ],
+  "addition_runs": [
+    {
+      "file": "math_add_a0p5.json",
+      "alpha_mult": 0.5,
+      "flip_rate": 0.1776061776061776,
+      "retention": 0.8008298755186722,
+      "accuracy": 47.8
+    },
+    {
+      "file": "math_add_a1.json",
+      "alpha_mult": 1.0,
+      "flip_rate": 0.20463320463320464,
+      "retention": 0.7302904564315352,
+      "accuracy": 45.800000000000004
+    },
+    {
+      "file": "math_add_a2.json",
+      "alpha_mult": 2.0,
+      "flip_rate": 0.20077220077220076,
+      "retention": 0.7136929460580913,
+      "accuracy": 44.800000000000004
+    },
+    {
+      "file": "math_add_a4.json",
+      "alpha_mult": 4.0,
+      "flip_rate": 0.14285714285714285,
+      "retention": 0.5394190871369294,
+      "accuracy": 33.4
+    }
+  ],
+  "best_addition": null,
+  "addition_sufficient": false,
+  "verdict": "DIAGNOSTIC"
+}
