@@ -1657,6 +1657,28 @@ significance (≥1.96 SE, n=500) + non-degeneracy (frac_routed ≤ 0.70) guards.
 **Net:** the applied story stays prefill-DoM refuse-and-spend selective prediction (F-8), not
 verify-and-route. Result JSON `pathway11_h100/verify_route/results/verdict.json`.
 
+## EXP-81: Generalization-First Edge Program (SPEC v6) — Phase 0/1/1B (transfer bake-off + applied uses)
+
+**Date:** 2026-06-11. **Compute:** local (2060 Super, CPU only), Qwen-2.5-1.5B/7B, MATH-500 + BBH×3, existing caches, no generation. **Harness:** `pathway11_h100/generalization_edge/` (15/15 anchors reproduce).
+
+**Phase 1 (transfer bake-off):** the free length+logprob baseline is the most generalizing readout — T1 LOCO agg 0.845 (worst 0.735), T3 cross-scale agg 0.865 (worst 0.837), near-zero/negative gap; dominates incumbent prefill-DoM (T1 0.743 / worst 0.603). No activation geometry adds significant portable value: in-domain only raw CoE layer-profile clears the incremental gate (+1.75pp, p=0.018) but is hidden-dim-bound; portable depth-grid does not add (p=0.137) and transfers poorly (T2 0.588, T3 0.627). Cross-domain T2 (~0.73) carried by logprob (0.728); length → chance (0.500). Geometry arms LOSE (modal). **H-C refuted.**
+
+**Phase 1B:** (1B.4) 7B rescues 52.9% of K=1 fails vs voting 27.2%; hybrid cascade beats random-mix hull +3.38±0.96pp (sig), pre-gen marginal (+1.7pp n.s.). (1B.1) H-40/FE41 probe-reranking refuted — no arm beats K=8 majority 0.554. (1B.2) signal not early — mean-pool below prefill until m~200 (**H-G refuted**). (1B.3) conformal valid in-domain (ε=0.2, ~30% cov) but 0 coverage under MATH→BBH shift (**H-H confirmed**). Phase 2/3/4 logged separately as EXP-82.
+
+---
+
+## EXP-82: Edge Program (SPEC v6) — Phase 2/3/4 (held-out T5, arm-2A, recalibration)
+
+**Date:** 2026-06-11. **Compute:** local (2060 Super 8GB + CPU), generation on held-out/Qwen-1.5B. **Scripts:** `phase3_heldout.py`, `phase2_arm2a.py`, `phase4_recalibration.py`. **Record:** `pathway11_h100/generalization_edge/RESULTS_v6_phase234.md`.
+
+**Phase 3 (V5-2, T5) — PASS:** generated MATH-500 K=1 on **SmolLM2-1.7B-Instruct** (near-family holdout, zero role in selection; acc 21.0%). Free length+logprob OOF AUROC **0.8097 ≥ 0.70** → the model-agnostic, zero-activation generate-then-abstain F-8 gate generalizes to an unseen family. Length carries (0.781), logprob near-chance (0.518) — mirror image of MATH→BBH; pin both scalars. Far-family Gemma deferred (HF-gated, 403).
+
+**Phase 2 arm-2A (V5-3, H-E) — REFUTED:** prefill pass over MATH prompts on Qwen-1.5B; L19 prompt-token-cloud top-20 cov log-eigvals vs prompt-length. Prompt-cloud 0.694 < prompt-length 0.706; gate Δ=−0.0096, p=0.42; cloud PC1 ↔ prompt-length r=−0.89 (length confound on the prompt side). **Geometry fully closed** (H-A/H-C/H-E all refuted). Byproduct: **prompt-length = 0.71 free pre-flight (Tier-A) signal**. Cross-scale arm-2A GPU-blocked locally (7B bf16 ~15GB > 8GB; moot — cloud loses in-domain).
+
+**Phase 4 (V5-5) — recalibration recipe:** freeze source extractor, refit light head on k∈{0,8,16,32,64} target labels (R=200, large cells only). Cross-scale 1.5B→7B: guarantee transfers **zero-shot** (k=0 ε=0.2 cov 0.60 valid 1.0); tiny k hurts (CP small-sample), recalibrate past k=32. Cross-domain MATH→BBH: ranking ports (0.785) but **no k≤64 head buys a valid cert even at ε=0.3** — BBH 24% base rate caps answered-accuracy; task accuracy is the ceiling, not calibration.
+
+**Files:** `pathway11_h100/generalization_edge/results/{phase3_t5_free_baseline,phase2_arm2a,phase4_recalibration}.json`. **Refutes:** H-E. **Updates:** F-8 (re-pin readout → length+logprob), F-2 (transfer ceiling). +6 internal claims in `validate_claims.py` (edge-v6-*).
+
 ## Template for new experiments
 
 ```markdown
@@ -1934,4 +1956,4 @@ verify-and-route. Result JSON `pathway11_h100/verify_route/results/verdict.json`
 **Depends on:** F-2 (DoM), EXP-040 (cross-model PR ratios)
 **Enables:** Cross-model DoM transfer; universal difficulty landscape claim
 
-Next ID: **EXP-81**.
+Next ID: **EXP-83**.

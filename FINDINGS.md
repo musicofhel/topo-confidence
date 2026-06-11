@@ -83,6 +83,19 @@ ridge-LR than DoM extracts (0.8493 vs 0.7210).
   **DIAGNOSTIC** — the direction is a *correlational readout*, not a causal
   lever. This bounds F-2's interpretation: use it for selective prediction
   / routing (F-8), not steering.
+- **Transfer ceiling + portability axis (EXP-81/82, SPEC v6, 2026-06-11)**: the
+  0.7731 number is *in-domain* OOF. The Edge Program transfer panel shows the
+  supervised DoM is **hidden-dim-bound** — its weight vector lives in one model's
+  hidden space, so it cannot cross scale/architecture without retraining (no T3–T5
+  entry), and its cross-MATH-category transfer is the *weakest* of the panel (T1
+  LOCO aggregate 0.743, worst-cell Number-Theory **0.603** at n=62). The real
+  portability axis is **fixed-dim feature vs hidden-dim-bound**, not
+  supervised-vs-geometric: every fixed-dim *geometry* feature (cov-spectrum,
+  CoE depth-grid, prompt-cloud) was refuted as portable value-add, while the
+  fixed-dim **free** baseline (length+logprob) ports best (F-8 re-pin). DoM's
+  cross-arch *effect* still replicates per-model (Phi-3 0.81, Llama-3.2 0.75
+  above), but the *direction* must be refit per model. Evidence:
+  `pathway11_h100/generalization_edge/results/phase1_panel.json`.
 
 ### F-3: Prefill and final-token DoM directions are orthogonal, *structurally — not positionally*
 
@@ -322,6 +335,32 @@ Kumaran's 7B/27B prediction). Verbalized self-verification is anti-informative
 selective-prediction story stays *refuse-and-spend on the pre-hoc prefill score*
 (this finding), not verify-and-route. Evidence: `pathway11_h100/verify_route/
 results/verdict.json`; brief `research-graph/briefs/result-2026-06-10-P11-FE19.md`.
+
+**Re-pinned generalizing readout (EXP-81/82, SPEC v6, 2026-06-11 — what the F-8
+gate should READ).** The prefill-DoM score (0.7731) is the best *in-domain*
+readout but the **worst-transferring** one. The Generalization-First Edge Program
+bake-off (`pathway11_h100/generalization_edge/`) measured cross-distribution
+transfer across a (model × domain) panel and found the **free two-scalar baseline
+— generation length + mean token logprob — is the most GENERALIZING correctness
+readout**: T1 leave-one-MATH-category-out aggregate **0.845** (vs prefill-DoM
+0.743), T3 cross-scale 0.865, and on a **held-out family that played zero role in
+selection (SmolLM2-1.7B), OOF AUROC 0.810 ≥ the 0.70 ship bar** (T5;
+`results/phase3_t5_free_baseline.json`). It needs **no activations**, so it is a
+shippable, model-agnostic generate-then-abstain gate. **No hidden-state geometry
+adds significant *portable* value** over it: in-domain only the raw CoE
+layer-profile clears the incremental gate (+1.75pp, p=0.018) but it is
+hidden-dim-bound; the portable depth-grid form does not add (p=0.137) and
+transfers ≤0.63 (H-C refuted), and the prompt-token-cloud (the last untested
+geometry) loses even in-domain to a plain **prompt-length** prior (0.694 < 0.706,
+gate p=0.42; **H-E refuted**, `results/phase2_arm2a.json`). Pin BOTH scalars:
+logprob carries cross-domain (MATH→BBH 0.728, length→chance) while length carries
+on SmolLM2 (0.781, logprob→chance) — the robust gate needs both. Guarantee form
+(Phase 4, `results/phase4_recalibration.json`): a conformal certificate transfers
+**zero-shot** to a stronger model (1.5B→7B, valid at ε=0.2) but **no light-head
+recalibration up to k=64 rescues a valid certificate on the harder BBH domain** —
+target-task accuracy, not calibration, is the ceiling. Evidence: brief
+`research-graph/briefs/result-2026-06-11-P11-FE-EDGEGEN.md`;
+`pathway11_h100/generalization_edge/RESULTS_v6_phase234.md`.
 
 ### F-9: CoE-60 trajectory features are redundant with single-layer L19 DoM
 

@@ -1018,6 +1018,27 @@ CLAIMS: list[Claim] = [
           "scratch/pathway10_temporal_and_verifier_results.json",
           ["T1_temporal_dom", "positions", 0, "cos_with_final_token_dom"], 0.046196311712265015, 1e-4, "256tok_NEW"),
 
+    # ----- §v6 Generalization-First Edge Program, Phase 2/3/4 (EXP-82, 2026-06-11) -----
+    # Held-out T5 (SmolLM2), arm-2A prompt-cloud gate, per-domain recalibration.
+    Claim("edge-v6-t5-smollm2-free", "SmolLM2-1.7B held-out free baseline (len+logprob) OOF AUROC 0.810 (T5 PASS >=0.70)",
+          "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json",
+          ["smollm2", "free_baseline_auroc"], 0.8096925858951175, 1e-6, "1024tok"),
+    Claim("edge-v6-t5-smollm2-len", "SmolLM2-1.7B held-out length-only OOF AUROC 0.781 (length carries on SmolLM2)",
+          "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json",
+          ["smollm2", "length_only"], 0.7813261000602771, 1e-6, "1024tok"),
+    Claim("edge-v6-arm2a-promptlen", "arm-2A prompt-length pre-flight (Tier-A) OOF AUROC 0.706",
+          "pathway11_h100/generalization_edge/results/phase2_arm2a.json",
+          ["prompt_length_only_auroc"], 0.7055851787801637, 1e-6, "1024tok"),
+    Claim("edge-v6-arm2a-gate-null", "arm-2A prompt-cloud+len vs prompt-len gate delta -0.0096 (H-E refuted)",
+          "pathway11_h100/generalization_edge/results/phase2_arm2a.json",
+          ["gate_delta_vs_promptlen"], -0.009599526028406302, 1e-6, "1024tok"),
+    Claim("edge-v6-p4-crossscale-ceiling", "Phase4 1.5B->7B free-baseline in-domain ceiling OOF AUROC 0.899",
+          "pathway11_h100/generalization_edge/results/phase4_recalibration.json",
+          ["math1.5b_to_7b", "free_baseline", "in_domain_ceiling"], 0.8986012560150071, 1e-6, "1024tok"),
+    Claim("edge-v6-p4-crossscale-conformal-valid", "Phase4 1.5B->7B k=64 conformal eps=0.2 validity 1.0 (guarantee recalibrates)",
+          "pathway11_h100/generalization_edge/results/phase4_recalibration.json",
+          ["math1.5b_to_7b", "free_baseline", "by_k", "k64", "conformal", "eps0.2", "validity"], 1.0, 1e-9, "1024tok"),
+
     # ----- External anchors registered from triage briefs (2026-04-29 batch) -----
     # These are paper-cited numbers carried into PAPER_INDEX.md / brief footers
     # for cross-reference. They are NOT back-checked against any local JSON
