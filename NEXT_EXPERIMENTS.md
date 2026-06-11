@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-11 20:11 UTC_
+_Generated: 2026-06-11 22:52 UTC_
 
 ---
 
@@ -16078,7 +16078,7 @@ _Generated: 2026-06-11 20:11 UTC_
 
 **Cost:** local 2060+CPU, multi-session
 **Trigger condition:** SPEC v6
-**Outcome:** Free length+logprob baseline is the most generalizing correctness readout (T1 LOCO 0.845, T3 cross-scale 0.865, near-zero gap); no hidden-state geometry adds significant PORTABLE value over it. In-domain only the raw CoE layer-profile clears the incremental gate (+1.75pp, p=0.018) but it is hidden-dim-bound; the cross-model depth-grid form neither adds in-domain (p=0.137) nor transfers (T2 0.588, T3 0.627) — H-C refuted, geometry arms LOSE. Cross-domain (T2) transfer is carried by logprob (0.728); length alone collapses to chance (0.500) MATH<->BBH. Applied (Phase 1B): cross-model 1.5B->7B HYBRID cascade beats the FE19 random-mix hull by +3.38+-0.96pp (significant); pre-gen-only cascade marginal (+1.7pp n.s.). H-40/FE41 probe-reranking REFUTED (no arm beats K=8 majority 0.554; probe-argmax -7.4pp). Earliest-decision: mean-pool signal below prefill gate until m~200 (H-G refuted). Conformal valid in-domain at eps=0.2 (~30% cov) but collapses to 0 coverage under MATH->BBH shift (H-H confirmed). Phase 2/3/4 EXECUTED (EXP-82, local): held-out SmolLM2-1.7B T5 free-baseline OOF AUROC 0.810 >= 0.70 PASS (the shippable zero-activation gate generalizes to an unseen family); arm-2A prompt-token-cloud REFUTED (0.694 < prompt-length 0.706, gate p=0.42, H-E) — geometry fully closed, with a new free Tier-A prompt-length signal at 0.71; Phase-4 recalibration restores a conformal guarantee zero-shot cross-scale (1.5B->7B valid at eps=0.2) but no k<=64 light-head rescues a valid cert cross-domain (BBH 24% base rate is the ceiling, not calibration). Far-family Gemma deferred (HF-gated); cross-scale arm-2A GPU-blocked locally.
+**Outcome:** Free length+logprob gate is the most generalizing correctness readout and is now confirmed CROSS-ARCHITECTURE: held-out T5 OOF AUROC >=0.70 on three families that played zero role in selection — SmolLM2-1.7B (near/Llama 0.810), Gemma-2-2b-it (far/distinct-arch 0.844), OLMo-2-1B (far/distinct-arch 0.838). Far-family holdouts generated on RunPod H100 (EXP-82 follow-on, deterministic greedy, JSON re-evaluated locally). Which scalar carries is family-dependent (pin both). Geometry fully closed (H-C/H-E refuted); Phase-4 guarantee transfers zero-shot cross-scale not cross-domain. Far-family T5 CLOSED; only cross-scale arm-2A remains GPU-blocked/moot.
 
 ### P11-FE101 (P11) — [ROI: 9, COMPLETED, HIGH]
 

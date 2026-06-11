@@ -1026,6 +1026,19 @@ CLAIMS: list[Claim] = [
     Claim("edge-v6-t5-smollm2-len", "SmolLM2-1.7B held-out length-only OOF AUROC 0.781 (length carries on SmolLM2)",
           "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json",
           ["smollm2", "length_only"], 0.7813261000602771, 1e-6, "1024tok"),
+    # Far-family T5 holdouts (EXP-82 follow-on, H100, 2026-06-11): genuinely distinct
+    # architectures, both PASS — upgrades the gate from a near-family (SmolLM2/Llama) proxy
+    # to a confirmed cross-architecture generalization claim. On Gemma BOTH scalars carry
+    # (len 0.783, logprob 0.756); on OLMo-2 length leads (0.816) — "pin BOTH" vindicated.
+    Claim("edge-v6-t5-gemma-free", "Gemma-2-2b-it far-family held-out free baseline (len+logprob) OOF AUROC 0.844 (T5 PASS >=0.70)",
+          "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json",
+          ["gemma", "free_baseline_auroc"], 0.8439180107526882, 1e-6, "1024tok"),
+    Claim("edge-v6-t5-gemma-logp", "Gemma-2-2b-it far-family logprob-only OOF AUROC 0.756 (logprob carries on Gemma, unlike SmolLM2)",
+          "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json",
+          ["gemma", "logprob_only"], 0.7558383736559141, 1e-6, "1024tok"),
+    Claim("edge-v6-t5-olmo2-free", "OLMo-2-1B far-family held-out free baseline (len+logprob) OOF AUROC 0.838 (T5 PASS >=0.70)",
+          "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json",
+          ["olmo2", "free_baseline_auroc"], 0.8382227891156462, 1e-6, "1024tok"),
     Claim("edge-v6-arm2a-promptlen", "arm-2A prompt-length pre-flight (Tier-A) OOF AUROC 0.706",
           "pathway11_h100/generalization_edge/results/phase2_arm2a.json",
           ["prompt_length_only_auroc"], 0.7055851787801637, 1e-6, "1024tok"),

@@ -344,17 +344,24 @@ transfer across a (model × domain) panel and found the **free two-scalar baseli
 — generation length + mean token logprob — is the most GENERALIZING correctness
 readout**: T1 leave-one-MATH-category-out aggregate **0.845** (vs prefill-DoM
 0.743), T3 cross-scale 0.865, and on a **held-out family that played zero role in
-selection (SmolLM2-1.7B), OOF AUROC 0.810 ≥ the 0.70 ship bar** (T5;
+selection, OOF AUROC 0.810 ≥ the 0.70 ship bar** (T5;
 `results/phase3_t5_free_baseline.json`). It needs **no activations**, so it is a
-shippable, model-agnostic generate-then-abstain gate. **No hidden-state geometry
+shippable, model-agnostic generate-then-abstain gate. **Confirmed
+cross-architecture (EXP-82 follow-on, 2026-06-11):** the gate clears the bar on
+**three** held-out families spanning near AND far architectures — SmolLM2-1.7B
+(near, Llama-arch) **0.810**, **Gemma-2-2b-it (far, distinct arch) 0.844**, and
+**OLMo-2-1B (far, distinct arch) 0.838** — so the generalization is not a
+near-family/Llama artifact. **No hidden-state geometry
 adds significant *portable* value** over it: in-domain only the raw CoE
 layer-profile clears the incremental gate (+1.75pp, p=0.018) but it is
 hidden-dim-bound; the portable depth-grid form does not add (p=0.137) and
 transfers ≤0.63 (H-C refuted), and the prompt-token-cloud (the last untested
 geometry) loses even in-domain to a plain **prompt-length** prior (0.694 < 0.706,
 gate p=0.42; **H-E refuted**, `results/phase2_arm2a.json`). Pin BOTH scalars:
-logprob carries cross-domain (MATH→BBH 0.728, length→chance) while length carries
-on SmolLM2 (0.781, logprob→chance) — the robust gate needs both. Guarantee form
+*which* scalar carries is family-dependent — logprob carries cross-domain
+(MATH→BBH 0.728, length→chance) and on Gemma (0.756) and OLMo-2 (0.654), while
+length carries on SmolLM2 (0.781, logprob→chance) and leads on OLMo-2 (0.816); the
+length+logprob combination is the only readout robust across all of them. Guarantee form
 (Phase 4, `results/phase4_recalibration.json`): a conformal certificate transfers
 **zero-shot** to a stronger model (1.5B→7B, valid at ε=0.2) but **no light-head
 recalibration up to k=64 rescues a valid certificate on the harder BBH domain** —

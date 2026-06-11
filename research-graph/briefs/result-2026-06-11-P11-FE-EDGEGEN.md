@@ -127,17 +127,18 @@ The applied goal ("confidence in correctness + routing") is best served by:
 (0.845) and scale (0.865) better than any activation probe — the shippable
 generalizing readout; (2) **the cross-model hybrid cascade** for compute routing
 (+3.38pp over honest random mixing). Same-model reranking, early-abort drafting,
-and zero-shot conformal transfer all fail their honest baselines. The remaining
-open question is **T5 (held-out families SmolLM2/Gemma)** — and because the
-winning readout needs no activations, it is trivially testable on any model
-(Phase 3, cheap).
+and zero-shot conformal transfer all fail their honest baselines. T5 (held-out
+families) is now **closed and confirmed cross-architecture**: the free gate clears
+≥0.70 on SmolLM2-1.7B (near, 0.810), Gemma-2-2b-it (far, 0.844), and OLMo-2-1B
+(far, 0.838) — because the winning readout needs no activations, it was trivially
+testable on any model (Phase 3).
 
 ## FE
 
 ```yaml
 fe_id: P11-FE-EDGEGEN
 status: COMPLETED
-outcome: "Free length+logprob baseline is the most generalizing correctness readout (T1 LOCO 0.845, T3 cross-scale 0.865, near-zero gap); no hidden-state geometry adds significant PORTABLE value over it. In-domain only the raw CoE layer-profile clears the incremental gate (+1.75pp, p=0.018) but it is hidden-dim-bound; the cross-model depth-grid form neither adds in-domain (p=0.137) nor transfers (T2 0.588, T3 0.627) — H-C refuted, geometry arms LOSE. Cross-domain (T2) transfer is carried by logprob (0.728); length alone collapses to chance (0.500) MATH<->BBH. Applied (Phase 1B): cross-model 1.5B->7B HYBRID cascade beats the FE19 random-mix hull by +3.38+-0.96pp (significant); pre-gen-only cascade marginal (+1.7pp n.s.). H-40/FE41 probe-reranking REFUTED (no arm beats K=8 majority 0.554; probe-argmax -7.4pp). Earliest-decision: mean-pool signal below prefill gate until m~200 (H-G refuted). Conformal valid in-domain at eps=0.2 (~30% cov) but collapses to 0 coverage under MATH->BBH shift (H-H confirmed). Phase 2/3/4 EXECUTED (EXP-82, local): held-out SmolLM2-1.7B T5 free-baseline OOF AUROC 0.810 >= 0.70 PASS (the shippable zero-activation gate generalizes to an unseen family); arm-2A prompt-token-cloud REFUTED (0.694 < prompt-length 0.706, gate p=0.42, H-E) — geometry fully closed, with a new free Tier-A prompt-length signal at 0.71; Phase-4 recalibration restores a conformal guarantee zero-shot cross-scale (1.5B->7B valid at eps=0.2) but no k<=64 light-head rescues a valid cert cross-domain (BBH 24% base rate is the ceiling, not calibration). Far-family Gemma deferred (HF-gated); cross-scale arm-2A GPU-blocked locally."
+outcome: "Free length+logprob baseline is the most generalizing correctness readout (T1 LOCO 0.845, T3 cross-scale 0.865, near-zero gap); no hidden-state geometry adds significant PORTABLE value over it. In-domain only the raw CoE layer-profile clears the incremental gate (+1.75pp, p=0.018) but it is hidden-dim-bound; the cross-model depth-grid form neither adds in-domain (p=0.137) nor transfers (T2 0.588, T3 0.627) — H-C refuted, geometry arms LOSE. Cross-domain (T2) transfer is carried by logprob (0.728); length alone collapses to chance (0.500) MATH<->BBH. Applied (Phase 1B): cross-model 1.5B->7B HYBRID cascade beats the FE19 random-mix hull by +3.38+-0.96pp (significant); pre-gen-only cascade marginal (+1.7pp n.s.). H-40/FE41 probe-reranking REFUTED (no arm beats K=8 majority 0.554; probe-argmax -7.4pp). Earliest-decision: mean-pool signal below prefill gate until m~200 (H-G refuted). Conformal valid in-domain at eps=0.2 (~30% cov) but collapses to 0 coverage under MATH->BBH shift (H-H confirmed). Phase 2/3/4 EXECUTED (EXP-82, local): held-out T5 free-baseline OOF AUROC clears >=0.70 on THREE families spanning near AND far architectures — SmolLM2-1.7B (near/Llama 0.810, local), Gemma-2-2b-it (far/distinct-arch 0.844, H100), OLMo-2-1B (far/distinct-arch 0.838, H100) — the shippable zero-activation gate generalizes CROSS-ARCHITECTURE, not just within the Llama family; which scalar carries is family-dependent (SmolLM2 length-only, Gemma both, OLMo-2 length-led), so pin both. arm-2A prompt-token-cloud REFUTED (0.694 < prompt-length 0.706, gate p=0.42, H-E) — geometry fully closed, with a new free Tier-A prompt-length signal at 0.71; Phase-4 recalibration restores a conformal guarantee zero-shot cross-scale (1.5B->7B valid at eps=0.2) but no k<=64 light-head rescues a valid cert cross-domain (BBH 24% base rate is the ceiling, not calibration). Cross-scale arm-2A GPU-blocked locally."
 result_json: pathway11_h100/generalization_edge/results/phase1_panel.json
 result_json_all:
   - pathway11_h100/generalization_edge/results/phase1_panel.json
@@ -167,7 +168,7 @@ would_update: ["F-2", "F-8"]
 
 ## STATE.md last-experiment update
 
-**EXP-81/82 (Generalization-First Edge Program, SPEC v6) — free length+logprob baseline is the most GENERALIZING correctness readout; geometry fully closed; cross-model cascade revived.** Local, Qwen 1.5B/7B + SmolLM2-1.7B held-out, MATH+BBH. Harness `pathway11_h100/generalization_edge/` (15/15 anchors). length+logprob: T1 LOCO 0.845, T3 cross-scale 0.865, and **held-out SmolLM2 T5 0.810 ≥ 0.70 (PASS)** — the shippable, zero-activation model-agnostic gate. No hidden-state geometry adds portable value: raw CoE +1.75pp in-domain (hidden-dim-bound), depth-grid n.s./≤0.63 (**H-C**), prompt-cloud 0.694 < prompt-length 0.706 (**H-E refuted**); geometry fully closed. New free Tier-A signal: prompt-length 0.71. Applied: hybrid 1.5B→7B cascade beats FE19 hull +3.38pp (sig); reranking (H-F), early-abort (H-G) refuted; conformal valid in-domain, collapses under shift (H-H); Phase-4 recalibration restores a guarantee zero-shot cross-scale but not cross-domain (task accuracy is the ceiling). Re-pins F-8 readout (→length+logprob), extends F-2 (transfer ceiling; geometry hidden-dim-bound). Full Phase 2/3/4 record `pathway11_h100/generalization_edge/RESULTS_v6_phase234.md`. Open: far-family T5 (Gemma, deferred); cross-scale arm-2A (GPU-blocked, moot).
+**EXP-81/82 (Generalization-First Edge Program, SPEC v6) — free length+logprob baseline is the most GENERALIZING correctness readout; geometry fully closed; cross-model cascade revived.** Local, Qwen 1.5B/7B + SmolLM2-1.7B held-out, MATH+BBH. Harness `pathway11_h100/generalization_edge/` (15/15 anchors). length+logprob: T1 LOCO 0.845, T3 cross-scale 0.865, and **held-out T5 ≥ 0.70 on THREE families — SmolLM2-1.7B (near/Llama 0.810), Gemma-2-2b-it (far 0.844), OLMo-2-1B (far 0.838) — confirmed CROSS-ARCHITECTURE (PASS)** — the shippable, zero-activation model-agnostic gate. No hidden-state geometry adds portable value: raw CoE +1.75pp in-domain (hidden-dim-bound), depth-grid n.s./≤0.63 (**H-C**), prompt-cloud 0.694 < prompt-length 0.706 (**H-E refuted**); geometry fully closed. New free Tier-A signal: prompt-length 0.71. Applied: hybrid 1.5B→7B cascade beats FE19 hull +3.38pp (sig); reranking (H-F), early-abort (H-G) refuted; conformal valid in-domain, collapses under shift (H-H); Phase-4 recalibration restores a guarantee zero-shot cross-scale but not cross-domain (task accuracy is the ceiling). Re-pins F-8 readout (→length+logprob), extends F-2 (transfer ceiling; geometry hidden-dim-bound). Full Phase 2/3/4 record `pathway11_h100/generalization_edge/RESULTS_v6_phase234.md`. Far-family T5 closed (Gemma+OLMo-2, H100 follow-on); open: cross-scale arm-2A (GPU-blocked, moot).
 
 ---
 
@@ -176,14 +177,19 @@ would_update: ["F-2", "F-8"]
 The forward phases ran locally (per CLAUDE.md "Local only"). Full record:
 `pathway11_h100/generalization_edge/RESULTS_v6_phase234.md`.
 
-**Phase 3 (V5-2, T5 held-out) — PASS.** Generated MATH-500 K=1 greedy on
-**SmolLM2-1.7B-Instruct** (near-family holdout, zero role in selection; acc 21.0%).
-Free length+logprob OOF AUROC **0.8097 ≥ 0.70** — the shippable, model-agnostic,
-zero-activation generate-then-abstain gate generalizes to an unseen family. On
-SmolLM2 **length carries (0.781), logprob is near-chance (0.518)** — the mirror of
-the MATH→BBH cell (logprob carries, length degenerate); pinning *both* scalars is
-what makes the gate robust to the flip. Far-family Gemma-2-2b-it deferred (HF-gated,
-token 403s). `results/phase3_t5_free_baseline.json`.
+**Phase 3 (V5-2, T5 held-out) — PASS, cross-architecture.** Generated MATH-500 K=1
+greedy on **three** held-out families that played zero role in selection. Free
+length+logprob OOF AUROC clears ≥0.70 on every one — **SmolLM2-1.7B** (near/Llama,
+acc 21.0%) **0.8097**, **Gemma-2-2b-it** (far/distinct-arch, acc 25.6%) **0.8439**,
+**OLMo-2-1B** (far/distinct-arch, acc 21.6%) **0.8382** — so the shippable,
+model-agnostic, zero-activation gate generalizes cross-architecture, not just within
+the Llama family. *Which* scalar carries is family-dependent (SmolLM2 length-only,
+logprob→chance 0.518; Gemma both, 0.783/0.756; OLMo-2 length-led 0.816/0.654), which
+is exactly why pinning *both* scalars makes the gate robust. SmolLM2 ran locally
+(2060); the two far-family holdouts ran on a RunPod H100 SXM (EXP-82 follow-on,
+user-authorized for speed — greedy decoding is deterministic so the AUROCs are
+hardware-independent; canonical JSON re-evaluated locally from all three `.npz`).
+`results/phase3_t5_free_baseline.json`.
 
 **Phase 2 arm-2A (V5-3, H-E) — REFUTED.** Prefill pass over the 500 MATH prompts on
 Qwen-1.5B; L19 prompt-token-cloud top-20 covariance log-eigvals gated against
@@ -204,7 +210,9 @@ MATH→BBH: ranking ports (0.785) but **no light-head recalibration up to k=64 b
 valid certificate even at ε=0.3** — BBH's 24% base rate caps answered-accuracy; target-
 task accuracy, not calibration, is the ceiling. `results/phase4_recalibration.json`.
 
-**Net (v6 complete, local-constrained):** ship the free length+logprob gate (T5 0.81);
-geometry fully closed; new Tier-A prompt-length signal (0.71); guarantees transfer
-zero-shot to a stronger model but not to a harder domain. Open: far-family T5 (Gemma,
-deferred), cross-scale arm-2A (GPU-blocked, moot). H-E refuted (added).
+**Net (v6 complete):** ship the free length+logprob gate — generalizes
+cross-architecture to three unseen families (T5 SmolLM2 0.81 / Gemma 0.84 / OLMo-2
+0.84); geometry fully closed; new Tier-A prompt-length signal (0.71); guarantees
+transfer zero-shot to a stronger model but not to a harder domain. Far-family T5
+closed (Gemma+OLMo-2, H100 follow-on); open: cross-scale arm-2A (GPU-blocked, moot).
+H-E refuted (added).

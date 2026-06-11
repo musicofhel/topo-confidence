@@ -1956,4 +1956,18 @@ verify-and-route. Result JSON `pathway11_h100/verify_route/results/verdict.json`
 **Depends on:** F-2 (DoM), EXP-040 (cross-model PR ratios)
 **Enables:** Cross-model DoM transfer; universal difficulty landscape claim
 
-Next ID: **EXP-83**.
+## EXP-83: Far-family T5 closure (EXP-82 follow-on) — free gate generalizes cross-architecture
+**Date:** 2026-06-11
+**Status:** COMPLETE
+**Motivated by:** V5-2 / SPEC v6 — the held-out T5 PASS rested on SmolLM2-1.7B alone, a NEAR-family (Llama-arch) proxy; the load-bearing FAR-family number was open (Gemma deferred as HF-gated)
+**Hypothesis:** the free length+logprob F-8 gate clears ≥0.70 on genuinely distinct architectures, not just within the Llama family
+**What we actually tested:** generated MATH-500 K=1 greedy on two far-family holdouts (zero role in selection) and recomputed the free-baseline OOF 5-fold AUROC; `phase3_heldout.py {gemma,olmo2}` then `--eval`
+**Key result:** **Gemma-2-2b-it (far) free=0.8439 (len 0.783 / logprob 0.756), OLMo-2-1B (far) free=0.8382 (len 0.816 / logprob 0.654)** — both T5 PASS; SmolLM2 (near) 0.8097 unchanged. All three ≥0.81.
+**Verdict:** PASS — the gate generalizes **cross-architecture**, upgrading the claim from a near-family proxy. Which scalar carries is family-dependent (SmolLM2 length-only, Gemma both, OLMo-2 length-led) → pinning both vindicated.
+**Compute note:** SmolLM2 local (2060); Gemma + OLMo-2 on a RunPod H100 SXM — a deliberate, user-authorized exception to the local-only norm for speed (~20 min vs ~6.5h). Greedy decoding is deterministic → AUROCs hardware-independent; canonical `phase3_t5_free_baseline.json` re-evaluated locally from all three pulled `.npz`. Pod terminated after the run.
+**Changed our understanding of:** F-8 (re-pinned readout now confirmed cross-architecture, not Llama-specific)
+**Files:** `pathway11_h100/generalization_edge/{phase3_heldout.py,results/phase3_{gemma,olmo2}.npz,results/phase3_t5_free_baseline.json}`; +3 claims `edge-v6-t5-{gemma-free,gemma-logp,olmo2-free}`
+**Depends on:** EXP-82 (Phase 2/3/4), F-8
+**Enables:** shippable cross-architecture generate-then-abstain gate
+
+Next ID: **EXP-84**.
