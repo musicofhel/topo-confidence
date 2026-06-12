@@ -342,10 +342,72 @@ consistency-when-budgeted) into a router over actions
 
 ## Phase 0 resolutions
 
-*(filled in at execution time)*
+*(filled in 2026-06-12, EXP-84-pre)*
 
-- k=32 conformal validity discrepancy: __pending__
-- Premise-link pass keep/moot decisions: __pending__
+- **k=32 conformal validity discrepancy: RESOLVED — it was a feasibility/validity
+  conflation, single artifact, no protocol conflict.** Both claims trace to
+  `results/phase4_recalibration.json` (CP-upper light-head recalibration,
+  R=200). Cross-scale (math1.5b_to_7b, free_baseline, ε=0.2): k0 zero-shot is
+  feasible_frac 1.0 / validity 1.0 / coverage 0.60; k=8/16 are INFEASIBLE
+  (CP-upper small-sample penalty); k=32 restores partial *feasibility* (0.21;
+  ε=0.3: 0.72) and k=64 more (0.655), with validity 1.0 conditional-on-feasible
+  but coverage always below zero-shot (k64 ε=0.2: 0.29). So "recalibrate only
+  past k=32" = feasibility returns at k≥32; zero-shot remains the best
+  cross-scale certificate. Cross-domain (math_to_bbh): validity 0.0 at ε=0.2 at
+  EVERY k∈{0,32,64} where feasible; best anywhere = 0.41 at (k32, ε=0.3) —
+  never near the 0.9 target. `1b3_conformal.json::transfer_HH` (calib MATH →
+  deploy BBH, prefill-DoM) agrees: infeasible at ε≤0.2, coverage 0.0 at ε=0.3.
+  **Consequences confirmed:** H-L3 scoped to the cross-scale cell only;
+  `certify.py` refuses cross-domain certificates and prefers k=0 zero-shot
+  cross-scale (k-label recal documented as feasibility-restoring, not
+  coverage-improving).
+
+- **Premise-link pass (2026-06-12): 9 FEs linked → auto-MOOTED** (premises
+  already REFUTED): P11-FE283→dom-causal-lever; P10-FE9, P10-FE18, P11-FE443,
+  P10-FE1, P3-FE1, P10-FE16→dom-steering (FE443/FE1/P3-FE1/FE16 are judgment
+  calls — all four are steering-for-accuracy designs or exist only to feed
+  P10-FE1's steering arms); P8-FE1, P9-FE1→geometry-portable-signal.
+  **Kept (one-line reasons):** P10-FE20, P10-FE48, P11-FE5, P11-FE1214,
+  P11-FE1003, P11-FE1047, P11-FE110625A and the P11-FE10xx mechanistic cluster
+  — understanding/controls for F-2/F-3, not premise-reliant; P10-FE49 — uses
+  injection for *verbalization/interpretation*, not accuracy steering;
+  P11-FE1021/FE1022 — internal-vs-output-signal complementarity, directly
+  feeds v7 Phase 1a's K-consistency arms. Queue regenerated; top is now free
+  of pre-verdict steering/causality items.
+
+## Execution deviations + Phase 1a verdicts
+
+*(recorded 2026-06-12, mid-execution)*
+
+- **DEVIATION D-1 (compute placement):** Phase 1a's BBH rescore and all other
+  GPU passes moved from the local 2060 to the pod (user directive 2026-06-12:
+  no local GPU work, even forward-only — the spec's "local 2060 available"
+  carve-out is void). Consequence: G1 could not be adjudicated before pod
+  session 1, so **G1 merges into the pre-G2 analysis step**; pod session 1
+  runs the full dev-tier menu unconditionally (all of it was session-1 budget
+  anyway). The selection firewall is unaffected: G1+G2 still gate everything
+  that reaches confirmatory T5, and no T5 generation happens before the G2
+  freeze. MATH rescore (the one cell that did run locally, before the
+  directive) was kept: alignment corr 0.9985.
+- **DEVIATION D-2 (cost accounting, pre-registered before 1b adjudication):**
+  the token-logprob family is scored at marginal deployment cost 0 (rel_cost
+  1.0) because min/p10/entropy/margin/answer-span read off the decoder's own
+  logits during generation; the rescore pass exists only to reconstruct what
+  the v6 caches didn't store. H-I's ≤1.05× bracket therefore contains the
+  free gate + token arms; P(True)/verbalized/K-sample/PRM pay measured extra
+  forwards (pod token counts).
+- **Phase 1a verdicts (EXP-84, `results/v7_phase1a.json`):** free gate OOF
+  math 0.8490 / bbh 0.7823 (LOCO-free in-domain protocol, not the 0.845 LOCO
+  anchor). **H-K REFUTED with prejudice** — α+length 0.6850 vs length-only
+  0.7056, Δ=−0.0206 p=0.017 (α *subtracts*); spectral-α CLOSED permanently,
+  no T5 pass, `geometry-portable-signal` closure deepens. MATH token arms: no
+  G1 promotion (free gate unbeaten in-domain, v6 story holds). BBH:
+  **mean_token_entropy promotes with a significant incremental win**
+  (+0.0151, p=0.001); bottom_decile_logprob and token-family-joint promote
+  via the standalone route. K-consistency (MATH, signal view): all agreement
+  arms promote decisively (k8_agreement combined 0.9279, Δ+0.0789, p<0.001);
+  cost adjudication deferred to 1b (H-J). Sidecar alignment corrs: bbh-pod
+  0.9929, 7b-math-pod 0.9787, math-local 0.9985 — all pass the 0.90 gate.
 
 ## Single biggest risk (named so execution doesn't drift)
 

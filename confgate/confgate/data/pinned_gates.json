@@ -1,0 +1,128 @@
+{
+  "recipe": "StandardScaler -> LogisticRegression(max_iter=2000, C=1.0)",
+  "features": [
+    "n_gen_tokens",
+    "mean_logprob"
+  ],
+  "families": {
+    "qwen2.5-1.5b": {
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "source": "nocompute/cache/math500_1p5b.npz",
+      "n": 500,
+      "accuracy": 0.486,
+      "scaler_mean": [
+        575.292,
+        -0.11885867354415364
+      ],
+      "scaler_scale": [
+        260.330164859933,
+        0.0631208461578262
+      ],
+      "coef": [
+        -1.5201374699764543,
+        0.9190026869452845
+      ],
+      "intercept": -0.18707682409927895,
+      "resub_auroc": 0.854349810251237,
+      "fit_protocol": "full-data fit (deployment coefficients, no CV); resub_auroc is resubstitution, a regression check only"
+    },
+    "qwen2.5-7b": {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "source": "nocompute/cache/math500_7b.npz",
+      "n": 500,
+      "accuracy": 0.732,
+      "scaler_mean": [
+        560.426,
+        -0.05152469063972803
+      ],
+      "scaler_scale": [
+        243.69358736741512,
+        0.02367480336323151
+      ],
+      "coef": [
+        -1.9573043565515968,
+        0.9693408085380403
+      ],
+      "intercept": 1.7174577289485515,
+      "resub_auroc": 0.9027403963787619,
+      "fit_protocol": "full-data fit (deployment coefficients, no CV); resub_auroc is resubstitution, a regression check only"
+    },
+    "smollm2-1.7b": {
+      "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "source": "pathway11_h100/generalization_edge/results/phase3_smollm2.npz",
+      "n": 500,
+      "accuracy": 0.21,
+      "scaler_mean": [
+        425.87,
+        -0.14019956588372587
+      ],
+      "scaler_scale": [
+        279.5223588552442,
+        0.05954610544880826
+      ],
+      "coef": [
+        -1.8689661531476947,
+        0.6765399391493534
+      ],
+      "intercept": -1.922326048164147,
+      "resub_auroc": 0.8145388788426763,
+      "fit_protocol": "full-data fit (deployment coefficients, no CV); resub_auroc is resubstitution, a regression check only"
+    },
+    "gemma-2-2b": {
+      "model": "google/gemma-2-2b-it",
+      "source": "pathway11_h100/generalization_edge/results/phase3_gemma.npz",
+      "n": 500,
+      "accuracy": 0.256,
+      "scaler_mean": [
+        407.508,
+        -0.2032580277901143
+      ],
+      "scaler_scale": [
+        219.45496562165098,
+        0.10707842898377859
+      ],
+      "coef": [
+        -1.2448493940811296,
+        1.1918483521071557
+      ],
+      "intercept": -1.6714347823421047,
+      "resub_auroc": 0.8488953293010753,
+      "fit_protocol": "full-data fit (deployment coefficients, no CV); resub_auroc is resubstitution, a regression check only"
+    },
+    "olmo-2-1b": {
+      "model": "allenai/OLMo-2-0425-1B-Instruct",
+      "source": "pathway11_h100/generalization_edge/results/phase3_olmo2.npz",
+      "n": 500,
+      "accuracy": 0.216,
+      "scaler_mean": [
+        549.364,
+        -0.14195649234578014
+      ],
+      "scaler_scale": [
+        325.41773692286665,
+        0.07251948815072036
+      ],
+      "coef": [
+        -1.6369424789700648,
+        0.7058364312508041
+      ],
+      "intercept": -2.0939181144465304,
+      "resub_auroc": 0.8454034391534391,
+      "fit_protocol": "full-data fit (deployment coefficients, no CV); resub_auroc is resubstitution, a regression check only"
+    }
+  },
+  "preflight": {
+    "qwen2.5-1.5b": {
+      "model": "Qwen/Qwen2.5-1.5B-Instruct",
+      "source_prompt_len": "pathway11_h100/generalization_edge/cache/arm2a_prompt_cloud_qwen1.5b_math.npz",
+      "source_labels": "nocompute/cache/math500_1p5b.npz",
+      "n": 500,
+      "scaler_mean": 98.94,
+      "scaler_scale": 76.3401624310559,
+      "coef": -1.0013827750733133,
+      "intercept": -0.15000406559249316,
+      "resub_auroc": 0.7158892571776272,
+      "fit_protocol": "full-data fit on [n_prompt_tokens] (deployment coefficients)"
+    }
+  }
+}

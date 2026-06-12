@@ -1,0 +1,132 @@
+{
+  "generated": "2026-06-11",
+  "generated_by": "confgate/scripts/fit_pinned.py",
+  "repo": "topo-confidence (SPEC v6 pinned results; SPEC v7 Phase 3a package)",
+  "provenance_note": "every anchor below is read verbatim from a committed result JSON; deployment coefficients are full-data refits of the exact pinned recipe on the named caches",
+  "anchors": {
+    "t5_heldout_oof": {
+      "smollm2-1.7b": {
+        "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+        "free_baseline_auroc": 0.8096925858951175,
+        "length_only_auroc": 0.7813261000602771,
+        "logprob_only_auroc": 0.5174683544303798,
+        "T5_pass_0.70": true,
+        "which_scalar_carries": "length-only carries (length_only ~ free, logprob_only ~ chance)",
+        "protocol": "OOF StratifiedKFold(5, shuffle=True, random_state=0), phase3_heldout.py::eval_free_baseline",
+        "source": "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json"
+      },
+      "gemma-2-2b": {
+        "model": "google/gemma-2-2b-it",
+        "free_baseline_auroc": 0.8439180107526882,
+        "length_only_auroc": 0.7827830981182797,
+        "logprob_only_auroc": 0.7558383736559141,
+        "T5_pass_0.70": true,
+        "which_scalar_carries": "both scalars carry",
+        "protocol": "OOF StratifiedKFold(5, shuffle=True, random_state=0), phase3_heldout.py::eval_free_baseline",
+        "source": "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json"
+      },
+      "olmo-2-1b": {
+        "model": "allenai/OLMo-2-0425-1B-Instruct",
+        "free_baseline_auroc": 0.8382227891156462,
+        "length_only_auroc": 0.8158304988662132,
+        "logprob_only_auroc": 0.6535336356764929,
+        "T5_pass_0.70": true,
+        "which_scalar_carries": "length-led (length_only close to free, logprob weaker)",
+        "protocol": "OOF StratifiedKFold(5, shuffle=True, random_state=0), phase3_heldout.py::eval_free_baseline",
+        "source": "pathway11_h100/generalization_edge/results/phase3_t5_free_baseline.json"
+      }
+    },
+    "in_domain_qwen1.5b": {
+      "t1_loco_free_baseline_auroc": 0.8453247508194377,
+      "t3_crossscale_free_baseline_auroc": 0.8649777471537197,
+      "source": "pathway11_h100/generalization_edge/results/phase1_panel.json"
+    },
+    "preflight": {
+      "prompt_length_only_auroc": 0.7055851787801637,
+      "protocol": "frozen-fold OOF, phase2_arm2a.py",
+      "h_e_verdict": "prompt-cloud does NOT add over prompt-length (H-E refuted)",
+      "gate_delta_vs_promptlen": -0.009599526028406302,
+      "gate_p": 0.4174527512173025,
+      "source": "pathway11_h100/generalization_edge/results/phase2_arm2a.json"
+    },
+    "cascade": {
+      "cost_model": "keep=1, escalate=5; cost_rel=1-0.8*pct_kept",
+      "acc_1p5b_k1": 0.486,
+      "acc_7b": 0.732,
+      "hybrid_beats_hull_gap_pp": 3.3800000000000052,
+      "hybrid_gap_pp_boot_se": 0.9621315955211117,
+      "hybrid_significant": true,
+      "hybrid_best_point": {
+        "pct_kept": 0.3,
+        "accuracy": 0.692,
+        "cost_rel": 0.76,
+        "n_kept": 150,
+        "hull_acc": 0.6581999999999999,
+        "gap_pp": 3.3800000000000052
+      },
+      "note": "the +3.38pp anchor used the v6 HYBRID gate (prefill-DoM + logprob + length); the activation-free FreeGate frontier is what this package deploys",
+      "source": "pathway11_h100/generalization_edge/results/1b4_overlap.json"
+    },
+    "conformal": {
+      "method": "split-conformal LTT, CP-upper light-head recalibration, R=200",
+      "eps": 0.2,
+      "delta": 0.1,
+      "cross_scale_math1.5b_to_7b_eps0.2": {
+        "k0": {
+          "feasible_frac": 1.0,
+          "validity": 1.0,
+          "mean_coverage": 0.6
+        },
+        "k8": {
+          "feasible_frac": 0.0,
+          "validity": null,
+          "mean_coverage": 0.0
+        },
+        "k16": {
+          "feasible_frac": 0.0,
+          "validity": null,
+          "mean_coverage": 0.0
+        },
+        "k32": {
+          "feasible_frac": 0.21,
+          "validity": 1.0,
+          "mean_coverage": 0.10712606837606838
+        },
+        "k64": {
+          "feasible_frac": 0.655,
+          "validity": 1.0,
+          "mean_coverage": 0.29099770642201833
+        }
+      },
+      "cross_domain_math_to_bbh_eps0.2": {
+        "k0": {
+          "feasible_frac": 1.0,
+          "validity": 0.0,
+          "mean_coverage": 0.704
+        },
+        "k8": {
+          "feasible_frac": 0.0,
+          "validity": null,
+          "mean_coverage": 0.0
+        },
+        "k16": {
+          "feasible_frac": 0.0,
+          "validity": null,
+          "mean_coverage": 0.0
+        },
+        "k32": {
+          "feasible_frac": 0.06,
+          "validity": 0.0,
+          "mean_coverage": 0.010557103064066852
+        },
+        "k64": {
+          "feasible_frac": 0.455,
+          "validity": 0.0,
+          "mean_coverage": 0.07551020408163266
+        }
+      },
+      "verdict": "cross-scale zero-shot (k=0) is the supported certificate (validity 1.0 @ 0.60 coverage, eps=0.2); k-label recalibration is feasibility-restoring only past k>=32, never coverage-improving; cross-domain certificates are infeasible with any light head (validity 0.0 at eps=0.2 for every feasible k) -> certify_cross_domain() refuses",
+      "source": "pathway11_h100/generalization_edge/results/phase4_recalibration.json"
+    }
+  }
+}

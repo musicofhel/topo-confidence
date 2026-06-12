@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "confgate"
+version = "0.1.0"
+description = "Free confidence gate for LLM correctness: logistic regression on (generation length, mean logprob), with cascade routing and split-conformal certificates. Ships the pinned SPEC-v6 result of the topo-confidence project."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Aaron", email = "wobblyagent@gmail.com"}]
+keywords = ["llm", "confidence", "calibration", "selective-prediction", "conformal", "cascade"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scikit-learn>=1.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+confgate = "confgate.cli:main"
+
+[project.urls]
+Repository = "https://github.com/musicofhel/topo-confidence"
+
+[tool.hatch.build.targets.wheel]
+packages = ["confgate"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 99
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
