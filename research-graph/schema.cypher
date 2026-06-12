@@ -119,4 +119,20 @@ CREATE FULLTEXT INDEX future_experiment_search IF NOT EXISTS
 //   (FutureExperiment)-[:WOULD_UPDATE {if_positive, if_negative}]->(Finding)
 //   (FutureExperiment)-[:WOULD_CREATE_FINDING {claim}]->(Tag)
 //   (FutureExperiment)-[:BLOCKED_BY_EXPERIMENT]->(FutureExperiment)
+//
+// Premises + closure-by-adjacency (premises.py, moot_sweep.py):
+//   (:Premise {id, statement, status, refuted_by, reason, created_date,
+//              status_date})
+//     - status: LIVE | REFUTED | CONFIRMED. Controlled vocabulary seeded in
+//       premises.py — a premise is a falsifiable assumption shared by many FEs.
+//   (FutureExperiment)-[:RELIES_ON]->(Premise)
+//     - written by promote_brief.py from the FE YAML `relies-on:` field, by
+//       premises.py link, or by moot_sweep.py when it moots an FE under a
+//       named premise. Refuting a premise cascade-MOOTs every open reliant FE.
+//   (FutureExperiment)-[:MOOTED_BY {reason, date}]->(FutureExperiment|Experiment|Premise|Finding)
+//   (FutureExperiment)-[:ANSWERED_BY {reason, date}]->(FutureExperiment|Experiment|Premise|Finding)
+//     - provenance for FE statuses MOOTED (premise refuted by an adjacent
+//       result) and ANSWERED (question settled by an adjacent result).
+//       FE.closed_by mirrors the target id as a property. Both statuses are
+//       reversible: update_status.py <id> READY.
 // =====================================================================

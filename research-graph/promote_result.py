@@ -424,6 +424,74 @@ def update_fe_status(parsed: dict[str, Any], dry_run: bool) -> None:
     print(f"  ok {last}")
 
 
+def update_premises_and_queue_sweep(parsed: dict[str, Any], dry_run: bool) -> None:
+    """Flip :Premise nodes declared in the ## FE block and queue the semantic
+    moot sweep.
+
+    Optional ## FE YAML keys:
+        refutes_premise: [dom-causal-lever]   # REFUTED + deterministic cascade
+        confirms_premise: [free-baseline-strongest-readout]
+
+    Every promoted result also appends `<fe_id>\\t<outcome>` to
+    .autopilot/moot-trigger so `moot_sweep.py --from-trigger` can adjudicate
+    the semantic long tail asynchronously.
+    """
+    fe = parsed["fe"]
+    refutes = fe.get("refutes_premise") or []
+    confirms = fe.get("confirms_premise") or []
+
+    if refutes or confirms:
+        from premises import cascade_moot
+        from datetime import date as _date
+        today = _date.today().isoformat()
+        drv = GraphDatabase.driver(BOLT, auth=(USER, PASSWORD))
+        try:
+            with drv.session() as s:
+                for pid, new_status in (
+                    [(p, "REFUTED") for p in refutes]
+                    + [(p, "CONFIRMED") for p in confirms]
+                ):
+                    if dry_run:
+                        print(f"  Would set Premise {pid} -> {new_status}"
+                              + (" + cascade-moot reliant FEs"
+                                 if new_status == "REFUTED" else ""))
+                        continue
+                    rec = s.run(
+                        """
+                        MATCH (pr:Premise {id: $pid})
+                        SET pr.status = $status, pr.refuted_by = $by,
+                            pr.reason = $reason, pr.status_date = $today
+                        RETURN pr.id AS id
+                        """,
+                        pid=pid, status=new_status, by=fe["fe_id"],
+                        reason=fe["outcome"], today=today,
+                    ).single()
+                    if not rec:
+                        print(f"  WARNING: unknown premise {pid!r} — skipped "
+                              "(python premises.py list)")
+                        continue
+                    print(f"  ok Premise {pid} -> {new_status}")
+                    if new_status == "REFUTED":
+                        mooted = cascade_moot(s, pid, fe["fe_id"], fe["outcome"])
+                        print(f"     cascade mooted {len(mooted)} FE(s)"
+                              + (f": {', '.join(mooted)}" if mooted else ""))
+        finally:
+            drv.close()
+    else:
+        print("  no premise declarations in ## FE block")
+
+    one_line = " ".join(str(fe["outcome"]).split())
+    if dry_run:
+        print(f"  Would queue moot sweep: {fe['fe_id']}\\t{one_line[:80]}…")
+        return
+    trigger = REPO / ".autopilot" / "moot-trigger"
+    trigger.parent.mkdir(exist_ok=True)
+    with trigger.open("a") as fh:
+        fh.write(f"{fe['fe_id']}\t{one_line}\n")
+    print("  ok queued for moot_sweep.py --from-trigger "
+          f"({trigger.relative_to(REPO)})")
+
+
 def update_findings_in_graph(parsed: dict[str, Any], dry_run: bool) -> None:
     metas = parsed["findings_meta"]
     if not metas:
@@ -684,6 +752,11 @@ def main() -> None:
     p.add_argument("--skip-git-check", action="store_true",
                    help="Skip the git-cleanliness gate (use only if you understand "
                         "the risk of bundling unrelated changes)")
+    p.add_argument("--sweep", action="store_true",
+                   help="After promotion, run moot_sweep.py --from-trigger "
+                        "synchronously (LLM adjudication of adjacent open FEs). "
+                        "Without this flag the verdict just queues in "
+                        ".autopilot/moot-trigger.")
     args = p.parse_args()
 
     brief_path = Path(args.brief).expanduser().resolve()
@@ -726,6 +799,9 @@ def main() -> None:
     print("\nstep 5: FE status update (Neo4j)")
     update_fe_status(parsed, args.dry_run)
 
+    print("\nstep 5b: Premise updates + moot-sweep queue")
+    update_premises_and_queue_sweep(parsed, args.dry_run)
+
     print("\nstep 6: Finding updates (Neo4j)")
     update_findings_in_graph(parsed, args.dry_run)
 
@@ -740,6 +816,13 @@ def main() -> None:
 
     print("\nstep 10: regenerate NEXT_EXPERIMENTS.md")
     regen_next_experiments(args.dry_run)
+
+    if args.sweep and not args.dry_run:
+        print("\nstep 11: moot sweep (--sweep)")
+        subprocess.run(
+            [sys.executable, str(ROOT / "moot_sweep.py"), "--from-trigger"],
+            check=False,
+        )
 
     if not args.dry_run:
         try:

@@ -96,6 +96,46 @@ python generate_next_experiments.py    # rewrites NEXT_EXPERIMENTS.md
 python query.py watchlist
 ```
 
+### Premises + closure by adjacency (mooting)
+
+A `:Premise` node is a falsifiable assumption shared by many FEs ("the DoM
+direction is a causal lever"). When a verdict refutes a premise, every open FE
+that relies on it is closed without being run: **MOOTED** (premise refuted) or
+**ANSWERED** (question already settled by the adjacent result). Both are
+reversible (`update_status.py <id> READY`) and carry provenance
+(`MOOTED_BY`/`ANSWERED_BY` edges + `fe.closed_by`). Two layers:
+
+- **Deterministic:** FE YAML `relies-on: [<premise-id>]` (triage briefs) →
+  `RELIES_ON` edges. `premises.py refute <id> --by <exp> --reason "..."`
+  cascades instantly; FEs admitted against an already-refuted premise are
+  born MOOTED by `promote_brief.py`.
+- **Semantic:** `moot_sweep.py` embeds the verdict (FE nodes carry MiniLM
+  embeddings), shortlists open FEs by cosine, and adjudicates with a
+  conservative `claude -p` rubric (default KEEP; a false moot kills live
+  work). Report lands in `briefs/moot-sweep-<date>-<id>.md` for review.
+
+```bash
+cd ~/topo-confidence/research-graph
+python premises.py list                 # controlled vocabulary + reliant counts
+python query.py premises                # same, via query CLI
+python query.py mooted                  # recent closures, for review/resurrection
+
+# A result brief's ## FE block may declare premise flips:
+#   refutes_premise: [dom-causal-lever]
+#   confirms_premise: [free-baseline-strongest-readout]
+# promote_result.py flips the premise, cascades the moots, and queues the
+# verdict in .autopilot/moot-trigger. Run the semantic pass with:
+python promote_result.py briefs/result-<date>-<fe>.md --sweep   # inline, or
+python moot_sweep.py --from-trigger                             # later/batch
+
+# Manual one-off sweep after any clarifying outcome:
+python moot_sweep.py --by <exp-id> --verdict "..." [--premise <id>] [--dry-run]
+```
+
+When you write a result brief for an experiment that kills a line of work,
+declare `refutes_premise:` (add the premise to `premises.py` SEED_PREMISES
+first if it's new) — that is what keeps the 1,000+-FE queue honest.
+
 ### Paper triage
 
 A perimeter admission filter (`link-forge/src/processor/research-graph-suggest.ts`)

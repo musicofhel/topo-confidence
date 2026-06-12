@@ -25,7 +25,12 @@ REPO_ROOT = ROOT.parent
 OUTPUT = REPO_ROOT / "NEXT_EXPERIMENTS.md"
 
 # Status-ordering for sorting within tier: TRIGGERED first, then READY, then BLOCKED
-STATUS_ORDER = {"TRIGGERED": 0, "READY": 1, "BLOCKED": 2, "COMPLETED": 3, "ABANDONED": 4}
+STATUS_ORDER = {"TRIGGERED": 0, "READY": 1, "BLOCKED": 2, "COMPLETED": 3,
+                "ABANDONED": 4, "ANSWERED": 5, "MOOTED": 6}
+
+# Closed-by-adjacency statuses: rendered as a compact one-line-per-FE section,
+# never in the live tiers (a mooted FE revives only if its premise does).
+CLOSED_STATUSES = ("MOOTED", "ANSWERED")
 
 
 def _driver():
@@ -54,7 +59,7 @@ def fetch_all() -> list[dict[str, Any]]:
            fe.blocked_by AS blocked_by, fe.priority AS priority,
            fe.estimated_cost AS estimated_cost, fe.roi_score AS roi_score,
            fe.created_date AS created_date, fe.completed_date AS completed_date,
-           fe.outcome AS outcome,
+           fe.outcome AS outcome, fe.closed_by AS closed_by,
            [t IN triggered_by WHERE t.arxiv_id IS NOT NULL] AS triggered_by,
            [x IN depends_on WHERE x IS NOT NULL] AS depends_on,
            [x IN would_update WHERE x IS NOT NULL] AS would_update
@@ -67,7 +72,7 @@ def fetch_all() -> list[dict[str, Any]]:
 def fetch_watchlist() -> list[dict[str, Any]]:
     cypher = """
     MATCH (fe:FutureExperiment)-[:TRIGGERED_BY]->(p:Paper)
-    WHERE fe.status <> 'COMPLETED'
+    WHERE NOT fe.status IN ['COMPLETED', 'MOOTED', 'ANSWERED']
     WITH p, collect(DISTINCT {fe_id: fe.id, status: fe.status}) AS triggers
     RETURN p.arxiv_id AS arxiv_id, p.title AS title, p.year AS year,
            triggers
@@ -197,10 +202,13 @@ def generate(experiments: list[dict[str, Any]], papers: list[dict[str, Any]]) ->
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     by_tier: dict[str, list[dict[str, Any]]] = {
         "CRITICAL": [], "HIGH": [], "MEDIUM": [], "LOW": [], "COMPLETED": [],
+        "CLOSED": [],
     }
     for fe in experiments:
         if fe["status"] == "COMPLETED":
             by_tier["COMPLETED"].append(fe)
+        elif fe["status"] in CLOSED_STATUSES:
+            by_tier["CLOSED"].append(fe)
         else:
             by_tier[_tier(fe["roi_score"])].append(fe)
 
@@ -246,6 +254,30 @@ def generate(experiments: list[dict[str, Any]], papers: list[dict[str, Any]]) ->
     else:
         for fe in by_tier["COMPLETED"]:
             out.append(render_experiment(fe))
+    out.append("---")
+    out.append("")
+
+    out.append("## Closed by adjacency (MOOTED / ANSWERED)")
+    out.append("")
+    out.append("Closed without being run: an adjacent experiment refuted the premise")
+    out.append("(MOOTED) or already answered the question (ANSWERED). Provenance is on")
+    out.append("the MOOTED_BY/ANSWERED_BY edge; resurrect with `update_status.py <id> READY`.")
+    out.append("")
+    if not by_tier["CLOSED"]:
+        out.append("_(none)_")
+        out.append("")
+    else:
+        closed = sorted(by_tier["CLOSED"],
+                        key=lambda f: (f.get("completed_date") or "", f["id"]),
+                        reverse=True)
+        for fe in closed:
+            reason = (fe.get("outcome") or "").replace("\n", " ")
+            if len(reason) > 140:
+                reason = reason[:139] + "…"
+            by = fe.get("closed_by") or "?"
+            out.append(f"- **{fe['id']}** [{fe['status']} by {by}, "
+                       f"{fe.get('completed_date') or '—'}] — {reason}")
+        out.append("")
     out.append("---")
     out.append("")
 

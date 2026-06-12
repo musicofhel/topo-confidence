@@ -1,4 +1,4 @@
-"""Backfill vector embeddings for Paper and Finding nodes.
+"""Backfill vector embeddings for Paper, Finding, and FutureExperiment nodes.
 
 Uses all-MiniLM-L6-v2 (384-dim, cosine) from sentence-transformers.
 
@@ -58,6 +58,13 @@ def _build_finding_text(rec: dict) -> str:
     return " ".join(parts)
 
 
+def _build_fe_text(rec: dict) -> str:
+    desc = rec.get("description") or ""
+    rationale = rec.get("rationale") or ""
+    parts = [p for p in [desc, rationale] if p]
+    return " ".join(parts)
+
+
 def embed_texts(texts: list[str]) -> list[list[float]]:
     model = _get_model()
     vecs = model.encode(texts, show_progress_bar=False, normalize_embeddings=True)
@@ -69,7 +76,7 @@ def embed_node(node_type: str, node_id: str, text: str):
     vecs = embed_texts([text])
     if node_type == "Paper":
         id_field, id_prop = "arxiv_id", node_id
-    elif node_type == "Finding":
+    elif node_type in ("Finding", "FutureExperiment"):
         id_field, id_prop = "id", node_id
     else:
         raise ValueError(f"Unknown node type: {node_type}")
@@ -160,9 +167,49 @@ def backfill_findings(force: bool = False, dry_run: bool = False) -> int:
     return len(ids)
 
 
+def backfill_future_experiments(force: bool = False, dry_run: bool = False) -> int:
+    where = "" if force else "WHERE fe.embedding IS NULL"
+    with _get_driver() as drv, drv.session() as s:
+        rows = list(s.run(f"""
+            MATCH (fe:FutureExperiment)
+            {where}
+            RETURN fe.id AS id, fe.description AS description,
+                   fe.rationale AS rationale
+            ORDER BY fe.id
+        """))
+
+    if not rows:
+        print("  FutureExperiments: nothing to embed")
+        return 0
+
+    texts = [_build_fe_text(dict(r)) for r in rows]
+    ids = [r["id"] for r in rows]
+
+    if dry_run:
+        print(f"  FutureExperiments: would embed {len(texts)} nodes")
+        for i, (fid, t) in enumerate(zip(ids, texts)):
+            if i < 3:
+                print(f"    {fid}: {t[:80]}...")
+        return len(texts)
+
+    vecs = embed_texts(texts)
+
+    with _get_driver() as drv, drv.session() as s:
+        for fid, vec in tqdm(zip(ids, vecs), total=len(ids),
+                             desc="  FutureExperiments"):
+            s.run(
+                "MATCH (fe:FutureExperiment {id: $fid}) SET fe.embedding = $vec",
+                fid=fid, vec=vec,
+            )
+
+    print(f"  FutureExperiments: embedded {len(ids)} nodes")
+    return len(ids)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Backfill vector embeddings")
-    parser.add_argument("--node-type", choices=["Paper", "Finding", "all"],
+    parser.add_argument("--node-type",
+                        choices=["Paper", "Finding", "FutureExperiment", "all"],
                         default="all")
     parser.add_argument("--force", action="store_true",
                         help="Re-embed even if embedding exists")
@@ -175,6 +222,8 @@ def main():
         total += backfill_papers(force=args.force, dry_run=args.dry_run)
     if args.node_type in ("Finding", "all"):
         total += backfill_findings(force=args.force, dry_run=args.dry_run)
+    if args.node_type in ("FutureExperiment", "all"):
+        total += backfill_future_experiments(force=args.force, dry_run=args.dry_run)
 
     print(f"\n  Total: {total} nodes {'would be ' if args.dry_run else ''}embedded")
 

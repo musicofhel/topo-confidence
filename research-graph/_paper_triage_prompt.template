@@ -114,11 +114,22 @@ One or more YAML blocks with EXACTLY these fields (every field required, even if
       triggered-by: ["__ARXIV_ID__"]
       blocked-by: null
       blocked-by-experiment: []
+      relies-on: []              # Premise ids this FE assumes true (see below)
     ```
 
 Find the next available P<x>-FE<n> ID via `python query.py future <pathway-id>`. Many briefs may be running concurrently — pick numbers well above the highest currently-graphed ID for the pathway (e.g. add 50 to be safe, or use a unique-by-arxiv suffix).
 
 `depends-on` and `would-update` are required for the graph edges that drive ROI scoring. Edge-less FutureExperiments are invisible to `query.py impact`.
+
+`relies-on` tags the FE with the :Premise nodes it assumes true (run
+`python premises.py list` for the controlled vocabulary — e.g. `dom-causal-lever`,
+`dom-steering`, `verification-routing-helps`, `geometry-portable-signal`,
+`conformal-cross-domain`). This is load-bearing: an FE that relies on an
+already-REFUTED premise is admitted as MOOTED instead of READY, and a future
+refutation auto-moots every reliant FE. If the experiment assumes that steering
+hidden-state directions works, that activation geometry adds signal over free
+baselines, or that self-verification routing helps, TAG IT. Leave `[]` only when
+no listed premise applies.
 
 ## Proposed HYPOTHESES.md additions
 

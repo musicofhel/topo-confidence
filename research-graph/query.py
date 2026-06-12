@@ -677,6 +677,50 @@ def cmd_blocked(_args) -> None:
         _print_future_experiment(r)
 
 
+def cmd_mooted(args) -> None:
+    rows = _run(
+        """
+        MATCH (fe:FutureExperiment)
+        WHERE fe.status IN ['MOOTED', 'ANSWERED']
+        RETURN fe.id AS id, fe.status AS status, fe.closed_by AS closed_by,
+               fe.completed_date AS date, fe.outcome AS outcome
+        ORDER BY fe.completed_date DESC, fe.id
+        LIMIT $n
+        """,
+        n=args.n,
+    )
+    print(f"\nClosed-by-adjacency FEs (most recent {len(rows)}) — revive with "
+          "`update_status.py <id> READY`:")
+    for r in rows:
+        outcome = " ".join((r["outcome"] or "").split())
+        if len(outcome) > 150:
+            outcome = outcome[:149] + "…"
+        print(f"  {r['id']} [{r['status']} by {r['closed_by']}, {r['date']}]")
+        print(f"    {outcome}")
+
+
+def cmd_premises(_args) -> None:
+    rows = _run(
+        """
+        MATCH (pr:Premise)
+        OPTIONAL MATCH (fe:FutureExperiment)-[:RELIES_ON]->(pr)
+        WITH pr, count(fe) AS reliant,
+             sum(CASE WHEN fe.status IN ['READY','TRIGGERED','BLOCKED']
+                 THEN 1 ELSE 0 END) AS open_reliant
+        RETURN pr.id AS id, pr.status AS status, pr.statement AS statement,
+               pr.refuted_by AS refuted_by, pr.status_date AS status_date,
+               reliant, open_reliant
+        ORDER BY pr.id
+        """
+    )
+    print(f"\nPremises ({len(rows)}):")
+    for r in rows:
+        prov = f" by {r['refuted_by']}" if r["refuted_by"] else ""
+        print(f"  {r['id']} [{r['status']}{prov}, {r['status_date']}] — "
+              f"{r['reliant']} reliant, {r['open_reliant']} open")
+        print(f"    {r['statement']}")
+
+
 def cmd_highest_roi(args) -> None:
     rows = highest_roi(n=args.n)
     print(f"\nTop {args.n} future experiments by ROI:")
@@ -1581,7 +1625,8 @@ def main() -> None:
     s.add_argument("pathway_id", nargs="?", default=None,
                    help="e.g. P7  — omit for all pathways")
     s.add_argument("--status", default=None,
-                   choices=["READY", "TRIGGERED", "BLOCKED", "COMPLETED", "ABANDONED"])
+                   choices=["READY", "TRIGGERED", "BLOCKED", "COMPLETED",
+                            "ABANDONED", "MOOTED", "ANSWERED"])
     s.add_argument("--min-roi", type=int, default=None)
     s.set_defaults(func=cmd_future)
 
@@ -1590,6 +1635,13 @@ def main() -> None:
 
     s = sub.add_parser("blocked", help="All BLOCKED future experiments (or those with a blocked_by reason)")
     s.set_defaults(func=cmd_blocked)
+
+    s = sub.add_parser("mooted", help="FEs closed by adjacency (MOOTED/ANSWERED) for review")
+    s.add_argument("n", nargs="?", type=int, default=50)
+    s.set_defaults(func=cmd_mooted)
+
+    s = sub.add_parser("premises", help="Premise vocabulary + reliant-FE counts")
+    s.set_defaults(func=cmd_premises)
 
     s = sub.add_parser("highest-roi", help="Top N future experiments by ROI")
     s.add_argument("n", nargs="?", type=int, default=10)

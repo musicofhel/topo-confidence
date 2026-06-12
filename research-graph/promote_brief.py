@@ -428,6 +428,45 @@ def write_future_experiments(fes: list[dict[str, Any]], dry_run: bool) -> list[s
                         "MATCH (a:FutureExperiment {id: $a}), (b:FutureExperiment {id: $b}) MERGE (a)-[:BLOCKED_BY_EXPERIMENT]->(b)",
                         a=fe["id"], b=other,
                     )
+                born_mooted = None
+                for premise in (fe.get("relies-on") or []):
+                    rec = s.run(
+                        """
+                        MATCH (fe:FutureExperiment {id: $fid}), (pr:Premise {id: $pid})
+                        MERGE (fe)-[:RELIES_ON]->(pr)
+                        RETURN pr.status AS status, pr.refuted_by AS refuted_by,
+                               pr.reason AS reason
+                        """,
+                        fid=fe["id"], pid=premise,
+                    ).single()
+                    if rec is None:
+                        print(f"  WARNING: FE {fe['id']} relies-on unknown "
+                              f"premise {premise!r} — edge skipped. Known ids: "
+                              "python premises.py list")
+                    elif rec["status"] == "REFUTED":
+                        born_mooted = (premise, rec["refuted_by"], rec["reason"])
+                if born_mooted and fe.get("status", "READY") not in ("COMPLETED", "ABANDONED"):
+                    premise, refuted_by, reason = born_mooted
+                    s.run(
+                        """
+                        MATCH (fe:FutureExperiment {id: $fid})
+                        SET fe.status = 'MOOTED',
+                            fe.outcome = $outcome,
+                            fe.closed_by = $by,
+                            fe.completed_date = $today
+                        WITH fe
+                        MATCH (pr:Premise {id: $pid})
+                        MERGE (fe)-[r:MOOTED_BY]->(pr)
+                        SET r.reason = $outcome, r.date = $today
+                        """,
+                        fid=fe["id"], pid=premise, by=refuted_by or premise,
+                        outcome=f"Born MOOTED — relies on refuted premise "
+                                f"'{premise}' ({reason})",
+                        today=today,
+                    )
+                    print(f"  ok FutureExperiment {fe['id']} — born MOOTED "
+                          f"(premise '{premise}' already refuted)")
+                    continue
                 print(f"  ok FutureExperiment {fe['id']}")
     finally:
         drv.close()
