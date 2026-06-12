@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-12 07:16 UTC_
+_Generated: 2026-06-12 07:35 UTC_
 
 ---
 
@@ -1240,18 +1240,6 @@ _Generated: 2026-06-12 07:16 UTC_
 **Depends on:** F-2
 **Would update:** F-2
 **Trigger condition:** AUSteer §3.2 heterogeneity claim; counting-based momentum metric solves the depth-magnitude scale problem that has limited cross-layer probe comparison in our pipeline.
-
-### P11-FE678 (P11) — [ROI: 9, READY, CRITICAL]
-
-**What:** Stability-aware offline gating for H-1. Score `J(α) = Σ_err G_gain − Σ_corr [λ_flip·I_flip + λ_drop·I_drop]` (λ_flip=20, λ_drop=10) for any candidate α before any new H100 generation, using cached log-probs and the activation-addition logit-shift approximation. If naive H-1 single-direction α gives J(α) < 0 (more correct→incorrect flips than incorrect→correct gains), naive H-1 settles negative without an H100 pod.
-
-**Why:** Steer2Adapt's hierarchical regularizer is precisely a guard against the failure mode (Rimsky 2023, Wu 2025) that H-1 has not yet been protected from. Provides a CPU-only kill-switch on the most expensive experiment in P10/P11.
-
-**Cost:** 30min CPU on cached prefill activations + log-probs
-**Triggered by:** [Steer2Adapt: Dynamically Composing Steering Vectors Elicits Efficient Adaptation of LLMs](https://arxiv.org/abs/2602.07276)
-**Depends on:** F-2
-**Would update:** F-2
-**Trigger condition:** Steer2Adapt 2602.07276 hierarchical safety regularization.
 
 ### P11-FE680 (P11) — [ROI: 9, READY, HIGH]
 
@@ -8759,18 +8747,6 @@ _Generated: 2026-06-12 07:16 UTC_
 **Would update:** F-12
 **Trigger condition:** Soft Self-Consistency (2402.13212) documented SC failure modes on diverse answers — same phenomenon.
 
-### P11-FE405 (P11) — [ROI: 7, READY, MEDIUM]
-
-**What:** Hybrid PRM-+-DoM router. On 500 MATH-500 problems, build a router that uses prefill L19 DoM percentile + PRM mean trajectory score (logistic combiner trained 5-fold OOF) to allocate per-problem compute among K=1, K=8 BoN, and beam search. Compare end-to-end accuracy at matched total compute against (a) DoM-only router (H-19 baseline), (b) PRM-only router.
-
-**Why:** Refutation R4 made constructive. Tests whether the verifier slot in C_exact routing should be internal (DoM), external (PRM), or both.
-
-**Cost:** 4h H100 + 1h CPU
-**Triggered by:** [Can 1B Surpass 405B](https://arxiv.org/abs/2502.06703)
-**Depends on:** F-8, F-2
-**Would update:** F-8, F-2
-**Trigger condition:** Liu et al. 2502.06703 — strong PRMs dramatically outperform weak PRMs as routing signal; internal probes never tested in the paper.
-
 ### P11-FE406 (P11) — [ROI: 7, READY, MEDIUM]
 
 **What:** Difficulty-bin alignment between prefill DoM and Pass@1. Bin the 500 MATH-500 problems by paper-style Pass@1 quantile (easy 50-100%, medium 10-50%, hard 0-10%) using cached Qwen2.5-1.5B K=8 outcomes. Test whether prefill L19 DoM percentile predicts bin membership (3-class accuracy + per-bin AUROC). Cheap H-5 sanity check.
@@ -10767,19 +10743,6 @@ _Generated: 2026-06-12 07:16 UTC_
 **Depends on:** F-2, F-7
 **Would update:** F-7
 **Trigger condition:** 2311.04897
-
-### P11-FE822 (P11) — [ROI: 7, BLOCKED, HIGH]
-
-**What:** Per-problem propensity-curve disaggregation for any future H-1 steering run. When/if H-1 (per-position DoM steering on Qwen 1.5B for MATH-500) executes at λ ∈ {−1.5, −1.0, −0.5, 0, +0.5, +1.0, +1.5}, supplement aggregate K=1 accuracy delta with per-problem propensity histograms (Tan Fig 1 analog) and report 'fraction anti-steered' as a primary metric. Pre-register: if >30% of MATH-500 problems show steering slope of opposite sign to median, declare H-1 unreliable regardless of aggregate accuracy delta.
-
-**Why:** Tan Fig 1 shows 30–50% anti-steerable fractions for many MWE concepts despite balanced aggregate slopes. H-1 will inherit this risk; reporting only aggregate accuracy will obscure the failure mode. Pre-registering the per-problem distribution makes the experiment falsifiable rather than confirmatory.
-
-**Cost:** 1h CPU post-hoc on H-1 outputs (incremental on top of H-1 GPU cost)
-**Blocked by:** H-1 not yet executed
-**Triggered by:** [Generalization of Steering Vectors (Tan)](https://arxiv.org/abs/2407.12404)
-**Depends on:** F-3, F-2
-**Would update:** F-2
-**Trigger condition:** Tan et al. 2407.12404 Sec 5 anti-steerable phenomenon; pre-registration is needed before H-1 launches to prevent post-hoc reframing.
 
 ### P11-FE83 (P11) — [ROI: 7, BLOCKED, MEDIUM]
 
@@ -14980,6 +14943,9 @@ Closed without being run: an adjacent experiment refuted the premise
 (MOOTED) or already answered the question (ANSWERED). Provenance is on
 the MOOTED_BY/ANSWERED_BY edge; resurrect with `update_status.py <id> READY`.
 
+- **P11-FE822** [MOOTED by P11-FE-SHIPGATE, 2026-06-12] — MOOTED by P11-FE-SHIPGATE: Verdict closes H-1 (introspection loses to escalation), refuting premise that H-1 will be tested and needs per-p…
+- **P11-FE678** [MOOTED by P11-FE-SHIPGATE, 2026-06-12] — MOOTED by P11-FE-SHIPGATE: Verdict closes introspection methods (no probe beats escalation), refuting premise that H-1 stability is worth p…
+- **P11-FE405** [MOOTED by P11-FE-SHIPGATE, 2026-06-12] — MOOTED by P11-FE-SHIPGATE: The verdict's general closure—'at matched cost, no introspection probe beats escalation'—directly refutes hybrid…
 - **P9-FE1** [MOOTED by P11-FE-EDGEGEN, 2026-06-11] — Premise 'geometry-portable-signal' refuted by P11-FE-EDGEGEN: SPEC v6 (EXP-81/82) 2026-06-11: H-C refuted (depth-grid n.s., transfers ≤0.63…
 - **P8-FE6** [MOOTED by P11-FE-EDGEGEN, 2026-06-11] — MOOTED by P11-FE-EDGEGEN: Premise that PH null is an estimator-choice artifact is refuted; verdict establishes PH was already conclusively …
 - **P8-FE2** [MOOTED by P11-FE-EDGEGEN, 2026-06-11] — MOOTED by P11-FE-EDGEGEN: Verdict explicitly refuted H-G (early-abort from partial-generation pooling) and states this class is dead unless…
@@ -15272,7 +15238,7 @@ check whether any experiment's status should change.
 | [2602.04521](https://arxiv.org/abs/2602.04521) | $C$-$ΔΘ$: Circuit-Restricted Weight Arithmetic for Selective Refusal | P11-FE671, P11-FE670 | READY |
 | [2602.05943](https://arxiv.org/abs/2602.05943) | Orthogonal Model Merging | P11-FE890, P11-FE888, P11-FE887 | READY |
 | [2602.06941](https://arxiv.org/abs/2602.06941) | Endogenous Resistance to Activation Steering in Language Models | P11-FE675, P11-FE674, P11-FE673 | READY |
-| [2602.07276](https://arxiv.org/abs/2602.07276) | Steer2Adapt: Dynamically Composing Steering Vectors Elicits Efficient Adaptation of LLMs | P10-FE34, P11-FE678, P11-FE677, P11-FE676 | READY |
+| [2602.07276](https://arxiv.org/abs/2602.07276) | Steer2Adapt: Dynamically Composing Steering Vectors Elicits Efficient Adaptation of LLMs | P10-FE34, P11-FE677, P11-FE676 | READY |
 | [2602.08169](https://arxiv.org/abs/2602.08169) | Spherical Steering: Geometry-Aware Activation Rotation for Language Models | P11-FE682, P11-FE681, P11-FE680, P11-FE679 | READY |
 | [2602.10346](https://arxiv.org/abs/2602.10346) | Geometry-Aware Decoding with Wasserstein-Regularized Truncation and Mass Penalties for Large Language Models | P11-FE886, P11-FE885, P11-FE884, P11-FE883 | READY |
 | [2602.10496](https://arxiv.org/abs/2602.10496) | Low-Dimensional Execution Manifolds in Transformer Learning Dynamics: Evidence from Modular Arithmetic Tasks | P11-FE686, P11-FE684, P11-FE683 | BLOCKED, READY |
@@ -15377,7 +15343,7 @@ check whether any experiment's status should change.
 | [2501.04519](https://arxiv.org/abs/2501.04519) | rStar-Math | P11-FE360, P11-FE359, P11-FE358, P11-FE357, P11-FE356 | BLOCKED, READY |
 | [2501.12948](https://arxiv.org/abs/2501.12948) | DeepSeek-R1 | P11-FE372, P11-FE371, P11-FE370, P10-FE20, P11-FE369, P11-FE5 | READY, TRIGGERED |
 | [2501.17148](https://arxiv.org/abs/2501.17148) | AxBench: Steering Benchmark | P10-FE46, P11-FE833, P11-FE832 | BLOCKED, READY |
-| [2502.06703](https://arxiv.org/abs/2502.06703) | Can 1B Surpass 405B | P11-FE406, P11-FE405, P11-FE404 | READY |
+| [2502.06703](https://arxiv.org/abs/2502.06703) | Can 1B Surpass 405B | P11-FE406, P11-FE404 | READY |
 | [2504.05419](https://arxiv.org/abs/2504.05419) | Reasoning Models Know When They're Right | P11-FE440, P11-FE439, P11-FE438, P11-FE437, P11-FE436, P11-FE435, P11-FE434, P11-FE433, P11-FE432, P11-FE431, P11-FE430, P11-FE429 | READY |
 | [2504.07986](https://arxiv.org/abs/2504.07986) | SEAL: Steerable Reasoning Calibration | P11-FE442, P11-FE441 | READY |
 | [2504.10063](https://arxiv.org/abs/2504.10063) | TOHA: Topological Divergence on Attention | P11-FE840, P11-FE839, P7-FE2 | BLOCKED, READY, TRIGGERED |
@@ -15407,7 +15373,7 @@ check whether any experiment's status should change.
 | [2405.17767](https://arxiv.org/abs/2405.17767) | Linguistic Collapse | P11-FE246, P11-FE245, P11-FE244, P11-FE243 | READY |
 | [2406.15927](https://arxiv.org/abs/2406.15927) | Semantic Entropy Probes (SEPs) | P11-FE625, P11-FE279, P11-FE278, P11-FE277, P11-FE276, P11-FE275, P11-FE274, P11-FE273, P11-FE272, P11-FE192, P11-FE171 | READY |
 | [2406.19384](https://arxiv.org/abs/2406.19384) | Stages of Inference (Lad, Gurnee, Tegmark) | P11-FE287, P11-FE286, P11-FE285, P11-FE284 | READY |
-| [2407.12404](https://arxiv.org/abs/2407.12404) | Generalization of Steering Vectors (Tan) | P11-FE823, P11-FE822, P11-FE821 | BLOCKED, READY |
+| [2407.12404](https://arxiv.org/abs/2407.12404) | Generalization of Steering Vectors (Tan) | P11-FE823, P11-FE821 | READY |
 | [2410.02707](https://arxiv.org/abs/2410.02707) | LLMs Know More Than They Show | P11-FE306, P11-FE305, P11-FE304, P11-FE303, P11-FE302, P11-FE301 | READY |
 | [2410.04707](https://arxiv.org/abs/2410.04707) | Learning How Hard to Think (Damani) | P11-FE311, P11-FE310, P11-FE309, P11-FE307, P10-FE3 | READY, TRIGGERED |
 | [2410.11042](https://arxiv.org/abs/2410.11042) | Persistent Topological Features in LLMs | P11-FE323, P11-FE322 | READY |
