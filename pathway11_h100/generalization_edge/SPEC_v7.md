@@ -284,6 +284,23 @@ consistency-when-budgeted) into a router over actions
   hull (the FE19 lesson) AND best single component (v6 combiner rule).
   Refutation (<1pp): the cascade-as-is ships as final; H-M result documented
   in `confgate`.
+- **H-M operating-point disambiguation (recorded 2026-06-12, BEFORE any
+  router code ran):** re-deriving the gap from cached data shows the spec's
+  two anchors describe different axes. The 11.2pp reproduces exactly as the
+  **accuracy gap to oracle at the matched-cost escalation-fraction-0.5
+  point** (free-gate cascade 0.6460 vs oracle ceiling 0.7580; oracle =
+  escalate exactly the 136/500 problems where 7B rescues, capped at 0.758),
+  NOT as a savings gap at the 90%-of-7B target (that gap is 36.4pp of
+  escalation fraction). **Primary H-M adjudication: paired accuracy delta
+  router-vs-cascade at matched cost = the esc-0.5 cascade point (cost
+  673.37 + 0.5×3094.69 token-FLOPs/problem), router policy strictly OOF on
+  the frozen 5-fold split, paired bootstrap B=2000; confirm iff Δ ≥ +3pp
+  with p<0.05, refute iff Δ < +1pp.** Secondary (reported, not
+  adjudicating): escalation-cost savings at the 90%-of-7B accuracy target.
+  All learned router components fit on train folds only; the action menu
+  and cost accounting come from `results/v7_frontier_table.json` (D-2
+  semantics: token-feature arms cost 0 extra; K-sample and P(True) arms
+  pay their measured token costs; escalation pays the 7B 4.7×/token cost).
 
 ---
 
@@ -408,6 +425,147 @@ consistency-when-budgeted) into a router over actions
   arms promote decisively (k8_agreement combined 0.9279, Δ+0.0789, p<0.001);
   cost adjudication deferred to 1b (H-J). Sidecar alignment corrs: bbh-pod
   0.9929, 7b-math-pod 0.9787, math-local 0.9985 — all pass the 0.90 gate.
+
+- **DEVIATION D-3 (discovered during Phase 2, after the G2 freeze below):**
+  `nocompute/cache/bbh_1p5b.npz` carries `n_gen_tokens` ALL-ZERO (v6 cache
+  artifact) — every v6/v7 BBH "free gate (length+logprob)" number was
+  logprob-only de facto, including the pinned 0.785 MATH→BBH anchor and the
+  1b BBH free gate 0.7823. Pinned artifacts stay untouched (anchors are
+  artifact numbers); the correction lives in
+  `results/v7_bbh_length_sensitivity.json`: honest gate with real (sidecar)
+  lengths = **0.8061** (+0.0238, p=0.076), length alone 0.8006, and the H-I
+  "winner" mean_token_entropy adds **−0.0004** over the honest gate — the
+  +0.0151 was a missing-length proxy. **Corrected adjudication: H-I HOLDS in
+  all dev cells under the honestly-computed free gate; the BBH-cell
+  refutation is reclassified as artifact-of-degenerate-gate.** The
+  free-gate thesis strengthens. Phase-2 H-L1/L2 keep the protocol-frozen
+  (degenerate) gate because their threshold (0.785) is the pinned anchor;
+  noted in their JSON's interpretation. T5 cells are unaffected (real
+  lengths verified by nonzero pinned length coefficients). Two honest-gate
+  ripples (same JSON): honest MATH→BBH zero-shot transfer = **0.8277** (the
+  pinned 0.785 understated cross-domain transfer by ~4pp), and the honest
+  H-L2 re-check **REFUTES refit no-harm** (pseudo-refit 0.6214 < frozen
+  0.6986 − 0.01; the protocol-frozen "pass" was vacuous because degenerate
+  2-feature refits collapse to the same logprob ranking).
+
+- **Phase 2 verdicts (EXP-87, `results/v7_phase2_pseudolabel.json`):**
+  **H-L1 REFUTED** on confirmatory web_of_lies (pseudo-τ coverage 0.284 vs
+  true-32 0.535 at +10pp target — pseudo-label noise 0.388 there; guards
+  caught it exactly as designed). **H-L2 vacuous under the pinned gate,
+  REFUTED under the honest gate** (D-3). **H-L3 CONFIRMED** — cross-model
+  pseudo-labels (7B greedy == 1.5B K=8 modal, precision 0.951) give
+  conformal validity ≥0.9 in all four live (ε,k) cells; label-free
+  cross-scale certificates are real. Deployment recipe for confgate: free
+  gate transfers zero-shot (honest 0.8277 MATH→BBH); for thresholds/refits
+  on a shifted domain use k=32 TRUE labels (pseudo-labels refuted); for
+  cross-scale certificates pseudo-labels suffice.
+
+- **DEVIATION D-4 (discovered during P1c pre-validation, before any T5
+  adjudication):** the SmolLM2 and OLMo-2 tokenizers do not round-trip
+  decode→encode on their own cached generations (exact re-encode match 66%
+  and 0%; OLMo-2 re-encodes ~7% longer), so teacher-forced rescoring from
+  cached texts is invalid for those families — their pod rescore sidecars
+  fail the pre-registered 0.90 alignment gate (corr 0.7865 / 0.0367) for a
+  *mechanical* reason, not signal absence. Gemma round-trips cleanly (corr
+  0.9998) and keeps the rescore path. Fix: a new pod task `genscore`
+  regenerates the T5 cells greedily and captures the token features
+  directly from the decoder's logits at generation time (no
+  re-tokenization). Faithfulness is validated by **text equality vs the
+  pinned cache** per row: non-matching rows are NaN'd (median-imputed
+  downstream, finite_fraction reported), and the alignment gate becomes
+  corr(gen-time mean logprob, cached mean_logprob) ≥ 0.90 on the matched
+  subset (`v7_pod_to_sidecar.convert_genscore`). The G2 freeze is
+  unaffected: same arms, same adjudication criteria, only the
+  feature-extraction mechanism for two families changed, recorded here
+  before seeing any T5 arm number.
+
+## Gate G2 — frozen T5 recipe (recorded 2026-06-12, BEFORE any T5 generation)
+
+Phase 1b verdicts driving the freeze (`results/v7_phase1b_costmatched.json`):
+**H-I REFUTED** in the qwen1.5b_bbh cell by token_mean_entropy (Δ+0.0151,
+p=0.0014, rel_cost 1.0); holds in both MATH cells. **H-J CONFIRMED** — K-
+majority loses to the cascade at every shared cost point, every coverage
+(Δ −0.15…−0.18, paired bootstrap p(K wins >1pp)=1.0); consistency joins the
+Phase-4 router as a *signal* only. P(True) format frozen by the pre-pinned
+1.5B-MATH-dev rule: **fmtB** ("True or False", 0.5381 > fmtA 0.5021); fmtA
+stays recorded as sensitivity. Verbalized: null on all dev cells (parse
+failure 0.00 everywhere).
+
+The one-shot confirmatory recipe (families SmolLM2-1.7B / Gemma-2-2b-it /
+OLMo-2-1B, MATH-500 cells, exactly one evaluation per arm):
+1. **Rescore pass** (one teacher-forced forward per problem): adjudicating
+   arm = free+mean_token_entropy combined. Because the H-I win is
+   BBH-domain-specific (entropy adds nothing on MATH dev), the T5 criterion
+   is **no-harm**: combined ≥ free − 0.01 per family. The BBH entropy win
+   itself is registered as a dev-cell claim; cross-family×cross-domain
+   confirmation is out of scope/budget. Other token arms reported
+   descriptively only. Alignment corr ≥ 0.90 required per family.
+2. **P(True)**: fmtB adjudicates (standalone + combined-with-free); fmtA
+   recorded (sensitivity).
+3. **Verbalized** binary + 0–100, frozen parse protocol (NaN→median, failure
+   rate reported); descriptive (dev nulls), adjudication only if some family
+   shows combined Δ≥+0.01 p<0.05 — which would *contradict* dev and be
+   flagged as such, not promoted.
+4. **K=8 T=0.7 seed 9999 on Gemma-2-2b ONLY** (pre-pinned in the spec before
+   any 1b result): k{2,4,8} agreement + cluster entropy, signal view vs
+   greedy correctness + majority-accuracy system view; grading LOCAL via the
+   canonical math grader. (`v7_runpod_arms.py --task k8t5 --model gemma`.)
+5. **Spectral-α: SKIPPED** (H-K refuted at 1a).
+6. Protocol per family: frozen 5-fold OOF, StandardScaler+LR(C=1.0,
+   max_iter=2000), DeLong for increments — identical to dev. No iteration,
+   no format/arm/threshold changes after this point.
+
+## Phase 1c verdict (EXP-86, `results/v7_phase1c_t5.json`, 2026-06-12)
+
+One shot, exactly as frozen at G2. **H-I HOLDS at T5 in all three held-out
+families**: no token arm, P(True) (either format), or verbalized arm adds
+≥+0.01 AUROC with p<0.05 anywhere. **The adjudicating entropy no-harm
+criterion passes all three families** (combined ≥ free − 0.01: smollm2
++0.0003, gemma +0.0025, olmo2 −0.0020). Free gate OOF AUROC: SmolLM2 0.8083,
+Gemma 0.8422, OLMo-2 0.8357 — the v6 cross-architecture pins reproduce
+through the v7 harness. Token-feature faithfulness: Gemma rescore corr
+0.9998; SmolLM2/OLMo-2 via D-4 genscore, matched-subset corr 0.9998 both,
+text-match (finite) fraction 0.250/0.272 — greedy regeneration under bs=8
+batching diverges from the pinned bs-differing cache on most 1024-token
+generations, so the SmolLM2/OLMo-2 token rows carry reduced power
+(75% median-imputed); the adjudication is unaffected (no-harm passes, and
+the *high-power* Gemma cell agrees with the dev nulls). Gemma K=8
+(pre-pinned family): the consistency *signal* view replicates the dev
+pattern out-of-family (k8_agreement Δ+0.0545, p<0.001 over the free gate)
+while the *system* view replicates the H-J economics — K=8 majority 0.264
+vs greedy 0.256, +0.8pp for 8× the tokens vs the cascade's much larger
+matched-cost gain. Verdict: the v7 bake-off ends with the free gate
+unbeaten at ≤1.05× cost on dev AND confirmatory tiers; consistency remains
+a strong *signal* whose honest *use* is dominated by escalation.
+
+## Phase 4 verdict (EXP-89, `results/v7_phase4_router.json`, 2026-06-12)
+
+**H-M REFUTED** (Δ −0.40pp < +1pp): at the matched-cost esc-0.5 point the
+nested-OOF router (inner 5-fold policy selection over rich-gate /
+rescue-ranker / two-model / K=2-band) lands at 0.6440 vs the free-gate
+cascade's 0.6480 (paired bootstrap p(Δ≤0)=0.68; oracle 0.7580, random-mix
+hull 0.6090). Every K=2-band allocation is strictly worse (probe tokens eat
+escalation budget; acc falls monotonically in probe fraction f). Secondary
+90%-of-7B view: rescue-ranking does not beat free-gate ordering on
+escalation cost either (0.552 vs 0.538; oracle 0.174). **The cascade-as-is
+ships as final** (pre-registered consequence).
+
+**PRM descriptive row (resolves P11-FE403's comparator question):**
+Qwen2.5-Math-PRM-7B is an excellent *verifier* — prm_mean standalone AUROC
+0.9396, combined-with-free 0.9508 (Δ+0.1018, p<1e-4) — but costs 1.042× a
+full 7B escalation per scored transcript, so it is cost-dominated as a
+*routing* signal under the frozen menu. Two exploratory blocks (labeled
+NOT-H-M in the JSON) close the loophole: (a) PRM-banded cascade at true
+cost is strictly worse at every probe fraction (0.518–0.606 < 0.648);
+(b) even re-costed hypothetically at 1.5B scale (0.223× escalation) while
+keeping the 7B AUROC — an upper bound no real small PRM reaches — the band
+never beats the plain cascade (best 0.630). **General closure: at matched
+cost, no probe in the menu (K-sample, P(True), PRM) beats spending the
+same tokens on escalation itself; the binding constraint is rescue
+density, not ranking quality** — the gate cannot know which 1.5B failures
+the 7B will also fail (121/257 failures are unrescuable), and probes only
+sharpen P(1.5B wrong), not P(7B rescues). No cheap-PRM follow-up FE is
+warranted on this evidence.
 
 ## Single biggest risk (named so execution doesn't drift)
 

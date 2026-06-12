@@ -93,9 +93,22 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-**EXP-81/82 (Generalization-First Edge Program, SPEC v6) — free length+logprob baseline is the most GENERALIZING correctness readout; geometry fully closed; cross-model cascade revived.** Local, Qwen 1.5B/7B + SmolLM2-1.7B held-out, MATH+BBH. Harness `pathway11_h100/generalization_edge/` (15/15 anchors). length+logprob: T1 LOCO 0.845, T3 cross-scale 0.865, and **held-out T5 ≥ 0.70 on THREE families, cross-architecture — SmolLM2-1.7B (near/Llama 0.810), Gemma-2-2b-it (far 0.844), OLMo-2-1B (far 0.838), all PASS** — the shippable, zero-activation model-agnostic gate. No hidden-state geometry adds portable value: raw CoE +1.75pp in-domain (hidden-dim-bound), depth-grid n.s./≤0.63 (**H-C**), prompt-cloud 0.694 < prompt-length 0.706 (**H-E refuted**); geometry fully closed. New free Tier-A signal: prompt-length 0.71. Applied: hybrid 1.5B→7B cascade beats FE19 hull +3.38pp (sig); reranking (H-F), early-abort (H-G) refuted; conformal valid in-domain, collapses under shift (H-H); Phase-4 recalibration restores a guarantee zero-shot cross-scale but not cross-domain (task accuracy is the ceiling). Re-pins F-8 readout (→length+logprob), extends F-2 (transfer ceiling; geometry hidden-dim-bound). Full Phase 2/3/4 record `pathway11_h100/generalization_edge/RESULTS_v6_phase234.md`. Far-family T5 closed (Gemma+OLMo-2, H100 follow-on); open: cross-scale arm-2A (GPU-blocked, moot).
-
----
+**EXP-84..89 (SPEC v7 "Ship the Gate, Then Try to Beat It") — confgate
+shipped; every challenger lost at matched cost; escalation beats
+introspection.** `confgate/` pip package (free gate + cascade + cross-scale
+certs + preflight) built from pinned v6 results, then attacked: token-level
+features, P(True), verbalized, K-consistency, spectral-α, PRM-7B, pseudo-label
+adaptation, learned router — none beats the free gate at ≤1.05× cost on dev
+or confirmatory T5 (SmolLM2 0.808 / Gemma 0.842 / OLMo-2 0.836), and no probe
+beats spending the same tokens on 1.5B→7B escalation (H-J, H-M, PRM: 0.94
+AUROC verifier but 1.042× escalation cost; 47% of failures unrescuable).
+Honest-cache corrections STRENGTHEN the gate: BBH in-domain 0.782→0.806,
+MATH→BBH transfer 0.785→0.828 (D-3). Pseudo-labels: refuted for
+thresholds/refits (k=32 true labels is the recipe), confirmed for
+cross-scale certificates (precision 0.951). Spectral-α closed permanently.
+Cascade-as-is ships as final. Claims 223→245 internal PASS (+22 edge-v7-*). Artifacts:
+`generalization_edge/results/v7_*.json`, SPEC_v7.md (G2 freeze, D-1..D-4),
+`confgate/`.
 
 ## Addendum — Phase 2/3/4 executed (EXP-82, 2026-06-11, local 2060)
 

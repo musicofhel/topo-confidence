@@ -152,6 +152,13 @@ def load_payload(model_key: str, cell: str) -> list[dict]:
     return rows
 
 
+def _dtype_kw():
+    """transformers v5 renamed from_pretrained's torch_dtype -> dtype."""
+    import transformers
+    return ("dtype" if int(transformers.__version__.split(".")[0]) >= 5
+            else "torch_dtype")
+
+
 def load_model(key: str):
     from transformers import AutoModelForCausalLM, AutoTokenizer
     name = MODELS[key]
@@ -159,8 +166,8 @@ def load_model(key: str):
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(
-        name, dtype=torch.bfloat16, attn_implementation="sdpa",
-        device_map="cuda").eval()
+        name, attn_implementation="sdpa",
+        device_map="cuda", **{_dtype_kw(): torch.bfloat16}).eval()
     print(f"loaded {name} (bf16, sdpa)", flush=True)
     return model, tok
 
@@ -427,18 +434,158 @@ def task_k8bbh(model_key: str = "qwen1.5b", limit=None, K=8, temp=0.7,
 
 
 # ---------------------------------------------------------------------------
+# Task: genscore — greedy regenerate a T5 cell capturing per-token features
+# DIRECTLY from the decoder's logits (no re-tokenization). Deviation D-4 fix
+# for families whose tokenizer does not round-trip decode->encode (SmolLM2
+# 66%, OLMo-2 0% exact). Faithfulness is validated locally by text equality
+# vs the pinned cache instead of the rescore alignment corr.
+# ---------------------------------------------------------------------------
+
+@torch.inference_mode()
+def task_genscore(model_key: str, limit=None, bs=8, max_new=1024):
+    model, tok = load_model(model_key)
+    tok.padding_side = "left"
+    items = load_payload(model_key, "t5")[:limit]
+    eos = eos_ids(tok)
+    eos_set = set(eos)
+    cols = {k: [] for k in ("min_lp", "p10_lp", "mean_entropy",
+                            "mean_top2_margin", "ans_span_lp",
+                            "mean_lp_rescored", "n_gen", "n_prompt",
+                            "text", "text_match")}
+    t0 = time.time()
+    for s in range(0, len(items), bs):
+        batch = items[s:s + bs]
+        prompts = [gen_prompt(tok, it, "t5") for it in batch]
+        enc = tok(prompts, return_tensors="pt", padding=True).to("cuda")
+        plen = enc.input_ids.shape[1]
+        out = model.generate(**enc, max_new_tokens=max_new, do_sample=False,
+                             pad_token_id=tok.pad_token_id, eos_token_id=eos,
+                             output_scores=True, return_dict_in_generate=True)
+        steps = torch.stack(out.scores, dim=1)        # (b, T, V) logits
+        new = out.sequences[:, plen:]
+        for b, it in enumerate(batch):
+            ids = new[b].tolist()
+            cut = len(ids)
+            for j, t in enumerate(ids):
+                if t in eos_set:
+                    cut = j
+                    break
+            cols["n_prompt"].append(int(enc.attention_mask[b].sum()))
+            cols["n_gen"].append(cut)
+            text = tok.decode(new[b, :cut], skip_special_tokens=True)
+            cols["text"].append(text)
+            cols["text_match"].append(text == it["text"])
+            if cut == 0:
+                for k in ("min_lp", "p10_lp", "mean_entropy",
+                          "mean_top2_margin", "ans_span_lp",
+                          "mean_lp_rescored"):
+                    cols[k].append(float("nan"))
+                continue
+            logits = steps[b, :cut].float()
+            logp = torch.log_softmax(logits, dim=-1)
+            lps = logp.gather(1, new[b, :cut, None])[:, 0].cpu().numpy()
+            prob = logp.exp()
+            ents = -(prob * logp).sum(-1).cpu().numpy()
+            top2 = logits.topk(2, dim=-1).values
+            marg = (top2[:, 0] - top2[:, 1]).cpu().numpy()
+
+            # answer-span tokens: walk back until the decoded suffix covers
+            # the last \boxed{...} (approximate span; descriptive arm only)
+            ans_lp = float("nan")
+            span = math_answer_span(text)
+            if span is not None:
+                jlo = cut
+                for j in range(cut - 1, max(-1, cut - 220), -1):
+                    suf = tok.decode(new[b, j:cut], skip_special_tokens=True)
+                    jlo = j
+                    if len(suf) >= len(text) - span[0]:
+                        break
+                if jlo < cut:
+                    ans_lp = float(lps[jlo:].mean())
+            k10 = max(1, int(np.ceil(0.10 * cut)))
+            cols["min_lp"].append(float(lps.min()))
+            cols["p10_lp"].append(float(np.sort(lps)[:k10].mean()))
+            cols["mean_entropy"].append(float(ents.mean()))
+            cols["mean_top2_margin"].append(float(marg.mean()))
+            cols["ans_span_lp"].append(ans_lp)
+            cols["mean_lp_rescored"].append(float(lps.mean()))
+        del steps, out
+        done = min(s + bs, len(items))
+        el = time.time() - t0
+        print(f"  {done}/{len(items)} ({el/done:.1f}s/p, "
+              f"ETA {(len(items)-done)*el/done/60:.0f} min)", flush=True)
+    match = float(np.mean(cols["text_match"]))
+    print(f"text match vs cache: {match:.3f}", flush=True)
+    dump({"task": "genscore", "model": model_key, "cell": "t5",
+          "text_match_frac": match, "y": [it["y"] for it in items],
+          "cached_mean_logprob": [it["cached_mean_logprob"] for it in items],
+          "cost_tokens_generated": int(np.sum(cols["n_gen"])), **cols},
+         f"v7_genscore_{model_key}_t5.json.gz")
+
+
+# ---------------------------------------------------------------------------
+# Task: K=8 T=0.7 sampling on a T5 family's MATH cell (P1c; pre-pinned: Gemma
+# only). Math grading is NOT done pod-side — texts + boxed strings are stored
+# and graded locally with the canonical pathway8 grader.
+# ---------------------------------------------------------------------------
+
+@torch.inference_mode()
+def task_k8t5(model_key: str, limit=None, K=8, temp=0.7, seed=9999, bs=8):
+    torch.manual_seed(seed)
+    model, tok = load_model(model_key)
+    tok.padding_side = "left"
+    items = load_payload(model_key, "t5")[:limit]
+    eos = eos_ids(tok)
+    out_rows = []
+    t0 = time.time()
+    for s in range(0, len(items), bs):
+        batch = items[s:s + bs]
+        prompts = [gen_prompt(tok, it, "t5") for it in batch]
+        enc = tok(prompts, return_tensors="pt", padding=True).to("cuda")
+        plen = enc.input_ids.shape[1]
+        gen = model.generate(**enc, max_new_tokens=1024, do_sample=True,
+                             temperature=temp, top_p=1.0,
+                             num_return_sequences=K,
+                             pad_token_id=tok.pad_token_id, eos_token_id=eos)
+        new = gen[:, plen:].reshape(len(batch), K, -1)
+        for b, it in enumerate(batch):
+            texts = [tok.decode(new[b, k], skip_special_tokens=True)
+                     for k in range(K)]
+            out_rows.append({"idx": it["idx"], "answer": it["answer"],
+                             "y_greedy": it["y"], "texts": texts,
+                             "boxed": [extract_boxed(t) for t in texts],
+                             "n_gen": [int((new[b, k] != tok.pad_token_id)
+                                           .sum()) for k in range(K)]})
+        done = min(s + bs, len(items))
+        el = time.time() - t0
+        print(f"  {done}/{len(items)} ({el/done:.1f}s/p, "
+              f"ETA {(len(items)-done)*el/done/60:.0f} min)", flush=True)
+    total = int(sum(sum(r["n_gen"]) for r in out_rows))
+    dump({"task": "k8t5", "model": model_key, "K": K, "temperature": temp,
+          "seed": seed, "cost_tokens_generated": total,
+          "grading": "local (pathway8 canonical grader)", "rows": out_rows},
+         f"v7_k8t5_{model_key}.json.gz")
+
+
+# ---------------------------------------------------------------------------
 # Task: PRM (optional) — Qwen2.5-Math-PRM-7B on cached 1.5B MATH generations
 # ---------------------------------------------------------------------------
 
 @torch.inference_mode()
 def task_prm(limit=None):
-    from transformers import AutoModel, AutoTokenizer
+    from transformers import AutoConfig, AutoModel, AutoTokenizer
     name = MODELS["prm7b"]
     tok = AutoTokenizer.from_pretrained(name, trust_remote_code=True)
-    model = AutoModel.from_pretrained(name, dtype=torch.bfloat16,
+    # transformers v5 configs drop pad_token_id but the RM remote code reads
+    # it at __init__; set it on the config object (a from_pretrained kwarg
+    # would be forwarded to the model class, which rejects it)
+    cfg = AutoConfig.from_pretrained(name, trust_remote_code=True)
+    cfg.pad_token_id = tok.pad_token_id
+    model = AutoModel.from_pretrained(name, config=cfg,
                                       attn_implementation="sdpa",
                                       device_map="cuda",
-                                      trust_remote_code=True).eval()
+                                      trust_remote_code=True,
+                                      **{_dtype_kw(): torch.bfloat16}).eval()
     print(f"loaded {name}", flush=True)
     items = load_payload("qwen1.5b", "math")[:limit]
     sep = "<extra_0>"
@@ -478,7 +625,8 @@ def task_prm(limit=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--task", required=True,
-                    choices=["rescore", "ptrue", "verbalized", "k8bbh", "prm"])
+                    choices=["rescore", "ptrue", "verbalized", "k8bbh",
+                             "k8t5", "genscore", "prm"])
     ap.add_argument("--model", default="qwen1.5b")
     ap.add_argument("--cell", default="math", choices=["math", "bbh", "t5"])
     ap.add_argument("--limit", type=int, default=None)
@@ -491,6 +639,10 @@ def main():
         task_verbalized(args.model, args.cell, args.limit)
     elif args.task == "k8bbh":
         task_k8bbh(args.model, args.limit)
+    elif args.task == "k8t5":
+        task_k8t5(args.model, args.limit)
+    elif args.task == "genscore":
+        task_genscore(args.model, args.limit)
     elif args.task == "prm":
         task_prm(args.limit)
     return 0

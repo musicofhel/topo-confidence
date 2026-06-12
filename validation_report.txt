@@ -1,10 +1,10 @@
-# validate_claims.py — 258 claims
-PASS:           214
+# validate_claims.py — 289 claims
+PASS:           245
 FAIL:           0
 MISSING/ERROR:  0
 REGISTERED:     41  (external paper anchors, no project readback)
 PENDING_FE:     3  (forward-looking thresholds, become live after FE result JSON lands)
-REGEN (Tier-1): 127 pass / 0 fail / 0 skip-no-data / 0 other (of 127 annotated)
+REGEN (Tier-1): 123 pass / 0 fail / 0 skip-no-data / 4 other (of 127 annotated)
 (of which: 21 use the superseded 256-tok label scheme and should be re-baselined against 1024-tok if cited as current)
 
 ID                            labels              result                  regen                   expected        actual            description                                       file                                                        
@@ -45,10 +45,10 @@ fe299-n-scored                1024tok             PASS                    REGEN_
 fe101-auroc-raw               1024tok             PASS                    REGEN_PASS              0.7705          0.770476          FE101 raw DoM AUROC (5-fold OOF, sanity anchor)   pathway11_h100/leace_erasure/results.json                   
 fe101-auroc-erased            1024tok             PASS                    REGEN_PASS              0.5             0.5               FE101 LEACE-erased DoM AUROC = 0.5000 (perfect l  pathway11_h100/leace_erasure/results.json                   
 fe101-collapse-pp             1024tok             PASS                    REGEN_PASS              0.2705          0.270476          FE101 LEACE AUROC collapse = 0.2705 (raw − erase  pathway11_h100/leace_erasure/results.json                   
-fe115-cos-raw                 1024tok             PASS                    REGEN_PASS              -0.0617         -0.061728         FE115 raw cos(prefill_DoM, final_DoM) on pathway  pathway11_h100/song_zhong/results.json                      
-fe115-cos-resid               1024tok             PASS                    REGEN_PASS              0.0008          0.000784997       FE115 Song-Zhong residualized cos(prefill_DoM, f  pathway11_h100/song_zhong/results.json                      
-fe115-auroc-prefill-resid     1024tok             PASS                    REGEN_PASS              0.8016          0.801572          FE115 prefill DoM AUROC on residuals = 0.8016 (+  pathway11_h100/song_zhong/results.json                      
-fe115-auroc-final-resid       1024tok             PASS                    REGEN_PASS              0.6865          0.686538          FE115 final-token DoM AUROC on residuals = 0.686  pathway11_h100/song_zhong/results.json                      
+fe115-cos-raw                 1024tok             PASS                    REGEN_TIMEOUT           -0.0617         -0.061728         FE115 raw cos(prefill_DoM, final_DoM) on pathway  pathway11_h100/song_zhong/results.json                      
+fe115-cos-resid               1024tok             PASS                    REGEN_TIMEOUT           0.0008          0.000784997       FE115 Song-Zhong residualized cos(prefill_DoM, f  pathway11_h100/song_zhong/results.json                      
+fe115-auroc-prefill-resid     1024tok             PASS                    REGEN_TIMEOUT           0.8016          0.801572          FE115 prefill DoM AUROC on residuals = 0.8016 (+  pathway11_h100/song_zhong/results.json                      
+fe115-auroc-final-resid       1024tok             PASS                    REGEN_TIMEOUT           0.6865          0.686538          FE115 final-token DoM AUROC on residuals = 0.686  pathway11_h100/song_zhong/results.json                      
 fe181-mean-logp-15b           1024tok             PASS                    REGEN_PASS              0.6721          0.672063          FE181 mean log-prob AUROC (1.5B) = 0.6721 (< F-2  pathway11_h100/token_prob/results.json                      
 fe181-sum-logp-15b            1024tok             PASS                    REGEN_PASS              0.8478          0.847753          FE181 sum log-prob AUROC (1.5B) = 0.8478 (length  pathway11_h100/token_prob/results.json                      
 fe181-joint-meanlogp-dom-15b  1024tok             PASS                    REGEN_PASS              0.7836          0.783574          FE181 joint [mean_logp, prefill_DoM_proj] AUROC   pathway11_h100/token_prob/results.json                      
@@ -217,6 +217,37 @@ scratch-rc-auroc              256tok_NEW          PASS                    —   
 scratch-rc-aurc               256tok_NEW          PASS                    —                       0.634604        0.634604          Pathway10 rc 5fold AURC = 0.6346                  scratch/pathway10_rc_5fold_results.json                     
 scratch-temporal-prefill      256tok_NEW          PASS                    —                       0.392104        0.392104          Pathway10 temporal prefill AUROC (old) = 0.3921   scratch/pathway10_temporal_and_verifier_results.json        
 scratch-temporal-cos-prefill  256tok_NEW          PASS                    —                       0.0461963       0.0461963         Old prefill vs final DoM cosine = 0.046           scratch/pathway10_temporal_and_verifier_results.json        
+edge-v6-t5-smollm2-free       1024tok             PASS                    —                       0.809693        0.809693          SmolLM2-1.7B held-out free baseline (len+logprob  pathway11_h100/generalization_edge/results/phase3_t5_free_ba
+edge-v6-t5-smollm2-len        1024tok             PASS                    —                       0.781326        0.781326          SmolLM2-1.7B held-out length-only OOF AUROC 0.78  pathway11_h100/generalization_edge/results/phase3_t5_free_ba
+edge-v6-t5-gemma-free         1024tok             PASS                    —                       0.843918        0.843918          Gemma-2-2b-it far-family held-out free baseline   pathway11_h100/generalization_edge/results/phase3_t5_free_ba
+edge-v6-t5-gemma-logp         1024tok             PASS                    —                       0.755838        0.755838          Gemma-2-2b-it far-family logprob-only OOF AUROC   pathway11_h100/generalization_edge/results/phase3_t5_free_ba
+edge-v6-t5-olmo2-free         1024tok             PASS                    —                       0.838223        0.838223          OLMo-2-1B far-family held-out free baseline (len  pathway11_h100/generalization_edge/results/phase3_t5_free_ba
+edge-v6-arm2a-promptlen       1024tok             PASS                    —                       0.705585        0.705585          arm-2A prompt-length pre-flight (Tier-A) OOF AUR  pathway11_h100/generalization_edge/results/phase2_arm2a.json
+edge-v6-arm2a-gate-null       1024tok             PASS                    —                       -0.00959953     -0.00959953       arm-2A prompt-cloud+len vs prompt-len gate delta  pathway11_h100/generalization_edge/results/phase2_arm2a.json
+edge-v6-p4-crossscale-ceilin  1024tok             PASS                    —                       0.898601        0.898601          Phase4 1.5B->7B free-baseline in-domain ceiling   pathway11_h100/generalization_edge/results/phase4_recalibrat
+edge-v6-p4-crossscale-confor  1024tok             PASS                    —                       1               1                 Phase4 1.5B->7B k=64 conformal eps=0.2 validity   pathway11_h100/generalization_edge/results/phase4_recalibrat
+edge-v7-1a-free-math          1024tok             PASS                    —                       0.849018        0.849018          v7 dev free gate (len+logprob) 1.5B MATH OOF AUR  pathway11_h100/generalization_edge/results/v7_phase1a.json  
+edge-v7-1a-free-bbh           1024tok             PASS                    —                       0.782307        0.782307          v7 dev free gate 1.5B BBH OOF AUROC 0.782 (de fa  pathway11_h100/generalization_edge/results/v7_phase1a.json  
+edge-v7-1a-hk-delta           1024tok             PASS                    —                       -0.0205681      -0.0205681        H-K REFUTED: prefill-alpha+length vs length-only  pathway11_h100/generalization_edge/results/v7_phase1a.json  
+edge-v7-1a-hk-p               1024tok             PASS                    —                       0.0167389       0.0167389         H-K refutation DeLong p=0.017 (significant harm)  pathway11_h100/generalization_edge/results/v7_phase1a.json  
+edge-v7-1b-hi-bbh-entropy-de  1024tok             PASS                    —                       0.0150502       0.0150502         Phase1b pinned-gate H-I refuter: mean_token_entr  pathway11_h100/generalization_edge/results/v7_phase1b_costma
+edge-v7-1b-hj-k8-majority     1024tok             PASS                    —                       0.554           0.554             H-J: K=8 majority accuracy 0.554 at full-escalat  pathway11_h100/generalization_edge/results/v7_phase1b_costma
+edge-v7-1b-hj-cascade-at-k8-  1024tok             PASS                    —                       0.732           0.732             H-J comparator: cascade accuracy 0.732 at the K=  pathway11_h100/generalization_edge/results/v7_phase1b_costma
+edge-v7-1b-ptrue-fmtB         1024tok             PASS                    —                       0.538142        0.538142          P(True) fmtB 1.5B MATH dev standalone AUROC 0.53  pathway11_h100/generalization_edge/results/v7_phase1b_costma
+edge-v7-d3-honest-bbh         1024tok             PASS                    —                       0.806057        0.806057          D-3 honest BBH free gate (real sidecar lengths)   pathway11_h100/generalization_edge/results/v7_bbh_length_sen
+edge-v7-d3-honest-transfer    1024tok             PASS                    —                       0.82769         0.82769           D-3 honest MATH->BBH zero-shot transfer AUROC 0.  pathway11_h100/generalization_edge/results/v7_bbh_length_sen
+edge-v7-d3-entropy-honest     1024tok             PASS                    —                       -0.000378681    -0.000378681      H-I HOLDS honest: mean_token_entropy adds -0.000  pathway11_h100/generalization_edge/results/v7_bbh_length_sen
+edge-v7-2-hl1-noise-wol       1024tok             PASS                    —                       0.388           0.388             H-L1 REFUTED: K=8 pseudo-label noise rate 0.388   pathway11_h100/generalization_edge/results/v7_phase2_pseudol
+edge-v7-2-hl3-precision       1024tok             PASS                    —                       0.950943        0.950943          H-L3 CONFIRMED: cross-model pseudo-label precisi  pathway11_h100/generalization_edge/results/v7_phase2_pseudol
+edge-v7-4-cascade-acc         1024tok             PASS                    —                       0.648           0.648             Phase4 operating point: free-gate cascade OOF ac  pathway11_h100/generalization_edge/results/v7_phase4_router.
+edge-v7-4-hm-delta            1024tok             PASS                    —                       -0.004          -0.004            H-M REFUTED: nested-OOF router delta vs cascade   pathway11_h100/generalization_edge/results/v7_phase4_router.
+edge-v7-4-prm-auroc           1024tok             PASS                    —                       0.939601        0.939601          PRM-7B prm_mean standalone AUROC 0.940 on 1.5B M  pathway11_h100/generalization_edge/results/v7_phase4_router.
+edge-v7-4-prm-relcost         1024tok             PASS                    —                       1.04191         1.04191           PRM-7B scoring costs 1.042x a full 7B escalation  pathway11_h100/generalization_edge/results/v7_phase4_router.
+edge-v7-t5-smollm2-free       1024tok             PASS                    —                       0.808318        0.808318          P1c confirmatory: SmolLM2 free gate OOF 0.808 th  pathway11_h100/generalization_edge/results/v7_phase1c_t5.jso
+edge-v7-t5-gemma-free         1024tok             PASS                    —                       0.842238        0.842238          P1c confirmatory: Gemma free gate OOF 0.842 thro  pathway11_h100/generalization_edge/results/v7_phase1c_t5.jso
+edge-v7-t5-olmo2-free         1024tok             PASS                    —                       0.835719        0.835719          P1c confirmatory: OLMo-2 free gate OOF 0.836 thr  pathway11_h100/generalization_edge/results/v7_phase1c_t5.jso
+edge-v7-t5-hi-holds           1024tok             PASS                    —                       True            True              H-I HOLDS at confirmatory T5: no arm beats the f  pathway11_h100/generalization_edge/results/v7_phase1c_t5.jso
+edge-v7-t5-k8-signal          1024tok             PASS                    —                       0.0544775       0.0544775         Gemma K=8 agreement signal replicates out-of-fam  pathway11_h100/generalization_edge/results/v7_phase1c_t5.jso
 ext-2205.14334-verb-mse       external_anchor     REGISTERED              —                       22              None              2205.14334 Tbl1: verbalized finetune MSE 22.0 (M                                                              
 ext-2205.14334-indirect-logi  external_anchor     REGISTERED              —                       11.7            None              2205.14334 Tbl1: indirect-logit finetune MSE 11.                                                              
 ext-2205.14334-answer-logit-  external_anchor     REGISTERED              —                       10.4            None              2205.14334 Tbl1: answer-logit zero-shot MSE 10.4                                                              
@@ -268,11 +299,28 @@ fwd-h71-dom-stability         forward_looking     PENDING_FE              —   
 fwd-h72-bucket-migration      forward_looking     PENDING_FE              —                       0.33            None              H-72 threshold: D→{A,B} migration ≥ 33%, A→D ≤ 1                                                              
 fwd-h73-namedcue-acc-gain     forward_looking     PENDING_FE              —                       2               None              H-73 threshold: K=1 accuracy on named-cue subset                                                              
 
+## Tier-1 regen issues (committed JSON ↔ recomputation drift)
+
+- [fe115-cos-raw] REGEN_TIMEOUT: FE115 raw cos(prefill_DoM, final_DoM) on pathway8 L19 cache = -0.0617
+    regen: python pathway11_h100/song_zhong/recompute_fe115.py
+    expected: -0.0617  regen_actual: None
+- [fe115-cos-resid] REGEN_TIMEOUT: FE115 Song-Zhong residualized cos(prefill_DoM, final_DoM) = 0.0008 (≈0; F-3 reinforced)
+    regen: python pathway11_h100/song_zhong/recompute_fe115.py
+    expected: 0.0008  regen_actual: None
+- [fe115-auroc-prefill-resid] REGEN_TIMEOUT: FE115 prefill DoM AUROC on residuals = 0.8016 (+3pp vs raw 0.7705)
+    regen: python pathway11_h100/song_zhong/recompute_fe115.py
+    expected: 0.8016  regen_actual: None
+- [fe115-auroc-final-resid] REGEN_TIMEOUT: FE115 final-token DoM AUROC on residuals = 0.6865
+    regen: python pathway11_h100/song_zhong/recompute_fe115.py
+    expected: 0.6865  regen_actual: None
+
 ## Claims with superseded/outdated notes
 
 - [p9-abc44-holdout-raw] labels=256tok_NEW: SUPERSEDED: computed against 104/500 NEW labels; 1024-tok re-run gives prefill+final DoM ≈0.794
 - [p9-abc44-holdout-deconfounded] labels=256tok_NEW: SUPERSEDED: length-confound was feature-engineering residue; raw residual-stream DoM is not length-confounded (cos=-0.09)
 - [scratch-temporal-prefill] labels=256tok_NEW: SUPERSEDED: reversal was label-distribution artifact at 104/500 correct
+- [edge-v7-1a-free-bbh] labels=1024tok: D-3: cache n_gen_tokens degenerate; honest gate is edge-v7-d3-honest-bbh
+- [edge-v7-1b-hi-bbh-entropy-delta] labels=1024tok: superseded by edge-v7-d3-entropy-honest: -0.0004 over honest gate
 - [ext-2205.14334-verb-mse] labels=external_anchor: Lin et al. 2205.14334 Table 1
 - [ext-2205.14334-indirect-logit-mse] labels=external_anchor: Lin et al. 2205.14334 Table 1
 - [ext-2205.14334-answer-logit-zeroshot-mse] labels=external_anchor: Lin et al. 2205.14334 Table 1

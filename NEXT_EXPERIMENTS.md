@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-12 03:05 UTC_
+_Generated: 2026-06-12 07:16 UTC_
 
 ---
 
@@ -640,18 +640,6 @@ _Generated: 2026-06-12 03:05 UTC_
 **Would update:** F-9, F-8, F-2
 **Trigger condition:** If P(True) WQD on Qwen-2.5-1.5B / MATH-500 matches or exceeds prefill DoM WQD, F-2's framing needs re-anchoring; if P(True) is dominated by prefill DoM, F-2 is reinforced and we have a strong novelty claim.
 
-### P11-FE403 (P11) — [ROI: 9, READY, HIGH]
-
-**What:** PRM-vs-DoM AUROC bake-off. Score the 500 cached P11 K=1 MATH-500 generations on Qwen2.5-1.5B and Qwen2.5-7B with Qwen2.5-Math-PRM-7B (per-step score, aggregated by PRM-Min/Last/Avg). Compute AUROC vs gold K=1-correctness. Compare against F-2's prefill L19 DoM AUROC (0.7731 on 1.5B, ~0.876 on 7B) and CoE-60 baseline. Three numbers per model: DoM, CoE-60, PRM.
-
-**Why:** Refutation R1 + R3. Tests whether F-2's prefill DoM is the dominant correctness signal, or whether a learned trajectory-aware verifier dominates it on the same trajectories.
-
-**Cost:** 30min H100 (PRM forward pass on cached gens) + 10min CPU
-**Triggered by:** [Can 1B Surpass 405B](https://arxiv.org/abs/2502.06703)
-**Depends on:** F-9, F-2
-**Would update:** F-9, F-2
-**Trigger condition:** Liu et al. 2502.06703 — PRM-guided BoN drives Qwen2.5-7B-Inst from 76.8% to 91.0% on MATH-500.
-
 ### P11-FE411 (P11) — [ROI: 9, READY, HIGH]
 
 **What:** Replicate EKBM (Zheng et al. 2503.02233) on Qwen2.5-1.5B-Instruct / MATH-500 using ≤1k SFT + 2k DPO samples (α₁=0.25, α₂=0.75, DPO Post Training variant). Generate sure/unsure tags via self-sampling i=4 (no ground truth). Compute Quality-Accuracy and sure-Accuracy at sure-Coverage=0.5; compare directly against F-8's 71.6% at coverage 0.5. Includes sanity-check column on Qwen2.5-7B for cross-scale parity.
@@ -663,18 +651,6 @@ _Generated: 2026-06-12 03:05 UTC_
 **Depends on:** F-2, F-8
 **Would update:** F-8
 **Trigger condition:** EKBM paper's Quality-Acc 92.73 on GSM8K-CoT with Qwen2.5-7B + 1k SFT — direct competitor to F-8 at the same model family.
-
-### P11-FE412 (P11) — [ROI: 9, READY, HIGH]
-
-**What:** Self-consistency-as-label-generator selective prediction on Qwen2.5-1.5B / MATH-500. For each problem, sample i ∈ {2, 4, 8} additional generations from the un-aligned base; build a sure/unsure flag from agreement rate. Compute selective-prediction accuracy at coverage 0.5 from this behavioral flag alone, with no fine-tuning and no hidden-state extraction. Compare against F-8's 71.6%.
-
-**Why:** Decouples EKBM's two confounded contributions (self-consistency labeling vs SFT/DPO encoding). If pure self-consistency-flag selective prediction already matches or beats prefill-DoM, then F-8's geometric story is largely a restatement of behavioral consistency — and F-4's asymmetric collapse may be a downstream geometric reflection of consistency rather than an independent signal (refutation #4).
-
-**Cost:** 30min H100 to regenerate K=4 on MATH-500 if not cached, then 10min CPU for AUROC + coverage curves
-**Triggered by:** [Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling](https://arxiv.org/abs/2503.02233)
-**Depends on:** F-4, F-2, F-8
-**Would update:** F-8, F-4
-**Trigger condition:** EKBM's SFT data construction (§3.2) showing self-sampling alone produces a usable supervision signal.
 
 ### P11-FE431 (P11) — [ROI: 9, READY, HIGH]
 
@@ -14698,6 +14674,32 @@ _Generated: 2026-06-12 03:05 UTC_
 **Trigger condition:** Paper 2410.11042 publishes positive zigzag-PH results without a Gaussian null and uses the result for a layer-pruning criterion.
 **Outcome:** F-10 holds in its narrow topology form; trajectory shape carries geometric signal that's not topology. The canonical zigzag descriptors B_1 and bar_Z_1 are *structurally zero* on the 28-point real trajectory in 1536-d (paths don't form loops at native scale): real B_1 = 0.002 vs null B_1 = 5.4; real bar_Z_1 = 0.000 vs null bar_Z_1 = 8.5. Classifier on B_1+bar_Z_1 only: real AUROC 0.4952 ≈ null 0.5611 (gap −0.066). On the full 7-descriptor set (adding H_0_max_lifetime, H_0_total_lifetime, H_0_entropy, step_max, step_std): real AUROC 0.7156 vs null 0.6188 (gap +0.097). The signal is in H_0_max_lifetime (real 156 vs null 76 — 2× longer dominant H_0 bar) and H_0_total_lifetime (real 864 vs null 1163), not in H_1 cycles. AUROC 0.7156 < F-2 prefill DoM 0.7731 — the trajectory descriptor probe is real but does not displace F-2.
 
+### P11-FE403 (P11) — [ROI: 9, COMPLETED, HIGH]
+
+**What:** PRM-vs-DoM AUROC bake-off. Score the 500 cached P11 K=1 MATH-500 generations on Qwen2.5-1.5B and Qwen2.5-7B with Qwen2.5-Math-PRM-7B (per-step score, aggregated by PRM-Min/Last/Avg). Compute AUROC vs gold K=1-correctness. Compare against F-2's prefill L19 DoM AUROC (0.7731 on 1.5B, ~0.876 on 7B) and CoE-60 baseline. Three numbers per model: DoM, CoE-60, PRM.
+
+**Why:** Refutation R1 + R3. Tests whether F-2's prefill DoM is the dominant correctness signal, or whether a learned trajectory-aware verifier dominates it on the same trajectories.
+
+**Cost:** 30min H100 (PRM forward pass on cached gens) + 10min CPU
+**Triggered by:** [Can 1B Surpass 405B](https://arxiv.org/abs/2502.06703)
+**Depends on:** F-9, F-2
+**Would update:** F-9, F-2
+**Trigger condition:** Liu et al. 2502.06703 — PRM-guided BoN drives Qwen2.5-7B-Inst from 76.8% to 91.0% on MATH-500.
+**Outcome:** PRM arm run (EXP-85/89, v7_phase4_router.json): Qwen2.5-Math-PRM-7B prm_mean standalone AUROC 0.9396, +0.1018 over free gate (p<1e-4) on 1.5B MATH — excellent verifier. BUT scoring costs 1.042x a full 7B escalation; vs the escalation comparator it is cost-dominated: PRM-banded cascade strictly worse at every probe fraction, even hypothetically re-costed at 1.5B scale (upper bound 0.630 < cascade 0.648). Verdict: strong signal, dominated use; escalation beats introspection at matched cost.
+
+### P11-FE412 (P11) — [ROI: 9, COMPLETED, HIGH]
+
+**What:** Self-consistency-as-label-generator selective prediction on Qwen2.5-1.5B / MATH-500. For each problem, sample i ∈ {2, 4, 8} additional generations from the un-aligned base; build a sure/unsure flag from agreement rate. Compute selective-prediction accuracy at coverage 0.5 from this behavioral flag alone, with no fine-tuning and no hidden-state extraction. Compare against F-8's 71.6%.
+
+**Why:** Decouples EKBM's two confounded contributions (self-consistency labeling vs SFT/DPO encoding). If pure self-consistency-flag selective prediction already matches or beats prefill-DoM, then F-8's geometric story is largely a restatement of behavioral consistency — and F-4's asymmetric collapse may be a downstream geometric reflection of consistency rather than an independent signal (refutation #4).
+
+**Cost:** 30min H100 to regenerate K=4 on MATH-500 if not cached, then 10min CPU for AUROC + coverage curves
+**Triggered by:** [Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling](https://arxiv.org/abs/2503.02233)
+**Depends on:** F-4, F-2, F-8
+**Would update:** F-8, F-4
+**Trigger condition:** EKBM's SFT data construction (§3.2) showing self-sampling alone produces a usable supervision signal.
+**Outcome:** Elevated into SPEC v7 Phase 2 (EXP-87, v7_phase2_pseudolabel.json). H-L1 REFUTED: K-sample pseudo-label threshold transfer fails on confirmatory web_of_lies (pseudo-tau coverage 0.284 vs true-32 0.535 at +10pp target; pseudo-label noise 0.388). H-L2 refit no-harm vacuous under the pinned (degenerate-length, D-3) gate and REFUTED under the honest gate (0.6214 < 0.6986-0.01). H-L3 CONFIRMED cross-scale: 7B-agreement pseudo-labels (precision 0.951) give conformal validity >=0.9 in all four live (eps,k) cells — label-free cross-scale certificates work. Deployment recipe: k=32 TRUE labels per new domain; pseudo-labels only for cross-scale certs.
+
 ### P11-FE416 (P11) — [ROI: 9, COMPLETED, HIGH]
 
 **What:** Recompute the 'final-token DoM' direction at the pre-final token position (token whose next-token prediction emits the answer) from cached per-token L19 activations. Report cosine similarity to prefill DoM. Tests whether F-3's cos=0.046 orthogonality is a positional artifact of extracting at the answer token itself rather than at the token that produces it.
@@ -14961,6 +14963,15 @@ _Generated: 2026-06-12 03:05 UTC_
 **Trigger condition:** 2407.11094 shows Hyvärinen score differences have guaranteed positive/negative drift properties for distributional changes
 **Outcome:** DoM uniform across 12 heads (Gini=0.17); no positional coupling via RoPE planes
 
+### P11-FE-SHIPGATE (None) — [ROI: 0.0, COMPLETED, MEDIUM]
+
+**What:** SPEC v7 Ship the Gate, Then Try to Beat It: confgate package + cost-matched bake-off (H-I..H-M) + pseudo-label adaptation + cost-aware router vs 11.2pp oracle gap
+
+**Source:** Internal re-validation — no external trigger paper.
+
+**Cost:** —
+**Outcome:** SPEC v7 executed end-to-end (EXP-84..89): confgate/ pip package shipped FIRST from pinned v6 results, then every challenger ran at matched cost and LOST. H-I holds on dev AND confirmatory T5 (SmolLM2 0.808 / Gemma 0.842 / OLMo-2 0.836 free-gate OOF; no arm adds >=+0.01 at <=1.05x cost anywhere; entropy no-harm passes all three families). H-K refuted with prejudice (spectral-alpha SUBTRACTS, -0.0206 p=0.017, closed permanently). H-J confirmed (K=8 majority 0.554 vs cascade 0.732 at matched cost). H-M refuted (nested-OOF router -0.40pp vs plain cascade at the 11.2pp-gap operating point, p=0.68; rescue density — 47% of 1.5B failures unrescuable by 7B — is the binding constraint, not ranking). PRM block (resolves P11-FE403): Qwen2.5-Math-PRM-7B is an excellent verifier (0.9396 standalone, +0.1018 over gate p<1e-4) but costs 1.042x a full escalation; even a hypothetical 1.5B-cost PRM with 7B AUROC loses to plain escalation. GENERAL CLOSURE: at matched cost, no introspection probe beats spending the same tokens on escalation. P2 (executes P11-FE412): H-L1/H-L2 refuted (pseudo-label noise 0.388 on web_of_lies; k=32 TRUE labels is the honest recipe), H-L3 confirmed (7B-agreement pseudo-labels precision 0.951 give valid cross-scale conformal certs, zero human labels). Cache defects found+corrected: D-3 BBH n_gen_tokens all-zero (honest BBH gate 0.782->0.806, MATH->BBH transfer anchor 0.785->0.828 — gate was UNDERRATED); D-4 SmolLM2/OLMo-2 tokenizer round-trip failure (genscore gen-time capture, corr 0.9998 on matched subset). Deliverable: confgate cascade-as-is ships as final.
+
 ---
 
 ## Closed by adjacency (MOOTED / ANSWERED)
@@ -15195,7 +15206,7 @@ check whether any experiment's status should change.
 | [2502.11096](https://arxiv.org/abs/2502.11096) | Mixture of Tunable Experts -- Behavior Modification of DeepSeek-R1 at Inference Time | P10-FE24, P11-FE410, P11-FE409, P11-FE408 | BLOCKED, READY |
 | [2502.18862](https://arxiv.org/abs/2502.18862) | One-shot Optimized Steering Vectors Mediate Safety-relevant Behaviors in LLMs | P11-FE836 | READY |
 | [2502.20914](https://arxiv.org/abs/2502.20914) | Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable? | P11-FE1055, P11-FE1054, P11-FE1053 | READY |
-| [2503.02233](https://arxiv.org/abs/2503.02233) | Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling | P11-FE414, P11-FE413, P11-FE412, P11-FE411 | BLOCKED, READY |
+| [2503.02233](https://arxiv.org/abs/2503.02233) | Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling | P11-FE414, P11-FE413, P11-FE411 | BLOCKED, READY |
 | [2503.10602](https://arxiv.org/abs/2503.10602) | TruthPrInt: Mitigating Large Vision-Language Models Object Hallucination Via Latent Truthful-Guided Pre-Intervention | P11-FE418, P11-FE417, P11-FE415 | READY |
 | [2503.12730](https://arxiv.org/abs/2503.12730) | TinySQL: A Progressive Text-to-SQL Dataset for Mechanistic Interpretability Research | P10-FE25, P11-FE424, P11-FE423, P11-FE422, P11-FE420, P11-FE419 | BLOCKED, READY |
 | [2503.14130](https://arxiv.org/abs/2503.14130) | Inference-Time Intervention in Large Language Models for Reliable Requirement Verification | P11-FE425, P10-FE27, P10-FE26 | READY |
@@ -15366,7 +15377,7 @@ check whether any experiment's status should change.
 | [2501.04519](https://arxiv.org/abs/2501.04519) | rStar-Math | P11-FE360, P11-FE359, P11-FE358, P11-FE357, P11-FE356 | BLOCKED, READY |
 | [2501.12948](https://arxiv.org/abs/2501.12948) | DeepSeek-R1 | P11-FE372, P11-FE371, P11-FE370, P10-FE20, P11-FE369, P11-FE5 | READY, TRIGGERED |
 | [2501.17148](https://arxiv.org/abs/2501.17148) | AxBench: Steering Benchmark | P10-FE46, P11-FE833, P11-FE832 | BLOCKED, READY |
-| [2502.06703](https://arxiv.org/abs/2502.06703) | Can 1B Surpass 405B | P11-FE406, P11-FE405, P11-FE404, P11-FE403 | READY |
+| [2502.06703](https://arxiv.org/abs/2502.06703) | Can 1B Surpass 405B | P11-FE406, P11-FE405, P11-FE404 | READY |
 | [2504.05419](https://arxiv.org/abs/2504.05419) | Reasoning Models Know When They're Right | P11-FE440, P11-FE439, P11-FE438, P11-FE437, P11-FE436, P11-FE435, P11-FE434, P11-FE433, P11-FE432, P11-FE431, P11-FE430, P11-FE429 | READY |
 | [2504.07986](https://arxiv.org/abs/2504.07986) | SEAL: Steerable Reasoning Calibration | P11-FE442, P11-FE441 | READY |
 | [2504.10063](https://arxiv.org/abs/2504.10063) | TOHA: Topological Divergence on Attention | P11-FE840, P11-FE839, P7-FE2 | BLOCKED, READY, TRIGGERED |

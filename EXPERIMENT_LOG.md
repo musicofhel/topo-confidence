@@ -1679,6 +1679,30 @@ verify-and-route. Result JSON `pathway11_h100/verify_route/results/verdict.json`
 
 **Files:** `pathway11_h100/generalization_edge/results/{phase3_t5_free_baseline,phase2_arm2a,phase4_recalibration}.json`. **Refutes:** H-E. **Updates:** F-8 (re-pin readout → length+logprob), F-2 (transfer ceiling). +6 internal claims in `validate_claims.py` (edge-v6-*).
 
+## EXP-84: SPEC v7 "Ship the Gate, Then Try to Beat It" — full program (bake-off, confgate, pseudo-labels, router; spec-internal phase labels EXP-84..89)
+
+**Date:** 2026-06-12. **Compute:** local CPU + 2 RunPod H100 SXM sessions
+(~2.3 GPU-hrs; D-1: zero local GPU). Qwen-2.5-1.5B/7B MATH+BBH dev;
+SmolLM2-1.7B / Gemma-2-2b-it / OLMo-2-1B confirmatory T5.
+
+**Design inversion executed:** `confgate/` shipped first from pinned v6
+artifacts (gate/route/certify/preflight/CLI, 8/8 pytest); all experiments ran
+as upgrade slots into a released artifact. **Bake-off (1a/1b/1c):** free gate
+unbeaten at ≤1.05× cost on dev (1.5B MATH 0.849, BBH honest 0.806, 7B 0.899)
+and confirmatory T5 (SmolLM2 0.808 / Gemma 0.842 / OLMo-2 0.836); P(True)
+≈ chance at 1.5B (best 0.538), verbalized null, spectral-α subtracts
+(H-K closed), token arms add nothing once length is honest. **Economics
+(1b/4):** K=8 majority 0.554 vs cascade 0.732 at matched cost (H-J);
+nested-OOF router −0.40pp vs plain cascade (H-M refuted); PRM-7B 0.94 AUROC
+but 1.042× escalation cost — at matched cost no probe beats escalation
+itself (binding constraint: 47% of 1.5B failures unrescuable). **Adaptation
+(2):** pseudo-label thresholds/refits refuted (noise 0.388); cross-scale
+pseudo-certs confirmed (precision 0.951, validity ≥0.9). **Cache defects:**
+D-3 BBH lengths all-zero → honest gate 0.806, transfer anchor 0.785→0.828;
+D-4 tokenizer round-trip → genscore gen-time capture (corr 0.9998).
+Verdicts H-I/H-J/H-K/H-L1-3/H-M all adjudicated; selection firewall held
+(G2 frozen before any T5 generation; one evaluation per arm).
+
 ## Template for new experiments
 
 ```markdown
@@ -1970,4 +1994,4 @@ verify-and-route. Result JSON `pathway11_h100/verify_route/results/verdict.json`
 **Depends on:** EXP-82 (Phase 2/3/4), F-8
 **Enables:** shippable cross-architecture generate-then-abstain gate
 
-Next ID: **EXP-84**.
+Next ID: **EXP-85**.

@@ -64,6 +64,39 @@ confgate score generations.jsonl       # {"gen_tokens":..,"mean_logprob":..} per
   (`results/phase4_recalibration.json`). For a new domain, collect ≥32 true
   labels and certify in-domain.
 
+## What we tested against it — the v7 bake-off (EXP-84..89, 2026-06-12)
+
+Every challenger ran at matched cost against this gate (SPEC v7; artifacts
+in `pathway11_h100/generalization_edge/results/v7_*.json`):
+
+- **No arm beats the gate at ≤1.05× cost (H-I holds).** Token-level
+  features (min/bottom-decile logprob, entropy, top-2 margin, answer-span
+  logprob) add nothing once length is honestly present. The one apparent
+  win (entropy on BBH, +0.015) was an artifact of a degenerate cached
+  length feature; with real lengths it adds −0.0004 (deviation D-3).
+- **Honest cross-domain transfer is better than advertised:** MATH→BBH
+  zero-shot AUROC **0.828** (the earlier 0.785 pin was computed with the
+  degenerate length).
+- **P(True) ≈ chance at 1.5B** (0.538 best format), verbalized confidence
+  null, spectral-α *subtracts* (−0.021, p=0.017; closed permanently).
+- **Escalation dominates every probe (H-J + H-M refuted-router).** K=8
+  self-consistency majority loses to the 1.5B→7B cascade at every shared
+  cost point (0.554 vs 0.732 at full-escalation cost). A learned router
+  (rescue-ranking, two-model, K=2 probe bands) cannot beat the plain
+  gate-ordered cascade at matched cost (Δ −0.4pp). Even Qwen2.5-Math-PRM-7B
+  — a genuinely excellent verifier, AUROC 0.94 standalone — costs 1.04× a
+  full escalation to run, and a hypothetical 1.5B-cost PRM with the same
+  AUROC still loses. The binding constraint is rescue density (47% of
+  small-model failures are unrescuable by the big model), not ranking
+  quality. **Marginal compute should buy escalation, not introspection.**
+- **Domain adaptation needs true labels (H-L1/L2 refuted):** K-sample
+  pseudo-labels mis-set thresholds on the confirmatory BBH subset (38.8%
+  pseudo-label noise). Deployment recipe: **k=32 true labels per new
+  domain.** The exception is **cross-scale certificates (H-L3 confirmed):**
+  big-model-agreement pseudo-labels (precision 0.95) give valid conformal
+  certificates with zero human labels when moving 1.5B→7B on the same
+  domain.
+
 ## Regenerating the pins
 
 ```bash
