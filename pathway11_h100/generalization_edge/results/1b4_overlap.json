@@ -1,0 +1,131 @@
+{
+  "anchors": {
+    "acc_k1": 0.486,
+    "acc_k8maj": 0.554,
+    "acc_7b": 0.732
+  },
+  "category_rescues": {
+    "algebra": {
+      "n": 124,
+      "acc_k1": 0.6693548387096774,
+      "acc_k8maj": 0.7661290322580645,
+      "acc_7b": 0.9032258064516129,
+      "k1_fail": 41,
+      "rescued_by_7b": 31,
+      "rescued_by_k8maj": 18,
+      "k1_fail_and_7b_also_fails": 10
+    },
+    "counting_and_probability": {
+      "n": 38,
+      "acc_k1": 0.47368421052631576,
+      "acc_k8maj": 0.47368421052631576,
+      "acc_7b": 0.7368421052631579,
+      "k1_fail": 20,
+      "rescued_by_7b": 11,
+      "rescued_by_k8maj": 5,
+      "k1_fail_and_7b_also_fails": 9
+    },
+    "geometry": {
+      "n": 41,
+      "acc_k1": 0.36585365853658536,
+      "acc_k8maj": 0.5121951219512195,
+      "acc_7b": 0.5609756097560976,
+      "k1_fail": 26,
+      "rescued_by_7b": 8,
+      "rescued_by_k8maj": 7,
+      "k1_fail_and_7b_also_fails": 18
+    },
+    "intermediate_algebra": {
+      "n": 97,
+      "acc_k1": 0.32989690721649484,
+      "acc_k8maj": 0.35051546391752575,
+      "acc_7b": 0.5360824742268041,
+      "k1_fail": 65,
+      "rescued_by_7b": 25,
+      "rescued_by_k8maj": 11,
+      "k1_fail_and_7b_also_fails": 40
+    },
+    "number_theory": {
+      "n": 62,
+      "acc_k1": 0.43548387096774194,
+      "acc_k8maj": 0.5161290322580645,
+      "acc_7b": 0.8387096774193549,
+      "k1_fail": 35,
+      "rescued_by_7b": 26,
+      "rescued_by_k8maj": 12,
+      "k1_fail_and_7b_also_fails": 9
+    },
+    "prealgebra": {
+      "n": 82,
+      "acc_k1": 0.6219512195121951,
+      "acc_k8maj": 0.7073170731707317,
+      "acc_7b": 0.8658536585365854,
+      "k1_fail": 31,
+      "rescued_by_7b": 22,
+      "rescued_by_k8maj": 12,
+      "k1_fail_and_7b_also_fails": 9
+    },
+    "precalculus": {
+      "n": 56,
+      "acc_k1": 0.30357142857142855,
+      "acc_k8maj": 0.3392857142857143,
+      "acc_7b": 0.5,
+      "k1_fail": 39,
+      "rescued_by_7b": 13,
+      "rescued_by_k8maj": 5,
+      "k1_fail_and_7b_also_fails": 26
+    },
+    "_ALL": {
+      "n": 500,
+      "acc_k1": 0.486,
+      "acc_k8maj": 0.554,
+      "acc_7b": 0.732,
+      "k1_fail": 257,
+      "rescued_by_7b": 136,
+      "rescued_by_k8maj": 70,
+      "k8maj_recovers_pct_of_k1_fails": 0.2723735408560311,
+      "7b_recovers_pct_of_k1_fails": 0.5291828793774319
+    }
+  },
+  "cascade_vs_random_mix_hull": {
+    "cost_model": "keep=1, escalate=5; cost_rel=1-0.8*pct_kept",
+    "pregen": {
+      "label": "pre-gen prefill-DoM (G1)",
+      "best_point": {
+        "pct_kept": 0.24,
+        "accuracy": 0.69,
+        "cost_rel": 0.808,
+        "n_kept": 120,
+        "hull_acc": 0.67296,
+        "gap_pp": 1.7039999999999944
+      },
+      "gap_pp_point": 1.7039999999999944,
+      "gap_pp_boot_mean": 1.727236,
+      "gap_pp_boot_se": 0.8722931389756543,
+      "gap_pp_ci95": [
+        -0.1280000000000001,
+        3.359999999999999
+      ],
+      "significant": false
+    },
+    "hybrid": {
+      "label": "hybrid DoM+logprob+len (FU2)",
+      "best_point": {
+        "pct_kept": 0.3,
+        "accuracy": 0.692,
+        "cost_rel": 0.76,
+        "n_kept": 150,
+        "hull_acc": 0.6581999999999999,
+        "gap_pp": 3.3800000000000052
+      },
+      "gap_pp_point": 3.3800000000000052,
+      "gap_pp_boot_mean": 3.380770000000001,
+      "gap_pp_boot_se": 0.9621315955211117,
+      "gap_pp_ci95": [
+        1.3800000000000014,
+        5.160000000000001
+      ],
+      "significant": true
+    }
+  }
+}

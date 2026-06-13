@@ -1,0 +1,232 @@
+{
+ "spec": "v8 Phase 1 (EXP-90) \u2014 frontier raisers H-N/H-O/H-P/H-Q",
+ "cost_units": "token-FLOPs, 1 = one 1.5B token; 7B-class = 4.7",
+ "anchor_cascade_incumbent": 0.648,
+ "H_N": {
+  "target": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "target_standalone_acc": 0.788,
+  "cascade_acc_new_target": 0.69,
+  "cascade_acc_incumbent": 0.648,
+  "delta": 0.042,
+  "boot_se": 0.014978197488349524,
+  "p_one_sided": 0.0025,
+  "new_oracle": 0.8,
+  "incumbent_oracle": 0.758,
+  "rescues_of_121_unrescuable": 41,
+  "overlap_matrix": {
+   "both_correct": 342,
+   "only_new": 52,
+   "only_incumbent": 24,
+   "neither": 82
+  },
+  "verdict": "CONFIRMED",
+  "teacher_for_phase2": "Qwen/Qwen2.5-Math-7B-Instruct"
+ },
+ "H_O": {
+  "target": "mistralai/Mathstral-7B-v0.1",
+  "standalone_acc": 0.55,
+  "rescues_of_121_unrescuable": 15,
+  "confirm_threshold": 25,
+  "refute_threshold_lt": 12.100000000000001,
+  "verdict": "INCONCLUSIVE"
+ },
+ "incumbent_cascade_curve": [
+  {
+   "esc_budget_frac": 0.1,
+   "cost": 982.8386800000001,
+   "acc": 0.518
+  },
+  {
+   "esc_budget_frac": 0.2,
+   "cost": 1292.30736,
+   "acc": 0.554
+  },
+  {
+   "esc_budget_frac": 0.3,
+   "cost": 1570.829172,
+   "acc": 0.572
+  },
+  {
+   "esc_budget_frac": 0.4,
+   "cost": 1911.2447200000001,
+   "acc": 0.61
+  },
+  {
+   "esc_budget_frac": 0.5,
+   "cost": 2189.766532,
+   "acc": 0.648
+  },
+  {
+   "esc_budget_frac": 0.6,
+   "cost": 2499.235212,
+   "acc": 0.666
+  },
+  {
+   "esc_budget_frac": 0.7,
+   "cost": 2808.7038919999995,
+   "acc": 0.7
+  },
+  {
+   "esc_budget_frac": 0.8,
+   "cost": 3149.11944,
+   "acc": 0.718
+  },
+  {
+   "esc_budget_frac": 0.9,
+   "cost": 3427.641252,
+   "acc": 0.726
+  },
+  {
+   "esc_budget_frac": 1.0,
+   "cost": 3737.109932,
+   "acc": 0.732
+  }
+ ],
+ "H_P": {
+  "math1.5b": {
+   "model": "Qwen/Qwen2.5-Math-1.5B-Instruct",
+   "decoding": "greedy",
+   "accuracy": 0.74,
+   "parse_failure_rate": 0.066,
+   "hit_max_frac": 0.066,
+   "mean_gen_tokens": 528.558,
+   "mean_cost_flops": 528.558,
+   "delta_vs_cascade": 0.092,
+   "boot_se": 0.02077510972293528,
+   "p_one_sided": 0.0,
+   "within_budget": true,
+   "budget": 2220.7134,
+   "comparator": {
+    "type": "matched_budget",
+    "acc": 0.648
+   },
+   "verdict": "CONFIRMED"
+  },
+  "r1distill": {
+   "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+   "decoding": "greedy",
+   "accuracy": 0.634,
+   "parse_failure_rate": 0.358,
+   "hit_max_frac": 0.36,
+   "mean_gen_tokens": 2671.004,
+   "mean_cost_flops": 2671.004,
+   "hit_max_unparseable_frac": 0.358,
+   "fallback_triggered": true,
+   "delta_vs_cascade": -0.014,
+   "boot_se": 0.02324680276941326,
+   "p_one_sided": 0.7445,
+   "within_budget": false,
+   "budget": 2220.7134,
+   "comparator": {
+    "type": "cost_equivalent_cascade",
+    "acc": 0.6848715019303407
+   },
+   "verdict": "REFUTED"
+  },
+  "r1distill_fallback": {
+   "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+   "decoding": "T=0.6 seed=9999",
+   "accuracy": 0.678,
+   "parse_failure_rate": 0.322,
+   "mean_gen_tokens": 2741.706,
+   "mean_cost_flops": 2741.706,
+   "delta_vs_cascade": 0.03,
+   "boot_se": 0.022214310342659752,
+   "p_one_sided": 0.0885,
+   "within_budget": false,
+   "budget": 2220.7134,
+   "comparator": {
+    "type": "cost_equivalent_cascade",
+    "acc": 0.6926392282152753
+   },
+   "verdict": "REFUTED"
+  }
+ },
+ "H_Q": {
+  "math1.5b": {
+   "oof_auroc": 0.8633887733887734,
+   "pass_070": true,
+   "length_coef_standardized": -1.3541215792602193,
+   "risk_coverage": {
+    "0.9": 0.8044444444444444,
+    "0.8": 0.86,
+    "0.7": 0.8914285714285715
+   },
+   "cascade_on_top_acc_desc": 0.732,
+   "base_alone_acc": 0.74
+  },
+  "r1distill": {
+   "oof_auroc": 0.9504921480408888,
+   "pass_070": true,
+   "length_coef_standardized": -3.006530797736216,
+   "risk_coverage": {
+    "0.9": 0.7,
+    "0.8": 0.7725,
+    "0.7": 0.8742857142857143
+   },
+   "cascade_on_top_acc_desc": 0.742,
+   "base_alone_acc": 0.634
+  },
+  "r1distill_fallback": {
+   "oof_auroc": 0.9354880082082853,
+   "pass_070": true,
+   "length_coef_standardized": -3.081079356854446,
+   "risk_coverage": {
+    "0.9": 0.7377777777777778,
+    "0.8": 0.81,
+    "0.7": 0.9228571428571428
+   },
+   "cascade_on_top_acc_desc": 0.752,
+   "base_alone_acc": 0.678
+  },
+  "verdict": "CONFIRMED"
+ },
+ "arm_summaries": {
+  "math7b": {
+   "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+   "decoding": "greedy",
+   "accuracy": 0.788,
+   "parse_failure_rate": 0.146,
+   "hit_max_frac": 0.148,
+   "mean_gen_tokens": 564.238,
+   "mean_cost_flops": 2651.9186000000004
+  },
+  "mathstral": {
+   "model": "mistralai/Mathstral-7B-v0.1",
+   "decoding": "greedy",
+   "accuracy": 0.55,
+   "parse_failure_rate": 0.034,
+   "hit_max_frac": 0.036,
+   "mean_gen_tokens": 422.844,
+   "mean_cost_flops": 1987.3668
+  },
+  "math1.5b": {
+   "model": "Qwen/Qwen2.5-Math-1.5B-Instruct",
+   "decoding": "greedy",
+   "accuracy": 0.74,
+   "parse_failure_rate": 0.066,
+   "hit_max_frac": 0.066,
+   "mean_gen_tokens": 528.558,
+   "mean_cost_flops": 528.558
+  },
+  "r1distill": {
+   "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+   "decoding": "greedy",
+   "accuracy": 0.634,
+   "parse_failure_rate": 0.358,
+   "hit_max_frac": 0.36,
+   "mean_gen_tokens": 2671.004,
+   "mean_cost_flops": 2671.004,
+   "hit_max_unparseable_frac": 0.358,
+   "fallback_triggered": true
+  },
+  "r1distill_fallback": {
+   "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+   "decoding": "T=0.6 seed=9999",
+   "accuracy": 0.678,
+   "parse_failure_rate": 0.322,
+   "mean_gen_tokens": 2741.706,
+   "mean_cost_flops": 2741.706
+  }
+ }
+}

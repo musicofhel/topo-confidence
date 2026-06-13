@@ -1,0 +1,299 @@
+{
+  "eps": 0.2,
+  "delta": 0.1,
+  "R": 200,
+  "k_grid": [
+    0,
+    8,
+    16,
+    32,
+    64
+  ],
+  "note": "freeze source extractor, refit light head on k target labels; large cells only (V2-3 power).",
+  "math_to_bbh": {
+    "target_n": 750,
+    "free_baseline": {
+      "in_domain_ceiling": 0.7823068483041878,
+      "by_k": {
+        "k0": {
+          "scoring_n": 750,
+          "auroc": 0.7845498062899922,
+          "auroc_sd": 0.0,
+          "sel_acc@0.5cov": 0.38133333333333336,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 1.0,
+              "mean_coverage": 0.704,
+              "validity": 0.0
+            },
+            "eps0.3": {
+              "feasible_frac": 1.0,
+              "mean_coverage": 0.788,
+              "validity": 0.0
+            }
+          }
+        },
+        "k8": {
+          "scoring_n": 742,
+          "auroc": 0.7843143842807859,
+          "auroc_sd": 0.0029319443017851513,
+          "sel_acc@0.5cov": 0.35838274932614556,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            }
+          }
+        },
+        "k16": {
+          "scoring_n": 734,
+          "auroc": 0.7844328356671099,
+          "auroc_sd": 0.00422962420428684,
+          "sel_acc@0.5cov": 0.36258855585831057,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 0.08,
+              "mean_coverage": 0.017472752043596728,
+              "validity": 0.375
+            }
+          }
+        },
+        "k32": {
+          "scoring_n": 718,
+          "auroc": 0.7853921310756753,
+          "auroc_sd": 0.006177410448657401,
+          "sel_acc@0.5cov": 0.364150417827298,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.06,
+              "mean_coverage": 0.010557103064066852,
+              "validity": 0.0
+            },
+            "eps0.3": {
+              "feasible_frac": 0.51,
+              "mean_coverage": 0.09893454038997214,
+              "validity": 0.4117647058823529
+            }
+          }
+        },
+        "k64": {
+          "scoring_n": 686,
+          "auroc": 0.7840355317260946,
+          "auroc_sd": 0.009372567611786215,
+          "sel_acc@0.5cov": 0.3449416909620991,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.455,
+              "mean_coverage": 0.07551020408163266,
+              "validity": 0.0
+            },
+            "eps0.3": {
+              "feasible_frac": 0.915,
+              "mean_coverage": 0.1915451895043732,
+              "validity": 0.25136612021857924
+            }
+          }
+        }
+      }
+    },
+    "prefill_dom": {
+      "in_domain_ceiling": 0.7820252648341085,
+      "by_k": {
+        "k0": {
+          "scoring_n": 750,
+          "auroc_frozen": 0.7959587917156201,
+          "sel_acc@0.5cov": 0.4026666666666667,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 1.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 1.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            }
+          }
+        },
+        "k8": {
+          "scoring_n": 742,
+          "auroc_frozen": 0.7959587917156201,
+          "sel_acc@0.5cov": 0.3978975741239893,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            }
+          }
+        },
+        "k16": {
+          "scoring_n": 734,
+          "auroc_frozen": 0.7959587917156201,
+          "sel_acc@0.5cov": 0.3930790190735695,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 0.1,
+              "mean_coverage": 0.028801089918256126,
+              "validity": 0.0
+            }
+          }
+        },
+        "k32": {
+          "scoring_n": 718,
+          "auroc_frozen": 0.7959587917156201,
+          "sel_acc@0.5cov": 0.382966573816156,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.09,
+              "mean_coverage": 0.025076601671309193,
+              "validity": 0.0
+            },
+            "eps0.3": {
+              "feasible_frac": 0.375,
+              "mean_coverage": 0.10756267409470752,
+              "validity": 0.0
+            }
+          }
+        },
+        "k64": {
+          "scoring_n": 686,
+          "auroc_frozen": 0.7959587917156201,
+          "sel_acc@0.5cov": 0.36355685131195337,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.145,
+              "mean_coverage": 0.028104956268221574,
+              "validity": 0.0
+            },
+            "eps0.3": {
+              "feasible_frac": 0.515,
+              "mean_coverage": 0.13905976676384837,
+              "validity": 0.0
+            }
+          }
+        }
+      }
+    }
+  },
+  "math1.5b_to_7b": {
+    "target_n": 500,
+    "free_baseline": {
+      "in_domain_ceiling": 0.8986012560150071,
+      "by_k": {
+        "k0": {
+          "scoring_n": 500,
+          "auroc": 0.8926270287904738,
+          "auroc_sd": 0.0,
+          "sel_acc@0.5cov": 0.944,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 1.0,
+              "mean_coverage": 0.6,
+              "validity": 1.0
+            },
+            "eps0.3": {
+              "feasible_frac": 1.0,
+              "mean_coverage": 0.724,
+              "validity": 1.0
+            }
+          }
+        },
+        "k8": {
+          "scoring_n": 492,
+          "auroc": 0.8669094772630686,
+          "auroc_sd": 0.053349553445879445,
+          "sel_acc@0.5cov": 0.9322357723577237,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            }
+          }
+        },
+        "k16": {
+          "scoring_n": 484,
+          "auroc": 0.8826508601578433,
+          "auroc_sd": 0.03068072467337918,
+          "sel_acc@0.5cov": 0.9410743801652893,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.0,
+              "mean_coverage": 0.0,
+              "validity": null
+            },
+            "eps0.3": {
+              "feasible_frac": 0.34,
+              "mean_coverage": 0.19653925619834708,
+              "validity": 1.0
+            }
+          }
+        },
+        "k32": {
+          "scoring_n": 468,
+          "auroc": 0.8935909200968524,
+          "auroc_sd": 0.013901702134703696,
+          "sel_acc@0.5cov": 0.9491880341880343,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.21,
+              "mean_coverage": 0.10712606837606838,
+              "validity": 1.0
+            },
+            "eps0.3": {
+              "feasible_frac": 0.72,
+              "mean_coverage": 0.41815170940170937,
+              "validity": 1.0
+            }
+          }
+        },
+        "k64": {
+          "scoring_n": 436,
+          "auroc": 0.8973103792415169,
+          "auroc_sd": 0.009750785861229107,
+          "sel_acc@0.5cov": 0.9557110091743121,
+          "conformal": {
+            "eps0.2": {
+              "feasible_frac": 0.655,
+              "mean_coverage": 0.29099770642201833,
+              "validity": 1.0
+            },
+            "eps0.3": {
+              "feasible_frac": 0.99,
+              "mean_coverage": 0.6758715596330276,
+              "validity": 1.0
+            }
+          }
+        }
+      }
+    }
+  }
+}

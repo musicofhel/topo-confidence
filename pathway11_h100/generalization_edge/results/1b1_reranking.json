@@ -1,0 +1,76 @@
+{
+  "probe_persample_auroc": 0.7203788308784075,
+  "comparators": {
+    "k1_greedy": 0.486,
+    "k8_plain_majority": 0.554,
+    "oracle_best_of_8": 0.704
+  },
+  "bucket_sizes": {
+    "A_both_right": 207,
+    "B_recovered_k1wrong_k8right": 70,
+    "D_regressed_k1right_k8wrong": 36,
+    "E_both_wrong": 187
+  },
+  "arms": {
+    "probe_argmax": {
+      "accuracy": 0.48,
+      "vs_majority": {
+        "acc_a": 0.48,
+        "acc_b": 0.554,
+        "b_a_wrong_b_right": 55,
+        "b_a_right_b_wrong": 18,
+        "n_discordant": 73,
+        "p": 1.6913617102985627e-05
+      },
+      "delta_vs_majority_pp": -7.400000000000007,
+      "k1_right_now_wrong": 58,
+      "k1_right_now_wrong_majority": 36,
+      "by_bucket_acc": {
+        "A_both_right": 0.855072463768116,
+        "B_recovered_k1wrong_k8right": 0.6428571428571429,
+        "D_regressed_k1right_k8wrong": 0.2222222222222222,
+        "E_both_wrong": 0.053475935828877004
+      }
+    },
+    "probe_weighted_majority": {
+      "accuracy": 0.538,
+      "vs_majority": {
+        "acc_a": 0.538,
+        "acc_b": 0.554,
+        "b_a_wrong_b_right": 24,
+        "b_a_right_b_wrong": 16,
+        "n_discordant": 40,
+        "p": 0.26818725105476915
+      },
+      "delta_vs_majority_pp": -1.6000000000000014,
+      "k1_right_now_wrong": 37,
+      "k1_right_now_wrong_majority": 36,
+      "by_bucket_acc": {
+        "A_both_right": 0.9516908212560387,
+        "B_recovered_k1wrong_k8right": 0.8,
+        "D_regressed_k1right_k8wrong": 0.25,
+        "E_both_wrong": 0.0374331550802139
+      }
+    },
+    "confidence_fallback": {
+      "accuracy": 0.552,
+      "vs_majority": {
+        "acc_a": 0.552,
+        "acc_b": 0.554,
+        "b_a_wrong_b_right": 3,
+        "b_a_right_b_wrong": 2,
+        "n_discordant": 5,
+        "p": 1.0
+      },
+      "delta_vs_majority_pp": -0.20000000000000018,
+      "k1_right_now_wrong": 34,
+      "k1_right_now_wrong_majority": 36,
+      "by_bucket_acc": {
+        "A_both_right": 1.0,
+        "B_recovered_k1wrong_k8right": 0.9571428571428572,
+        "D_regressed_k1right_k8wrong": 0.05555555555555555,
+        "E_both_wrong": 0.0
+      }
+    }
+  }
+}

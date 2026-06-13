@@ -135,6 +135,133 @@ def apply_certificate(cert: dict, scores, y=None) -> dict:
     return out
 
 
+def certify_grouped(cal_scores, cal_y, cal_groups, eps: float,
+                    delta: float = DEFAULT_DELTA) -> dict:
+    """Group-conditional (Mondrian) split-conformal LTT certificate.
+
+    A *marginal* certificate (`certify`) bounds the POOLED answered-set error
+    <= eps, but that single guarantee can hide wide per-group disparity: some
+    groups are silently over budget while others are far under. This computes
+    a separate per-group threshold tau_g (Mondrian CP) so the answered-set
+    error of EACH group g is certified <= eps, and reports the cross-group
+    coverage gap the marginal certificate hides.
+
+    Deployment rule: for an item in group g, answer iff its gate score >=
+    cert['groups'][g]['tau'] (abstain/escalate otherwise, including for any
+    group whose certificate is infeasible). Use `apply_grouped`.
+
+    Honest expectation (pinned: in-domain MATH categories, EXP-86/C3): the
+    conditional certificate is VALID for high-accuracy groups but typically
+    LOW coverage, and needs a per-group label budget (~16-32 true in-group
+    labels — fewer trips the CP-upper small-sample penalty to infeasible).
+    Cross-domain it stays infeasible (the accuracy cliff is per-group too);
+    see certify_cross_domain().
+
+    Parameters
+    ----------
+    cal_scores, cal_y, cal_groups : aligned 1-D arrays
+        Calibration gate scores, TRUE labels, and a group key per item.
+    eps, delta : float
+        Per-group answered-error target and 1-delta calibration confidence.
+    """
+    cal_scores = np.asarray(cal_scores, dtype=np.float64)
+    cal_y = np.asarray(cal_y).astype(bool)
+    cal_groups = np.asarray(cal_groups)
+    if not (len(cal_scores) == len(cal_y) == len(cal_groups)):
+        raise ValueError("cal_scores, cal_y, cal_groups must be aligned")
+
+    glist = sorted({str(g) for g in cal_groups.tolist()})
+    keys = cal_groups.astype(str)
+    marg_tau = choose_tau(cal_scores, cal_y, eps, delta)   # pooled threshold
+
+    groups: dict[str, dict] = {}
+    marg_covs: list[float] = []
+    n_violating = 0
+    for g in glist:
+        m = keys == g
+        sg, yg = cal_scores[m], cal_y[m]
+        cert_g = certify(sg, yg, eps, delta)               # conditional cert
+        cert_g["n_group"] = int(m.sum())
+        cert_g["base_acc"] = float(yg.mean())
+        # diagnostic: this group's coverage/error UNDER the marginal threshold
+        if marg_tau is None:
+            cert_g.update({"marginal_coverage": 0.0,
+                           "marginal_answered_err": None,
+                           "marginal_violates_eps": False})
+        else:
+            ans = sg >= marg_tau
+            mc = float(ans.mean())
+            me = float(1 - yg[ans].mean()) if ans.sum() else None
+            mv = bool(me is not None and me > eps)
+            n_violating += int(mv)
+            marg_covs.append(mc)
+            cert_g.update({"marginal_coverage": mc,
+                           "marginal_answered_err": me,
+                           "marginal_violates_eps": mv})
+        groups[g] = cert_g
+
+    certifiable = [g for g in glist
+                   if groups[g]["feasible"]
+                   and groups[g].get("cal_coverage", 0.0) > 0]
+    out = {
+        "method": "group-conditional (Mondrian) split-conformal LTT",
+        "eps": float(eps),
+        "delta": float(delta),
+        "n_cal": int(len(cal_y)),
+        "n_groups": len(glist),
+        "groups": groups,
+        "marginal_tau": None if marg_tau is None else float(marg_tau),
+        "marginal_coverage_gap": (float(max(marg_covs) - min(marg_covs))
+                                  if marg_covs else 0.0),
+        "n_groups_marginal_violating": int(n_violating),
+        "certifiable_groups": certifiable,
+        "guarantee": (
+            f"For each group g, P(group-g answered-set error <= {eps}) >= "
+            f"{1 - delta} over the calibration draw; for an item in group g, "
+            "answer iff score >= groups[g]['tau']. NOTE: conditional certs "
+            "are valid but typically LOW coverage and need ~16-32 true "
+            "in-group labels; groups with feasible=False must abstain."),
+    }
+    return out
+
+
+def apply_grouped(cert: dict, scores, groups, y=None) -> dict:
+    """Apply a group-conditional certificate: per-group threshold per item.
+
+    Items whose group has an infeasible certificate (or an unseen group key)
+    abstain. Pass `y` (true labels) only for a per-group risk audit.
+    """
+    scores = np.asarray(scores, dtype=np.float64)
+    keys = np.asarray(groups).astype(str)
+    if len(scores) != len(keys):
+        raise ValueError("scores and groups must be aligned")
+    ans = np.zeros(len(scores), dtype=bool)
+    for g, cg in cert["groups"].items():
+        if not cg.get("feasible"):
+            continue
+        m = keys == g
+        ans[m] = scores[m] >= cg["tau"]
+    out = {"eps": cert["eps"], "delta": cert["delta"],
+           "coverage": float(ans.mean()), "n": int(len(scores)),
+           "answered_idx": np.nonzero(ans)[0]}
+    if y is not None:
+        y = np.asarray(y).astype(bool)
+        if ans.sum():
+            out["test_risk"] = float(1 - y[ans].mean())
+            out["risk_le_eps"] = bool(out["test_risk"] <= cert["eps"])
+        per_group = {}
+        for g in cert["groups"]:
+            gm = keys == g
+            am = gm & ans
+            if am.sum():
+                per_group[g] = {
+                    "coverage": float(am.sum() / max(int(gm.sum()), 1)),
+                    "risk": float(1 - y[am].mean()),
+                    "risk_le_eps": bool((1 - y[am].mean()) <= cert["eps"])}
+        out["per_group"] = per_group
+    return out
+
+
 def certify_cross_scale(cal_scores, cal_y, eps: float = 0.2,
                         delta: float = DEFAULT_DELTA) -> dict:
     """Cross-scale ZERO-SHOT certificate (the supported transfer path).

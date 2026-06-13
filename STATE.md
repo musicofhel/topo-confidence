@@ -93,20 +93,7 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-**EXP-85 (SPEC v8 "Raise the Ceiling") — the ceiling moves by swapping the base,
-not by curating data.** Four levers untouched by v6/v7 tested against the
-free-gate cascade's matched-cost MATH-500 ceiling. **Pin the base/target, not a
-probe:** off-the-shelf Qwen2.5-Math-1.5B-Instruct scores 0.740 at ¼ budget (+9.2pp
-over the whole cascade, H-P); escalating to Qwen2.5-Math-7B instead of generic 7B
-lifts the cascade +4.20pp and rescues 41/121 (H-N, new pinned target). The free
-gate generalizes to every new base (0.86/0.95/0.94, H-Q). **The centerpiece
-failed:** zero-label confidence-curated distillation does NOT beat unfiltered at
-matched N (gate 0.494 < unfiltered 0.500 < skyline 0.504, < length-control 0.502;
-H-R refuted) and MATH-only SFT catastrophically forgets BBH (all arms < base
-0.267) — curation is a free-rider, the gate is a step-length proxy at selection.
-Honest recipe: off-the-shelf domain base + free-gate cascade on top, escalation
-target = Math-7B. Claims 245→264 internal PASS (+19 edge-v8-*). Artifacts:
-`generalization_edge/results/v8_*.json`, SPEC_v8.md (G1 freeze).
+**EXP-86 (Conformal sweep C1/C2/C3) — the cross-domain certificate wall is FUNDAMENTAL (accuracy-bound, not calibration), and the shift-CP toolkit cannot rescue it.** Local, CPU-only, Qwen-1.5B MATH+BBH, cached scalars. C1: static/weighted(Tibshirani)/online-ACI/Mondrian all validity 0.0 @ε=0.2; Barber TV gap 0.470>ε ⇒ formally impossible; mechanism BBH base acc 0.241. C2: online conformal = fail-safe abstention only (frozen fails open, online fails safe) and the failure is distributional hardness, NOT drift (shuffled control matches). C3: in-domain group-conditional certs DELIVER for high-acc MATH categories (algebra/prealgebra validity 1.0, k=16–32) at low coverage (≤11%); BBH cliff is per-group too. confgate 0.1.1 ships NO cross-domain feature — `certify_cross_domain()` stays refused, hardened. Strengthens the `conformal-cross-domain` premise (refuted). Claims +15 (edge-c1/c2/c3-*), 279/279 internal PASS; anchors +13 (`verify_anchors.py --conformal-only`).
 
 ## Addendum — Phase 2/3/4 executed (EXP-82, 2026-06-11, local 2060)
 

@@ -23,10 +23,13 @@ OLMo-2 length-led), so both are always pinned, with per-family weights.
 ## Install
 
 ```bash
-pip install -e .          # from this directory
+pip install topo-confgate     # distribution name on PyPI
+# or, from a clone:
+pip install -e .
 ```
 
-Python >= 3.10; deps: numpy, scikit-learn.
+The import name is `confgate` (`import confgate`) regardless of how it was
+installed. Python >= 3.10; deps: numpy, scikit-learn.
 
 ## Use
 
@@ -44,6 +47,12 @@ casc = Cascade(gate=gate, tau=op["tau"])
 # Risk certificate (split-conformal LTT, Clopper-Pearson)
 cert = certify(cal_scores, cal_y, eps=0.2, delta=0.1)
 
+# In-domain group-conditional certificate (Mondrian): per-group threshold,
+# each group's answered-set error certified <= eps (valid but low coverage)
+from confgate import certify_grouped, apply_grouped
+gcert = certify_grouped(cal_scores, cal_y, cal_categories, eps=0.2)
+deployed = apply_grouped(gcert, test_scores, test_categories)   # per-group taus
+
 # Before generating anything: prompt-length preflight (AUROC ~0.71)
 pf = PreflightGate.from_pinned()
 ```
@@ -59,10 +68,25 @@ confgate score generations.jsonl       # {"gen_tokens":..,"mean_logprob":..} per
   deploy the same threshold on the larger one. Pinned: validity 1.0 at 0.60
   coverage (ε=0.2, Qwen 1.5B→7B). k-label recalibration only restores
   *feasibility* past k≥32 and never beats zero-shot coverage.
+- **Supported (new in 0.1.1) — in-domain group-conditional (Mondrian):**
+  `certify_grouped(scores, y, groups, eps)` gives a separate threshold per
+  group so *each* group's answered-set error is certified ≤ ε, and surfaces
+  the cross-group coverage gap a marginal certificate hides. Pinned in-domain
+  (MATH-500 categories, EXP-86/C3): marginal CP hides a **0.383** coverage
+  gap with 2/7 categories silently over budget; per-group Mondrian restores
+  **valid** certs for high-accuracy categories (algebra/prealgebra validity
+  1.0) at a per-group budget of **k≈16–32** true labels. Honest caveat: valid
+  but **low coverage** (algebra 0.5%, prealgebra 5.4% @ ε=0.2). Apply with
+  `apply_grouped`.
 - **Refused — cross-domain:** `certify_cross_domain()` raises
-  `NotImplementedError`. Validity is 0.0 at ε=0.2 for every feasible k
-  (`results/phase4_recalibration.json`). For a new domain, collect ≥32 true
-  labels and certify in-domain.
+  `NotImplementedError`. The cross-domain wall is **fundamental — the model's
+  task accuracy, not the calibration method**: the full distribution-shift CP
+  toolkit (weighted/Tibshirani, non-exchangeable/Barber, online-ACI, Mondrian)
+  all give validity 0.0 at ε=0.2 (`results/c1_cross_domain_adaptive_cp.json`,
+  EXP-86/C1), and the Barber non-exchangeable TV coverage-gap 0.470 > ε makes
+  a distribution-free cross-domain cert *formally impossible* from MATH alone
+  (BBH base accuracy 0.241). For a new domain, collect ≥32 true labels and
+  certify in-domain.
 
 ## What we tested against it — the v7 bake-off (EXP-84..89, 2026-06-12)
 

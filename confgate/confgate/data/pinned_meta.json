@@ -126,7 +126,29 @@
         }
       },
       "verdict": "cross-scale zero-shot (k=0) is the supported certificate (validity 1.0 @ 0.60 coverage, eps=0.2); k-label recalibration is feasibility-restoring only past k>=32, never coverage-improving; cross-domain certificates are infeasible with any light head (validity 0.0 at eps=0.2 for every feasible k) -> certify_cross_domain() refuses",
-      "source": "pathway11_h100/generalization_edge/results/phase4_recalibration.json"
+      "source": "pathway11_h100/generalization_edge/results/phase4_recalibration.json",
+      "group_conditional_in_domain_math_eps0.2": {
+        "method": "group-conditional (Mondrian) split-conformal LTT, in-domain MATH-500 5-fold OOF, R=200",
+        "marginal_coverage_gap": 0.38297523041474657,
+        "n_groups_marginal_violating": 2,
+        "n_groups": 7,
+        "certifiable_groups": {
+          "algebra": {
+            "base_acc": 0.669,
+            "label_budget_k": 64,
+            "validity": 1.0,
+            "mean_coverage": 0.0053
+          },
+          "prealgebra": {
+            "base_acc": 0.622,
+            "label_budget_k": 32,
+            "validity": 1.0,
+            "mean_coverage": 0.0535
+          }
+        },
+        "note": "In-domain group-conditional certs are VALID but LOW coverage and need ~16-32 true in-group labels; marginal CP hides a 0.383 cross-category coverage gap with 2/7 categories over budget. Cross-domain (BBH) does not deliver. confgate.certify_grouped.",
+        "source": "pathway11_h100/generalization_edge/results/c3_group_conditional_cp.json (EXP-86/C3)"
+      }
     }
   },
   "v8_frontier": {

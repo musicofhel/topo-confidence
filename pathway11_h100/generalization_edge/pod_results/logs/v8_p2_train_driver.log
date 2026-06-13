@@ -1,0 +1,19 @@
+bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)
+=== SFT arm a START 07:21:28 ===
+=== SFT a EXIT rc=0 ===
+=== EVAL arm a START 07:29:47 ===
+=== EVAL a EXIT rc=0 ===
+=== SFT arm b START 08:24:19 ===
+=== SFT b EXIT rc=0 ===
+=== EVAL arm b START 08:29:03 ===
+=== EVAL b EXIT rc=0 ===
+=== SFT arm c START 09:23:13 ===
+=== SFT c EXIT rc=0 ===
+=== EVAL arm c START 09:28:07 ===
+=== EVAL c EXIT rc=0 ===
+=== SFT arm d START 10:22:55 ===
+=== SFT d EXIT rc=0 ===
+=== EVAL arm d START 10:27:39 ===
+=== EVAL d EXIT rc=0 ===
+=== EVALBASE START 11:20:02 ===
+=== EVALBASE EXIT rc=0 ===

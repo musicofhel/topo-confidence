@@ -1,0 +1,38 @@
+{
+ "spec": "v7 deviation D-3 (BBH n_gen_tokens all-zero in cache)",
+ "honest_math_to_bbh_transfer_auroc": 0.8276903358611114,
+ "pinned_transfer_anchor_de_facto_logprob_only": 0.785,
+ "H_L2_honest_recheck": {
+  "honest_frozen_true_auroc_web_of_lies": 0.6986151368760064,
+  "honest_pseudo_refit_true_auroc_web_of_lies": 0.6214492753623189,
+  "no_harm": false
+ },
+ "pinned_free_gate_auroc_logprob_only_de_facto": 0.7823068483041878,
+ "honest_free_gate_auroc_real_length": 0.8060569575391547,
+ "honest_vs_pinned": {
+  "delta": 0.0237501092349669,
+  "delong_z": 1.7768624417915106,
+  "delong_p": 0.07559087519655838
+ },
+ "real_length_arm": {
+  "arm": "real_length_vs_pinned",
+  "standalone_auroc": 0.8006146287467595,
+  "combined_auroc": 0.8060569575391547,
+  "free_auroc": 0.7823068483041878,
+  "incremental_delta": 0.0237501092349669,
+  "delong_z": 1.7768624417915106,
+  "delong_p": 0.07559087519655838,
+  "G1_promote": true
+ },
+ "entropy_vs_honest_gate": {
+  "arm": "mean_token_entropy_vs_honest",
+  "standalone_auroc": 0.7906669644330948,
+  "combined_auroc": 0.805678276320772,
+  "free_auroc": 0.8060569575391547,
+  "incremental_delta": -0.00037868121838269264,
+  "delong_z": -2.5398697312277037,
+  "delong_p": 0.011089376458644828,
+  "G1_promote": false
+ },
+ "verdict": "H-I refutation in the BBH cell does NOT survive the honest gate: entropy's +0.0151 over the degenerate gate becomes -0.0004 over length+logprob \u2014 entropy was proxying the missing length feature. Under the honest gate H-I HOLDS in all dev cells and the free-gate thesis strengthens (BBH in-domain 0.806 > 0.782)."
+}

@@ -1,0 +1,1162 @@
+{
+  "experiment": "C3 group-conditional (Mondrian) certificates",
+  "gate": "free_baseline length+logprob logistic (pinned recipe)",
+  "math_scores": "5-fold OOF (in-domain, leakage-safe)",
+  "bbh_scores": "MATH-fit gate (cross-domain transfer, matches C1)",
+  "delta": 0.1,
+  "R": 200,
+  "k_grid": [
+    8,
+    16,
+    32,
+    64
+  ],
+  "eps_list": [
+    0.1,
+    0.2,
+    0.3
+  ],
+  "target_validity": 0.9,
+  "domains": {
+    "math": {
+      "domain": "MATH-500",
+      "n": 500,
+      "base_acc": 0.486,
+      "groups": [
+        "algebra",
+        "counting_and_probability",
+        "geometry",
+        "intermediate_algebra",
+        "number_theory",
+        "prealgebra",
+        "precalculus"
+      ],
+      "group_base_acc": {
+        "algebra": 0.6693548387096774,
+        "counting_and_probability": 0.47368421052631576,
+        "geometry": 0.36585365853658536,
+        "intermediate_algebra": 0.32989690721649484,
+        "number_theory": 0.43548387096774194,
+        "prealgebra": 0.6219512195121951,
+        "precalculus": 0.30357142857142855
+      },
+      "eps0.1": {
+        "marginal": {
+          "algebra": {
+            "mean_coverage": 0.24223416965352448,
+            "mean_answered_err": 0.09137780524699096,
+            "validity": 0.7407407407407407
+          },
+          "counting_and_probability": {
+            "mean_coverage": 0.0396361273554256,
+            "mean_answered_err": 0.00851984894538086,
+            "validity": 0.9574468085106383
+          },
+          "geometry": {
+            "mean_coverage": 0.07106293285155074,
+            "mean_answered_err": 0.06356554967666078,
+            "validity": 0.7037037037037037
+          },
+          "intermediate_algebra": {
+            "mean_coverage": 0.011327478681430572,
+            "mean_answered_err": 0.2789775441949355,
+            "validity": 0.30434782608695654
+          },
+          "number_theory": {
+            "mean_coverage": 0.030266825965750692,
+            "mean_answered_err": 0.04132636910414688,
+            "validity": 0.8148148148148148
+          },
+          "prealgebra": {
+            "mean_coverage": 0.1987353206865402,
+            "mean_answered_err": 0.04672536454890891,
+            "validity": 0.9876543209876543
+          },
+          "precalculus": {
+            "mean_coverage": 0.036816578483245134,
+            "mean_answered_err": 0.0,
+            "validity": 1.0
+          },
+          "_coverage_gap": 0.2309066909720939,
+          "_n_groups_violating": 1
+        },
+        "mondrian": {
+          "algebra": {
+            "n": 124,
+            "base_acc": 0.6693548387096774,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "counting_and_probability": {
+            "n": 38,
+            "base_acc": 0.47368421052631576,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "geometry": {
+            "n": 41,
+            "base_acc": 0.36585365853658536,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "intermediate_algebra": {
+            "n": 97,
+            "base_acc": 0.32989690721649484,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "number_theory": {
+            "n": 62,
+            "base_acc": 0.43548387096774194,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "prealgebra": {
+            "n": 82,
+            "base_acc": 0.6219512195121951,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "precalculus": {
+            "n": 56,
+            "base_acc": 0.30357142857142855,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          }
+        },
+        "marginal_coverage_gap": 0.2309066909720939,
+        "marginal_n_groups_violating": 1,
+        "mondrian_certifiable_groups": {},
+        "mondrian_delivers": false
+      },
+      "eps0.2": {
+        "marginal": {
+          "algebra": {
+            "mean_coverage": 0.5018145161290323,
+            "mean_answered_err": 0.15624204208099524,
+            "validity": 0.99
+          },
+          "counting_and_probability": {
+            "mean_coverage": 0.26842105263157895,
+            "mean_answered_err": 0.09490951733033183,
+            "validity": 0.9384615384615385
+          },
+          "geometry": {
+            "mean_coverage": 0.19975609756097562,
+            "mean_answered_err": 0.18111742497268815,
+            "validity": 0.455
+          },
+          "intermediate_algebra": {
+            "mean_coverage": 0.13556701030927834,
+            "mean_answered_err": 0.29737078961779456,
+            "validity": 0.04736842105263158
+          },
+          "number_theory": {
+            "mean_coverage": 0.20887096774193548,
+            "mean_answered_err": 0.26150120071400235,
+            "validity": 0.3165829145728643
+          },
+          "prealgebra": {
+            "mean_coverage": 0.4677439024390245,
+            "mean_answered_err": 0.10113699366565537,
+            "validity": 1.0
+          },
+          "precalculus": {
+            "mean_coverage": 0.11883928571428573,
+            "mean_answered_err": 0.0802049963924964,
+            "validity": 0.725
+          },
+          "_coverage_gap": 0.38297523041474657,
+          "_n_groups_violating": 2
+        },
+        "mondrian": {
+          "algebra": {
+            "n": 124,
+            "base_acc": 0.6693548387096774,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.015,
+                "mean_coverage": 0.00525,
+                "validity": 1.0
+              }
+            },
+            "label_budget": 64
+          },
+          "counting_and_probability": {
+            "n": 38,
+            "base_acc": 0.47368421052631576,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.025,
+                "mean_coverage": 0.0075,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "geometry": {
+            "n": 41,
+            "base_acc": 0.36585365853658536,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.015,
+                "mean_coverage": 0.0061111111111111106,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "intermediate_algebra": {
+            "n": 97,
+            "base_acc": 0.32989690721649484,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.055,
+                "mean_coverage": 0.017384615384615384,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.105,
+                "mean_coverage": 0.023030303030303033,
+                "validity": 0.0
+              }
+            },
+            "label_budget": null
+          },
+          "number_theory": {
+            "n": 62,
+            "base_acc": 0.43548387096774194,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.005,
+                "mean_coverage": 0.0026666666666666666,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "prealgebra": {
+            "n": 82,
+            "base_acc": 0.6219512195121951,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.125,
+                "mean_coverage": 0.053500000000000006,
+                "validity": 1.0
+              },
+              "k64": {
+                "feasible_frac": 0.23,
+                "mean_coverage": 0.06263157894736841,
+                "validity": 1.0
+              }
+            },
+            "label_budget": 32
+          },
+          "precalculus": {
+            "n": 56,
+            "base_acc": 0.30357142857142855,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.065,
+                "mean_coverage": 0.014166666666666666,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          }
+        },
+        "marginal_coverage_gap": 0.38297523041474657,
+        "marginal_n_groups_violating": 2,
+        "mondrian_certifiable_groups": {
+          "algebra": 64,
+          "prealgebra": 32
+        },
+        "mondrian_delivers": true
+      },
+      "eps0.3": {
+        "marginal": {
+          "algebra": {
+            "mean_coverage": 0.7288306451612904,
+            "mean_answered_err": 0.21046707633344183,
+            "validity": 1.0
+          },
+          "counting_and_probability": {
+            "mean_coverage": 0.5176315789473683,
+            "mean_answered_err": 0.26346358698061484,
+            "validity": 0.86
+          },
+          "geometry": {
+            "mean_coverage": 0.49195121951219517,
+            "mean_answered_err": 0.2690930004013949,
+            "validity": 0.63
+          },
+          "intermediate_algebra": {
+            "mean_coverage": 0.27371134020618554,
+            "mean_answered_err": 0.315118977456589,
+            "validity": 0.05
+          },
+          "number_theory": {
+            "mean_coverage": 0.6191935483870968,
+            "mean_answered_err": 0.43392554736746847,
+            "validity": 0.0
+          },
+          "prealgebra": {
+            "mean_coverage": 0.7115243902439025,
+            "mean_answered_err": 0.18937411303461776,
+            "validity": 1.0
+          },
+          "precalculus": {
+            "mean_coverage": 0.3367857142857143,
+            "mean_answered_err": 0.3299508610173572,
+            "validity": 0.145
+          },
+          "_coverage_gap": 0.45511930495510483,
+          "_n_groups_violating": 3
+        },
+        "mondrian": {
+          "algebra": {
+            "n": 124,
+            "base_acc": 0.6693548387096774,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.04,
+                "mean_coverage": 0.027222222222222224,
+                "validity": 1.0
+              },
+              "k32": {
+                "feasible_frac": 0.14,
+                "mean_coverage": 0.044347826086956525,
+                "validity": 1.0
+              },
+              "k64": {
+                "feasible_frac": 0.28,
+                "mean_coverage": 0.09224999999999998,
+                "validity": 1.0
+              }
+            },
+            "label_budget": 16
+          },
+          "counting_and_probability": {
+            "n": 38,
+            "base_acc": 0.47368421052631576,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.08,
+                "mean_coverage": 0.029545454545454545,
+                "validity": 0.625
+              },
+              "k32": {
+                "feasible_frac": 0.365,
+                "mean_coverage": 0.10583333333333332,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "geometry": {
+            "n": 41,
+            "base_acc": 0.36585365853658536,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.34,
+                "mean_coverage": 0.1186,
+                "validity": 0.0
+              },
+              "k32": {
+                "feasible_frac": 0.76,
+                "mean_coverage": 0.1488888888888889,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "intermediate_algebra": {
+            "n": 97,
+            "base_acc": 0.32989690721649484,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.07,
+                "mean_coverage": 0.02148148148148148,
+                "validity": 0.0
+              },
+              "k32": {
+                "feasible_frac": 0.34,
+                "mean_coverage": 0.09276923076923077,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.67,
+                "mean_coverage": 0.12984848484848485,
+                "validity": 0.0
+              }
+            },
+            "label_budget": null
+          },
+          "number_theory": {
+            "n": 62,
+            "base_acc": 0.43548387096774194,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.115,
+                "mean_coverage": 0.024,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          },
+          "prealgebra": {
+            "n": 82,
+            "base_acc": 0.6219512195121951,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.195,
+                "mean_coverage": 0.11030303030303029,
+                "validity": 1.0
+              },
+              "k32": {
+                "feasible_frac": 0.59,
+                "mean_coverage": 0.31909999999999994,
+                "validity": 1.0
+              },
+              "k64": {
+                "feasible_frac": 1.0,
+                "mean_coverage": 0.9023684210526316,
+                "validity": 1.0
+              }
+            },
+            "label_budget": 16
+          },
+          "precalculus": {
+            "n": 56,
+            "base_acc": 0.30357142857142855,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.185,
+                "mean_coverage": 0.061375,
+                "validity": 0.0
+              },
+              "k32": {
+                "feasible_frac": 0.745,
+                "mean_coverage": 0.1125,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null,
+                "skipped": true
+              }
+            },
+            "label_budget": null
+          }
+        },
+        "marginal_coverage_gap": 0.45511930495510483,
+        "marginal_n_groups_violating": 3,
+        "mondrian_certifiable_groups": {
+          "algebra": 16,
+          "prealgebra": 16
+        },
+        "mondrian_delivers": true
+      }
+    },
+    "bbh": {
+      "domain": "BBH-750",
+      "n": 750,
+      "base_acc": 0.24133333333333334,
+      "groups": [
+        "logical_deduction_seven_objects",
+        "tracking_shuffled_objects_seven_objects",
+        "web_of_lies"
+      ],
+      "group_base_acc": {
+        "logical_deduction_seven_objects": 0.06,
+        "tracking_shuffled_objects_seven_objects": 0.124,
+        "web_of_lies": 0.54
+      },
+      "eps0.1": {
+        "marginal": {
+          "logical_deduction_seven_objects": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "tracking_shuffled_objects_seven_objects": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "web_of_lies": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "_coverage_gap": 0.0,
+          "_n_groups_violating": 0
+        },
+        "mondrian": {
+          "logical_deduction_seven_objects": {
+            "n": 250,
+            "base_acc": 0.06,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "tracking_shuffled_objects_seven_objects": {
+            "n": 250,
+            "base_acc": 0.124,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "web_of_lies": {
+            "n": 250,
+            "base_acc": 0.54,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          }
+        },
+        "marginal_coverage_gap": 0.0,
+        "marginal_n_groups_violating": 0,
+        "mondrian_certifiable_groups": {},
+        "mondrian_delivers": false
+      },
+      "eps0.2": {
+        "marginal": {
+          "logical_deduction_seven_objects": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "tracking_shuffled_objects_seven_objects": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "web_of_lies": {
+            "mean_coverage": 0.29625,
+            "mean_answered_err": 0.24901434677459292,
+            "validity": 0.0
+          },
+          "_coverage_gap": 0.29625,
+          "_n_groups_violating": 1
+        },
+        "mondrian": {
+          "logical_deduction_seven_objects": {
+            "n": 250,
+            "base_acc": 0.06,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "tracking_shuffled_objects_seven_objects": {
+            "n": 250,
+            "base_acc": 0.124,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "web_of_lies": {
+            "n": 250,
+            "base_acc": 0.54,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.005,
+                "mean_coverage": 0.0018807339449541285,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          }
+        },
+        "marginal_coverage_gap": 0.29625,
+        "marginal_n_groups_violating": 1,
+        "mondrian_certifiable_groups": {},
+        "mondrian_delivers": false
+      },
+      "eps0.3": {
+        "marginal": {
+          "logical_deduction_seven_objects": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "tracking_shuffled_objects_seven_objects": {
+            "mean_coverage": 0.0,
+            "mean_answered_err": null,
+            "validity": null
+          },
+          "web_of_lies": {
+            "mean_coverage": 0.4540408163265306,
+            "mean_answered_err": 0.26477313118025636,
+            "validity": 0.8435374149659864
+          },
+          "_coverage_gap": 0.4540408163265306,
+          "_n_groups_violating": 0
+        },
+        "mondrian": {
+          "logical_deduction_seven_objects": {
+            "n": 250,
+            "base_acc": 0.06,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k32": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k64": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              }
+            },
+            "label_budget": null
+          },
+          "tracking_shuffled_objects_seven_objects": {
+            "n": 250,
+            "base_acc": 0.124,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.005,
+                "mean_coverage": 0.0014529914529914532,
+                "validity": 0.0
+              },
+              "k32": {
+                "feasible_frac": 0.065,
+                "mean_coverage": 0.014541284403669726,
+                "validity": 0.0
+              },
+              "k64": {
+                "feasible_frac": 0.065,
+                "mean_coverage": 0.009973118279569893,
+                "validity": 0.0
+              }
+            },
+            "label_budget": null
+          },
+          "web_of_lies": {
+            "n": 250,
+            "base_acc": 0.54,
+            "by_k": {
+              "k8": {
+                "feasible_frac": 0.0,
+                "mean_coverage": 0.0,
+                "validity": null
+              },
+              "k16": {
+                "feasible_frac": 0.015,
+                "mean_coverage": 0.005405982905982907,
+                "validity": 1.0
+              },
+              "k32": {
+                "feasible_frac": 0.075,
+                "mean_coverage": 0.026238532110091747,
+                "validity": 0.8666666666666667
+              },
+              "k64": {
+                "feasible_frac": 0.11,
+                "mean_coverage": 0.03817204301075269,
+                "validity": 0.8181818181818182
+              }
+            },
+            "label_budget": 16
+          }
+        },
+        "marginal_coverage_gap": 0.4540408163265306,
+        "marginal_n_groups_violating": 0,
+        "mondrian_certifiable_groups": {
+          "web_of_lies": 16
+        },
+        "mondrian_delivers": true
+      }
+    }
+  },
+  "verdict": {
+    "math": {
+      "eps0.1": {
+        "marginal_coverage_gap": 0.2309066909720939,
+        "marginal_n_groups_violating": 1,
+        "mondrian_certifiable_groups": {},
+        "mondrian_delivers": false
+      },
+      "eps0.2": {
+        "marginal_coverage_gap": 0.38297523041474657,
+        "marginal_n_groups_violating": 2,
+        "mondrian_certifiable_groups": {
+          "algebra": 64,
+          "prealgebra": 32
+        },
+        "mondrian_delivers": true
+      },
+      "eps0.3": {
+        "marginal_coverage_gap": 0.45511930495510483,
+        "marginal_n_groups_violating": 3,
+        "mondrian_certifiable_groups": {
+          "algebra": 16,
+          "prealgebra": 16
+        },
+        "mondrian_delivers": true
+      }
+    },
+    "bbh": {
+      "eps0.1": {
+        "marginal_coverage_gap": 0.0,
+        "marginal_n_groups_violating": 0,
+        "mondrian_certifiable_groups": {},
+        "mondrian_delivers": false
+      },
+      "eps0.2": {
+        "marginal_coverage_gap": 0.29625,
+        "marginal_n_groups_violating": 1,
+        "mondrian_certifiable_groups": {},
+        "mondrian_delivers": false
+      },
+      "eps0.3": {
+        "marginal_coverage_gap": 0.4540408163265306,
+        "marginal_n_groups_violating": 0,
+        "mondrian_certifiable_groups": {
+          "web_of_lies": 16
+        },
+        "mondrian_delivers": true
+      }
+    }
+  }
+}

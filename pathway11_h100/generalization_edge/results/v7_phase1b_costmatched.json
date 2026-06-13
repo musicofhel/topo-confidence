@@ -1,0 +1,1227 @@
+{
+ "spec": "v7 Phase 1b (EXP-85)",
+ "cost_units": "token-FLOPs, 1 = one 1.5B token; 7B token = 4.7",
+ "k8bbh_meta": {
+  "K": 8,
+  "temperature": 0.7,
+  "seed": 9999,
+  "cost_tokens_generated": 2510825
+ },
+ "cells": {
+  "qwen1.5b_math": {
+   "free_gate_oof_auroc": 0.8490176298217804,
+   "c0_abs": 673.37,
+   "arms": [
+    {
+     "arm": "free_gate",
+     "standalone_auroc": 0.8490176298217804,
+     "combined_auroc": 0.8490176298217804,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.0,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5377777777777778,
+      "0.8": 0.5875,
+      "0.7": 0.6457142857142857,
+      "0.6": 0.7,
+      "0.5": 0.756
+     },
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37
+    },
+    {
+     "arm": "token_min_lp",
+     "standalone_auroc": 0.6626795407599558,
+     "combined_auroc": 0.8482810523450386,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.0007365774767418287,
+     "delong_z": -1.2766870860188493,
+     "delong_p": 0.201712742481712,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5066666666666667,
+      "0.8": 0.5275,
+      "0.7": 0.5514285714285714,
+      "0.6": 0.5766666666666667,
+      "0.5": 0.616
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_p10_lp",
+     "standalone_auroc": 0.6433043506108789,
+     "combined_auroc": 0.8470160605915037,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.002001569230276723,
+     "delong_z": -0.8773664932360612,
+     "delong_p": 0.38028760649689897,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5,
+      "0.8": 0.525,
+      "0.7": 0.56,
+      "0.6": 0.5866666666666667,
+      "0.5": 0.596
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_mean_entropy",
+     "standalone_auroc": 0.667595394789515,
+     "combined_auroc": 0.8479928263758787,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.001024803445901723,
+     "delong_z": -1.8413723141648526,
+     "delong_p": 0.06556701711737967,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5022222222222222,
+      "0.8": 0.53,
+      "0.7": 0.5714285714285714,
+      "0.6": 0.5933333333333334,
+      "0.5": 0.624
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_mean_top2_margin",
+     "standalone_auroc": 0.6548974395926406,
+     "combined_auroc": 0.852988743174649,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.003971113352868594,
+     "delong_z": 0.9941056610927992,
+     "delong_p": 0.3201714295708644,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.49777777777777776,
+      "0.8": 0.5325,
+      "0.7": 0.56,
+      "0.6": 0.6,
+      "0.5": 0.592
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_ans_span_lp",
+     "standalone_auroc": 0.6573793854381836,
+     "combined_auroc": 0.8479447887143521,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.001072841107428335,
+     "delong_z": -0.24360651707335088,
+     "delong_p": 0.8075355804435267,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5244444444444445,
+      "0.8": 0.56,
+      "0.7": 0.5914285714285714,
+      "0.6": 0.5733333333333334,
+      "0.5": 0.576
+     },
+     "finite_fraction": 0.848,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_family_joint",
+     "standalone_auroc": 0.7118220685017053,
+     "combined_auroc": 0.8470480856991881,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.001969544122592315,
+     "delong_z": -0.3164092893528523,
+     "delong_p": 0.751691867003587,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5088888888888888,
+      "0.8": 0.545,
+      "0.7": 0.5857142857142857,
+      "0.6": 0.61,
+      "0.5": 0.664
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 673.37,
+     "note": "deployment-free joint"
+    },
+    {
+     "arm": "ptrue_fmtA",
+     "standalone_auroc": 0.5020816319994876,
+     "combined_auroc": 0.8490656674833068,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 4.8037661526389996e-05,
+     "delong_z": 0.021715216138445403,
+     "delong_p": 0.9826751259118331,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.4822222222222222,
+      "0.8": 0.4725,
+      "0.7": 0.5028571428571429,
+      "0.6": 0.48333333333333334,
+      "0.5": 0.488
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.202542435807951,
+     "abs_cost_per_problem": 809.756
+    },
+    {
+     "arm": "ptrue_fmtB",
+     "standalone_auroc": 0.5381419032521497,
+     "combined_auroc": 0.8473523242221902,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.0016653055995902166,
+     "delong_z": -1.0802731901235112,
+     "delong_p": 0.2800205446502826,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.4822222222222222,
+      "0.8": 0.4725,
+      "0.7": 0.4714285714285714,
+      "0.6": 0.47333333333333333,
+      "0.5": 0.468
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.195117097583795,
+     "abs_cost_per_problem": 804.756
+    },
+    {
+     "arm": "verb_binary",
+     "standalone_auroc": 0.5001601255384222,
+     "combined_auroc": 0.8493378808986245,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.0003202510768440803,
+     "delong_z": 1.2809371843053075,
+     "delong_p": 0.20021573066960263,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.4822222222222222,
+      "0.8": 0.485,
+      "0.7": 0.48,
+      "0.6": 0.47333333333333333,
+      "0.5": 0.468
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.0547588992678616,
+     "abs_cost_per_problem": 1383.613,
+     "parse_failure": 0.0
+    },
+    {
+     "arm": "verb_score_0to100",
+     "standalone_auroc": 0.5807913404108822,
+     "combined_auroc": 0.8457670813918112,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": -0.003250548429969191,
+     "delong_z": -2.4474809978428858,
+     "delong_p": 0.014385871071479484,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.48444444444444446,
+      "0.8": 0.4975,
+      "0.7": 0.52,
+      "0.6": 0.5566666666666666,
+      "0.5": 0.588
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.0547588992678616,
+     "abs_cost_per_problem": 1383.613,
+     "parse_failure": 0.0
+    },
+    {
+     "arm": "k2_agreement",
+     "standalone_auroc": 0.8151911098301068,
+     "combined_auroc": 0.8987205969480073,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.049702967126226905,
+     "delong_z": 4.340064328386435,
+     "delong_p": 1.424410114725383e-05,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5088888888888888,
+      "0.8": 0.54,
+      "0.7": 0.58,
+      "0.6": 0.6533333333333333,
+      "0.5": 0.76
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.669388300637094,
+     "abs_cost_per_problem": 1797.4859999999999
+    },
+    {
+     "arm": "k2_cluster_entropy",
+     "standalone_auroc": 0.6575795423612112,
+     "combined_auroc": 0.8593297144961649,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.010312084674384492,
+     "delong_z": 1.7409692029897532,
+     "delong_p": 0.08168897697597588,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.49333333333333335,
+      "0.8": 0.505,
+      "0.7": 0.5285714285714286,
+      "0.6": 0.56,
+      "0.5": 0.6
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.669388300637094,
+     "abs_cost_per_problem": 1797.4859999999999
+    },
+    {
+     "arm": "k4_agreement",
+     "standalone_auroc": 0.8717474500008007,
+     "combined_auroc": 0.9176474355895022,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.06862980576772182,
+     "delong_z": 5.494224768404619,
+     "delong_p": 3.924304214919516e-08,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5177777777777778,
+      "0.8": 0.565,
+      "0.7": 0.6142857142857143,
+      "0.6": 0.71,
+      "0.5": 0.784
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 4.327403953250071,
+     "abs_cost_per_problem": 2913.944
+    },
+    {
+     "arm": "k4_cluster_entropy",
+     "standalone_auroc": 0.78850618885206,
+     "combined_auroc": 0.8781604778146067,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.029142847992826293,
+     "delong_z": 3.180663266580935,
+     "delong_p": 0.0014693831560255166,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5177777777777778,
+      "0.8": 0.5425,
+      "0.7": 0.6,
+      "0.6": 0.6666666666666666,
+      "0.5": 0.696
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 4.327403953250071,
+     "abs_cost_per_problem": 2913.944
+    },
+    {
+     "arm": "k8_agreement",
+     "standalone_auroc": 0.9085603112840468,
+     "combined_auroc": 0.9279274951562024,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.07890986533442201,
+     "delong_z": 5.981163077568005,
+     "delong_p": 2.2154993395417932e-09,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5266666666666666,
+      "0.8": 0.58,
+      "0.7": 0.6542857142857142,
+      "0.6": 0.7366666666666667,
+      "0.5": 0.816
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 7.6430342902119195,
+     "abs_cost_per_problem": 5146.59
+    },
+    {
+     "arm": "k8_cluster_entropy",
+     "standalone_auroc": 0.8250308241661463,
+     "combined_auroc": 0.8816191894445244,
+     "free_auroc": 0.8490176298217804,
+     "incremental_delta": 0.032601559622744025,
+     "delong_z": 3.59873954450683,
+     "delong_p": 0.0003197632352718305,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.486,
+      "0.9": 0.5333333333333333,
+      "0.8": 0.5675,
+      "0.7": 0.6142857142857143,
+      "0.6": 0.66,
+      "0.5": 0.732
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 7.6430342902119195,
+     "abs_cost_per_problem": 5146.59
+    }
+   ]
+  },
+  "qwen1.5b_bbh": {
+   "free_gate_oof_auroc": 0.7823068483041878,
+   "c0_abs": 1296.084,
+   "arms": [
+    {
+     "arm": "free_gate",
+     "standalone_auroc": 0.7823068483041878,
+     "combined_auroc": 0.7823068483041878,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.0,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2548148148148148,
+      "0.8": 0.2833333333333333,
+      "0.7": 0.3161904761904762,
+      "0.6": 0.3488888888888889,
+      "0.5": 0.384
+     },
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084
+    },
+    {
+     "arm": "token_min_lp",
+     "standalone_auroc": 0.7718979696860829,
+     "combined_auroc": 0.7750827758304284,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -0.007224072473759446,
+     "delong_z": -1.0088799961302115,
+     "delong_p": 0.31303218985755943,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2562962962962963,
+      "0.8": 0.2833333333333333,
+      "0.7": 0.30857142857142855,
+      "0.6": 0.3333333333333333,
+      "0.5": 0.376
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_p10_lp",
+     "standalone_auroc": 0.7865500199050385,
+     "combined_auroc": 0.7878608395071318,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.005553991202943975,
+     "delong_z": 0.9230937041999062,
+     "delong_p": 0.3559583752766611,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.25925925925925924,
+      "0.8": 0.2833333333333333,
+      "0.7": 0.3180952380952381,
+      "0.6": 0.35333333333333333,
+      "0.5": 0.368
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_mean_entropy",
+     "standalone_auroc": 0.7906669644330948,
+     "combined_auroc": 0.7973569992911864,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.015050150986998578,
+     "delong_z": 3.2015875476612616,
+     "delong_p": 0.0013667253668177004,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2562962962962963,
+      "0.8": 0.2833333333333333,
+      "0.7": 0.3161904761904762,
+      "0.6": 0.3511111111111111,
+      "0.5": 0.37866666666666665
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_mean_top2_margin",
+     "standalone_auroc": 0.7702181786404374,
+     "combined_auroc": 0.7673926341648136,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -0.014914214139374216,
+     "delong_z": -2.381782133621211,
+     "delong_p": 0.017229087260380194,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2562962962962963,
+      "0.8": 0.2816666666666667,
+      "0.7": 0.3180952380952381,
+      "0.6": 0.3488888888888889,
+      "0.5": 0.368
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_ans_span_lp",
+     "standalone_auroc": 0.5323772441717076,
+     "combined_auroc": 0.7865111808057172,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.004204332501529406,
+     "delong_z": 0.9976266432540397,
+     "delong_p": 0.31846043654243816,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.23407407407407407,
+      "0.8": 0.22833333333333333,
+      "0.7": 0.22666666666666666,
+      "0.6": 0.24888888888888888,
+      "0.5": 0.21333333333333335
+     },
+     "finite_fraction": 0.5786666666666667,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_family_joint",
+     "standalone_auroc": 0.7864626319315655,
+     "combined_auroc": 0.7916767810154481,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.009369932711260298,
+     "delong_z": 1.1072368827757786,
+     "delong_p": 0.2681915250826523,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2577777777777778,
+      "0.8": 0.2833333333333333,
+      "0.7": 0.31047619047619046,
+      "0.6": 0.3422222222222222,
+      "0.5": 0.376
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 1296.084,
+     "note": "deployment-free joint"
+    },
+    {
+     "arm": "ptrue_fmtA",
+     "standalone_auroc": 0.667430502286652,
+     "combined_auroc": 0.7964345706823059,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.014127722378118102,
+     "delong_z": 1.1979827440052422,
+     "delong_p": 0.23092373489037854,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2577777777777778,
+      "0.8": 0.285,
+      "0.7": 0.30666666666666664,
+      "0.6": 0.32,
+      "0.5": 0.33866666666666667
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.1610276288676762,
+     "abs_cost_per_problem": 1504.7893333333334
+    },
+    {
+     "arm": "ptrue_fmtB",
+     "standalone_auroc": 0.5706823058773268,
+     "combined_auroc": 0.7795201429278855,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -0.002786705376302323,
+     "delong_z": -0.21871812428688503,
+     "delong_p": 0.8268696296568994,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.25037037037037035,
+      "0.8": 0.25833333333333336,
+      "0.7": 0.26476190476190475,
+      "0.6": 0.2822222222222222,
+      "0.5": 0.3253333333333333
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.1571698542172677,
+     "abs_cost_per_problem": 1499.7893333333334
+    },
+    {
+     "arm": "verb_binary",
+     "standalone_auroc": 0.5974230257600326,
+     "combined_auroc": 0.7824427851518123,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.00013593684762447378,
+     "delong_z": 0.027888324084210082,
+     "delong_p": 0.9777512208538808,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.24888888888888888,
+      "0.8": 0.25,
+      "0.7": 0.25142857142857145,
+      "0.6": 0.26666666666666666,
+      "0.5": 0.2773333333333333
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.028198275214672,
+     "abs_cost_per_problem": 2628.7153333333335,
+     "parse_failure": 0.0
+    },
+    {
+     "arm": "verb_score_0to100",
+     "standalone_auroc": 0.5029129324490965,
+     "combined_auroc": 0.7822874287545272,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -1.9419549660670832e-05,
+     "delong_z": -0.09250876409080383,
+     "delong_p": 0.9262938283440709,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.25333333333333335,
+      "0.8": 0.24,
+      "0.7": 0.2342857142857143,
+      "0.6": 0.24,
+      "0.5": 0.25333333333333335
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.028198275214672,
+     "abs_cost_per_problem": 2628.7153333333335,
+     "parse_failure": 0.0
+    },
+    {
+     "arm": "k2_agreement",
+     "standalone_auroc": 0.6475788676460593,
+     "combined_auroc": 0.7910456456514773,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.00873879734728944,
+     "delong_z": 0.7320046262824709,
+     "delong_p": 0.4641657440722664,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2474074074074074,
+      "0.8": 0.25833333333333336,
+      "0.7": 0.26476190476190475,
+      "0.6": 0.2866666666666667,
+      "0.5": 0.30666666666666664
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.6459005229084946,
+     "abs_cost_per_problem": 2133.2253333333333
+    },
+    {
+     "arm": "k2_cluster_entropy",
+     "standalone_auroc": 0.5098942605520977,
+     "combined_auroc": 0.7714901591432095,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -0.010816689160978332,
+     "delong_z": -2.4501299212494296,
+     "delong_p": 0.014280467703105204,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.24,
+      "0.8": 0.23833333333333334,
+      "0.7": 0.24571428571428572,
+      "0.6": 0.23777777777777778,
+      "0.5": 0.24533333333333332
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.6459005229084946,
+     "abs_cost_per_problem": 2133.2253333333333
+    },
+    {
+     "arm": "k4_agreement",
+     "standalone_auroc": 0.7492013710202061,
+     "combined_auroc": 0.8133004495625747,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.030993601258386905,
+     "delong_z": 2.2349044838812806,
+     "delong_p": 0.02542362013395194,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2548148148148148,
+      "0.8": 0.2733333333333333,
+      "0.7": 0.2914285714285714,
+      "0.6": 0.3288888888888889,
+      "0.5": 0.37066666666666664
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.2879957369018262,
+     "abs_cost_per_problem": 2965.434666666667
+    },
+    {
+     "arm": "k4_cluster_entropy",
+     "standalone_auroc": 0.5759692782724368,
+     "combined_auroc": 0.766101234112381,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -0.016205614191806883,
+     "delong_z": -2.397429516710614,
+     "delong_p": 0.016510557111262925,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.25333333333333335,
+      "0.8": 0.265,
+      "0.7": 0.2704761904761905,
+      "0.6": 0.2777777777777778,
+      "0.5": 0.2906666666666667
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.2879957369018262,
+     "abs_cost_per_problem": 2965.434666666667
+    },
+    {
+     "arm": "k8_agreement",
+     "standalone_auroc": 0.7913126644593111,
+     "combined_auroc": 0.8162328015613318,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": 0.03392595325714398,
+     "delong_z": 2.3255344838006167,
+     "delong_p": 0.020043398226650577,
+     "G1_promote": true,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.25925925925925924,
+      "0.8": 0.285,
+      "0.7": 0.3180952380952381,
+      "0.6": 0.36,
+      "0.5": 0.424
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 3.58298587642982,
+     "abs_cost_per_problem": 4643.850666666667
+    },
+    {
+     "arm": "k8_cluster_entropy",
+     "standalone_auroc": 0.6808785404266475,
+     "combined_auroc": 0.7806561865830332,
+     "free_auroc": 0.7823068483041878,
+     "incremental_delta": -0.0016506617211546892,
+     "delong_z": -0.17745523800932783,
+     "delong_p": 0.8591508220608035,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.24133333333333334,
+      "0.9": 0.2562962962962963,
+      "0.8": 0.265,
+      "0.7": 0.29333333333333333,
+      "0.6": 0.32666666666666666,
+      "0.5": 0.36533333333333334
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 3.58298587642982,
+     "abs_cost_per_problem": 4643.850666666667
+    }
+   ]
+  },
+  "qwen7b_math": {
+   "free_gate_oof_auroc": 0.8986012560150071,
+   "c0_abs": 3094.6868,
+   "arms": [
+    {
+     "arm": "free_gate",
+     "standalone_auroc": 0.8986012560150071,
+     "combined_auroc": 0.8986012560150071,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": 0.0,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.8066666666666666,
+      "0.8": 0.875,
+      "0.7": 0.9142857142857143,
+      "0.6": 0.9366666666666666,
+      "0.5": 0.944
+     },
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868
+    },
+    {
+     "arm": "token_min_lp",
+     "standalone_auroc": 0.6916034581192398,
+     "combined_auroc": 0.8983361879128946,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": -0.00026506810211246457,
+     "delong_z": -0.20587053590912394,
+     "delong_p": 0.8368920413773844,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7711111111111111,
+      "0.8": 0.7875,
+      "0.7": 0.8028571428571428,
+      "0.6": 0.8066666666666666,
+      "0.5": 0.832
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_p10_lp",
+     "standalone_auroc": 0.6169154228855722,
+     "combined_auroc": 0.901129597912079,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": 0.0025283418970719618,
+     "delong_z": 1.0414890562166252,
+     "delong_p": 0.2976486297151144,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7511111111111111,
+      "0.8": 0.7775,
+      "0.7": 0.7885714285714286,
+      "0.6": 0.8,
+      "0.5": 0.808
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_mean_entropy",
+     "standalone_auroc": 0.6184650517902291,
+     "combined_auroc": 0.8992129516352664,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": 0.0006116956202593116,
+     "delong_z": 0.5658157255295543,
+     "delong_p": 0.5715190552418179,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7488888888888889,
+      "0.8": 0.785,
+      "0.7": 0.7828571428571428,
+      "0.6": 0.7966666666666666,
+      "0.5": 0.804
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_mean_top2_margin",
+     "standalone_auroc": 0.7023081314737786,
+     "combined_auroc": 0.9010072587880271,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": 0.002406002773020055,
+     "delong_z": 0.6230342184817327,
+     "delong_p": 0.5332620356940145,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7555555555555555,
+      "0.8": 0.8025,
+      "0.7": 0.8142857142857143,
+      "0.6": 0.8333333333333334,
+      "0.5": 0.844
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_ans_span_lp",
+     "standalone_auroc": 0.5685506891770654,
+     "combined_auroc": 0.893768860614958,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": -0.004832395400049094,
+     "delong_z": -1.7541453781538199,
+     "delong_p": 0.07940559983296347,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7577777777777778,
+      "0.8": 0.755,
+      "0.7": 0.7457142857142857,
+      "0.6": 0.7533333333333333,
+      "0.5": 0.76
+     },
+     "finite_fraction": 0.924,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868,
+     "note": "deployment-free: read off decoder logits"
+    },
+    {
+     "arm": "token_family_joint",
+     "standalone_auroc": 0.7477163363510317,
+     "combined_auroc": 0.8980303401027648,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": -0.0005709159122422314,
+     "delong_z": -0.12657177668903044,
+     "delong_p": 0.8992793361848195,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.78,
+      "0.8": 0.8075,
+      "0.7": 0.8257142857142857,
+      "0.6": 0.8466666666666667,
+      "0.5": 0.844
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.0,
+     "abs_cost_per_problem": 3094.6868,
+     "note": "deployment-free joint"
+    },
+    {
+     "arm": "ptrue_fmtA",
+     "standalone_auroc": 0.5679186037027975,
+     "combined_auroc": 0.8951145909795285,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": -0.0034866650354785644,
+     "delong_z": -1.076602561608396,
+     "delong_p": 0.28165785934362964,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.74,
+      "0.8": 0.74,
+      "0.7": 0.7457142857142857,
+      "0.6": 0.76,
+      "0.5": 0.768
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.2074800590483017,
+     "abs_cost_per_problem": 3736.7726000000002
+    },
+    {
+     "arm": "ptrue_fmtB",
+     "standalone_auroc": 0.5959954326727022,
+     "combined_auroc": 0.8955631677677188,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": -0.00303808824728824,
+     "delong_z": -0.9170675337545893,
+     "delong_p": 0.35910725254875997,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.74,
+      "0.8": 0.7475,
+      "0.7": 0.76,
+      "0.6": 0.7566666666666667,
+      "0.5": 0.816
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 1.1998863988433337,
+     "abs_cost_per_problem": 3713.2726000000002
+    },
+    {
+     "arm": "verb_binary",
+     "standalone_auroc": 0.5371401190767474,
+     "combined_auroc": 0.898825544409102,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": 0.00022428839409494028,
+     "delong_z": 0.12528740297278484,
+     "delong_p": 0.9002960245739684,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7488888888888889,
+      "0.8": 0.75,
+      "0.7": 0.7457142857142857,
+      "0.6": 0.7533333333333333,
+      "0.5": 0.74
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.055515731026481,
+     "abs_cost_per_problem": 6361.1774000000005,
+     "parse_failure": 0.0
+    },
+    {
+     "arm": "verb_score_0to100",
+     "standalone_auroc": 0.5390669602805643,
+     "combined_auroc": 0.898315798058886,
+     "free_auroc": 0.8986012560150071,
+     "incremental_delta": -0.0002854579561211157,
+     "delong_z": -0.28789932115747263,
+     "delong_p": 0.7734238065644667,
+     "G1_promote": false,
+     "risk_coverage": {
+      "1.0": 0.732,
+      "0.9": 0.7288888888888889,
+      "0.8": 0.7325,
+      "0.7": 0.7428571428571429,
+      "0.6": 0.7333333333333333,
+      "0.5": 0.744
+     },
+     "finite_fraction": 1.0,
+     "rel_cost": 2.055515731026481,
+     "abs_cost_per_problem": 6361.1774000000005,
+     "parse_failure": 0.0
+    }
+   ]
+  }
+ },
+ "ptrue_format_frozen_for_T5": {
+  "rule": "better standalone on 1.5B MATH dev only",
+  "choice": "ptrue_fmtB",
+  "dev_aurocs": {
+   "ptrue_fmtA": 0.5020816319994876,
+   "ptrue_fmtB": 0.5381419032521497
+  }
+ },
+ "H_I": {
+  "qwen1.5b_math": {
+   "refuted_by": [],
+   "H_I_holds": true
+  },
+  "qwen1.5b_bbh": {
+   "refuted_by": [
+    {
+     "arm": "token_mean_entropy",
+     "incremental_delta": 0.015050150986998578,
+     "delong_p": 0.0013667253668177004,
+     "rel_cost": 1.0
+    }
+   ],
+   "H_I_holds": false
+  },
+  "qwen7b_math": {
+   "refuted_by": [],
+   "H_I_holds": true
+  },
+  "overall_H_I_holds": false
+ },
+ "H_J_math": {
+  "acc_1p5b": 0.486,
+  "acc_7b": 0.732,
+  "base_cost_1p5b": 673.37,
+  "full_escalation_cost": 3768.0568,
+  "cascade_curve": [
+   {
+    "escalate_frac": 0.0,
+    "abs_cost": 673.37,
+    "acc": 0.486
+   },
+   {
+    "escalate_frac": 0.1,
+    "abs_cost": 1080.578,
+    "acc": 0.526
+   },
+   {
+    "escalate_frac": 0.2,
+    "abs_cost": 1506.6706,
+    "acc": 0.552
+   },
+   {
+    "escalate_frac": 0.3,
+    "abs_cost": 1912.8164000000002,
+    "acc": 0.574
+   },
+   {
+    "escalate_frac": 0.4,
+    "abs_cost": 2279.3882000000003,
+    "acc": 0.61
+   },
+   {
+    "escalate_frac": 0.5,
+    "abs_cost": 2585.8094,
+    "acc": 0.646
+   },
+   {
+    "escalate_frac": 0.6,
+    "abs_cost": 2862.912,
+    "acc": 0.68
+   },
+   {
+    "escalate_frac": 0.7,
+    "abs_cost": 3156.239,
+    "acc": 0.698
+   },
+   {
+    "escalate_frac": 0.8,
+    "abs_cost": 3390.5998,
+    "acc": 0.72
+   },
+   {
+    "escalate_frac": 0.9,
+    "abs_cost": 3594.4858,
+    "acc": 0.726
+   },
+   {
+    "escalate_frac": 1.0,
+    "abs_cost": 3768.0568,
+    "acc": 0.732
+   }
+  ],
+  "k_points": [
+   {
+    "K": 2,
+    "abs_cost": 1797.4859999999999,
+    "cascade_escalate_frac": 0.268,
+    "acc_k_majority_full_cov": 0.416,
+    "acc_cascade_full_cov": 0.57,
+    "random_mix_acc_at_cost": 0.575357196340515,
+    "by_coverage": {
+     "1.0": {
+      "k_selective_acc": 0.416,
+      "cascade_selective_acc": 0.57,
+      "delta": -0.15399999999999997,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.9": {
+      "k_selective_acc": 0.44222222222222224,
+      "cascade_selective_acc": 0.6244444444444445,
+      "delta": -0.18222222222222223,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.8": {
+      "k_selective_acc": 0.4725,
+      "cascade_selective_acc": 0.6775,
+      "delta": -0.20500000000000002,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.7": {
+      "k_selective_acc": 0.5171428571428571,
+      "cascade_selective_acc": 0.7142857142857143,
+      "delta": -0.19714285714285718,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.6": {
+      "k_selective_acc": 0.5733333333333334,
+      "cascade_selective_acc": 0.7566666666666667,
+      "delta": -0.18333333333333335,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.5": {
+      "k_selective_acc": 0.64,
+      "cascade_selective_acc": 0.784,
+      "delta": -0.14400000000000002,
+      "p_k_wins_gt_1pp": 1.0
+     }
+    }
+   },
+   {
+    "K": 4,
+    "abs_cost": 2913.944,
+    "cascade_escalate_frac": 0.618,
+    "acc_k_majority_full_cov": 0.502,
+    "acc_cascade_full_cov": 0.686,
+    "random_mix_acc_at_cost": 0.6641056499804762,
+    "by_coverage": {
+     "1.0": {
+      "k_selective_acc": 0.502,
+      "cascade_selective_acc": 0.686,
+      "delta": -0.18400000000000005,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.9": {
+      "k_selective_acc": 0.5266666666666666,
+      "cascade_selective_acc": 0.7555555555555555,
+      "delta": -0.22888888888888892,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.8": {
+      "k_selective_acc": 0.5675,
+      "cascade_selective_acc": 0.815,
+      "delta": -0.24749999999999994,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.7": {
+      "k_selective_acc": 0.6228571428571429,
+      "cascade_selective_acc": 0.8285714285714286,
+      "delta": -0.20571428571428574,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.6": {
+      "k_selective_acc": 0.6866666666666666,
+      "cascade_selective_acc": 0.8566666666666667,
+      "delta": -0.17000000000000004,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.5": {
+      "k_selective_acc": 0.776,
+      "cascade_selective_acc": 0.88,
+      "delta": -0.10399999999999998,
+      "p_k_wins_gt_1pp": 1.0
+     }
+    }
+   },
+   {
+    "K": 8,
+    "abs_cost": 5146.59,
+    "cascade_escalate_frac": 1.0,
+    "acc_k_majority_full_cov": 0.554,
+    "acc_cascade_full_cov": 0.732,
+    "random_mix_acc_at_cost": 0.732,
+    "by_coverage": {
+     "1.0": {
+      "k_selective_acc": 0.554,
+      "cascade_selective_acc": 0.732,
+      "delta": -0.17799999999999994,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.9": {
+      "k_selective_acc": 0.5844444444444444,
+      "cascade_selective_acc": 0.8066666666666666,
+      "delta": -0.2222222222222222,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.8": {
+      "k_selective_acc": 0.615,
+      "cascade_selective_acc": 0.875,
+      "delta": -0.26,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.7": {
+      "k_selective_acc": 0.6742857142857143,
+      "cascade_selective_acc": 0.9142857142857143,
+      "delta": -0.24,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.6": {
+      "k_selective_acc": 0.74,
+      "cascade_selective_acc": 0.9366666666666666,
+      "delta": -0.19666666666666666,
+      "p_k_wins_gt_1pp": 1.0
+     },
+     "0.5": {
+      "k_selective_acc": 0.828,
+      "cascade_selective_acc": 0.944,
+      "delta": -0.11599999999999999,
+      "p_k_wins_gt_1pp": 1.0
+     }
+    }
+   }
+  ],
+  "H_J_confirmed_K_loses_everywhere": true
+ },
+ "bbh_k8_system_view": {
+  "acc_greedy": 0.24133333333333334,
+  "acc_k2_majority": 0.204,
+  "acc_k4_majority": 0.26666666666666666,
+  "acc_k8_majority": 0.2813333333333333
+ }
+}

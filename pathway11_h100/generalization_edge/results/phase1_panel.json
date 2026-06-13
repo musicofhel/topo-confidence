@@ -1,0 +1,666 @@
+{
+  "in_domain": {
+    "free_baseline": {
+      "auroc": 0.8490176298217804
+    },
+    "length_only": {
+      "auroc": 0.7942466894044932
+    },
+    "mean_logprob_only": {
+      "auroc": 0.6700933531889002
+    },
+    "prefill_dom": {
+      "auroc": 0.7730860995020097,
+      "gate": {
+        "auroc_readout": 0.7730860995020097,
+        "auroc_feat_plus_free": 0.8531969063745977,
+        "auroc_free": 0.8490176298217804,
+        "delta": 0.004179276552817357,
+        "p": 0.4127206890139634,
+        "z": 0.8191152025528387
+      }
+    },
+    "last_dom": {
+      "auroc": 0.7186274038846456,
+      "gate": {
+        "auroc_readout": 0.7186274038846456,
+        "auroc_feat_plus_free": 0.8485852908680405,
+        "auroc_free": 0.8490176298217804,
+        "delta": -0.00043233895373984144,
+        "p": 0.6498081807719651,
+        "z": -0.45402868512066186
+      }
+    },
+    "mean_dom": {
+      "auroc": 0.8192983298906343,
+      "gate": {
+        "auroc_readout": 0.8192983298906343,
+        "auroc_feat_plus_free": 0.8581928231733679,
+        "auroc_free": 0.8490176298217804,
+        "delta": 0.009175193351587674,
+        "p": 0.12909790768676443,
+        "z": 1.5176688217772993
+      }
+    },
+    "concat_ridge": {
+      "auroc": 0.850891098621319,
+      "gate": {
+        "auroc_readout": 0.850891098621319,
+        "auroc_feat_plus_free": 0.8606747690189108,
+        "auroc_free": 0.8490176298217804,
+        "delta": 0.011657139197130517,
+        "p": 0.11289739863388704,
+        "z": 1.5853034805744628
+      }
+    },
+    "coe_profile": {
+      "auroc": 0.8540135466205505,
+      "gate": {
+        "auroc_readout": 0.8540135466205505,
+        "auroc_feat_plus_free": 0.8665193511713183,
+        "auroc_free": 0.8490176298217804,
+        "delta": 0.01750172134953787,
+        "p": 0.018443051509585473,
+        "z": 2.3566009996072976
+      }
+    },
+    "coe_depthgrid": {
+      "auroc": 0.8302188916110231,
+      "gate": {
+        "auroc_readout": 0.8302188916110231,
+        "auroc_feat_plus_free": 0.8571039695120973,
+        "auroc_free": 0.8490176298217804,
+        "delta": 0.008086339690317135,
+        "p": 0.13699181760875656,
+        "z": 1.4870870641423173
+      }
+    }
+  },
+  "T1_loco": {
+    "free_baseline": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.7834263884807522,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.8500000000000001,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9307692307692308,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.8254807692307693,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.7354497354497355,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.8886780518659076,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.9034690799396682,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.7354497354497355,
+      "worst_cell": "number_theory",
+      "aggregate": 0.8453247508194377
+    },
+    "length_only": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.7170143990596533,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.8125,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9243589743589743,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.7920673076923077,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.6402116402116401,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.8516761543327008,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.8431372549019608,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.6402116402116401,
+      "worst_cell": "number_theory",
+      "aggregate": 0.7972808186510337
+    },
+    "mean_logprob_only": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.6952688803996474,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.7388888888888888,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.694871794871795,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.6586538461538461,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.6507936507936508,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.6261859582542695,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.5867269984917043,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.5867269984917043,
+      "worst_cell": "precalculus",
+      "aggregate": 0.6644842882648289
+    },
+    "prefill_dom": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.6982074640023509,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.7277777777777777,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.7701923076923077,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.6031746031746031,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.7919038583175206,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.7073906485671191,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.6031746031746031,
+      "worst_cell": "number_theory",
+      "aggregate": 0.7426638085045257
+    },
+    "last_dom": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.6961504554804584,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.7916666666666666,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.7487179487179487,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.7375,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.6899470899470899,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.6710942441492727,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.6621417797888386,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.6621417797888386,
+      "worst_cell": "precalculus",
+      "aggregate": 0.7138883121071821
+    },
+    "mean_dom": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.6841022627093741,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.8666666666666667,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9307692307692308,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.8139423076923077,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.7248677248677249,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.8462998102466793,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.8748114630467572,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.6841022627093741,
+      "worst_cell": "algebra",
+      "aggregate": 0.8202084951426772
+    },
+    "concat_ridge": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.8260358507199529,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.8999999999999999,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9128205128205129,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.8826923076923077,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.6613756613756614,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.8488298545224542,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.894419306184012,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.6613756613756614,
+      "worst_cell": "number_theory",
+      "aggregate": 0.8465962133307
+    },
+    "coe_profile": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.7945930061710256,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.8694444444444445,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9615384615384615,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.7947115384615385,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.7216931216931217,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.8690702087286528,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.8190045248868778,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.7216931216931217,
+      "worst_cell": "number_theory",
+      "aggregate": 0.832865043703446
+    },
+    "coe_depthgrid": {
+      "per_cell": {
+        "algebra": {
+          "auroc": 0.7699089039083162,
+          "n": 124,
+          "n_pos": 83
+        },
+        "counting_and_probability": {
+          "auroc": 0.8805555555555555,
+          "n": 38,
+          "n_pos": 18
+        },
+        "geometry": {
+          "auroc": 0.9358974358974359,
+          "n": 41,
+          "n_pos": 15
+        },
+        "intermediate_algebra": {
+          "auroc": 0.78125,
+          "n": 97,
+          "n_pos": 32
+        },
+        "number_theory": {
+          "auroc": 0.8042328042328042,
+          "n": 62,
+          "n_pos": 27
+        },
+        "prealgebra": {
+          "auroc": 0.8456672991777356,
+          "n": 82,
+          "n_pos": 51
+        },
+        "precalculus": {
+          "auroc": 0.8476621417797889,
+          "n": 56,
+          "n_pos": 17
+        }
+      },
+      "worst": 0.7699089039083162,
+      "worst_cell": "algebra",
+      "aggregate": 0.8378820200788054
+    }
+  },
+  "T2_crossdomain": {
+    "free_baseline": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.7845498062899922,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.6720628973114924,
+          "n": 500
+        }
+      },
+      "worst": 0.6720628973114924,
+      "aggregate": 0.7283063518007422
+    },
+    "length_only": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.5,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.5,
+          "n": 500
+        }
+      },
+      "worst": 0.5,
+      "aggregate": 0.5
+    },
+    "mean_logprob_only": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.7845498062899922,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.6720628973114924,
+          "n": 500
+        }
+      },
+      "worst": 0.6720628973114924,
+      "aggregate": 0.7283063518007422
+    },
+    "prefill_dom": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.7959587917156201,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.6562264815615443,
+          "n": 500
+        }
+      },
+      "worst": 0.6562264815615443,
+      "aggregate": 0.7260926366385823
+    },
+    "last_dom": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.7471963025177446,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.6926230164448928,
+          "n": 500
+        }
+      },
+      "worst": 0.6926230164448928,
+      "aggregate": 0.7199096594813187
+    },
+    "mean_dom": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.5842080222159648,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.5097756641206705,
+          "n": 500
+        }
+      },
+      "worst": 0.5097756641206705,
+      "aggregate": 0.5469918431683176
+    },
+    "concat_ridge": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.740836400003884,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.7133112360090311,
+          "n": 500
+        }
+      },
+      "worst": 0.7133112360090311,
+      "aggregate": 0.7270738180064575
+    },
+    "coe_profile": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.7192127314567573,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.7441193896014475,
+          "n": 500
+        }
+      },
+      "worst": 0.7192127314567573,
+      "aggregate": 0.7316660605291024
+    },
+    "coe_depthgrid": {
+      "per_cell": {
+        "math->bbh": {
+          "auroc": 0.5846838011826506,
+          "n": 750
+        },
+        "bbh->math": {
+          "auroc": 0.5913596259467423,
+          "n": 500
+        }
+      },
+      "worst": 0.5846838011826506,
+      "aggregate": 0.5880217135646965
+    }
+  },
+  "T3_crossscale": {
+    "free_baseline": {
+      "per_cell": {
+        "1.5b->7b": {
+          "auroc": 0.8926270287904738,
+          "n": 500
+        },
+        "7b->1.5b": {
+          "auroc": 0.8373284655169654,
+          "n": 500
+        }
+      },
+      "worst": 0.8373284655169654,
+      "aggregate": 0.8649777471537197
+    },
+    "length_only": {
+      "per_cell": {
+        "1.5b->7b": {
+          "auroc": 0.8623175108066227,
+          "n": 500
+        },
+        "7b->1.5b": {
+          "auroc": 0.798602104049575,
+          "n": 500
+        }
+      },
+      "worst": 0.798602104049575,
+      "aggregate": 0.8304598074280989
+    },
+    "mean_logprob_only": {
+      "per_cell": {
+        "1.5b->7b": {
+          "auroc": 0.6336351031726613,
+          "n": 500
+        },
+        "7b->1.5b": {
+          "auroc": 0.6720628973114924,
+          "n": 500
+        }
+      },
+      "worst": 0.6336351031726613,
+      "aggregate": 0.6528490002420768
+    },
+    "prefill_dom": {
+      "skipped": "hidden-dim-bound; cannot cross scale"
+    },
+    "last_dom": {
+      "skipped": "hidden-dim-bound; cannot cross scale"
+    },
+    "mean_dom": {
+      "skipped": "hidden-dim-bound; cannot cross scale"
+    },
+    "concat_ridge": {
+      "skipped": "hidden-dim-bound; cannot cross scale"
+    },
+    "coe_profile": {
+      "skipped": "hidden-dim-bound; cannot cross scale"
+    },
+    "coe_depthgrid": {
+      "per_cell": {
+        "1.5b->7b": {
+          "auroc": 0.6193214256585923,
+          "n": 500
+        },
+        "7b->1.5b": {
+          "auroc": 0.6354101615666683,
+          "n": 500
+        }
+      },
+      "worst": 0.6193214256585923,
+      "aggregate": 0.6273657936126302
+    }
+  },
+  "_note": "T4 cross-arch and T5 held-out families need Phase 2/3 generation; not cache-ready.",
+  "_not_implemented": {
+    "arm3_gride_phd": "intrinsic-dim scalars (FE238/FE55) \u2014 estimator not ported",
+    "arm2A_prompt_cloud": "needs Phase-2 prefill-only re-extraction",
+    "cov_spectrum_closure": "dry-run already refuted (spectrum+len 0.761<len 0.786)"
+  }
+}

@@ -153,12 +153,74 @@ def step5_v8():
     return allok
 
 
+def step6_conformal():
+    """Conformal sweep anchors (C1/C2/C3, 2026-06-13). Locks the cross-domain-cert
+    verdicts against cache drift. Pure JSON readback of the committed result files."""
+    import json
+    from pathlib import Path
+
+    res = Path(__file__).resolve().parent / "results"
+    allok = True
+
+    print("\nStep 6 — conformal sweep anchors (C1/C2/C3):")
+    c1 = json.loads((res / "c1_cross_domain_adaptive_cp.json").read_text())
+    # C1: every adaptive arm reproduces the wall (validity 0.0 @ eps=0.2).
+    allok &= check("C1 static validity @e.2",
+                   c1["arms"]["static"]["eps0.2"]["validity"], 0.0, 1e-9)
+    allok &= check("C1 weighted validity @e.2",
+                   c1["arms"]["weighted"]["eps0.2"]["validity"], 0.0, 1e-9)
+    allok &= check("C1 online-ACI validity @e.2",
+                   c1["arms"]["online_aci"]["eps0.2"]["validity_err_le_eps"], 0.0, 1e-9)
+    allok &= check("C1 Barber TV coverage-gap",
+                   c1["arms"]["nonexch_barber"]["barber_coverage_gap"], 0.4703, 0.0005)
+    cdf = c1["verdict"]["cross_domain_cert_feasible"]
+    ok = cdf is False
+    print(f"  [{'OK ' if ok else 'XX '}] {'C1 cross-domain cert FEASIBLE':42s} "
+          f"got {cdf}  want False"); allok &= ok
+
+    c2 = json.loads((res / "c2_online_crc_drift.json").read_text())
+    # C2: online = fail-safe only; the frozen violation is NOT drift-specific.
+    for label, got, want in [
+        ("C2 online restores validity (none)",
+         c2["verdict"]["eps_where_online_restores_validity"], []),
+        ("C2 frozen fails-open @e.2 drift",
+         c2["regimes"]["drift"]["eps0.2"]["frozen"]["fails_open"], True),
+        ("C2 online fails-safe @e.2 drift",
+         c2["regimes"]["drift"]["eps0.2"]["online"]["fails_safe"], True),
+        ("C2 drift-specific @e.2 (hardness)",
+         c2["verdict"]["per_eps"]["eps0.2"]["drift_specific"], False)]:
+        ok = got == want
+        print(f"  [{'OK ' if ok else 'XX '}] {label:42s} got {got}  want {want}")
+        allok &= ok
+
+    c3 = json.loads((res / "c3_group_conditional_cp.json").read_text())
+    # C3: in-domain group-conditional certs deliver for high-acc MATH, not BBH.
+    allok &= check("C3 MATH marginal cov-gap @e.2",
+                   c3["domains"]["math"]["eps0.2"]["marginal_coverage_gap"], 0.3830, 0.0005)
+    for label, got, want in [
+        ("C3 MATH Mondrian delivers @e.3",
+         c3["domains"]["math"]["eps0.3"]["mondrian_delivers"], True),
+        ("C3 BBH Mondrian delivers @e.2",
+         c3["domains"]["bbh"]["eps0.2"]["mondrian_delivers"], False)]:
+        ok = got == want
+        print(f"  [{'OK ' if ok else 'XX '}] {label:42s} got {got}  want {want}")
+        allok &= ok
+    allok &= check("C3 MATH prealgebra cond. validity k16 @e.3",
+                   c3["domains"]["math"]["eps0.3"]["mondrian"]["prealgebra"]["by_k"]["k16"]["validity"],
+                   1.0, 1e-9)
+
+    print(f"\n  conformal anchors: {'ALL PASS' if allok else 'FAILED'}")
+    return allok
+
+
 def main():
     import sys
     if "--v7-only" in sys.argv:
         return 0 if step4_v7() else 1
     if "--v8-only" in sys.argv:
         return 0 if step5_v8() else 1
+    if "--conformal-only" in sys.argv:
+        return 0 if step6_conformal() else 1
     cell = AL.load_cell("qwen1.5b", "math")
     folds = frozen_folds(cell.y)
     allok = True
@@ -202,6 +264,7 @@ def main():
 
     allok &= step4_v7()
     allok &= step5_v8()
+    allok &= step6_conformal()
 
     print(f"\n{'ALL ANCHORS PASS' if allok else 'SOME ANCHORS FAILED'}")
     return 0 if allok else 1

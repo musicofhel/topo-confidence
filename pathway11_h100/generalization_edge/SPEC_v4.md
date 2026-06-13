@@ -1,0 +1,543 @@
+# Generalization-First Edge Program — SPEC v4
+
+_Pushing the correctness-prediction signal that feeds F-8 selective prediction, measured by
+**cross-distribution transfer**, not in-domain fit. All compute LOCAL (2060 Super + CPU)._
+
+> **v4 changelog (third fresh-eyes audit + 200-problem DRY RUN, 2026-06-10).** This audit ran v3's
+> own pre-registered gates on 200 cached MATH problems before committing compute. Eight findings:
+> **(V3-1, severe, empirical) The token-cloud bet is already dead at its own gate.** On the dry run
+> (L19, first 200 problems): token-cloud spectrum **+ length 0.761 < length-only 0.786** (the
+> spectrum adds *negative* value over length); logT-residualized spectrum **0.554 ≈ chance**; and at
+> **fixed m=100 subsampled tokens** the spectrum still correlates −0.58 with T — the length coupling
+> is genuine geometry-covaries-with-length, NOT a sample-size artifact, so no eigenvalue correction
+> rescues it. H-A's null is effectively pre-confirmed. cov-spectrum is demoted to one Phase-1
+> closure row.
+> **(V3-2, severe, methodological) v3's gate (ii) was mis-specified.** Residualizing features on
+> logT destroys *legitimately shared* variance because the **label** is length-correlated too.
+> Proof: CoE-60 fails naive residualization (0.595) yet **adds +4pp over length** (0.826 vs 0.786).
+> Gate (ii) is now an **incremental-value test** — paired (feature+length) vs length-only — with the
+> residualized AUROC reported as a *decomposition* (size of the length-orthogonal channel), not a
+> kill criterion.
+> **(V3-3) Missed candidate family, now the arm-2 core (fork: re-center).** The spec omitted the
+> already-implemented **layer-axis profile features**: CoE-60 (`pathway8_layerwise/coe_features.py`,
+> exp2 holdout **0.811 > cov-spectrum 0.7928**; dry-run 0.825), D2H-dispersion, cached
+> `d2h_attn_entropy`. The layer axis doesn't grow with generation; a per-layer profile resampled to
+> a **fixed depth-fraction grid** is fixed-dim across architectures and angles are scale-invariant.
+> **(V3-4) The free two-scalar baseline is the real bar.** **length + mean_logprob = 0.834** on the
+> dry run — no activations, model-agnostic by construction, enters every tier including T5. New
+> pinned **Tier-B free baseline**. (fork: if it's the best portable T5 signal, **ship it** — goal is
+> model improvement, not geometry.)
+> **(V3-5) Length portability was asserted, never measured.** Length-only and length+logprob now run
+> on ALL tiers as first-class candidates; their transfer is a question, not a nuisance. A
+> **prompt-length** baseline is also missing everywhere (`m15b_prefill.npz:seq_len` is GENERATION
+> length — identical 123/521/1024 distribution, same 0.7986).
+> **(V3-6) Tier-A starvation (fork: add prompt-cloud arm).** Every trajectory feature is Tier-B and
+> arm 1 can't cross models → the deployable pre-flight surface had ZERO portable candidates. New
+> **arm 2A: prompt-token-cloud features** (covariance/profile over PROMPT tokens at 2/3 depth) —
+> pre-generation, fixed-dim, immune to generation-length confound by construction; needs a cheap
+> prefill-only re-extraction pass.
+> **(V3-7) T3–T5 had no incumbent** (DoM can't enter) → "≥ incumbent" was undefined exactly where
+> the claim lives. T3–T5 adjudication = vs the **length+logprob free baseline** + ≥0.70 absolute.
+> **(V3-8) Phase-2/3 extraction over-specified.** Full all-layer trajectories for Phi-3 = tens of
+> GB; the layer-profile family needs only **per-layer token-means `(L, H)`** + scalars — ~1000×
+> smaller, computable online. That is now the extraction default.
+> Literature (graph-checked): INSIDE/EigenScore 2402.03744 and CoE 2410.13640 in graph; **SIVR
+> 2604.15741 (token-wise layer-wise variance, ACL 2026) is in link-forge but NOT in the
+> research-graph — triage before any novelty claim on dispersion features.**
+
+> **v3 changelog (second fresh-eyes mythos audit of v2, 2026-06-10).** The v2 audit fixed the
+> framing but missed a confound that would have manufactured a false WIN. Six v2 findings, grounded
+> in `eigval_cache.npz`:
+> **(V2-1, severe) Length confound.** The cov-spectrum cloud is built over the *token axis* —
+> `states[19]` is `(T_i, 1536)`, covariance over T_i points (`recompute_pc1_resid_cov_spectrum.py:106,71-77`),
+> T_i ranging 123→1024. The top-20 log-eigvals are ~collinear with generation length
+> (**corr −0.78**), and generation length *alone* scores **AUROC 0.7986 — above cov-spectrum
+> (0.7928) and the incumbent (0.7731).** The "portable geometric signal" is largely a token-counter:
+> (a) length is the *least* portable feature (tokenizer/verbosity-specific) → poisons the cross-model
+> bet; (b) it requires the generated trajectory → cov-spectrum is **Tier-B (post-gen)**, cannot feed
+> the pre-flight F-8 gate; (c) it's an FE19-style false WIN (beats DoM but loses to a free counter).
+> Fix: a **length-only baseline + length-residualized form are mandatory gates ALL trajectory-cloud
+> features (arm 2 AND arm 3) must clear** before any transfer claim; cov-spectrum reclassified Tier-B.
+> **(V2-2) Only T5 is a true holdout.** The winning arm/feature-form is *selected* on T1–T4 numbers,
+> so reporting those tiers as transfer evidence is selection-on-the-eval-set. T1–T4 are now **model-
+> development tiers**; T5 (held-out families) is the **sole confirmatory tier**.
+> **(V2-3) Phase-4 power ghost.** "Recover the gap by k≤32" is unmeasurable on the worst cell (n=62 →
+> ~30 left after k=32 → SE≈0.10). Recalibration recovery now measured **pooled across tier cells / on
+> the large cells (BBH 250, Qwen-7B)**, with the scoring n stated.
+> **(V2-4) "Two families" is ~1.5.** SmolLM2 is Llama-architecture (Llama-3.2 is in the selection
+> pool); honest relabel: **one near-family (SmolLM2≈Llama) + one far-family (Gemma)** holdout.
+> **(V2-5) Paired DeLong needs a frozen fold map.** Incumbent and challenger OOF use different
+> partitions; Phase 0 now mandates **one frozen fold assignment scored by every method**.
+> **(V2-6) Arm-3 relabel.** GRIDE/PHD give a scalar → a 1-bit (sign) fit on labels; "label-free
+> *feature*, 1-bit-supervised *readout*," not "label-free readout."
+
+> **v2 changelog (fresh-eyes mythos audit, 2026-06-10).** v1 carried four load-bearing cracks,
+> now corrected: **(M1–M3)** the "geometric = label-free = overfit-immune" framing was false for the
+> strongest geometric candidate — cov-spectrum (0.7928) is a *supervised* LogisticRegression on
+> top-20 log-eigvals, anchored to a Qwen-specific prefill-PC1, with *scale-dependent* eigval
+> magnitudes. The real portability axis is **fixed-dim feature (ports across hidden sizes) vs
+> hidden-dim-bound**, and the arms are now split into genuinely-label-free scalars (GRIDE/PHD) vs
+> supervised-on-geometric (cov-spectrum), with a **pre-registered scale-invariant** cov-spectrum.
+> **(M4–M5)** panel-wide `min` compared methods over different cell sets (supervised can't produce
+> cross-model cells) and was under-powered (worst LOCO cell n=62 → 1.96·SE≈0.14); replaced by
+> **per-tier worst-cell + paired DeLong over the full cell vector + robust aggregate**, per-cell n
+> tabulated. **(M7)** n=1 unseen model → **two held-out families** (SmolLM2 + Gemma). **(M11)** the
+> per-domain recalibration recipe is now a **first-class Phase 4**, not a LOSE-clause consolation.
+> Minor: pinned single DoM incumbent (M6), resolved fixed-layer↔H-D collision (M8), dropped the
+> in-domain-motivates-transfer contradiction (M9) and the result-presupposing combiner line (M10).
+
+## Context — why this, why now
+
+topo-confidence's one deployable result is **F-8**: a hidden-state read of Qwen-2.5-1.5B
+predicts whether it will answer a MATH problem correctly, and refuse-and-spend on that score
+answers 50% of queries at **71.6%** vs 48.6% blind. The *quality of that product is exactly the
+quality of the correctness-prediction signal.* Two adjacent ideas are now dead ends and out of
+scope: **compute routing** (C_infer prefill-gating and C_exact verification both failed to beat the
+uniform-K hull — FE19, 2026-06-10) and **steering** (F-2 is DIAGNOSTIC, a thermometer not a
+thermostat — FE269, 2026-06-09). So the only frontier left that actually improves the model's usable
+behavior is **making the readout itself better and more general.**
+
+The infrastructure sweep surfaced the real opportunity. Nearly every number we quote is
+**in-domain** (train + test on the same distribution, OOF folds): prefill-DoM 0.7731, prefill
+ridge-LR 0.7844, final-token ridge-LR 0.8493, concat 0.8509, cov-spectrum 0.7928. The moment we go
+cross-distribution it collapses: cross-domain MATH↔BBH ~0.72, leave-one-MATH-category-out worst
+**0.603** (Number Theory). **That ~0.15–0.25 AUROC gap between in-domain and transfer is the
+unexploited juice.** Squeezing the in-domain number harder *is* the overfitting the user wants to
+avoid; closing the transfer gap is the "real solution that generalizes to other models and domains."
+
+**Decisions taken this session:** explore pre- and post-generation signals **together** (report both
+tiers per method, let the conclusions emerge); run the **full program** including generation on
+**two genuinely unseen models** as the generalization floor.
+
+**(M12, flagged not resolved.)** F-8 = selective prediction ("refuse half the questions"), which is an
+odd *educational* product. A better transfer AUROC is necessary for any deployment surface, so the
+experiment design is unaffected — but before shipping, re-examine the surface (abstain vs.
+confidence-display vs. hint-routing) against the stated "for the sake of education" goal. Out of scope
+for the bake-off; in scope for the eventual product framing.
+
+## North-star metric & pre-registered decision rules
+
+The success metric is **transfer AUROC across a (model × domain) panel**, never in-domain. v1 used
+a single panel-wide `min`; that is statistically fragile (a downward-biased, high-variance order
+statistic) **and ill-posed** — supervised methods cannot produce cross-model cells (dim mismatch),
+so their `min` is taken over a smaller, easier cell set than a geometric method's. v2 adjudicates
+**per transfer tier, like-for-like**, on the full paired cell vector.
+
+**Transfer tiers** (a method is only ever compared to another method on the *same* tier's cells):
+
+| Tier | Cells | Hardest? | Who can enter |
+|---|---|---|---|
+| T1 cross-category | LOCO leave-one-MATH-subject-out (7) | mild | all methods |
+| T2 cross-domain | MATH↔BBH (same model) | medium | all methods |
+| T3 cross-scale | Qwen-1.5B↔7B | medium | fixed-dim / geometric only |
+| T4 cross-arch | Qwen↔Phi↔Llama | hard | fixed-dim / geometric only |
+| T5 cross-model (held out) | →SmolLM2, →Gemma | hardest | fixed-dim / geometric only |
+
+**Selection firewall (V2-2).** Method/feature-form selection (which arm, which scale-invariant form,
+which layer) is done on **T1–T4 only — these are model-development tiers.** **T5 is the sole
+confirmatory tier**, touched once with the already-frozen winner; its number is the only one
+presented as clean cross-model generalization evidence. T1–T4 numbers are reported but flagged as
+selection-contaminated (optimistically biased), never cited as the generalization proof.
+
+**Free-baseline control & incremental gate (V2-1 revised by V3-2/V3-4).** Generation length alone
+scores AUROC **0.7986** in-domain, and **length + mean_logprob = 0.834 (dry run, n=200)** — two free
+scalars, no activations, model-agnostic, enter every tier. So the **pinned Tier-B free baseline =
+length+logprob**, a first-class entry in every tier, and **every trajectory/activation feature must
+clear the incremental gate:** the paired per-tier test of **(feature + length + logprob) vs
+(length + logprob)** must show the feature *adds* signal. The naive logT-residualized AUROC is
+reported alongside as a **decomposition** — the size of the feature's length-orthogonal channel —
+but is NOT a kill criterion (residualizing on a label-correlated covariate destroys legitimately
+shared variance; V3-2). The length-*shared* component of a feature ports iff the length→correctness
+relation itself ports — which is measured directly, because **length-only and length+logprob run on
+ALL tiers as candidates (V3-5)**: their transfer is an empirical question, not an assumed failure.
+A feature that adds nothing over the free baseline is reported as "= free baseline" — a non-result.
+
+Per tier, report: **(a) worst cell** with its bootstrap CI, **(b) robust aggregate** = mean
+off-diagonal AUROC with a paired CI, **(c) the full per-cell vector with each cell's n** (so power
+is visible, not hidden — see the panel table), **(d) the free baseline (length+logprob), the
+incremental-gate paired test, and the length-orthogonal decomposition** alongside each feature
+method. Adjudicate method-vs-incumbent
+with a **paired test across the shared cells** (DeLong where the same test set is scored by both;
+bootstrap-paired where not), not by eyeballing two independent minima. **All methods are scored on
+one frozen fold/test partition per cell (V2-5)** so the paired test compares identical test items.
+
+- **Overfit gap** (the alarm): `mean(in-domain OOF) − mean(transfer)` *within each tier*. Lower =
+  more robust. A method that raises in-domain but widens the gap is *rejected* regardless of headline.
+- **Two signal tiers reported for every method** (orthogonal to the transfer tiers above): Tier A =
+  pre-generation only (prefill activations — the deployable pre-flight gate; in-domain ceiling ~0.79).
+  Tier B = post-generation allowed (final-token / full-trajectory; in-domain ceiling ~0.85). Compare
+  the two to learn how much edge is purchased by waiting for the generation. **Every trajectory /
+  generation-derived feature (incl. length, logprob, layer-profiles over generated tokens) is Tier-B
+  by construction.** Tier-B is still a real product — **generate-then-abstain** selective prediction
+  (the answer is hidden when the gate fires; compute is spent but quality holds) — just not the
+  pre-flight compute-saving gate. The only *portable Tier-A* candidates are the new **arm-2A
+  prompt-token-cloud features (V3-6)**: profiles/covariance over the PROMPT tokens at 2/3 depth,
+  pre-generation, immune to generation-length confound by construction (their confound is
+  prompt-length, which is exogenous, shared across models, and gets its own baseline). Without
+  arm 2A, the pre-flight surface's honest ceiling stays at per-model prefill ~0.79 (arm-1).
+
+**Pinned incumbent** = **prefill-DoM, OOF 5-fold, the 0.7731 protocol** (`prefill_gated_compute/
+phase2_prefill_dom.py::oof_dom_scores`, the CLAUDE.md headline — *not* the FE291 SEED=0 0.7679
+anchor; reproduce *this exact* number through the harness before any comparison). Its T1 worst cell
+is **0.603 (Number Theory, n_test=62: 27 pos / 35 neg)**; T1 in-domain 0.7834 → gap ≈0.18.
+
+**Power note (load-bearing).** At n_test=62, Hanley–McNeil SE ≈ 0.07, so 1.96·SE ≈ 0.14 — a
+single-cell "beat by 1.96·SE" bar is nearly unmeetable and noise-dominated. That is *why* v2 judges
+on the **paired full-vector test + robust aggregate**, and where a tier's cells share structure,
+**pools test items within the tier** to shrink the CI before computing worst/aggregate.
+
+Pre-registered, per tier, before running any new method:
+
+- **WIN:** the method's **per-tier robust aggregate ≥ the tier's reference (T1/T2: the pinned
+  prefill-DoM incumbent; T3–T5: the length+logprob free baseline, V3-7), AND its paired full-vector
+  test is significant (no worse on the worst cell beyond noise), AND the overfit gap is not wider,
+  AND it clears the incremental gate — (feature+length+logprob) > (length+logprob) on the paired
+  test (V3-2).** Genuine robustness, not in-domain inflation, a lucky single cell, or a free-signal
+  artifact. WIN on T1–T4 is *development* evidence (selection-contaminated, V2-2), not the
+  generalization proof.
+- **STRETCH (the only clean generalization claim):** clears WIN on T2 **AND** posts a non-degenerate
+  number on **T5** — ≥0.70 mean on **both** held-out families (with the far-family Gemma number as the
+  load-bearing one, V2-4), clearing the incremental gate there, with zero held-out data in any
+  fit/selection. T5 is touched once with the pre-frozen winner. **Separately: if the free baseline
+  itself posts ≥0.70 on T5, that is a shippable deliverable in its own right (V3-4 fork: ship the
+  simplest winner)** — a free, universal generate-then-abstain gate is model improvement, full stop.
+- **LOSE:** no feature method clears its tier reference / the incremental gate anywhere → activation
+  geometry adds nothing portable over free signals. Still the **modal, pre-acknowledged outcome**
+  for the *geometry* arms (the dry run already pre-confirmed it for the token-cloud spectrum, V3-1).
+  The deliverable then is the documented ceiling, **whatever the free baseline delivers on T2–T5**,
+  **plus the Phase-4 recalibration recipe** — see Phase 4.
+
+## The transfer panel
+
+Rows = train distribution, cols = test distribution; fit on A, score on B, AUROC + 2000-boot 95% CI
+**and n_test on every cell** (verified small: LOCO subjects 38–124; BBH subsets 250; so CIs are wide
+— the metric section accounts for this).
+
+**Layer policy (resolves the v1 fixed-layer ↔ H-D collision).** The *panel* fixes the operating
+point at **~2/3 depth** per model (Qwen-1.5B L19/29, Qwen-7B ~L19/29, Phi-3 L21/33, Llama-3.2-1B
+L11/17, held-out models their own 2/3 fraction) — itself a transferred assumption we keep fixed for
+the headline so it is honest and cheap. H-D's layer/position *search* is a **separate, train-only
+sub-study**: the (layer, position) is selected on the train distribution via nested CV and the
+chosen point is applied blind to the test cells — never picking the transfer-optimal layer on the
+test model. Cache status (from the infra sweep):
+
+| Cell | Activations | Cache-ready? |
+|---|---|---|
+| Qwen-1.5B MATH-500 — full `(29,T,1536)` | `pathway8_layerwise/data/math500/` | ✅ all-layer all-position |
+| Qwen-1.5B BBH ×3 (tracking / logical-deduction / web-of-lies) | `pathway8_layerwise/data/bbh/<subset>/` | ✅ all-layer all-position |
+| Qwen-7B MATH-500 — full `(29,T,3584)` (cross-**scale**) | `pathway11_h100/data/math500_7b/` | ✅ all-layer all-position |
+| Qwen-1.5B MATH by 7 categories (LOCO within-domain transfer) | derived from MATH cache | ✅ |
+| Phi-3-mini MATH (cross-**arch**) | `pathway11_h100/exp1_cross_model/data/phi3mini/` | ⚠️ prefill+final+7mid only |
+| Llama-3.2-1B MATH (cross-**arch**) | `pathway11_h100/exp1_cross_model/data/llama32_1b/` | ⚠️ prefill+final+7mid only |
+| Phi-3 / Llama on BBH (cross-arch × cross-domain) | — | ❌ Phase 2 re-extraction |
+| **Held-out near-family (SmolLM2-1.7B, Llama-arch)** MATH + ≥1 BBH subset | — | ❌ Phase 3 generation |
+| **Held-out far-family (Gemma-2-2B-it)** MATH + ≥1 BBH subset | — | ❌ Phase 3 generation |
+
+## The central structural insight: what actually ports across hidden spaces
+
+v1 framed this as "supervised (bad, overfits) vs label-free geometric (good, immune)." Reading the
+artifacts, that dichotomy is wrong. The real axis is **fixed-dimensional feature vs
+hidden-dim-bound**, and there are *three* arms, not two:
+
+1. **Hidden-dim-bound supervised** (DoM vector, ridge-LR weights, concat). The weight vector lives in
+   one model's hidden space — a 1536-d Qwen vector cannot be applied to Phi's 3072-d space. **Can do
+   T1/T2 (cross-category, cross-domain) only**; cross-model requires retraining per model. Honest
+   annotation, not a defect.
+
+2. **Supervised-on-fixed-dim-geometric-features — re-centered on the DEPTH axis (V3-1/V3-3).**
+   The v3 core (token-cloud cov-spectrum) is demoted: the dry run showed spectrum+length 0.761 <
+   length 0.786 (negative incremental value), residualized 0.554, and the length coupling survives
+   fixed-m subsampling (corr −0.58 at m=100) — the token-axis geometry genuinely co-varies with
+   length and carries nothing portable beyond it. It gets **one Phase-1 closure row** to formally
+   close the H-A null at full n, nothing more. The new arm-2 core is the **layer-profile family**:
+   per-layer aggregates over the generation — **CoE mag/ang profiles**
+   (`pathway8_layerwise/coe_features.py`, exp2 holdout **0.811**, dry-run 0.825 and **+4pp over
+   length**), **D2H dispersion** (SIVR-like token-wise layer variance), **attn-entropy** (cached
+   `d2h_attn_entropy`). Portability constructions, pre-registered:
+   - **Depth grid:** per-layer profiles are resampled to a **fixed depth-fraction grid** (e.g. 16
+     points from layer-fraction 0→1), so 29-, 33-, and 17-layer models map to the same feature
+     space — the depth analog of "fixed-K eigvals."
+   - **Scale (M2):** angle features are scale-invariant by construction; magnitude profiles are
+     normalized (per-model trace/total-displacement normalization, chosen on train data only).
+   - **Incremental gate (V3-2):** every layer-profile form must add over length+logprob on the
+     paired test — the dry run says it does in-domain (+4pp); whether the *added* part transfers is
+     the program's central question.
+
+2A. **Prompt-token-cloud features (the only portable Tier-A arm, V3-6).** Same constructions
+   (spectrum / profile / dispersion) but over the **prompt tokens** before any generation: fixed-dim,
+   scale-normalized, **pre-flight by construction** and immune to generation-length confound. Its
+   own mandatory baseline is **prompt-length** (exogenous difficulty prior, currently unmeasured
+   anywhere — V3-5). Requires a cheap prefill-only re-extraction pass (no generation; minutes–hours
+   on the 2060 across the panel). The PC1-anchor rule (M3) carries over: any per-model PC1/whitening
+   is derived unsupervised on that model's own prompts, logged, never tuned on outcomes.
+
+3. **Genuinely label-free *features*, 1-bit-supervised readouts (V2-6)** — **GRIDE intrinsic-dim**
+   (`P11-FE238`) and **persistent-homology dim** (`P11-FE55`). A single dimensionless number per
+   cloud; the *feature* uses no labels, but turning the scalar into an AUROC needs a fitted sign
+   (1 bit on labels) — so this is "label-free feature, 1-bit-supervised readout," not a fully
+   label-free readout. Nearly DOF-free, directly comparable across architectures, the **strongest
+   overfit-immune control** — but the program's *weakest* signals, so the bet does not rest on them;
+   they isolate "is transfer coming from label-free geometry, or from a fitted-but-fixed-dim
+   classifier?" **The same incremental gate (V3-2) applies** — intrinsic-dim estimates drift with
+   sample count, so each must add over length+logprob on the paired test before trusting.
+
+**The core bet, restated honestly (v4):** the free **length+logprob** baseline is portable by
+construction and sets the bar everywhere (V3-4). The geometry bet is now specifically: **depth-axis
+profile features (arm 2) and prompt-cloud features (arm 2A) carry correctness signal that (a) adds
+over the free baseline and (b) ports across models via the fixed depth-grid / fixed-K
+constructions.** Supervised hidden-dim-bound readouts cannot enter T3–T5; the token-cloud spectrum
+is already refuted on (a) by the dry run. If the geometry arms fail their gates, the program's
+deliverable is whatever the free baseline achieves on T2–T5 plus Phase 4 — explicitly acceptable
+(ship the simplest winner). In-domain superiority is never cited as evidence for transfer (M9).
+
+## Phase 0 — shared harness (the durable infrastructure)
+
+Every existing script re-implements NPZ loading and AUROC-with-CI inline. Build one module under
+new dir **`pathway11_h100/generalization_edge/`** so the bake-off is uniform and the spec is
+reproducible:
+
+- `activation_loader.py` — `load(model, dataset, layers, positions) -> (X, y, meta)`; handles the
+  full-trajectory caches and the partial Phi/Llama caches behind one interface; knows each model's
+  2/3-depth layer.
+- `probes.py` — register each candidate as `fit(X_tr, y_tr) -> state` / `score(state, X_te) -> s`.
+  Wrap the existing recipes: DoM (`prefill_gated_compute/phase2_prefill_dom.py::oof_dom_scores`),
+  ridge-LR (`regularized_concat/recompute_fe421.py`), **layer-profile family
+  (`pathway8_layerwise/coe_features.py::compute_coe_single`, D2H dispersion, attn-entropy) + a
+  `depth_grid(profile, n=16)` resampler (V3-3)**, cov-spectrum (closure row), per-layer sweep
+  (`verify_route/fit_panl_probe.py`). **Plus: `free_baseline` probe (length+logprob), `length_only`,
+  `prompt_length`, and an `incremental_gate(feature, free)` paired-test wrapper (V3-2)** every
+  feature probe composes with (residualized AUROC computed alongside as the decomposition).
+- `transfer.py` — `run_panel(method, panel) -> {cell: auroc±ci}`; computes worst-cell, mean,
+  and gap, **and runs the free baseline + incremental gate + decomposition for every feature
+  method** so the V3-2 gate is automatic, not optional.
+- `metrics.py` — `auroc_with_ci(scores, y, n_boot=2000, seed)`; nested-CV helper; **DeLong paired
+  test; and a `frozen_folds(cell, seed)` helper that returns one fixed StratifiedKFold partition per
+  cell, reused by every method (V2-5)** so paired DeLong always compares identical test items.
+
+## Phase 1 — CPU bake-off on cache-ready cells (zero GPU)
+
+Run every method through `run_panel` on the cache-ready cells (Qwen-1.5B MATH, BBH×3, Qwen-7B,
+LOCO-7). Report Tier-A and Tier-B numbers, worst-cell, mean, gap. Candidates, grouped, mapped to
+their filed FE nodes:
+
+**Baselines (the things to beat):** prefill-DoM (pinned incumbent, T1/T2 reference),
+**length+logprob free baseline (dry-run 0.834 — the pinned Tier-B reference for all tiers, V3-4)**,
+length-only (0.7986), mean-logprob (`P10-FE23`, 0.6721), **prompt-length (V3-5, new — the
+Tier-A/arm-2A exogenous-difficulty prior, currently unmeasured)**. The free baselines run on **every
+tier** as candidates — if length+logprob ports to T5 at ≥0.70 it is itself a shippable deliverable.
+
+**Arm 1 — hidden-dim-bound supervised (T1/T2 only):** prefill-DoM (pinned incumbent), final-token
+DoM, concat ridge-LR (`P11-FE254`/FE421). These get the honest "no T3–T5 entry, retrain per model"
+annotation.
+
+**Arm 2 — depth-axis layer-profile family (the portability bet; enters all tiers, Tier-B):**
+CoE mag/ang profiles (exp2 0.811 / dry-run 0.825, +4pp over length), D2H dispersion, attn-entropy —
+each in (i) raw per-layer form (in-domain parity with exp2), (ii) the **depth-grid resampled +
+scale-normalized** form (the only form eligible for T3–T5), (iii) with the incremental gate +
+decomposition reported. **cov-spectrum gets ONE closure row** — full-n confirmation of the dry-run
+refutation (spectrum+length vs length paired test); its prior recompute-parity check (cached MATH
+0.7928 ±0.005) still applies to that row.
+
+**Arm 2A — prompt-token-cloud features (the only portable Tier-A arm; needs the Phase-2 prefill
+pass for non-Qwen cells, but Qwen MATH/BBH prompt clouds may be re-derivable immediately if prompt
+tokens can be cheaply re-prefilled):** prompt-cloud spectrum/profile/dispersion at 2/3 depth,
+gated against **prompt-length**.
+
+**Arm 3 — label-free features / 1-bit readouts (overfit-immune control; enters all tiers):**
+**GRIDE intrinsic-dim** per layer (`P11-FE238`), **persistent-homology dim** per cloud (`P11-FE55`).
+Weakest signals; their job is to isolate label-free-geometry from fitted-fixed-dim. **Subject to the
+same incremental gate (V3-2)** — intrinsic-dim drifts with sample count, so each must add over
+length+logprob on the paired test.
+
+**Richer supervised readouts (test the gap-inflation hypothesis, arm 1):** rStar-Math Bradley-Terry
+process probe (`P11-FE357`), Linear-AcT closed-form (`P11-FE339`), LEAT post-`\boxed` token
+position probe (`P11-FE301`).
+
+**Systematic search (H-D sub-study):** Arditi position×layer sweep selected on **train only** for the
+best *transfer* point, applied blind to test cells (`P11-FE268`) — run on Qwen full-trajectory caches.
+
+**Combiners:** multi-signal stack (DoM + layer-profile + free baseline) and multi-layer concat — fit on
+train dist only, scored on transfer. **Pre-registered prediction:** combiners maximize in-domain but
+widen the overfit gap (more free parameters → more distribution-specific fit); **decision criterion:**
+a combiner is kept only if its per-tier robust aggregate beats its best single component on the paired
+test. (No presupposing the result — the harness adjudicates.)
+
+**Overfit-diagnostic control:** task-recognition vs task-learning (`P11-FE70`) — does the signal
+survive rephrased / format-stripped MATH? A large drop means the signal is partly format-memorized.
+(Needs small generation; fold into Phase 2.)
+
+## Phase 2 — cross-architecture, winners only (small local 2060)
+
+Take the Phase-1 winners (expected: ≥1 layer-profile feature + the free baseline + the supervised
+incumbent) and:
+
+1. Re-extract Phi-3 and Llama-3.2 on MATH with the **lean extraction default (V3-8): per-layer
+   token-means `(L, H)` + per-layer norms + scalars (T, mean_logprob)** — ~1000× smaller than full
+   trajectories, computed online during generation; full 2/3-depth-layer trajectory `(T, H)` saved
+   only if a token-cloud method somehow survives Phase 1.
+2. **Prefill-only pass (arm 2A, V3-6):** capture prompt-token states at 2/3 depth for ALL panel
+   models on MATH + BBH (no generation — cheap) + tokenize-only prompt-length for every cell.
+3. Generate + extract Phi-3 / Llama on one BBH subset (cross-arch × cross-domain cells).
+4. Run the rephrased-MATH overfit control (`P11-FE70`).
+
+Fixed-dim features now fill the cross-model cells directly; supervised directions get the honest
+"must retrain per model" annotation. Reuse `causal_dom/common.py` (`load_model` bf16/sdpa,
+`batched_generate`, `check_correct`) for generation; mirror the `exp1_cross_model` extraction.
+
+## Phase 3 — the unseen-model proof: TWO held-out families (local 2060)
+
+n=1 unseen model is an existence check, not a generalization claim. Generate + extract MATH-500 and
+≥1 BBH subset on **two** models that played **zero role** in method selection — **one near-family,
+one far-family (V2-4 honest relabel):**
+- **SmolLM2-1.7B-Instruct** — **near-family holdout**: it is a *Llama-architecture* model, and
+  Llama-3.2-1B is in the selection pool (Phase 2). So this tests "does it port to an unseen *model*
+  within a *seen architecture family*" — a real but weaker holdout than v2's prose implied. (~3.4GB bf16.)
+- **Gemma-2-2B-it** — **far-family holdout**: genuinely distinct mechanism (alternating local/global
+  attention, logit soft-capping, own tokenizer); ~5GB bf16, fits 8GB. This is the only *novel-arch*
+  cross-model test → the truly-novel-architecture holdout is effectively **n=1 (Gemma)**.
+
+Apply the winning arm-2/arm-3 method with **all fitting and selection done on Qwen/Phi/Llama only**.
+The one allowed pass on a held-out model is the unsupervised, label-free PC1/normalization
+derivation on its own MATH prompts (logged; see arm 2A / M3 rule) plus scoring. T5 result = the **paired** number across
+both families, read with the near/far asymmetry in mind; STRETCH requires both ≥0.70, with the Gemma
+(far-family) number weighted as the real generalization signal. If a clean non-Llama small model that
+fits 8GB surfaces (OLMo-2-1B, Falcon3-1B), prefer swapping it in for SmolLM2 to make both holdouts
+far-family.
+
+## Phase 4 — per-domain recalibration recipe (first-class deliverable)
+
+The modal honest outcome is that no fixed readout transfers cleanly (LOSE on the strict tiers). That
+does **not** end the program — it makes **cheap recalibration** the product. Pre-register, measured
+with the same per-tier paired machinery:
+
+- **Question:** how little target-domain labeled data re-fits a deployable F-8 gate? Take the
+  best surviving extractor (arm 2/2A layer-profile, or the free baseline if geometry fails its
+  gates; frozen, fit on source), and on each target cell **re-fit only the light head** — threshold
+  + scaler (and, if needed, a 1-D Platt/isotonic calibration) — on `k ∈ {8, 16, 32, 64}` labeled
+  target examples, scoring on the held-out remainder.
+- **Power (V2-3, mandatory).** Spending k on the head shrinks the scoring set, so the recovery curve
+  must be measured **only where it is measurable**: pool across a tier's cells, or use the **large
+  cells (BBH subsets n=250, Qwen-7B MATH n=500)**, never the n=62 worst LOCO cell where k=32 leaves
+  ~30 to score (SE≈0.10). State the scoring n at every k; a recovery claim on a cell with scoring
+  n<100 is reported as underpowered, not as a win.
+- **Curve:** target-cell AUROC and selective-prediction accuracy@50%-coverage vs k, with bootstrap
+  CIs, averaged over resampled support sets. **Win = the recipe recovers most of the in-domain gap by
+  k≤32 on the adequately-powered cells** (a few dozen labels is a realistic deployment budget; report
+  the exact recovered fraction and the scoring n).
+- **Why first-class:** "freeze a fixed-dim geometric extractor, re-fit a 32-example head per new
+  domain/model" is an actually-shippable F-8 hardening result regardless of whether zero-shot transfer
+  works — it calibrates the "real solution" expectation honestly up front.
+
+## Pre-registered hypotheses (state before running, to avoid HARKing)
+
+- **H-A (token-cloud null — pre-confirmed by the dry run, V3-1, close at full n):** the cov-spectrum's
+  edge over DoM is entirely the length confound. Dry-run evidence: spectrum+length 0.761 <
+  length-only 0.786; residualized 0.554; corr −0.58 survives fixed-m=100 subsampling. Phase 1 runs
+  one closure row at n=500 to make this formal.
+- **H-A′ (the new arm-2 bet):** a **depth-grid, scale-normalized layer-profile** readout adds over
+  the length+logprob free baseline on the paired test (dry-run in-domain: +4pp / CoE 0.825 vs free
+  0.834 — note the free baseline is *higher*; the gate is incremental value in combination, and
+  transfer of the added part), and has a smaller per-tier gap than arm-1 DoM.
+- **H-B:** richer supervised readouts (concat ridge-LR 0.85) buy in-domain at the cost of transfer —
+  higher gap, no robust-aggregate gain on the paired test.
+- **H-C:** at least one arm-2/2A feature delivers cross-**model** T5 transfer (≥0.70 both families)
+  **that adds over the free baseline there** — something no arm-1 readout can produce structurally.
+  Arm-3 scalars are the control: if they also clear T5, the transfer is label-free geometry; if only
+  arm 2 does, it's the fitted fixed-dim head. *(Competing null, now front-and-center: the free
+  baseline ports as well as anything — both Qwen and the held-outs share the difficulty↔length↔
+  logprob relation; if so, ship the free gate (V3-4) and report geometry as "= free baseline".)*
+- **H-D:** a (layer, position) **selected on the train distribution** transfers better than fixed
+  2/3-depth prefill — tested in the train-only sub-study, applied blind to test cells (never the
+  test-optimal layer).
+- **H-E (Tier-A, arm 2A):** prompt-cloud features add over the prompt-length prior and approach the
+  per-model prefill ceiling (~0.79) while remaining portable — the only path to a deployable
+  pre-flight gate that crosses models.
+
+## Anti-overfitting guards (the methodological spine)
+
+- Optimize **per-tier robust aggregate + worst cell on the paired test**, never in-domain; report the
+  gap alongside every level. Never compare two independent panel-wide minima.
+- **The free baseline (length+logprob) is the mandatory incremental gate (V3-2/V3-4).** Every
+  feature must add over it on the paired (feature+free) vs free test; the logT-residualized AUROC is
+  reported as the decomposition, never as the kill criterion. Free-baseline transfer is *measured* on
+  every tier, not assumed away (V3-5). All generation-derived features are **Tier-B** — only arm 2A
+  (prompt-cloud) can claim the pre-flight surface.
+- **Selection firewall (V2-2).** T1–T4 are model-development tiers (selection-contaminated); **T5 is
+  the sole confirmatory tier**, touched once. Never present a T1–T4 number as the generalization proof.
+- **One frozen fold/test partition per cell (V2-5)**, reused by every method, so the paired DeLong
+  test always compares identical test items.
+- **Test distribution touched once.** All hyperparameters (direction, probe C, layer, K-eigvals,
+  scale-invariant feature form, thresholds) selected on the train distribution via nested CV. The
+  *only* allowed pass on held-out models is the unsupervised label-free PC1 derivation (arm 2 / M3
+  rule), logged.
+- **Arm 3 (GRIDE/PHD) is the genuine overfit-immune control** — if arm-1/arm-2 win in-domain but lose
+  on transfer while arm 3 holds, that gap *is* the finding. cov-spectrum is **not** a label-free
+  control (it is supervised); do not present it as one.
+- **Both held-out families (SmolLM2 + Gemma) are reserved** end-to-end; no held-out data in any
+  label-using fit or selection step.
+- Bootstrap CIs (n=2000) on every cell, with **n_test printed per cell**; "wins" require the paired
+  per-tier test to clear noise, not a single lucky cell (worst LOCO cell n=62 → 1.96·SE≈0.14).
+
+## Reuse map (do not reinvent)
+
+| Need | Reuse |
+|---|---|
+| OOF DoM scorer | `prefill_gated_compute/phase2_prefill_dom.py::oof_dom_scores` |
+| Direction + transfer + bootstrap CI | `stage5_bbh_dom_transfer.py` (`dom_direction`, `score_with_ci`) |
+| Ridge-LR concat | `regularized_concat/recompute_fe421.py` |
+| **Layer-profile features (arm-2 core): CoE-60 mag/ang (exp2 holdout 0.811), D2H dispersion, attn-entropy** | `pathway8_layerwise/coe_features.py`, `d2hscore_features.py`, `results/exp2_results.json` |
+| cov-spectrum (closure row only — **refuted on the dry run: spectrum+length 0.761 < length 0.786, resid 0.554, corr −0.58 at fixed m=100**) | `cov_spectrum/recompute_pc1_resid_cov_spectrum.py` + `eigval_cache.npz` |
+| Per-layer probe sweep | `verify_route/fit_panl_probe.py` |
+| Generation / model load (Phase 2/3) | `causal_dom/common.py` |
+| Fast prefill/final replay | `prefill_inversion/cache/m{15b,7b}_prefill.npz` |
+
+## Verification
+
+1. **Harness sanity:** reproduce the pinned in-domain anchors through the new harness — prefill-DoM
+   **0.7731** (±0.005, the pinned incumbent protocol, *not* 0.7679), CoE-60 exp2 holdout 0.811,
+   concat ridge-LR 0.8509, cross-domain MATH→BBH 0.747. If any drifts, the loader/probe wrapper is
+   wrong.
+2. **Dry-run anchors (V3-1/V3-4, first-200-problems subset, must reproduce ±0.01):** length-only
+   0.786, **length+logprob 0.834**, CoE-60 0.825 (and +4pp over length on the paired test),
+   spectrum+length 0.761 (< length), residualized spectrum 0.554. These pin the harness to the
+   audit's evidence before any new number is trusted.
+3. **Transfer sanity:** LOCO Number-Theory worst cell reproduces ≈0.603 (n_test=62) for prefill-DoM.
+4. **Depth-grid check (V3-3):** the depth-grid resampled layer-profile, fit on Qwen-1.5B (29
+   layers), scores non-degenerately on Qwen-7B / Phi-3 / Llama (different layer counts) — proving
+   the grid construction ports; the raw per-layer-index form should fail this by construction.
+5. **H-A closure row (full n=500):** spectrum+length vs length paired test, expected NOT
+   significant; report and close the token-cloud line formally.
+6. **End-to-end:** per-tier table — method × tier × {in-domain, robust-aggregate, worst-cell+n,
+   gap, paired-test p, incremental-over-free-baseline, length-orthogonal decomposition}; the free
+   baseline's own row on every tier incl. T5; T5 shows both held-out families (near/far flagged);
+   plus the Phase-4 recalibration curve with scoring n at each k.
+
+## Bookkeeping after the verdict (mirror the FE19/FE269 close-out)
+
+- File a new umbrella `:FutureExperiment` for the program (and mark the constituent nodes —
+  FE238/FE55/FE357/FE339/FE301/FE268/FE254/FE70 — COMPLETED/SUBSUMED as each is run) via
+  `research-graph/update_status.py`; regenerate `NEXT_EXPERIMENTS.md`.
+- **Triage SIVR (arXiv 2604.15741, token-wise layer-wise variance) into the research-graph** before
+  any novelty claim about the dispersion features (it is in link-forge only). INSIDE/EigenScore
+  (2402.03744, multi-SAMPLE covariance — different confound profile, K× generation cost) stays an
+  optional K=5 arm, already graphed.
+- Write the result brief `research-graph/briefs/result-2026-06-DD-edge-generalization.md` (required
+  `## FE` / `## EXPERIMENT_LOG entry` / `## STATE.md last-experiment update` sections) and promote via
+  `research-graph/promote_result.py --skip-git-check`.
+- FINDINGS.md: extend **F-2** (transfer ceiling + the supervised-vs-geometric portability result) and
+  **F-8** (the best generalizing gate); add a new finding if a geometric feature wins cross-arch.
+- `validate_claims.py`: add claims for each method's worst-cell transfer + the Gemma holdout number;
+  run full suite (currently 214/214 internal PASS, 258 tracked).
+- STATE.md, EXPERIMENT_LOG.md, memory companion. Commit on `max-depth-retriage-2026-04-28`;
+  `git checkout --` any spurious `elapsed_seconds` regen diffs before committing.
+- **Step 0 of execution:** write this spec into the repo at
+  `pathway11_h100/generalization_edge/SPEC_v4.md` so it is durable beyond the plan file.
+
+## Compute & constraints
+
+- **LOCAL ONLY** (2060 Super 8GB + CPU), per CLAUDE.md — NOT RunPod. Phase 1 is pure CPU on cached
+  data. Phase 2/3 generation runs fit the 2060 (1.5–2.6B models, bf16). Mirrors the FE19/FE269
+  local precedent.
+- Goal = **model improvement (a generalizing readout), not papers.** Keep headline-figure resolution.
+- All trigger papers (CAP 2502.06884, rStar-Math, GRIDE, Arditi, Linear-AcT, etc.) are confirmed in
+  the research-graph, not training data.

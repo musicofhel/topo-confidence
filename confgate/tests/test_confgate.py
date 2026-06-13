@@ -105,6 +105,51 @@ def test_certify_in_domain_basic():
     assert (1 - y[ans].mean()) <= 0.2 + 1e-12   # holds on calibration by design
 
 
+# --------------------------------------- (d') group-conditional (Mondrian)
+def test_certify_grouped_structure_and_marginal_gap():
+    from confgate import apply_grouped, certify_grouped
+
+    rng = np.random.default_rng(1)
+    n = 900
+    groups = rng.choice(["easy", "hard", "mid"], n)
+    # easy group: high base acc + well-separated scores; hard: low acc, noisy
+    base = np.where(groups == "easy", 0.85,
+                    np.where(groups == "mid", 0.55, 0.25))
+    y = rng.random(n) < base
+    scores = np.clip(0.5 * y + rng.normal(0.25, 0.15, n), 0, 1)
+
+    gc = certify_grouped(scores, y, groups, eps=0.2, delta=0.1)
+    assert gc["method"].startswith("group-conditional")
+    assert gc["n_groups"] == 3
+    assert set(gc["groups"]) == {"easy", "hard", "mid"}
+    # marginal threshold is exposed and the cross-group coverage gap is real
+    assert gc["marginal_coverage_gap"] >= 0.0
+    for g, cg in gc["groups"].items():
+        assert "marginal_coverage" in cg and "base_acc" in cg
+    # the easy group should be certifiable; deploy holds the per-group budget
+    assert "easy" in gc["certifiable_groups"]
+    applied = apply_grouped(gc, scores, groups, y=y)
+    assert 0.0 <= applied["coverage"] <= 1.0
+    for g, pg in applied.get("per_group", {}).items():
+        # by construction the per-group calibration risk respects eps
+        assert pg["risk"] <= 0.2 + 1e-9
+
+
+def test_certify_grouped_misaligned_raises():
+    from confgate import certify_grouped
+
+    with pytest.raises(ValueError, match="aligned"):
+        certify_grouped([0.1, 0.2, 0.3], [True, False], ["a", "b", "c"], eps=0.2)
+
+
+def test_grouped_anchor_present_in_pinned_meta():
+    conf = pinned_meta()["anchors"]["conformal"]
+    gc = conf["group_conditional_in_domain_math_eps0.2"]
+    assert gc["n_groups_marginal_violating"] == 2
+    assert set(gc["certifiable_groups"]) == {"algebra", "prealgebra"}
+    assert gc["certifiable_groups"]["prealgebra"]["validity"] == 1.0
+
+
 # ------------------------- (e) OOF protocol reproduces the pinned T5 anchor
 def test_oof_gemma_reproduces_pinned_anchor():
     _need(PHASE3_GEMMA)

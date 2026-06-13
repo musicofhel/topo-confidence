@@ -97,6 +97,9 @@ _STAGE5_REGEN = "python pathway11_h100/recompute_stage5_bbh_transfer.py"
 _V8_PHASE1 = "pathway11_h100/generalization_edge/results/v8_phase1_frontier.json"
 _V8_PHASE2 = "pathway11_h100/generalization_edge/results/v8_phase2_distill.json"
 _V8_ARMS = "pathway11_h100/generalization_edge/results/v8_filter_arms_report.json"
+_C1_CONF = "pathway11_h100/generalization_edge/results/c1_cross_domain_adaptive_cp.json"
+_C2_CONF = "pathway11_h100/generalization_edge/results/c2_online_crc_drift.json"
+_C3_CONF = "pathway11_h100/generalization_edge/results/c3_group_conditional_cp.json"
 
 CLAIMS: list[Claim] = [
     # ----- Section 1 / §1: baselines -----
@@ -1181,6 +1184,45 @@ CLAIMS: list[Claim] = [
           _V8_PHASE2, ["base_bbh_acc"], 0.26666666666666666, 1e-6, "1024tok"),
     Claim("edge-v8-2-forget-best-bbh", "H-R guardrail FAIL: best arm BBH (unfiltered c) 0.208 < base 0.267 (MATH-only SFT forgets BBH)",
           _V8_PHASE2, ["arms", "c", "bbh_acc"], 0.208, 1e-6, "1024tok"),
+
+    # ----- Conformal sweep (link-forge directed, 2026-06-13): C1/C2/C3 -----
+    # GUARANTEES lever (not accuracy). C1: no adaptive CP rescues the cross-domain
+    # cert wall (fundamental, accuracy-bound). C2: online conformal = fail-safe only,
+    # and the failure is distributional hardness, not drift. C3: in-domain group-
+    # conditional (Mondrian) certs are VALID for high-accuracy MATH categories but
+    # at low coverage. All CPU-only on cached scalars; verdicts on TRUE labels.
+    Claim("edge-c1-static-wall", "C1: static split-conformal MATH->BBH validity 0.0 @ eps=0.2 (wall reproduced)",
+          _C1_CONF, ["arms", "static", "eps0.2", "validity"], 0.0, 1e-9, "1024tok"),
+    Claim("edge-c1-weighted-wall", "C1: Tibshirani weighted CP validity 0.0 @ eps=0.2 (covariate-shift reweight does not rescue)",
+          _C1_CONF, ["arms", "weighted", "eps0.2", "validity"], 0.0, 1e-9, "1024tok"),
+    Claim("edge-c1-aci-wall", "C1: online ACI validity 0.0 @ eps=0.2 (online feedback cannot hold eps on BBH)",
+          _C1_CONF, ["arms", "online_aci", "eps0.2", "validity_err_le_eps"], 0.0, 1e-9, "1024tok"),
+    Claim("edge-c1-barber-gap", "C1: Barber non-exchangeable TV coverage-gap 0.470 > eps (distribution-free cross-domain cert formally impossible)",
+          _C1_CONF, ["arms", "nonexch_barber", "barber_coverage_gap"], 0.47032530740884493, 1e-9, "1024tok"),
+    Claim("edge-c1-domain-clf-auc", "C1: MATH-vs-BBH domain classifier AUC 0.773 on the 2 free scalars (not pure covariate shift)",
+          _C1_CONF, ["domain_classifier_auc"], 0.7725546666666667, 1e-9, "1024tok"),
+    Claim("edge-c1-verdict", "C1: cross_domain_cert_feasible=False — no adaptive arm wins @ eps=0.2 (wall is FUNDAMENTAL)",
+          _C1_CONF, ["verdict", "cross_domain_cert_feasible"], False, 0, "1024tok"),
+
+    Claim("edge-c2-no-restore", "C2: no eps where online conformal restores cross-domain validity under drift (cliff blocks it)",
+          _C2_CONF, ["verdict", "eps_where_online_restores_validity"], [], 0, "1024tok"),
+    Claim("edge-c2-frozen-fails-open", "C2: frozen tau FAILS OPEN @ eps=0.2 drift (keeps answering post-drift above eps, silently)",
+          _C2_CONF, ["regimes", "drift", "eps0.2", "frozen", "fails_open"], True, 0, "1024tok"),
+    Claim("edge-c2-online-fails-safe", "C2: online tau FAILS SAFE @ eps=0.2 drift (clamps coverage at no-worse error)",
+          _C2_CONF, ["regimes", "drift", "eps0.2", "online", "fails_safe"], True, 0, "1024tok"),
+    Claim("edge-c2-not-drift-specific", "C2: frozen violation is NOT drift-specific @ eps=0.2 (equal in shuffled stationary control => hardness, not non-stationarity)",
+          _C2_CONF, ["verdict", "per_eps", "eps0.2", "drift_specific"], False, 0, "1024tok"),
+
+    Claim("edge-c3-math-delivers", "C3: in-domain Mondrian certs DELIVER for MATH @ eps=0.3 (>=1 high-acc category certifiable where marginal hides violations)",
+          _C3_CONF, ["domains", "math", "eps0.3", "mondrian_delivers"], True, 0, "1024tok"),
+    Claim("edge-c3-math-marginal-gap", "C3: MATH marginal CP cross-group coverage gap 0.383 @ eps=0.2 (2/7 categories violate the pooled budget)",
+          _C3_CONF, ["domains", "math", "eps0.2", "marginal_coverage_gap"], 0.38297523041474657, 1e-9, "1024tok"),
+    Claim("edge-c3-math-viol-groups", "C3: MATH marginal CP leaves 2/7 categories over eps @ eps=0.2 (the disparity a marginal cert hides)",
+          _C3_CONF, ["domains", "math", "eps0.2", "marginal_n_groups_violating"], 2, 0, "1024tok"),
+    Claim("edge-c3-prealgebra-cert", "C3: MATH prealgebra conditional cert validity 1.0 @ eps=0.3 with k=16 labels (coverage 0.110 — valid but low)",
+          _C3_CONF, ["domains", "math", "eps0.3", "mondrian", "prealgebra", "by_k", "k16", "validity"], 1.0, 1e-9, "1024tok"),
+    Claim("edge-c3-bbh-no-deliver", "C3: BBH Mondrian certs do NOT deliver @ eps=0.2 (the accuracy cliff is per-group too)",
+          _C3_CONF, ["domains", "bbh", "eps0.2", "mondrian_delivers"], False, 0, "1024tok"),
 
     # ----- External anchors registered from triage briefs (2026-04-29 batch) -----
     # These are paper-cited numbers carried into PAPER_INDEX.md / brief footers

@@ -1,0 +1,264 @@
+{
+  "spec": "v7 Phase 1a (EXP-84)",
+  "perplexity_note": "perplexity = exp(-mean_logprob) is a monotone transform of mean_logprob; AUROC identical by rank invariance \u2014 documented and skipped",
+  "math": {
+    "alignment_corr": 0.9800129933393815,
+    "free_gate_oof_auroc": 0.8490176298217804,
+    "answer_span_coverage": {
+      "min_token_logprob": 1.0,
+      "bottom_decile_logprob": 1.0,
+      "mean_token_entropy": 1.0,
+      "mean_top2_logit_margin": 1.0,
+      "answer_span_logprob": 0.848
+    },
+    "arms": [
+      {
+        "arm": "min_token_logprob",
+        "standalone_auroc": 0.6626795407599558,
+        "combined_auroc": 0.8482810523450386,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": -0.0007365774767418287,
+        "delong_z": -1.2766870860188493,
+        "delong_p": 0.201712742481712,
+        "G1_promote": false
+      },
+      {
+        "arm": "bottom_decile_logprob",
+        "standalone_auroc": 0.6433043506108789,
+        "combined_auroc": 0.8470160605915037,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": -0.002001569230276723,
+        "delong_z": -0.8773664932360612,
+        "delong_p": 0.38028760649689897,
+        "G1_promote": false
+      },
+      {
+        "arm": "mean_token_entropy",
+        "standalone_auroc": 0.667595394789515,
+        "combined_auroc": 0.8479928263758787,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": -0.001024803445901723,
+        "delong_z": -1.8413723141648526,
+        "delong_p": 0.06556701711737967,
+        "G1_promote": false
+      },
+      {
+        "arm": "mean_top2_logit_margin",
+        "standalone_auroc": 0.6548974395926406,
+        "combined_auroc": 0.852988743174649,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.003971113352868594,
+        "delong_z": 0.9941056610927992,
+        "delong_p": 0.3201714295708644,
+        "G1_promote": false
+      },
+      {
+        "arm": "answer_span_logprob",
+        "standalone_auroc": 0.6573793854381836,
+        "combined_auroc": 0.8479447887143521,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": -0.001072841107428335,
+        "delong_z": -0.24360651707335088,
+        "delong_p": 0.8075355804435267,
+        "G1_promote": false
+      },
+      {
+        "arm": "rescore_family_joint",
+        "standalone_auroc": 0.7118220685017053,
+        "combined_auroc": 0.8470480856991881,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": -0.001969544122592315,
+        "delong_z": -0.3164092893528523,
+        "delong_p": 0.751691867003587,
+        "G1_promote": false
+      }
+    ]
+  },
+  "bbh": {
+    "alignment_corr": 0.9928958352788172,
+    "free_gate_oof_auroc": 0.7823068483041878,
+    "answer_span_coverage": {
+      "min_token_logprob": 1.0,
+      "bottom_decile_logprob": 1.0,
+      "mean_token_entropy": 1.0,
+      "mean_top2_logit_margin": 1.0,
+      "answer_span_logprob": 0.5786666666666667
+    },
+    "arms": [
+      {
+        "arm": "min_token_logprob",
+        "standalone_auroc": 0.7718979696860829,
+        "combined_auroc": 0.7750827758304284,
+        "free_auroc": 0.7823068483041878,
+        "incremental_delta": -0.007224072473759446,
+        "delong_z": -1.0088799961302115,
+        "delong_p": 0.31303218985755943,
+        "G1_promote": false
+      },
+      {
+        "arm": "bottom_decile_logprob",
+        "standalone_auroc": 0.7865500199050385,
+        "combined_auroc": 0.7878608395071318,
+        "free_auroc": 0.7823068483041878,
+        "incremental_delta": 0.005553991202943975,
+        "delong_z": 0.9230937041999062,
+        "delong_p": 0.3559583752766611,
+        "G1_promote": true
+      },
+      {
+        "arm": "mean_token_entropy",
+        "standalone_auroc": 0.7906669644330948,
+        "combined_auroc": 0.7973569992911864,
+        "free_auroc": 0.7823068483041878,
+        "incremental_delta": 0.015050150986998578,
+        "delong_z": 3.2015875476612616,
+        "delong_p": 0.0013667253668177004,
+        "G1_promote": true
+      },
+      {
+        "arm": "mean_top2_logit_margin",
+        "standalone_auroc": 0.7702181786404374,
+        "combined_auroc": 0.7673926341648136,
+        "free_auroc": 0.7823068483041878,
+        "incremental_delta": -0.014914214139374216,
+        "delong_z": -2.381782133621211,
+        "delong_p": 0.017229087260380194,
+        "G1_promote": false
+      },
+      {
+        "arm": "answer_span_logprob",
+        "standalone_auroc": 0.5323772441717076,
+        "combined_auroc": 0.7865111808057172,
+        "free_auroc": 0.7823068483041878,
+        "incremental_delta": 0.004204332501529406,
+        "delong_z": 0.9976266432540397,
+        "delong_p": 0.31846043654243816,
+        "G1_promote": false
+      },
+      {
+        "arm": "rescore_family_joint",
+        "standalone_auroc": 0.7864626319315655,
+        "combined_auroc": 0.7916767810154481,
+        "free_auroc": 0.7823068483041878,
+        "incremental_delta": 0.009369932711260298,
+        "delong_z": 1.1072368827757786,
+        "delong_p": 0.2681915250826523,
+        "G1_promote": true
+      }
+    ]
+  },
+  "k_consistency_math": {
+    "free_gate_oof_auroc": 0.8490176298217804,
+    "acc_k8_majority": 0.554,
+    "signal_view": [
+      {
+        "arm": "k2_agreement",
+        "standalone_auroc": 0.8151911098301068,
+        "combined_auroc": 0.8987205969480073,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.049702967126226905,
+        "delong_z": 4.340064328386435,
+        "delong_p": 1.424410114725383e-05,
+        "G1_promote": true
+      },
+      {
+        "arm": "k4_agreement",
+        "standalone_auroc": 0.8717474500008007,
+        "combined_auroc": 0.9176474355895022,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.06862980576772182,
+        "delong_z": 5.494224768404619,
+        "delong_p": 3.924304214919516e-08,
+        "G1_promote": true
+      },
+      {
+        "arm": "k8_agreement",
+        "standalone_auroc": 0.9085603112840468,
+        "combined_auroc": 0.9279274951562024,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.07890986533442201,
+        "delong_z": 5.981163077568005,
+        "delong_p": 2.2154993395417932e-09,
+        "G1_promote": true
+      },
+      {
+        "arm": "k2_cluster_entropy",
+        "standalone_auroc": 0.6575795423612112,
+        "combined_auroc": 0.8593297144961649,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.010312084674384492,
+        "delong_z": 1.7409692029897532,
+        "delong_p": 0.08168897697597588,
+        "G1_promote": false
+      },
+      {
+        "arm": "k4_cluster_entropy",
+        "standalone_auroc": 0.78850618885206,
+        "combined_auroc": 0.8781604778146067,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.029142847992826293,
+        "delong_z": 3.180663266580935,
+        "delong_p": 0.0014693831560255166,
+        "G1_promote": true
+      },
+      {
+        "arm": "k8_cluster_entropy",
+        "standalone_auroc": 0.8250308241661463,
+        "combined_auroc": 0.8816191894445244,
+        "free_auroc": 0.8490176298217804,
+        "incremental_delta": 0.032601559622744025,
+        "delong_z": 3.59873954450683,
+        "delong_p": 0.0003197632352718305,
+        "G1_promote": true
+      }
+    ],
+    "system_view_note": "cost adjudication (H-J vs cascade) happens in Phase 1b; these are label-semantics-2 AUROCs only",
+    "system_view": [
+      {
+        "arm": "k2_agreement",
+        "auroc_vs_majority_label": 0.7580013274837707
+      },
+      {
+        "arm": "k4_agreement",
+        "auroc_vs_majority_label": 0.8114811157339205
+      },
+      {
+        "arm": "k8_agreement",
+        "auroc_vs_majority_label": 0.8288679153648153
+      },
+      {
+        "arm": "k2_cluster_entropy",
+        "auroc_vs_majority_label": 0.6905586764015477
+      },
+      {
+        "arm": "k4_cluster_entropy",
+        "auroc_vs_majority_label": 0.807498664421816
+      },
+      {
+        "arm": "k8_cluster_entropy",
+        "auroc_vs_majority_label": 0.858784866685014
+      }
+    ],
+    "free_gate_auroc_vs_majority_label": 0.799663272409383
+  },
+  "alpha_closure_HK": {
+    "alpha_standalone_auroc": 0.6866183087540633,
+    "prompt_length_auroc": 0.7055851787801637,
+    "alpha_plus_length_auroc": 0.685017053369842,
+    "incremental_delta": -0.020568125410321714,
+    "delong_z": -2.392394260487784,
+    "delong_p": 0.01673885056181046,
+    "H_K_survives": false,
+    "verdict": "H-K REFUTED \u2014 spectral-alpha CLOSED permanently, zero further compute, no T5 pass"
+  },
+  "G1_promoted_arms": [
+    "bottom_decile_logprob",
+    "k2_agreement",
+    "k4_agreement",
+    "k4_cluster_entropy",
+    "k8_agreement",
+    "k8_cluster_entropy",
+    "mean_token_entropy",
+    "rescore_family_joint"
+  ]
+}

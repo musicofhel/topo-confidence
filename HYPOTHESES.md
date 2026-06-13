@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-914.**
+**Numbering continues monotonically. Next ID: H-941.**
 
 ## Cost + time summary (at a glance)
 
@@ -9663,6 +9663,283 @@ second-order shape readout that the model doesn't itself use.
 **Test:** On a direct-RL-trained model (e.g. OLMo2-1B-RL from Bansal et al. if released), extract L19 prefill residuals on MATH-500, compute PC1 explained-variance ratio and DoM AUROC. Compare both against Qwen instruct model.
 **Requires:** Access to a direct-RL-only trained model (may need to train or wait for model release), H100 for extraction
 **Would change:** Confirm → DoM-based selective prediction only works on sharpened models. Reject → DoM is robust to training pipeline, expansion/sharpening is an output-level phenomenon not reflected in residual-stream geometry.
+**Blocks:** nothing
+
+---
+
+
+### H-914: REDI-style asymmetric negative-trace refinement reshapes residual-stream correctness separability, demonstrating DoM is recipe-dependent
+**Priority:** MEDIUM
+**Motivated by:** 2505.24850 + H-912 + F-2
+**Test:** Re-extract L19 prefill activations on MATH-500 from a checkpoint before vs after REDI Stage-2 refinement (α≈0.8); recompute OOF DoM AUROC and final-token-DoM AUROC. Δ AUROC > 0.05 (or a prefill↔final crossover) confirms recipe-dependence. ~1 H100 day for refinement + minutes for the probe.
+**Requires:** H100 for REDI refinement; 1.5B SFT checkpoint + Open-R1 DPref negatives; existing DoM probe.
+**Would change:** Confirm → F-2's "intrinsic single direction" reading downgrades to "SFT→RL sharpening artifact" (H-912); reject → strengthens F-2 as recipe-invariant. NOTE: relies on the REFUTED geometry-portable-signal premise, so any FE form is born MOOTED.
+**Blocks:** H-912, H-913
+
+### H-915: Length-normalized sequence logprob (SimPO/REDI form) is a stronger free-baseline correctness readout than raw sequence logprob
+**Priority:** MEDIUM
+**Motivated by:** 2505.24850 + F-8 + free-baseline-strongest-readout
+**Test:** On cached MATH-500 features compute logπ(y|x)/|y| and compare OOF AUROC against raw logprob and length alone; if the normalization lifts AUROC out-of-family it becomes the new free-baseline form. ~15min CPU (P11-FE1246).
+**Requires:** CPU; cached per-example sequence logprob + token length.
+**Would change:** Confirm → updates the canonical free-baseline definition used across the selective stack (F-8); reject → confirms raw length+logprob is already the right free readout.
+**Blocks:** nothing
+
+---
+
+
+### H-916: The L19 prefill correctness axis (PC1≈DoM) is substantially a subject/domain-affinity axis
+**Priority:** HIGH
+**Motivated by:** 2508.09883 (PCA-shift latent analysis) + F-2 + FE291
+**Test:** Subject-stratify MATH-500 (Hendrycks `subject`) and recompute prefill-DoM/PC1 AUROC within
+each subject on the cached 500×1536 L19 cloud (P11-FE1249). Compare to the 0.7731 pooled number and to
+the per-subject base accuracy.
+**Requires:** CPU, cached NPZ + MATH-500 subject labels. ~20min.
+**Would change:** Confirm ⇒ F-2's pooled AUROC is partly a domain artifact; reframe DoM as a
+familiarity/affinity axis (supports H-5) and discount cross-domain claims. Reject (AUROC holds
+within-subject) ⇒ strengthens F-2 as a genuine correctness direction.
+**Blocks:** nothing
+
+### H-917: Final-token "asymmetric collapse" (F-4) is mediated by per-example token entropy
+**Priority:** MEDIUM
+**Motivated by:** 2508.09883 (token-entropy analysis) + F-4 + EXP free-baseline work
+**Test:** Partial out mean token entropy (−mean logprob) from the correct-vs-incorrect final-token
+collapse gap on cached data (P11-FE1250); test whether the gap survives.
+**Requires:** CPU, cached length+logprob+collapse features. ~15min.
+**Would change:** Confirm (gap vanishes) ⇒ F-4 collapse is an entropy proxy, folds into the
+free-baseline readout. Reject (gap survives) ⇒ collapse carries entropy-independent geometric signal.
+**Blocks:** nothing
+
+---
+
+
+### H-918: A black-box answer-entropy trajectory-shape gate matches the internal prefill-DoM stack at 50% coverage on MATH-500
+**Priority:** HIGH
+**Motivated by:** 2603.18940 + F-8 (71.6% @ 50% coverage) / F-2 (AUROC 0.7731)
+**Test:** Replicate the m=5/τ=0.7 per-step answer-distribution entropy trajectory on Qwen-2.5-7B MATH-500, score ε-monotonicity, and overlay its accuracy-vs-coverage curve against the F-8 prefill-DoM stack at matched coverage. ~1 H100 day.
+**Requires:** H100, Qwen-2.5-7B-Instruct, fresh generations (no cache suffices).
+**Would change:** Confirm → the internal prefill signal is *not necessary* for F-8's headline (a free black-box gate suffices), reframing F-8 as "internal-equals-black-box." Reject → internal signal retains a coverage advantage, strengthening F-8.
+**Blocks:** H-919
+
+### H-919: Trajectory SHAPE, not magnitude, is the load-bearing axis for correctness signals in this program
+**Priority:** MEDIUM
+**Motivated by:** 2603.18940 (scalar coherence −0.6 pp vs monotonicity +5.8 pp) + F-9 / H-9 / F-7
+**Test:** Across our trajectory features (breathing PR curve, CoE-60 norms, per-token entropy), compare each feature's *magnitude* summary vs its *monotonicity/violation-count* shape summary as a correctness predictor on cached MATH-500; CPU-only where black-box features exist.
+**Would change:** Confirm → magnitude-based findings (H-9 amplitude, cov-spectrum framing) are reformulated as shape phenomena; F-9's "trajectory redundant" verdict is scoped to magnitude only. Reject → magnitude remains the right summary and the paper's shape result is task-specific to answer entropy.
+**Blocks:** nothing
+
+---
+
+
+### H-920: The prefill correctness direction is a property of the task manifold, not the model — a foreign encoder predicts a target's correctness as well as the target's own states
+**Priority:** HIGH
+**Motivated by:** 2603.20895 + F-2 / EXP-037
+**Test:** Encoder-Target Decoupling on cached prefill (P11-FE1256): train an L2-LR probe on Qwen-1.5B L19 prefill, score Qwen-7B MATH-500 correctness labels, and the reverse; compare cross-model AUROC to within-model 0.7731/0.7186 and to the free length+logprob baseline. ~1hr CPU, no new forward passes.
+**Requires:** CPU; cached 1.5B + 7B prefill states (`prefill_gated_compute/results.json`).
+**Would change:** Confirm → F-2's single direction is a within-model shadow of a shared difficulty manifold, and the REFUTED `geometry-portable-signal` premise must be re-opened. Reject → reinforces that the signal is model-idiosyncratic and the EDGEGEN refutation generalizes.
+**Blocks:** nothing
+
+### H-921: Label-aware Fisher J, not label-free d_eff/anisotropy, picks the correctness-informative layer — and J's argmax coincides with our hand-chosen L19
+**Priority:** MEDIUM
+**Motivated by:** 2603.20895 + F-2 / F-10
+**Test:** Compute Fisher J, d_eff, and anisotropy α across all cached prefill layers (P11-FE1257/20897); check whether J peaks at L19 while d_eff/α peak elsewhere, replicating the paper's "label-free peaks miss separability" finding. ~30min CPU.
+**Requires:** CPU; cached per-layer prefill (or at least L19) activations + cov-spectrum NPZ (FE881).
+**Would change:** Confirm → validates L19 on a principled supervised criterion and corroborates F-10 (unsupervised geometry summaries are weak). Reject (J picks a different layer) → our L19 choice is suboptimal and a J-driven re-pick could lift F-2.
+**Blocks:** nothing
+
+---
+
+
+### H-922: The 7B-vs-1.5B correctness-geometry gap is a capacity/utility-tail effect, not a verification-strength effect
+**Priority:** HIGH
+**Motivated by:** 2605.29548 + F-6 + F-7
+**Test:** Compute participation ratio / effective rank and the Stiefel-normalized signal-capture curve for L19 prefill covariance, 1.5B vs 7B, split by correctness (P11-FE1261, FE130604). Check whether the 7B carries a strictly fatter low-utility eigen-tail and whether D-bucket problems map to those low-utility directions.
+**Requires:** CPU; cached `m7b_prefill.npz` + 1.5B prefill cache + `cov_spectrum/eigval_cache.npz`.
+**Would change:** Confirm → F-6's "incorrect-group concentration" mechanism is replaced (or subsumed) by a capacity-allocation mechanism, and F-7's D-bucket gets a generative story (low-utility eigendirections the 1.5B cannot embed). Reject (spectra same shape) → F-6/F-7 mechanisms stand and the capacity account is ruled out at inference.
+**Blocks:** nothing
+
+### H-923: PC1/DoM encodes the high-utility common-task structure and systematically misses the rare/hard tail
+**Priority:** HIGH
+**Motivated by:** 2605.29548 (Theorem 3) + F-2 + F-9 + FE881
+**Test:** Per-difficulty-stratum AUROC of PC1-only DoM vs PC1-residualized cov-spectrum probe on MATH-500 (P11-FE1262), joining HF MATH level labels. Predict PC1 AUROC collapses on the hardest stratum while residual directions recover it.
+**Requires:** CPU; cached PC scores (FE291/FE881) + MATH-500 level join.
+**Would change:** Confirm → F-9's "CoE/extra directions redundant" claim is bounded to the easy bulk; the hard tail needs low-utility directions, reframing the selective-prediction ceiling (F-8). Reject (PC1 uniform across strata) → F-2/F-9 sufficiency strengthened, utility-ranking prediction fails at inference.
+**Blocks:** nothing
+
+---
+
+
+### H-924: A normalizing-flow log-likelihood-ratio on L19 prefill activations beats the 0.7928 linear cov-spectrum ceiling
+**Priority:** HIGH
+**Motivated by:** 2606.06447 + F-2, FE881 (cov-spectrum 0.7928), FE882 (full-1536 0.7847)
+**Test:** Fit class-conditional MAF/RealNVP (nflows/normflows) on cached 500×1536 L19 prefill activations; 5-fold OOF; AUROC of per-example LLR. Est ~2h CPU.
+**Requires:** CPU only; cached `pathway11_h100` activations + labels from `prefill_gated_compute/results.json`.
+**Would change:** Confirm (>0.793 outside CI) → F-2's "signal is essentially one linear direction" is refuted; correctness signal is nonlinear/multimodal. Reject (≤0.793) → the linear ceiling is reinforced as a genuine ~1-D bound, strengthening F-2 and F-8.
+**Blocks:** H-925, H-926.
+
+### H-925: L19 prefill activations carry correctness-relevant non-Gaussian structure that a flow exploits beyond a single Gaussian (Mahalanobis)
+**Priority:** HIGH
+**Motivated by:** 2606.06447 + F-10, H-903, H-906
+**Test:** Held-out NLL gap (flow vs single multivariate Gaussian) and AUROC gap (flow-LLR vs Gaussian-LDA) on L19 activations. Est ~90min CPU (reuses FE606447 flows).
+**Requires:** CPU only; cached activations.
+**Would change:** Confirm → F-10's "covariance captures it all / Gaussian-null adequate" interpretation is refuted (non-Gaussian, non-topological signal exists); supports H-906. Reject → covariance sufficiency reaffirmed; cov-spectrum 0.7928 stands as near-ceiling.
+**Blocks:** nothing.
+
+### H-926: The prefill→final-token transformation is better modeled by an invertible nonlinear flow than by additive arithmetic, recasting F-3's cos≈0 as a Jacobian-rotation artifact
+**Priority:** MEDIUM
+**Motivated by:** 2606.06447 + F-3, H-875
+**Test:** Fit invertible flow g: prefill→final L19 activations; compare ‖h_final − g(h_prefill)‖ vs ‖h_final − (h_prefill + offset)‖. Est ~2h CPU.
+**Requires:** CPU only; cached prefill and final-token L19 activations.
+**Would change:** Confirm (flow residual ≪ additive) → F-3's structural-orthogonality reading and H-875's additive functor are undercut; the directions are nonlinearly coupled. Reject → additive approximation holds, F-3 strengthened.
+**Blocks:** nothing.
+
+---
+
+
+### H-927: Correctness is a feature-split concept — no single SAE feature on L19 matches the DoM AUROC, but a sparse set does
+**Priority:** HIGH
+**Motivated by:** 2606.07007 + F-2 (FE291)
+**Test:** Train a small Top-K SAE on the cached 500×1536 L19 prefill matrix; compute per-feature correctness AUROC and the best sparse k-feature subset AUROC. Est 45min CPU.
+**Requires:** CPU, cached `pathway11_h100/prefill_gated_compute` activations, ~50-line torch Top-K SAE.
+**Would change:** Confirm → F-2's "single direction" framing is reinterpreted as a superposition of split features; the (PC1,PC9)=0.7856 / cov-spectrum=0.7928 lifts become the predicted multi-neuron approximation gain. Reject (a single feature ≥0.77) → strengthens the atomic-direction reading of F-2.
+**Blocks:** H-928, P11-FE1273
+
+### H-928: The D-bucket is feature-absorbed, not single-feature separable
+**Priority:** MEDIUM
+**Motivated by:** 2606.07007 + F-7 + H-540
+**Test:** Using SAE features from H-927, run subset-inclusion tests of D-bucket-selective feature active-sets against broader features. Est 20min CPU (after the SAE exists).
+**Requires:** CPU, SAE features from H-927, cached D-bucket labels.
+**Would change:** Confirm → refutes H-540 (no single SAE feature cleanly isolates the D-bucket; F-7's "collective signature" reading is reinforced by an absorption mechanism). Reject → single-feature D-bucket probe is viable, supporting H-540.
+**Blocks:** nothing
+
+---
+
+
+### H-929: The L19 prefill DoM correctness direction is an off-principal weight read, fragile to SFT but stable under RLVR
+**Priority:** HIGH
+**Motivated by:** 2606.07082 + F-2 / H-8 / EXP-57
+**Test:** Take a single base model, produce SFT-only and RLVR (GRPO) MATH
+derivatives, re-extract L19 prefill activations, re-fit DoM per checkpoint.
+Measure cos(DoM_base, DoM_regime), the principal-angle rotation of the L19
+W_down/W_o top-k subspace (paper Eq.2), and transported-DoM AUROC drop. ~2 H100
+days.
+**Requires:** GPU fine-tuning + re-extraction; cached base-model DoM already in
+hand.
+**Would change:** Confirm → F-2's single-direction reading is partly
+recipe-specific (DoM moves with SFT weight rotation), qualifying F-1
+universality and H-8 stability; the correctness axis is off-principal. Reject →
+DoM is recipe-invariant, strengthening F-2/H-8.
+**Blocks:** H-8, H-10
+
+### H-930: The L19 residual-stream covariance spectrum is heavy-tailed, making F-10's Gaussian null the wrong reference family
+**Priority:** HIGH
+**Motivated by:** 2606.07082 + F-10 / FE881 (EXP-57)
+**Test:** Fit Hill tail exponent (paper Appendix E) to the eigenvalue spectrum
+of the cached PC1-residualized L19 covariance; if finite/stable (heavy-tailed),
+re-run the FE881 top-20 log-eigval probe against a heavy-tailed surrogate null
+and recompute AUROC-over-null. ~45min CPU.
+**Requires:** CPU; cached `pc1_resid_cov_spectrum_results.json` covariance.
+**Would change:** Heavy-tailed → F-10's Gaussian-null comparison is uninformative
+and FE881's 0.7928 must be re-benchmarked against a heavy-tailed null; the
+PH-vs-Gaussian framing weakens. Gaussian → F-10's null choice is vindicated.
+**Blocks:** nothing
+
+### H-931: F-1 dimensional breathing amplitude is a post-training-regime fingerprint, not a universal transformer property
+**Priority:** MEDIUM
+**Motivated by:** 2606.07082 + F-1 / H-10
+**Test:** On one base model's SFT-only / OPD / RLVR triple, extract the
+prefill→mid-gen→final PR breathing curve on MATH for each. Compare peak position
+and amplitude across regimes; also compute stable rank (paper Eq.8) per regime.
+~1 H100 day (re-extraction) or free if checkpoints + activations available.
+**Requires:** Three checkpoints of one base + activation re-extraction (GPU), or
+public OPD/SFT/RLVR checkpoint triple.
+**Would change:** Curves differ by regime → F-1's "universal across architectures
+and scales" is regime-confounded (the four F-1 models were trained by different
+pipelines); add a recipe-control caveat. Curves match → F-1 universality
+survives a new and strong confound.
+**Blocks:** nothing
+
+---
+
+
+### H-932: The L19 prefill DoM direction is partly aligned with the unembedding-matrix "average-token" anisotropy axis
+**Priority:** HIGH
+**Motivated by:** 2606.07502 + F-2 (FE291)
+**Test:** Compute `h_avg = log(p̂) W_U⁺` for Qwen-2.5-1.5B (tied `W_U`); measure `cos(DoM, h_avg)`, `cos(PC1, h_avg)`. Run uniform-freq control + RedPajama freq. ~15min CPU.
+**Requires:** CPU; Qwen-2.5-1.5B unembedding/embedding tensor (one-time ≈0.46 GB download); cached DoM/PC1 vectors (FE291).
+**Would change:** If |cos| ≳ 0.5, F-2's correctness direction is reframed as partly a frequency/anisotropy confound; if |cos| ≈ 0, F-2 is reinforced as genuinely semantic.
+**Blocks:** H-933
+
+### H-933: Removing the W_U edge spectrum (EmbedFilter) does not destroy the L19 correctness signal
+**Priority:** HIGH
+**Motivated by:** 2606.07502 + FE881 (cov-spectrum 0.7928) + H-892
+**Test:** Project cached L19 activations through `Φ_τ` (drop top-k + bottom-k singular dirs), recompute DoM and top-20 cov-spectrum AUROC for τ∈{2,4,8}. ~25min CPU.
+**Requires:** CPU; `W_U` SVD; cached L19 prefill activations (500×1536).
+**Would change:** A large AUROC drop refutes H-892 (signal lives in the non-semantic edge spectrum); stable/higher AUROC confirms the correctness signal is in the semantic bulk and survives anisotropy removal.
+**Blocks:** nothing
+
+---
+
+
+### H-934: L19 prefill DoM AUROC is partly a slow length/topic-nuisance shortcut, not a pure correctness direction
+**Priority:** HIGH
+**Motivated by:** 2606.07770 + F-2 (FE291, cos(DoM,PC1)=0.9216)
+**Test:** Residualize cached L19 prefill activations (and the PC1 projection) against per-problem prompt+CoT token-count and topic id; recompute OOF 5-fold correctness AUROC and report the drop from 0.7731. Cross-check by correlating the PC1 projection with token-count. ~25min CPU on existing P11 caches.
+**Requires:** CPU; cached `pathway11_h100/prefill_gated_compute/results.json` + `pca_covariance/results.json`; per-problem token counts from P11 generation logs.
+**Would change:** A material AUROC collapse downgrades F-2 from "correctness direction" to "partly length-confounded"; no drop hardens F-2 against the across-trajectory-contrast critique.
+**Blocks:** H-935, H-936
+
+### H-935: Prefill vs final-token DoM orthogonality is a slow-noise/dynamics timescale split
+**Priority:** MEDIUM
+**Motivated by:** 2606.07770 + F-3 (cos 0.046)
+**Test:** Linear probes from prefill DoM and from final DoM onto problem-constant nuisance variables (length, topic); compare nuisance-decode R^2. If prefill ≫ final on nuisance decodability, the orthogonality reflects timescale, not two computations. ~25min CPU.
+**Requires:** CPU; cached prefill + final-token L19 activations.
+**Would change:** Reframes F-3 from "structurally distinct correctness computations" to "slow-nuisance axis ⟂ dynamics axis."
+**Blocks:** nothing
+
+### H-936: A within-trajectory contrastive probe on per-token L19 trajectories recovers a correctness direction distinct from static DoM
+**Priority:** MEDIUM
+**Motivated by:** 2606.07770 + F-2 + F-9
+**Test:** Fresh per-token L19 extraction on MATH-500; train JEPA-style probe with within-trajectory negatives; compare direction (cosine) and AUROC to DoM. ~1 H100 day.
+**Requires:** H100; new per-token forward passes (Qwen-2.5-1.5B, 1024-tok).
+**Would change:** Divergent-but-comparable direction = DoM was a slow-noise shortcut (reframes F-2); convergent = DoM is genuinely the within-trajectory dynamics direction (hardens F-2/F-9).
+**Blocks:** nothing
+
+---
+
+
+### H-937: A relational cross-model similarity signal predicts 1.5B correctness without a supervised direction
+**Priority:** HIGH
+**Motivated by:** 2606.07818 + F-2 + H-896
+**Test:** Compute CKA and per-problem cross-model cosine between cached 1.5B and 7B L19-prefill activations; AUROC vs committed correctness labels; compare to DoM 0.7731 and to DoM+similarity stack. ~30min CPU (P11-FE1285).
+**Requires:** CPU; cached 1.5B and 7B L19-prefill NPZs (verify 7B cache exists).
+**Would change:** Confirm → DoM is one approximation of a relational signal, demoting "single direction" framing of F-2. Reject → DoM's directional sufficiency strengthened.
+**Blocks:** nothing
+
+### H-938: Cross-model representational similarity is most correctness-predictive at early layers, not L19
+**Priority:** MEDIUM
+**Motivated by:** 2606.07818 + F-6 + F-1
+**Test:** Layer-swept CKA/RSA(1.5B^ℓ, 7B^ℓ) vs per-problem correctness across all layers; identify peak-predictive layer. Needs full-layer re-extraction for both scales (~1 H100 day, P11-FE1288).
+**Requires:** GPU re-extraction (per-layer prefill activations, both scales); MATH-500.
+**Would change:** Confirm → L19 specialness is partly a measurement-layer choice; reframes F-2/F-6. Reject → middle-layer L19 is genuinely the cross-scale information locus.
+**Blocks:** nothing
+
+---
+
+
+### H-939: A FlowTracer throughput-weighted aggregate of L19 token activations beats the single-position prefill DoM (0.7731)
+**Priority:** HIGH
+**Motivated by:** 2606.10646 + F-2 + F-3
+**Test:** Re-extract MATH-500 (Qwen-2.5-1.5B) with middle-layer attention maps + per-token L19 states; compute FlowTracer Doob-h answer-conditioned flow throughput; build a throughput-weighted DoM; 5-fold OOF AUROC vs 0.7731 / 0.7186 / 0.7928. ~1 H100 day.
+**Requires:** H100 (fresh forward passes with attention output); model Qwen-2.5-1.5B; new attention + per-token cache (we have neither).
+**Would change:** Confirm → F-2's fixed-position readout is suboptimal and a routing-aware readout is the better correctness signal; cos(flow_DoM, endpoints) would also test whether F-3's prefill⊥final is a missing-middle artifact. Reject → strengthens F-2 (last-token readout is already near-optimal; routing structure adds nothing for *correctness prediction*, even if it helps RL credit).
+**Blocks:** nothing
+
+### H-940: The L19 prefill DoM signal is carried disproportionately by structural-delimiter tokens, not semantic content
+**Priority:** MEDIUM
+**Motivated by:** 2606.10646 (§5.2 structural delimiters recover 38.8/39.4 of the gain) + F-5
+**Test:** Partition prompt/generation tokens into delimiter vs content; compare per-token L19 DoM-projection separability and breathing amplitude across the two classes (needs per-token states — pair with the H-939 re-extract, or use a small CPU pilot on the no_cot per-token text where available). ~0.5 H100 day if bundled with H-939.
+**Requires:** per-token L19 states + token-type tagging; H100 for the extract.
+**Would change:** Confirm → qualifies F-5's "content-dependent, not AR-mechanics" — the signal is partly structural/positional. Reject → strengthens F-5.
 **Blocks:** nothing
 
 ---

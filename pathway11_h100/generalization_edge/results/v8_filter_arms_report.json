@@ -1,0 +1,57 @@
+{
+ "spec": "v8 Phase 2 filter arms (EXP-91)",
+ "teacher": "Qwen/Qwen2.5-Math-7B-Instruct",
+ "n_train": 4000,
+ "teacher_train_acc": 0.76625,
+ "gate_threshold": 0.32505979522571576,
+ "gate_dev_precision_at_thr": 0.9016018306636155,
+ "gate_precision_reachable": true,
+ "keep_sizes": {
+  "gt_correct": 3065,
+  "gate_keep": 3555
+ },
+ "matched_N": 3065,
+ "gate_vs_truth": {
+  "precision": 0.8548523206751055,
+  "recall": 0.9915171288743883,
+  "tp": 3039,
+  "fp": 516,
+  "fn": 26,
+  "tn": 419
+ },
+ "arms": {
+  "a": {
+   "n": 3065,
+   "file": "v8_traces_a.jsonl.gz",
+   "len_mean": 477.7125611745514,
+   "len_median": 435.0,
+   "len_p10": 247.0,
+   "len_p90": 781.0
+  },
+  "b": {
+   "n": 3065,
+   "file": "v8_traces_b.jsonl.gz",
+   "len_mean": 509.9520391517129,
+   "len_median": 463.0,
+   "len_p10": 253.0,
+   "len_p90": 858.5999999999999
+  },
+  "c": {
+   "n": 3065,
+   "file": "v8_traces_c.jsonl.gz",
+   "len_mean": 565.0417618270799,
+   "len_median": 502.0,
+   "len_p10": 260.0,
+   "len_p90": 1024.0
+  },
+  "d": {
+   "n": 3065,
+   "file": "v8_traces_d.jsonl.gz",
+   "len_mean": 512.7869494290376,
+   "len_median": 463.0,
+   "len_p10": 253.0,
+   "len_p90": 858.5999999999999
+  }
+ },
+ "arm_d_length_shortfall": 0
+}

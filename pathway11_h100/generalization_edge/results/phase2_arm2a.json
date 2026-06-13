@@ -1,0 +1,15 @@
+{
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "layer": 19,
+  "K": 20,
+  "n": 500,
+  "prompt_length_only_auroc": 0.7055851787801637,
+  "prompt_cloud_only_auroc": 0.6938079454292164,
+  "cloud_plus_length_auroc": 0.6959856527517574,
+  "gate_delta_vs_promptlen": -0.009599526028406302,
+  "gate_p": 0.4174527512173025,
+  "gate_z": -0.8108483730901143,
+  "prompt_len_corr_with_cloud_pc1": -0.893259171933478,
+  "verdict_H_E": "prompt-cloud does NOT add over prompt-length (H-E refuted)",
+  "note": "cross-scale arm-2A (Qwen-7B prompt clouds) is GPU-blocked locally (7B bf16 ~15GB > 2060 8GB); in-domain gate on 1.5B is decisive for H-E."
+}

@@ -9,8 +9,9 @@ OOF AUROC SmolLM2 0.810 / Gemma-2-2b 0.844 / OLMo-2-1B 0.838).
 Components:
   gate      — FreeGate: fit/score, pinned per-family coefficients (5 families)
   route     — Cascade: keep-on-small / escalate-to-large routing + cost frontier
-  certify   — split-conformal LTT certificates (cross-scale zero-shot only;
-              cross-domain certificates are a documented product limit)
+  certify   — split-conformal LTT certificates (cross-scale zero-shot +
+              in-domain group-conditional/Mondrian; cross-domain certificates
+              are a documented product limit)
   preflight — prompt-length pre-generation signal (Tier-A, AUROC ~0.71)
   cli       — `confgate demo`, `confgate score`
 """
@@ -18,15 +19,18 @@ from __future__ import annotations
 
 from .gate import FreeGate, pinned_families, pinned_meta
 from .route import Cascade, KEEP_COST, ESCALATE_COST
-from .certify import certify, certify_cross_domain, cp_upper, choose_tau
+from .certify import (certify, certify_grouped, apply_grouped,
+                      certify_cross_scale, certify_cross_domain,
+                      apply_certificate, cp_upper, choose_tau)
 from .preflight import PreflightGate
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "FreeGate", "pinned_families", "pinned_meta",
     "Cascade", "KEEP_COST", "ESCALATE_COST",
-    "certify", "certify_cross_domain", "cp_upper", "choose_tau",
+    "certify", "certify_grouped", "apply_grouped", "certify_cross_scale",
+    "certify_cross_domain", "apply_certificate", "cp_upper", "choose_tau",
     "PreflightGate",
     "__version__",
 ]

@@ -1,0 +1,81 @@
+Wrote /home/musicofhel/topo-confidence/NEXT_EXPERIMENTS.md
+  experiments: 1340
+  watchlist papers: 315
+
+Moot sweep — closing experiment: FE269
+  verdict: Causal test of the L19 prefill DoM direction (corrupt-to-clean activation patching during decoding): verdict DIAGNOSTIC. The L19 prefill DoM is a correlational …
+  shortlisted 250 open FE(s) (top-250, cos ≥ 0.3)
+  adjudicated 15/250 (7 to close)
+  adjudicated 30/250 (12 to close)
+  adjudicated 45/250 (18 to close)
+  adjudicated 60/250 (21 to close)
+  adjudicated 75/250 (25 to close)
+  adjudicated 90/250 (27 to close)
+  adjudicated 105/250 (29 to close)
+  adjudicated 120/250 (33 to close)
+  adjudicated 135/250 (38 to close)
+  adjudicated 150/250 (39 to close)
+  adjudicated 165/250 (43 to close)
+  adjudicated 180/250 (46 to close)
+  adjudicated 195/250 (50 to close)
+  adjudicated 210/250 (52 to close)
+  adjudicated 225/250 (54 to close)
+  adjudicated 240/250 (55 to close)
+  adjudicated 250/250 (56 to close)
+
+  closed: 44 MOOTED, 12 ANSWERED (194 kept)
+  report: /home/musicofhel/topo-confidence/research-graph/briefs/moot-sweep-2026-06-11-FE269.md
+Wrote /home/musicofhel/topo-confidence/NEXT_EXPERIMENTS.md
+  experiments: 1340
+  watchlist papers: 315
+
+Moot sweep — closing experiment: FE19
+  verdict: FE19 verification-routing test (2026-06-10): H-19 REFUTED. Routing low-confidence problems to self-verification / re-generation (C_exact) LOSES at 1.5B — self-c…
+  shortlisted 250 open FE(s) (top-250, cos ≥ 0.3)
+  adjudicated 15/250 (6 to close)
+  adjudicated 30/250 (9 to close)
+  adjudicated 45/250 (9 to close)
+  adjudicated 60/250 (9 to close)
+  adjudicated 75/250 (9 to close)
+  adjudicated 90/250 (9 to close)
+  adjudicated 105/250 (9 to close)
+  adjudicated 120/250 (9 to close)
+  adjudicated 135/250 (9 to close)
+  adjudicated 150/250 (9 to close)
+  adjudicated 165/250 (12 to close)
+  adjudicated 180/250 (13 to close)
+  adjudicated 195/250 (14 to close)
+  adjudicated 210/250 (14 to close)
+  adjudicated 225/250 (14 to close)
+  adjudicated 240/250 (14 to close)
+  adjudicated 250/250 (14 to close)
+
+  closed: 14 MOOTED, 0 ANSWERED (236 kept)
+  report: /home/musicofhel/topo-confidence/research-graph/briefs/moot-sweep-2026-06-11-FE19.md
+Wrote /home/musicofhel/topo-confidence/NEXT_EXPERIMENTS.md
+  experiments: 1340
+  watchlist papers: 315
+
+Moot sweep — closing experiment: P11-FE-EDGEGEN
+  verdict: SPEC v6 generalization-edge program (EXP-81/82/83, P11-FE-EDGEGEN, 2026-06-11): geometry FULLY CLOSED. No activation-geometry feature adds portable correctness …
+  shortlisted 250 open FE(s) (top-250, cos ≥ 0.3)
+  adjudicated 15/250 (4 to close)
+  adjudicated 30/250 (4 to close)
+  adjudicated 45/250 (4 to close)
+  adjudicated 60/250 (9 to close)
+  adjudicated 75/250 (9 to close)
+  adjudicated 90/250 (13 to close)
+  adjudicated 105/250 (21 to close)
+  adjudicated 120/250 (22 to close)
+  adjudicated 135/250 (27 to close)
+  adjudicated 150/250 (28 to close)
+  adjudicated 165/250 (30 to close)
+  adjudicated 180/250 (31 to close)
+  adjudicated 195/250 (34 to close)
+  adjudicated 210/250 (39 to close)
+  adjudicated 225/250 (39 to close)
+  adjudicated 240/250 (40 to close)
+  adjudicated 250/250 (40 to close)
+
+  closed: 35 MOOTED, 5 ANSWERED (210 kept)
+  report: /home/musicofhel/topo-confidence/research-graph/briefs/moot-sweep-2026-06-11-P11-FE-EDGEGEN.md

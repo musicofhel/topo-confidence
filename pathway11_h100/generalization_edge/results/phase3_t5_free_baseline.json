@@ -1,0 +1,29 @@
+{
+  "gemma": {
+    "model": "google/gemma-2-2b-it",
+    "n": 500,
+    "acc": 0.256,
+    "free_baseline_auroc": 0.8439180107526882,
+    "length_only": 0.7827830981182797,
+    "logprob_only": 0.7558383736559141,
+    "T5_pass_0.70": true
+  },
+  "olmo2": {
+    "model": "allenai/OLMo-2-0425-1B-Instruct",
+    "n": 500,
+    "acc": 0.216,
+    "free_baseline_auroc": 0.8382227891156462,
+    "length_only": 0.8158304988662132,
+    "logprob_only": 0.6535336356764929,
+    "T5_pass_0.70": true
+  },
+  "smollm2": {
+    "model": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+    "n": 500,
+    "acc": 0.21,
+    "free_baseline_auroc": 0.8096925858951175,
+    "length_only": 0.7813261000602771,
+    "logprob_only": 0.5174683544303798,
+    "T5_pass_0.70": true
+  }
+}

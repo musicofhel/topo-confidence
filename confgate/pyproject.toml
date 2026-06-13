@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "confgate"
-version = "0.1.0"
+name = "topo-confgate"
+version = "0.1.1"
 description = "Free confidence gate for LLM correctness: logistic regression on (generation length, mean logprob), with cascade routing and split-conformal certificates. Ships the pinned SPEC-v6 result of the topo-confidence project."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -33,7 +33,9 @@ dev = ["pytest", "ruff"]
 confgate = "confgate.cli:main"
 
 [project.urls]
-Repository = "https://github.com/musicofhel/topo-confidence"
+Homepage = "https://github.com/musicofhel/confgate"
+Repository = "https://github.com/musicofhel/confgate"
+Issues = "https://github.com/musicofhel/confgate/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["confgate"]

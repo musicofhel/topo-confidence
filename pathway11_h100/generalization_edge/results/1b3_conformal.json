@@ -1,0 +1,118 @@
+{
+  "method": "split-conformal LTT (CP-upper); prior 2402.10978 (graphed)",
+  "delta": 0.1,
+  "n_splits": 1000,
+  "in_domain": {
+    "prefill_dom": {
+      "eps0.1": {
+        "eps": 0.1,
+        "delta": 0.1,
+        "feasible_frac": 0.007,
+        "mean_test_risk": 0.28742200876837337,
+        "validity_frac_risk_le_eps": 0.0,
+        "target_validity": 0.9,
+        "mean_coverage": 0.11714285714285713,
+        "mean_answered_accuracy": 0.7125779912316265
+      },
+      "eps0.2": {
+        "eps": 0.2,
+        "delta": 0.1,
+        "feasible_frac": 0.224,
+        "mean_test_risk": 0.2403923515555397,
+        "validity_frac_risk_le_eps": 0.26785714285714285,
+        "target_validity": 0.9,
+        "mean_coverage": 0.13458928571428572,
+        "mean_answered_accuracy": 0.7596076484444604
+      },
+      "eps0.3": {
+        "eps": 0.3,
+        "delta": 0.1,
+        "feasible_frac": 0.881,
+        "mean_test_risk": 0.24338319627269786,
+        "validity_frac_risk_le_eps": 0.8047673098751419,
+        "target_validity": 0.9,
+        "mean_coverage": 0.30970261066969346,
+        "mean_answered_accuracy": 0.7566168037273021
+      }
+    },
+    "free_baseline": {
+      "eps0.1": {
+        "eps": 0.1,
+        "delta": 0.1,
+        "feasible_frac": 0.121,
+        "mean_test_risk": 0.16024827796433844,
+        "validity_frac_risk_le_eps": 0.0,
+        "target_validity": 0.9,
+        "mean_coverage": 0.13038016528925622,
+        "mean_answered_accuracy": 0.8397517220356614
+      },
+      "eps0.2": {
+        "eps": 0.2,
+        "delta": 0.1,
+        "feasible_frac": 0.929,
+        "mean_test_risk": 0.1467997392612367,
+        "validity_frac_risk_le_eps": 0.8546824542518837,
+        "target_validity": 0.9,
+        "mean_coverage": 0.28209687836383207,
+        "mean_answered_accuracy": 0.8532002607387633
+      },
+      "eps0.3": {
+        "eps": 0.3,
+        "delta": 0.1,
+        "feasible_frac": 1.0,
+        "mean_test_risk": 0.24170471323227247,
+        "validity_frac_risk_le_eps": 0.864,
+        "target_validity": 0.9,
+        "mean_coverage": 0.492236,
+        "mean_answered_accuracy": 0.7582952867677275
+      }
+    },
+    "coe_profile": {
+      "eps0.1": {
+        "eps": 0.1,
+        "delta": 0.1,
+        "feasible_frac": 0.186,
+        "mean_test_risk": 0.13499064727960614,
+        "validity_frac_risk_le_eps": 0.026881720430107527,
+        "target_validity": 0.9,
+        "mean_coverage": 0.16752688172043012,
+        "mean_answered_accuracy": 0.8650093527203938
+      },
+      "eps0.2": {
+        "eps": 0.2,
+        "delta": 0.1,
+        "feasible_frac": 0.987,
+        "mean_test_risk": 0.14167545820376581,
+        "validity_frac_risk_le_eps": 0.8459979736575481,
+        "target_validity": 0.9,
+        "mean_coverage": 0.31978115501519755,
+        "mean_answered_accuracy": 0.8583245417962342
+      },
+      "eps0.3": {
+        "eps": 0.3,
+        "delta": 0.1,
+        "feasible_frac": 1.0,
+        "mean_test_risk": 0.24361712867055021,
+        "validity_frac_risk_le_eps": 0.824,
+        "target_validity": 0.9,
+        "mean_coverage": 0.516092,
+        "mean_answered_accuracy": 0.7563828713294498
+      }
+    }
+  },
+  "transfer_HH": {
+    "eps0.1": {
+      "eps": 0.1,
+      "feasible": false
+    },
+    "eps0.2": {
+      "eps": 0.2,
+      "feasible": false
+    },
+    "eps0.3": {
+      "eps": 0.3,
+      "feasible": true,
+      "coverage": 0.0
+    }
+  }
+}

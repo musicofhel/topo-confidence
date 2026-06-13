@@ -1724,6 +1724,16 @@ at selection; MATH-only SFT catastrophically forgets BBH (all arms < base 0.267)
 Selection firewall held (G1 froze the recipe before any Phase-2 GPU minute; one
 eval per checkpoint). Claims 245→264 internal PASS (+19 edge-v8-*).
 
+## EXP-86: Conformal sweep (C1/C2/C3) — cross-domain cert wall is fundamental; group-conditional in-domain delivers
+
+**Date:** 2026-06-13. **Compute:** local (CPU only, zero GPU), Qwen-2.5-1.5B, MATH-500 + BBH-750, cached scalars, no generation. **Harness:** `pathway11_h100/generalization_edge/c{1,2,3}_*.py` (13/13 conformal anchors reproduce via `verify_anchors.py --conformal-only`).
+
+**C1 (adaptive/weighted CP):** no arm rescues the MATH→BBH wall — static/weighted/online-ACI/Mondrian all validity 0.0 @ε=0.2; Barber TV coverage-gap 0.470 > ε ⇒ distribution-free cross-domain cert formally impossible. Mechanism: BBH base acc 0.241 (marginal feasibility needs ε≥0.76). **Strengthens (re-refutes) the `conformal-cross-domain` premise** beyond k-recalibration to the full shift-CP toolkit.
+
+**C2 (online CRC under drift):** no ε restores validity; frozen FAILS OPEN, online FAILS SAFE, but the frozen violation is NOT drift-specific (equal in shuffled control) → distributional hardness, not non-stationarity. Online value = fail-safe abstention only.
+
+**C3 (group-conditional):** in-domain Mondrian certs DELIVER for high-accuracy MATH categories (algebra/prealgebra validity 1.0 at k=16–32) where marginal hides a 0.38–0.46 coverage gap; valid but low coverage (≤11%); BBH does not deliver. Claims +15 (`edge-c1/c2/c3-*`), internal invariant 264→279 PASS.
+
 ## Template for new experiments
 
 ```markdown
@@ -2015,4 +2025,4 @@ eval per checkpoint). Claims 245→264 internal PASS (+19 edge-v8-*).
 **Depends on:** EXP-82 (Phase 2/3/4), F-8
 **Enables:** shippable cross-architecture generate-then-abstain gate
 
-Next ID: **EXP-86**.
+Next ID: **EXP-87**.

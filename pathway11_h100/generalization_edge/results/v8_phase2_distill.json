@@ -1,0 +1,105 @@
+{
+ "spec": "v8 Phase 2 (EXP-91) \u2014 H-R confidence-curated distillation",
+ "base_math_acc": 0.476,
+ "base_math_pin": 0.486,
+ "base_bbh_acc": 0.26666666666666666,
+ "matched_N": 3065,
+ "gate_vs_truth": {
+  "precision": 0.8548523206751055,
+  "recall": 0.9915171288743883,
+  "tp": 3039,
+  "fp": 516,
+  "fn": 26,
+  "tn": 419
+ },
+ "filter_arms_report": {
+  "a": {
+   "n": 3065,
+   "file": "v8_traces_a.jsonl.gz",
+   "len_mean": 477.7125611745514,
+   "len_median": 435.0,
+   "len_p10": 247.0,
+   "len_p90": 781.0
+  },
+  "b": {
+   "n": 3065,
+   "file": "v8_traces_b.jsonl.gz",
+   "len_mean": 509.9520391517129,
+   "len_median": 463.0,
+   "len_p10": 253.0,
+   "len_p90": 858.5999999999999
+  },
+  "c": {
+   "n": 3065,
+   "file": "v8_traces_c.jsonl.gz",
+   "len_mean": 565.0417618270799,
+   "len_median": 502.0,
+   "len_p10": 260.0,
+   "len_p90": 1024.0
+  },
+  "d": {
+   "n": 3065,
+   "file": "v8_traces_d.jsonl.gz",
+   "len_mean": 512.7869494290376,
+   "len_median": 463.0,
+   "len_p10": 253.0,
+   "len_p90": 858.5999999999999
+  }
+ },
+ "arms": {
+  "a": {
+   "math_acc": 0.504,
+   "bbh_acc": 0.10933333333333334,
+   "postsft_gate_oof_auroc": 0.8513024833589349,
+   "gate_guardrail_pass": true,
+   "bbh_guardrail_pass": false,
+   "mean_gen_tokens": 573.392
+  },
+  "b": {
+   "math_acc": 0.494,
+   "bbh_acc": 0.148,
+   "postsft_gate_oof_auroc": 0.8687490998703815,
+   "gate_guardrail_pass": true,
+   "bbh_guardrail_pass": false,
+   "mean_gen_tokens": 570.722
+  },
+  "c": {
+   "math_acc": 0.5,
+   "bbh_acc": 0.208,
+   "postsft_gate_oof_auroc": 0.8368160000000001,
+   "gate_guardrail_pass": true,
+   "bbh_guardrail_pass": false,
+   "mean_gen_tokens": 584.164
+  },
+  "d": {
+   "math_acc": 0.502,
+   "bbh_acc": 0.13866666666666666,
+   "postsft_gate_oof_auroc": 0.8602697643162291,
+   "gate_guardrail_pass": true,
+   "bbh_guardrail_pass": false,
+   "mean_gen_tokens": 581.308
+  }
+ },
+ "H_R": {
+  "verdict": "REFUTED",
+  "winning_arm_guardrails_pass": false,
+  "acc": {
+   "a": 0.504,
+   "b": 0.494,
+   "c": 0.5,
+   "d": 0.502
+  },
+  "deltas": {
+   "b_minus_c": -0.006000000000000005,
+   "b_minus_d": -0.008000000000000007,
+   "b_minus_a": -0.010000000000000009,
+   "b_minus_base": 0.018000000000000016
+  },
+  "rules": {
+   "beats_volume_c+1.5pp": false,
+   "beats_length_d+1pp": false,
+   "near_skyline_a-1pp": true,
+   "beats_base+3pp": false
+  }
+ }
+}

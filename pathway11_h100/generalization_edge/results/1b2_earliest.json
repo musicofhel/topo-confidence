@@ -1,0 +1,52 @@
+{
+  "prefill_auroc": 0.7730860995020097,
+  "median_full_tokens": 521,
+  "curve": {
+    "25": {
+      "m": 25,
+      "L19_meanpool_dom": 0.7038958543498104,
+      "coe_depthgrid": 0.7010616323197387
+    },
+    "50": {
+      "m": 50,
+      "L19_meanpool_dom": 0.7210132744071353,
+      "coe_depthgrid": 0.6947046484443804
+    },
+    "100": {
+      "m": 100,
+      "L19_meanpool_dom": 0.7583065123056477,
+      "coe_depthgrid": 0.7005812557044723
+    },
+    "200": {
+      "m": 200,
+      "L19_meanpool_dom": 0.7829017950072857,
+      "coe_depthgrid": 0.7288594257898192
+    },
+    "400": {
+      "m": 400,
+      "L19_meanpool_dom": 0.808569918816352,
+      "coe_depthgrid": 0.7773294262701957
+    },
+    "full": {
+      "m": 521,
+      "L19_meanpool_dom": 0.8192502922291076,
+      "coe_depthgrid": 0.8302829418263918
+    }
+  },
+  "H_G_fraction_gain_by_m128": -0.32015261879986245,
+  "trigger_threshold": 0.82,
+  "trigger_fired_by_m128": false,
+  "best_early_auroc_m_le_128": 0.7583065123056477,
+  "abort_escalate_sim": {
+    "readout": "L19-meanpool-DoM @ m=521",
+    "draft_frac_of_median": 1.0,
+    "best_point": {
+      "pct_kept": 0.24,
+      "accuracy": 0.71,
+      "cost_rel": 0.9600000000000002,
+      "hull_acc": 0.67296,
+      "gap_pp": 3.703999999999996
+    },
+    "note": "trigger NOT fired (no readout >=0.82 by m<=128); sim uses full-gen readout as a reference, not a deployable early-abort claim"
+  }
+}

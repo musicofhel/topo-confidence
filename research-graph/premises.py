@@ -98,6 +98,22 @@ SEED_PREMISES = [
                   "ceiling, not calibration.",
     },
     {
+        "id": "escalation-beats-introspection",
+        "statement": "At matched token-FLOP cost, no confidence probe "
+                     "(token-level features, K-consistency, P(True), "
+                     "verbalized, spectral-α, PRM, cost-aware router) beats "
+                     "spending the same tokens on escalation to a stronger "
+                     "model.",
+        "status": "CONFIRMED",
+        "refuted_by": None,
+        "reason": "SPEC v7 (EXP-84) 2026-06-12, P11-FE-SHIPGATE: H-I held on "
+                  "dev + confirmatory T5; K=8 majority 0.554 vs cascade 0.732 "
+                  "(H-J); router −0.40pp p=0.68 (H-M); PRM-7B superb verifier "
+                  "(0.94) but loses at matched cost. Binding constraint is "
+                  "rescue density (47% of 1.5B failures unrescuable by 7B), "
+                  "not ranking quality.",
+    },
+    {
         "id": "free-baseline-strongest-readout",
         "statement": "The free length+logprob readout is the most generalizing "
                      "correctness signal — any proposed readout must beat it "

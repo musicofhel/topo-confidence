@@ -1,0 +1,253 @@
+{
+ "spec": "v7 Phase 4 (EXP-89) \u2014 cost-aware router, H-M",
+ "operating_point": {
+  "budget_extra_per_problem": 1547.3434,
+  "c_esc": 3094.6868,
+  "c_k2_extra": 1124.116,
+  "acc_cascade_free_gate": 0.648,
+  "acc_oracle": 0.758,
+  "acc_random_mix_hull": 0.609,
+  "oracle_gap_pp": 10.999999999999998
+ },
+ "policies_oof": [
+  {
+   "policy": "cascade_free_gate",
+   "esc_frac": 0.49,
+   "mean_extra_cost": 1516.396532,
+   "acc": 0.648
+  },
+  {
+   "policy": "rich_gate",
+   "esc_frac": 0.49,
+   "mean_extra_cost": 1516.396532,
+   "acc": 0.644
+  },
+  {
+   "policy": "rescue_ranker",
+   "esc_frac": 0.49,
+   "mean_extra_cost": 1516.3965320000002,
+   "acc": 0.648
+  },
+  {
+   "policy": "two_model",
+   "esc_frac": 0.49,
+   "mean_extra_cost": 1516.3965320000002,
+   "acc": 0.65
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.1,
+   "esc_frac": 0.46,
+   "mean_extra_cost": 1535.967528,
+   "acc": 0.63
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.2,
+   "esc_frac": 0.42,
+   "mean_extra_cost": 1524.591656,
+   "acc": 0.616
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.3,
+   "esc_frac": 0.39,
+   "mean_extra_cost": 1544.1626519999998,
+   "acc": 0.608
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.4,
+   "esc_frac": 0.35,
+   "mean_extra_cost": 1532.78678,
+   "acc": 0.606
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.5,
+   "esc_frac": 0.31,
+   "mean_extra_cost": 1521.4109079999998,
+   "acc": 0.596
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.6,
+   "esc_frac": 0.28,
+   "mean_extra_cost": 1540.981904,
+   "acc": 0.58
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.7,
+   "esc_frac": 0.24,
+   "mean_extra_cost": 1529.6060320000001,
+   "acc": 0.558
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.8,
+   "esc_frac": 0.2,
+   "mean_extra_cost": 1518.2301599999998,
+   "acc": 0.544
+  },
+  {
+   "policy": "k2_band",
+   "f": 0.9,
+   "esc_frac": 0.17,
+   "mean_extra_cost": 1537.801156,
+   "acc": 0.54
+  },
+  {
+   "policy": "k2_band",
+   "f": 1.0,
+   "esc_frac": 0.13,
+   "mean_extra_cost": 1526.425284,
+   "acc": 0.522
+  }
+ ],
+ "router": {
+  "acc": 0.644,
+  "esc_frac": 0.49,
+  "selected_per_fold": [
+   {
+    "policy": "two_model",
+    "inner_oof_acc": 0.6625
+   },
+   {
+    "policy": "two_model",
+    "inner_oof_acc": 0.645
+   },
+   {
+    "policy": "rescue_ranker",
+    "inner_oof_acc": 0.6475
+   },
+   {
+    "policy": "two_model",
+    "inner_oof_acc": 0.65
+   },
+   {
+    "policy": "two_model",
+    "inner_oof_acc": 0.66
+   }
+  ],
+  "delta_vs_cascade": -0.0040000000000000036,
+  "bootstrap_p_delta_le_0": 0.681,
+  "ci95": [
+   -0.028000000000000025,
+   0.018000000000000016
+  ]
+ },
+ "secondary_90pct_view": {
+  "target_acc_90pct_of_7b": 0.6588,
+  "cascade_esc_frac": 0.538,
+  "rescue_ranked_esc_frac": 0.552,
+  "oracle_esc_frac": 0.174
+ },
+ "prm_descriptive": {
+  "cost_tokens_scored": 343021,
+  "abs_cost_per_problem_7b_flops": 3224.3974,
+  "rel_cost_vs_escalation": 1.0419139668673418,
+  "arms": [
+   {
+    "arm": "prm_min",
+    "standalone_auroc": 0.9355975084466224,
+    "combined_auroc": 0.9371347136154745,
+    "free_auroc": 0.8490176298217804,
+    "incremental_delta": 0.0881170837936941,
+    "delong_z": 6.153574570228425,
+    "delong_p": 7.575573501839017e-10,
+    "G1_promote": true,
+    "finite_fraction": 1.0
+   },
+   {
+    "arm": "prm_mean",
+    "standalone_auroc": 0.9396006469071752,
+    "combined_auroc": 0.9507774094890394,
+    "free_auroc": 0.8490176298217804,
+    "incremental_delta": 0.10175977966725902,
+    "delong_z": 7.032210777431529,
+    "delong_p": 2.0328183580886616e-12,
+    "G1_promote": true,
+    "finite_fraction": 1.0
+   },
+   {
+    "arm": "prm_last",
+    "standalone_auroc": 0.8603144865574611,
+    "combined_auroc": 0.8868232694432435,
+    "free_auroc": 0.8490176298217804,
+    "incremental_delta": 0.037805639621463105,
+    "delong_z": 4.441995758524164,
+    "delong_p": 8.912831748641992e-06,
+    "G1_promote": true,
+    "finite_fraction": 1.0
+   }
+  ]
+ },
+ "H_M": {
+  "confirmed_ge_3pp": false,
+  "refuted_lt_1pp": true,
+  "verdict": "REFUTED"
+ },
+ "exploratory_prm_band": {
+  "note": "EXPLORATORY, NOT H-M (menu frozen before PRM landed; PRM is cost-dominated at 1.042x escalation). Computed only to decide whether a cheap-PRM-banded cascade earns a registered FE.",
+  "c_prm_abs": 3224.3974,
+  "rows": [
+   {
+    "f": 0.0,
+    "esc_frac": 0.49,
+    "acc": 0.648
+   },
+   {
+    "f": 0.1,
+    "esc_frac": 0.39,
+    "acc": 0.606
+   },
+   {
+    "f": 0.2,
+    "esc_frac": 0.29,
+    "acc": 0.572
+   },
+   {
+    "f": 0.3,
+    "esc_frac": 0.18,
+    "acc": 0.542
+   },
+   {
+    "f": 0.4,
+    "esc_frac": 0.08,
+    "acc": 0.518
+   }
+  ],
+  "hypothetical_1p5b_prm": {
+   "note": "Same PRM-7B scores re-costed at 1.5B scale (0.223x escalation) \u2014 an UPPER BOUND, a real 1.5B PRM would have lower AUROC. Grounds the follow-up FE, adjudicates nothing.",
+   "c_prm_hypo": 690.9422999999999,
+   "rows": [
+    {
+     "f": 0.2,
+     "esc_frac": 0.45,
+     "acc": 0.63
+    },
+    {
+     "f": 0.4,
+     "esc_frac": 0.41,
+     "acc": 0.612
+    },
+    {
+     "f": 0.6,
+     "esc_frac": 0.36,
+     "acc": 0.624
+    },
+    {
+     "f": 0.8,
+     "esc_frac": 0.32,
+     "acc": 0.608
+    },
+    {
+     "f": 1.0,
+     "esc_frac": 0.27,
+     "acc": 0.594
+    }
+   ]
+  }
+ }
+}
