@@ -93,6 +93,11 @@ _NOCOT_PR_REGEN = "python pathway11_h100/no_cot_control/recompute_pr.py"
 _CROSS_MODEL_REGEN = "python pathway11_h100/exp1_cross_model/recompute_acc.py"
 _STAGE5_REGEN = "python pathway11_h100/recompute_stage5_bbh_transfer.py"
 
+# v8 "Raise the Ceiling" result JSONs (EXP-90/91).
+_V8_PHASE1 = "pathway11_h100/generalization_edge/results/v8_phase1_frontier.json"
+_V8_PHASE2 = "pathway11_h100/generalization_edge/results/v8_phase2_distill.json"
+_V8_ARMS = "pathway11_h100/generalization_edge/results/v8_filter_arms_report.json"
+
 CLAIMS: list[Claim] = [
     # ----- Section 1 / §1: baselines -----
     # Tier-1: recompute_baselines.py replays K=1 greedy + K∈{2,4,8} majority over
@@ -1125,6 +1130,57 @@ CLAIMS: list[Claim] = [
     Claim("edge-v7-t5-k8-signal", "Gemma K=8 agreement signal replicates out-of-family: +0.0545 over free gate (p<1e-4) — strong signal, escalation-dominated use",
           "pathway11_h100/generalization_edge/results/v7_phase1c_t5.json",
           ["k8_gemma", "signal_view", 4, "incremental_delta"], 0.054477486559139865, 1e-6, "1024tok"),
+
+    # ----- §v8 "Raise the Ceiling" (EXP-90/91, 2026-06-13) -----
+    # Phase 1 frontier raisers (H-N escalation target / H-O 2nd target / H-P base
+    # identity / H-Q gate-on-base) + Phase 2 confidence-curated distillation (H-R).
+    # Selection firewall: single-shot per arm; G1 froze the Phase-2 recipe before
+    # any Phase-2 GPU minute; one eval per SFT checkpoint.
+    # H-N CONFIRMED: Qwen2.5-Math-7B-Instruct is the escalation target/teacher.
+    Claim("edge-v8-1-hn-cascade-delta", "H-N CONFIRMED: Math-7B escalation lifts the free-gate cascade +4.20pp (0.648->0.690) at matched budget",
+          _V8_PHASE1, ["H_N", "delta"], 0.042, 1e-6, "1024tok"),
+    Claim("edge-v8-1-hn-p", "H-N cascade lift one-sided bootstrap p=0.0025 (significant)",
+          _V8_PHASE1, ["H_N", "p_one_sided"], 0.0025, 1e-6, "1024tok"),
+    Claim("edge-v8-1-hn-rescues", "H-N: Math-7B rescues 41 of the 121 cascade-unrescuable base failures",
+          _V8_PHASE1, ["H_N", "rescues_of_121_unrescuable"], 41, 0, "1024tok"),
+    # H-O INCONCLUSIVE: Mathstral 2nd target neither confirms (>=25) nor refutes (<12.1).
+    Claim("edge-v8-1-ho-rescues", "H-O INCONCLUSIVE: Mathstral-7B adds 15 disjoint rescues (confirm>=25, refute<12.1)",
+          _V8_PHASE1, ["H_O", "rescues_of_121_unrescuable"], 15, 0, "1024tok"),
+    # H-P: off-the-shelf math 1.5B base is the real lever; R1-Distill refuted.
+    Claim("edge-v8-1-hp-math15b-acc", "H-P CONFIRMED: Qwen2.5-Math-1.5B-Instruct standalone MATH-500 0.740 (+9.2pp over budget-matched cascade)",
+          _V8_PHASE1, ["H_P", "math1.5b", "accuracy"], 0.74, 1e-6, "1024tok"),
+    Claim("edge-v8-1-hp-math15b-cost", "H-P: math-1.5b base costs 528.6 token-FLOPs/problem (~1/4 the 2220.7 budget)",
+          _V8_PHASE1, ["H_P", "math1.5b", "mean_cost_flops"], 528.558, 1e-3, "1024tok"),
+    Claim("edge-v8-1-hp-r1distill-refuted", "H-P REFUTED for R1-Distill-1.5B: T=0.6 fallback 0.678 @ cost 2741.7 (over budget, below cascade)",
+          _V8_PHASE1, ["H_P", "r1distill_fallback", "accuracy"], 0.678, 1e-6, "1024tok"),
+    # H-Q CONFIRMED: free gate (len+logprob) generalizes to the new bases.
+    Claim("edge-v8-1-hq-math15b-auroc", "H-Q PASS: free gate on Math-1.5B base OOF AUROC 0.863",
+          _V8_PHASE1, ["H_Q", "math1.5b", "oof_auroc"], 0.8633887733887734, 1e-6, "1024tok"),
+    Claim("edge-v8-1-hq-r1distill-auroc", "H-Q PASS: free gate on R1-Distill base OOF AUROC 0.950 (length-dominated)",
+          _V8_PHASE1, ["H_Q", "r1distill", "oof_auroc"], 0.9504921480408888, 1e-6, "1024tok"),
+    # Phase 2 mechanics: teacher quality + zero-label gate-vs-truth on train pool.
+    Claim("edge-v8-2-teacher-train-acc", "Phase-2 teacher Math-7B greedy MATH-train (n=4000) accuracy 0.766",
+          _V8_ARMS, ["teacher_train_acc"], 0.76625, 1e-6, "1024tok"),
+    Claim("edge-v8-2-matched-n", "Phase-2 matched trace count N=3065 = min(|GT-correct|=3065, |gate-keep|=3555)",
+          _V8_PHASE2, ["matched_N"], 3065, 0, "1024tok"),
+    Claim("edge-v8-2-gate-precision", "Phase-2 zero-label gate vs train truth: precision 0.855 (recall 0.992) at dev prec-0.90 op-point",
+          _V8_PHASE2, ["gate_vs_truth", "precision"], 0.8548523206751055, 1e-6, "1024tok"),
+    # H-R REFUTED: curated distillation does not beat volume; gate is a length proxy.
+    Claim("edge-v8-2-hr-verdict", "H-R REFUTED: zero-label confidence-curated distillation does not beat unfiltered at matched N",
+          _V8_PHASE2, ["H_R", "verdict"], "REFUTED", 0, "1024tok"),
+    Claim("edge-v8-2-hr-gate-acc", "H-R: gate-filtered arm (b) MATH-500 0.494",
+          _V8_PHASE2, ["arms", "b", "math_acc"], 0.494, 1e-6, "1024tok"),
+    Claim("edge-v8-2-hr-unfiltered-acc", "H-R: unfiltered arm (c) MATH-500 0.500 (>= gate arm; curation is a free-rider)",
+          _V8_PHASE2, ["arms", "c", "math_acc"], 0.5, 1e-6, "1024tok"),
+    Claim("edge-v8-2-hr-bc-delta", "H-R: gate-minus-unfiltered delta -0.006 (b<c; fails beats-volume rule)",
+          _V8_PHASE2, ["H_R", "deltas", "b_minus_c"], -0.006, 1e-6, "1024tok"),
+    Claim("edge-v8-2-hr-skyline-acc", "H-R: perfect-label skyline arm (a) MATH-500 0.504 (only +0.4pp over unfiltered)",
+          _V8_PHASE2, ["arms", "a", "math_acc"], 0.504, 1e-6, "1024tok"),
+    # Catastrophic BBH forgetting: every SFT arm falls below the un-adapted base.
+    Claim("edge-v8-2-base-bbh", "Phase-2 un-adapted base BBH-750 0.267 (forgetting reference)",
+          _V8_PHASE2, ["base_bbh_acc"], 0.26666666666666666, 1e-6, "1024tok"),
+    Claim("edge-v8-2-forget-best-bbh", "H-R guardrail FAIL: best arm BBH (unfiltered c) 0.208 < base 0.267 (MATH-only SFT forgets BBH)",
+          _V8_PHASE2, ["arms", "c", "bbh_acc"], 0.208, 1e-6, "1024tok"),
 
     # ----- External anchors registered from triage briefs (2026-04-29 batch) -----
     # These are paper-cited numbers carried into PAPER_INDEX.md / brief footers

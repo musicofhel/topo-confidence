@@ -1,7 +1,7 @@
 {
   "generated": "2026-06-11",
   "generated_by": "confgate/scripts/fit_pinned.py",
-  "repo": "topo-confidence (SPEC v6 pinned results; SPEC v7 Phase 3a package)",
+  "repo": "topo-confidence (SPEC v6 pinned results; SPEC v7 Phase 3a package); SPEC v8 frontier raisers appended",
   "provenance_note": "every anchor below is read verbatim from a committed result JSON; deployment coefficients are full-data refits of the exact pinned recipe on the named caches",
   "anchors": {
     "t5_heldout_oof": {
@@ -127,6 +127,50 @@
       },
       "verdict": "cross-scale zero-shot (k=0) is the supported certificate (validity 1.0 @ 0.60 coverage, eps=0.2); k-label recalibration is feasibility-restoring only past k>=32, never coverage-improving; cross-domain certificates are infeasible with any light head (validity 0.0 at eps=0.2 for every feasible k) -> certify_cross_domain() refuses",
       "source": "pathway11_h100/generalization_edge/results/phase4_recalibration.json"
+    }
+  },
+  "v8_frontier": {
+    "spec": "SPEC v8 'Raise the Ceiling' (EXP-90/91, 2026-06-13)",
+    "note": "Frontier raisers vs the free-gate cascade matched-cost MATH-500 ceiling (0.648 @ budget 2220.7 token-FLOPs). The gate coefficients are UNCHANGED by v8; these anchors record the new escalation target, the base-swap product finding, and the refuted curation experiment.",
+    "pinned_escalation_target": {
+      "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+      "cascade_acc": 0.69,
+      "cascade_acc_prev_generic_7b": 0.648,
+      "delta": 0.042,
+      "p_one_sided": 0.0025,
+      "rescues_of_121_unrescuable": 41,
+      "oracle": 0.8,
+      "hypothesis": "H-N CONFIRMED",
+      "source": "pathway11_h100/generalization_edge/results/v8_phase1_frontier.json"
+    },
+    "base_swap_product": {
+      "model": "Qwen/Qwen2.5-Math-1.5B-Instruct",
+      "standalone_math500_acc": 0.74,
+      "cost_token_flops": 528.558,
+      "budget": 2220.7134,
+      "delta_vs_budget_matched_cascade": 0.092,
+      "free_gate_oof_auroc": 0.8633887733887734,
+      "hypothesis": "H-P + H-Q CONFIRMED",
+      "refused_base": {
+        "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
+        "acc_greedy": 0.634,
+        "acc_t0.6": 0.678,
+        "cost_token_flops": 2741.706,
+        "reason": "intrinsic reasoning length blows the budget"
+      },
+      "source": "pathway11_h100/generalization_edge/results/v8_phase1_frontier.json"
+    },
+    "confidence_curated_distillation_LIMIT": {
+      "hypothesis": "H-R REFUTED",
+      "matched_N": 3065,
+      "gate_filtered_acc": 0.494,
+      "unfiltered_acc": 0.5,
+      "gt_skyline_acc": 0.504,
+      "length_control_acc": 0.502,
+      "base_bbh": 0.26666666666666666,
+      "best_arm_bbh": 0.208,
+      "recipe": "Do NOT use the gate as a zero-label distillation-data filter (free-rider over volume; gate is a step-length proxy at selection). Use all traces, or skip distillation and swap the base. The gate's value is inference-time routing, not training-data selection.",
+      "source": "pathway11_h100/generalization_edge/results/v8_phase2_distill.json"
     }
   }
 }

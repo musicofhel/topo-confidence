@@ -93,22 +93,20 @@ paper-narrative results from this phase:
 
 ## Last experiment completed
 
-**EXP-84..89 (SPEC v7 "Ship the Gate, Then Try to Beat It") — confgate
-shipped; every challenger lost at matched cost; escalation beats
-introspection.** `confgate/` pip package (free gate + cascade + cross-scale
-certs + preflight) built from pinned v6 results, then attacked: token-level
-features, P(True), verbalized, K-consistency, spectral-α, PRM-7B, pseudo-label
-adaptation, learned router — none beats the free gate at ≤1.05× cost on dev
-or confirmatory T5 (SmolLM2 0.808 / Gemma 0.842 / OLMo-2 0.836), and no probe
-beats spending the same tokens on 1.5B→7B escalation (H-J, H-M, PRM: 0.94
-AUROC verifier but 1.042× escalation cost; 47% of failures unrescuable).
-Honest-cache corrections STRENGTHEN the gate: BBH in-domain 0.782→0.806,
-MATH→BBH transfer 0.785→0.828 (D-3). Pseudo-labels: refuted for
-thresholds/refits (k=32 true labels is the recipe), confirmed for
-cross-scale certificates (precision 0.951). Spectral-α closed permanently.
-Cascade-as-is ships as final. Claims 223→245 internal PASS (+22 edge-v7-*). Artifacts:
-`generalization_edge/results/v7_*.json`, SPEC_v7.md (G2 freeze, D-1..D-4),
-`confgate/`.
+**EXP-85 (SPEC v8 "Raise the Ceiling") — the ceiling moves by swapping the base,
+not by curating data.** Four levers untouched by v6/v7 tested against the
+free-gate cascade's matched-cost MATH-500 ceiling. **Pin the base/target, not a
+probe:** off-the-shelf Qwen2.5-Math-1.5B-Instruct scores 0.740 at ¼ budget (+9.2pp
+over the whole cascade, H-P); escalating to Qwen2.5-Math-7B instead of generic 7B
+lifts the cascade +4.20pp and rescues 41/121 (H-N, new pinned target). The free
+gate generalizes to every new base (0.86/0.95/0.94, H-Q). **The centerpiece
+failed:** zero-label confidence-curated distillation does NOT beat unfiltered at
+matched N (gate 0.494 < unfiltered 0.500 < skyline 0.504, < length-control 0.502;
+H-R refuted) and MATH-only SFT catastrophically forgets BBH (all arms < base
+0.267) — curation is a free-rider, the gate is a step-length proxy at selection.
+Honest recipe: off-the-shelf domain base + free-gate cascade on top, escalation
+target = Math-7B. Claims 245→264 internal PASS (+19 edge-v8-*). Artifacts:
+`generalization_edge/results/v8_*.json`, SPEC_v8.md (G1 freeze).
 
 ## Addendum — Phase 2/3/4 executed (EXP-82, 2026-06-11, local 2060)
 

@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-12 07:35 UTC_
+_Generated: 2026-06-13 11:56 UTC_
 
 ---
 
@@ -14468,6 +14468,15 @@ _Generated: 2026-06-12 07:35 UTC_
 **Would update:** F-2
 **Trigger condition:** 2502.06884 (CAP softmax-only baselines)
 **Outcome:** Softmax-confidence AUROC 0.4395 at PANL — anti-calibrated (below chance). F-2 holds — softmax does not subsume DoM.
+
+### P11-FE-CEILING (None) — [ROI: 9.0, COMPLETED, MEDIUM]
+
+**What:** SPEC v8 Raise the Ceiling: stop trying to beat the gate, raise what it gates into. H-N target swap (Qwen2.5-Math-7B at identical 4.7x cost), H-O family-diverse rescues (Mathstral-7B vs the 121 unrescuables), H-P base swaps at honest measured cost (R1-Distill-1.5B, Math-1.5B), H-Q free-gate validity on reasoning bases, H-R confidence-curated LoRA distillation (4 filter arms incl. length-matched control). Executes the behavioral core of P11-FE5 and P11-FE1214. Spec: pathway11_h100/generalization_edge/SPEC_v8.md
+
+**Source:** Internal re-validation — no external trigger paper.
+
+**Cost:** —
+**Outcome:** SPEC v8 'Raise the Ceiling' executed end-to-end (EXP-90/91, ~6 H100 hrs): four non-probe levers tested against the free-gate cascade's matched-cost MATH-500 ceiling (0.648 @ budget 2220.7). H-N CONFIRMED: escalating to Qwen2.5-Math-7B-Instruct instead of generic 7B lifts the cascade +4.20pp (0.648->0.690, p=0.0025), rescues 41/121 previously-unrescuable base failures, oracle 0.758->0.800 -> new pinned escalation target. H-O INCONCLUSIVE: Mathstral-7B adds 15/121 disjoint rescues (below the 25 confirm bar). H-P CONFIRMED: off-the-shelf Qwen2.5-Math-1.5B-Instruct scores 0.740 standalone at ~1/4 budget (cost 529), beating the whole budget-matched cascade by +9.2pp (p~0) -> the real product lever is the base, not introspection; REFUTED for DeepSeek-R1-Distill-1.5B (greedy 0.634 / T=0.6 0.678 @ cost 2742, over budget, reasoning length intrinsic). H-Q CONFIRMED: the free gate (length+logprob) generalizes to all new bases (OOF AUROC 0.863 Math-1.5B, 0.950/0.936 R1-Distill). H-R REFUTED (the centerpiece): a zero-label confidence filter curating 4000 Math-7B distillation traces into the generic 1.5B does NOT beat unfiltered at matched N=3065 (gate arm 0.494 < unfiltered 0.500 < perfect-label skyline 0.504; gate arm even < length-matched control 0.502 -> gate is a noisy step-length proxy at selection, not a quality signal). Even perfect label filtering buys only +0.4pp over unfiltered, so there is no curation increment to capture; and MATH-only SFT catastrophically forgets BBH on every arm (best 0.208 < base 0.267), failing the no-forgetting guardrail. GENERAL CLOSURE: the matched-cost ceiling is raised by swapping the base/target (free, off-the-shelf), not by curating data with the confidence stack; confidence-curated distillation is a free-rider. Honest recipe: use the off-the-shelf domain base + free-gate cascade on top, escalation target = Math-7B.
 
 ### P11-FE-EDGEGEN (P11) — [ROI: 9, COMPLETED, HIGH]
 

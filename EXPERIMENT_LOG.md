@@ -1703,6 +1703,27 @@ D-4 tokenizer round-trip → genscore gen-time capture (corr 0.9998).
 Verdicts H-I/H-J/H-K/H-L1-3/H-M all adjudicated; selection firewall held
 (G2 frozen before any T5 generation; one evaluation per arm).
 
+## EXP-85: SPEC v8 "Raise the Ceiling" — frontier raisers + confidence-curated distillation (spec-internal phase labels EXP-90/91)
+
+**Date:** 2026-06-13. **Compute:** local CPU + 1 RunPod H100 SXM session
+(~6 GPU-hrs; D-1 zero local GPU, $30-capped key). Qwen2.5 1.5B/7B + Math-1.5B/7B,
+DeepSeek-R1-Distill-Qwen-1.5B, Mathstral-7B; MATH-500 + MATH-train n=4000 + BBH-750.
+
+**Four non-probe levers vs the free-gate cascade's matched-cost ceiling
+(0.648 @ budget 2220.7).** H-N CONFIRMED: Math-7B escalation target lifts the
+cascade +4.20pp (0.648→0.690, p=0.0025), 41/121 rescued, oracle 0.758→0.800.
+H-O INCONCLUSIVE (Mathstral 15/121). **H-P CONFIRMED — the headline lever:**
+off-the-shelf Qwen2.5-Math-1.5B-Instruct 0.740 standalone at ~¼ budget beats the
+budget-matched cascade by +9.2pp (p≈0); REFUTED for R1-Distill (greedy 0.634 /
+T=0.6 0.678 @ cost 2742, intrinsic length). H-Q CONFIRMED: free gate generalizes
+to all bases (0.863 / 0.950 / 0.936). **H-R REFUTED (centerpiece):** zero-label
+gate-curated distillation (4000 Math-7B traces → generic 1.5B, matched N=3065)
+gate arm 0.494 < unfiltered 0.500 < perfect-label skyline 0.504, and < its own
+length control 0.502 — curation is a free-rider, the gate is a step-length proxy
+at selection; MATH-only SFT catastrophically forgets BBH (all arms < base 0.267).
+Selection firewall held (G1 froze the recipe before any Phase-2 GPU minute; one
+eval per checkpoint). Claims 245→264 internal PASS (+19 edge-v8-*).
+
 ## Template for new experiments
 
 ```markdown
@@ -1994,4 +2015,4 @@ Verdicts H-I/H-J/H-K/H-L1-3/H-M all adjudicated; selection firewall held
 **Depends on:** EXP-82 (Phase 2/3/4), F-8
 **Enables:** shippable cross-architecture generate-then-abstain gate
 
-Next ID: **EXP-85**.
+Next ID: **EXP-86**.

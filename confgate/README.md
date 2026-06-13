@@ -97,6 +97,36 @@ in `pathway11_h100/generalization_edge/results/v7_*.json`):
   certificates with zero human labels when moving 1.5B→7B on the same
   domain.
 
+## Raising the ceiling — the v8 frontier raisers (EXP-90/91, 2026-06-13)
+
+v7 showed no *probe* beats the gate; v8 asked whether anything else moves the
+matched-cost ceiling (SPEC v8; artifacts `results/v8_*.json`). The product
+answer: **swap the base/target, don't curate data.**
+
+- **Pin the escalation target = `Qwen2.5-Math-7B-Instruct` (H-N).** Routed
+  through the *same* gate-ordered cascade, the math-specialized 7B lifts
+  matched-cost MATH-500 from 0.648 to **0.690** (+4.20pp, p=0.0025) and rescues
+  41 of the 121 base failures the generic 7B cannot (oracle 0.758→**0.800**).
+  Drop-in: the gate, the escalation mask, and the cost model are unchanged —
+  only the large model identity changes.
+- **The cheapest win is a base swap (H-P).** Off-the-shelf
+  `Qwen2.5-Math-1.5B-Instruct` scores **0.740 standalone at ~¼ the budget**
+  (529 vs 2221 token-FLOPs), beating the whole budget-matched cascade by
+  +9.2pp. The free gate still applies on top (H-Q: OOF AUROC **0.863**).
+  Recommended product shape: **off-the-shelf domain base + free-gate cascade,
+  escalation target = Math-7B.** (A reasoning-distilled base — R1-Distill-1.5B —
+  is *refused*: its traces run 5× longer, blowing the budget for 0.634/0.678.)
+- **Confidence-curated distillation is a free-rider (H-R, REFUTED).** Using the
+  gate as a zero-label filter to curate 4000 Math-7B distillation traces does
+  **not** beat training on all of them at matched count (gate-filtered 0.494 <
+  unfiltered 0.500 < perfect-label skyline 0.504; the gate arm even trails its
+  own length-matched control). At this scale even *perfect* label filtering buys
+  +0.4pp, so there is no curation increment for any filter to capture, and
+  MATH-only SFT catastrophically forgets BBH (every arm < the un-adapted base).
+  **Deployment recipe: don't curate distillation data with the gate — use all
+  traces, or skip distillation and swap the base.** The gate's value is at
+  *inference-time routing*, not *training-data selection*.
+
 ## Regenerating the pins
 
 ```bash

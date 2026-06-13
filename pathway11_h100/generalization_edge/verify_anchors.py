@@ -98,10 +98,67 @@ def step4_v7():
     return allok
 
 
+def step5_v8():
+    """SPEC v8 anchors (EXP-90-pre / Gate G0). Operating point + rescue triple
+    recomputed from cached y-vectors; the rest are pinned-JSON readbacks."""
+    import json
+    from pathlib import Path
+
+    here = Path(__file__).resolve().parent
+    res = here / "results"
+    allok = True
+
+    print("\nStep 5 — SPEC v8 anchors (Gate G0):")
+    print("  5a. v7 operating point (v7_phase4_router.json readback):")
+    r = json.loads((res / "v7_phase4_router.json").read_text())
+    op = r["operating_point"]
+    allok &= check("cascade acc (free gate)", op["acc_cascade_free_gate"], 0.648, 1e-9)
+    allok &= check("oracle acc", op["acc_oracle"], 0.758, 1e-9)
+    allok &= check("random-mix hull acc", op["acc_random_mix_hull"], 0.609, 1e-9)
+    allok &= check("c_esc", op["c_esc"], 3094.6868, 0.0001)
+    allok &= check("budget_extra (0.5*c_esc)", op["budget_extra_per_problem"],
+                   1547.3434, 0.0001)
+
+    print("  5b. c0 + matched budget (v7_frontier_table.json readback):")
+    ft = json.loads((res / "v7_frontier_table.json").read_text())
+    c0 = ft["cells"]["qwen1.5b_math"]["c0_abs"]
+    allok &= check("c0 (1.5B greedy MATH)", c0, 673.37, 0.0001)
+    allok &= check("matched budget c0+0.5*c_esc",
+                   c0 + op["budget_extra_per_problem"], 2220.7134, 0.0001)
+    allok &= check("dev free-gate OOF AUROC",
+                   ft["cells"]["qwen1.5b_math"]["free_gate_oof_auroc"], 0.8490, 0.0005)
+
+    print("  5c. rescue triple (recomputed from cached y-vectors):")
+    cell = AL.load_cell("qwen1.5b", "math")
+    y15 = cell.y.astype(bool)
+    y7 = np.load(res / "v7_rescore_qwen7b_math.npz",
+                 allow_pickle=True)["y"].astype(bool)
+    allok &= check("base 1.5B greedy acc", float(y15.mean()), 0.486, 1e-9)
+    allok &= check("target 7B greedy acc", float(y7.mean()), 0.732, 1e-9)
+    fails = int((~y15).sum()); resc = int((y7 & ~y15).sum()); unr = fails - resc
+    for label, got, want in [("base failures", fails, 257),
+                             ("rescued by 7B", resc, 136),
+                             ("unrescuable", unr, 121)]:
+        ok = got == want
+        print(f"  [{'OK ' if ok else 'XX '}] {label:42s} got {got}  want {want}")
+        allok &= ok
+
+    print("  5d. T5 free-gate trio, v7 genscore-corrected (v7_phase1c_t5.json readback):")
+    t5 = json.loads((res / "v7_phase1c_t5.json").read_text())["families"]
+    for key, want in [("smollm2", 0.8083), ("gemma", 0.8422), ("olmo2", 0.8357)]:
+        allok &= check(f"T5 free gate {key}", t5[key]["free_gate_oof_auroc"],
+                       want, 0.0005)
+
+    print(f"\n  v8 anchors: {'ALL PASS' if allok else 'FAILED'}")
+    return allok
+
+
 def main():
     import sys
     if "--v7-only" in sys.argv:
         return 0 if step4_v7() else 1
+    if "--v8-only" in sys.argv:
+        return 0 if step5_v8() else 1
     cell = AL.load_cell("qwen1.5b", "math")
     folds = frozen_folds(cell.y)
     allok = True
@@ -144,6 +201,7 @@ def main():
     print(f"\n    worst LOCO cell: {t1['worst_cell']} = {t1['worst']:.4f}")
 
     allok &= step4_v7()
+    allok &= step5_v8()
 
     print(f"\n{'ALL ANCHORS PASS' if allok else 'SOME ANCHORS FAILED'}")
     return 0 if allok else 1
