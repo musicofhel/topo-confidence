@@ -11,9 +11,10 @@ import re
 import sqlite3
 import subprocess
 import sys
+import threading
 import time
 from datetime import date
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
@@ -37,6 +38,14 @@ _NEO4J_CACHE_TTL = 5
 
 _bot_cache: dict = {"ts": 0.0, "alive": False}
 _BOT_CACHE_TTL = 5
+
+# /pipeline shells out to docker inspect/exec serially (~2.4s). The Stream Deck
+# disconnects after ~1-2s, which surfaced as a BrokenPipeError mid-response and a
+# frozen button. A background thread keeps this snapshot warm so client polls are
+# served instantly from cache and never pay the docker cost on the request path.
+_pipeline_cache: dict = {"ts": 0.0, "val": None}
+_pipeline_lock = threading.Lock()
+_PIPELINE_REFRESH_INTERVAL = 2.0
 
 
 def _is_bot_alive() -> bool:
@@ -358,6 +367,34 @@ def _pipeline_status() -> dict:
     }
 
 
+def _refresh_pipeline_loop(interval: float = _PIPELINE_REFRESH_INTERVAL):
+    """Recompute the (slow, docker-bound) pipeline snapshot on a fixed interval so
+    GET /pipeline can be served instantly from cache — no client poll ever waits on
+    docker, so the Stream Deck never times out and BrokenPipes mid-response."""
+    while True:
+        try:
+            snap = _pipeline_status()
+            with _pipeline_lock:
+                _pipeline_cache["val"] = snap
+                _pipeline_cache["ts"] = time.time()
+        except Exception:
+            pass
+        time.sleep(interval)
+
+
+def _get_pipeline_cached() -> dict:
+    with _pipeline_lock:
+        val = _pipeline_cache["val"]
+    if val is None:
+        # cold start before the refresher's first pass completes — compute once
+        val = _pipeline_status()
+        with _pipeline_lock:
+            if _pipeline_cache["val"] is None:
+                _pipeline_cache["val"] = val
+                _pipeline_cache["ts"] = time.time()
+    return val
+
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed = urlparse(self.path)
@@ -384,19 +421,23 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/pipeline":
-            self._json_response(_pipeline_status())
+            self._json_response(_get_pipeline_cached())
             return
 
         self.send_error(404)
 
     def _json_response(self, data: dict, status: int = 200):
         body = json.dumps(data, indent=2).encode()
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionError):
+            # client (Stream Deck) hung up before we finished writing — harmless
+            pass
 
     def log_message(self, fmt, *args):
         pass
@@ -415,7 +456,10 @@ def main():
         print(f"Error: {AUTOPILOT_DIR} does not exist", file=sys.stderr)
         sys.exit(1)
 
-    server = HTTPServer(("0.0.0.0", port), Handler)
+    # Keep the slow /pipeline snapshot warm off the request path.
+    threading.Thread(target=_refresh_pipeline_loop, daemon=True).start()
+
+    server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
     print(f"Daemon status server on 0.0.0.0:{port} (reading {AUTOPILOT_DIR})")
     try:
         server.serve_forever()
