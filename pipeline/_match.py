@@ -57,7 +57,10 @@ def find_recompute_script(fe_id: str) -> Path | None:
         log.debug("Exact match (fe-prefixed): %s -> %s", fe_id, script)
         return script
 
-    log.info(
+    # DEBUG, not INFO: this fires for every scriptless FE on every poll cycle
+    # over the full READY backlog (~1000 FEs), which previously filled the
+    # daemon log with GBs of expected, repetitive noise.
+    log.debug(
         "No recompute script found for %s (searched recompute_{%s,%s}.py)",
         fe_id, num, fe_num,
     )

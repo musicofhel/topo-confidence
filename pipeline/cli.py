@@ -572,9 +572,18 @@ def cmd_autopilot(args: argparse.Namespace) -> None:
         log_dir = Path(".autopilot")
         log_dir.mkdir(parents=True, exist_ok=True)
         fh = logging.FileHandler(str(log_dir / f"daemon-{phase}.log"))
-        fh.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"))
-        logging.getLogger("pipeline").addHandler(fh)
-        logging.getLogger("autopilot").addHandler(fh)
+        fh.setFormatter(logging.Formatter(
+            "%(asctime)s %(name)s %(levelname)s %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        ))
+        # The daemon is launched with `>> daemon-{phase}.log 2>&1`, so the root
+        # StreamHandler's stderr output already lands in this file. Without
+        # propagate=False every record would be written twice (once by fh, once
+        # via root->stderr->redirect) — which doubled the log's growth.
+        for name in ("pipeline", "autopilot"):
+            lg = logging.getLogger(name)
+            lg.addHandler(fh)
+            lg.propagate = False
 
     from pipeline.autopilot import run_loop
 
@@ -625,7 +634,7 @@ def main() -> None:
     autopilot_parser = sub.add_parser("autopilot", help="Run autopilot daemon")
     autopilot_parser.add_argument("--phase", choices=["triage", "scriptgen", "experiment"],
                                   default=None, help="Run only this phase (for multi-worker deployment)")
-    autopilot_parser.add_argument("--budget", type=int, default=15, help="Daily LLM call cap")
+    autopilot_parser.add_argument("--budget", type=int, default=1000000000, help="Daily LLM call cap (default: effectively uncapped)")
     autopilot_parser.add_argument("--poll", type=int, default=60, help="Poll interval seconds")
     autopilot_parser.add_argument("--dry-run", action="store_true", help="Log actions, don't execute")
     autopilot_parser.add_argument("--verbose", action="store_true", help="Debug logging")

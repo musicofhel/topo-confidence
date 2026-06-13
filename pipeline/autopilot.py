@@ -480,6 +480,14 @@ def run_loop(
     log.info("Autopilot starting (phase=%s, poll=%ds, budget=%d/day, dry_run=%s)",
              phase or "all", poll_interval, daily_cap, dry_run)
 
+    # Record the real per-day cap so the status server (and Stream Deck) reflect
+    # the daemon's actual budget instead of a hardcoded client-side default.
+    try:
+        cap_name = f"cap-{phase}.json" if phase else "cap.json"
+        (AUTOPILOT_DIR / cap_name).write_text(json.dumps({"cap": daily_cap}))
+    except Exception:
+        pass
+
     skipped_this_cycle: set[str] = set()
 
     try:

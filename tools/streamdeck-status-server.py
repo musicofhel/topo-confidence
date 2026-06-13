@@ -73,7 +73,16 @@ def _is_alive(pid: int) -> bool:
 def _check_phase(phase: str, budget_cap: int) -> dict:
     pid_file = AUTOPILOT_DIR / f"daemon-{phase}.pid"
     budget_file = AUTOPILOT_DIR / f"budget-{phase}.json"
+    cap_file = AUTOPILOT_DIR / f"cap-{phase}.json"
     log_file = AUTOPILOT_DIR / f"daemon-{phase}.log"
+
+    # The daemon records its real per-day cap; prefer it over the client-supplied
+    # value so an uncapped (or re-capped) daemon is reported honestly.
+    if cap_file.exists():
+        try:
+            budget_cap = int(json.loads(cap_file.read_text()).get("cap", budget_cap))
+        except Exception:
+            pass
 
     alive = False
     pid = None
