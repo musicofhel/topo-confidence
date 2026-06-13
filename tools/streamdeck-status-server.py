@@ -273,8 +273,11 @@ def _check_services() -> dict:
         services["link_forge_bot"] = False
 
     try:
+        # Match the NGS Vite by its project dir, not by port: 42-macro-dashboard's
+        # frontend squats on 5173, so NGS runs on 5174. A dir-based match detects
+        # the NGS frontend on whatever port it lands.
         out = subprocess.run(
-            ["pgrep", "-f", "vite.*5173"],
+            ["pgrep", "-f", "node-graph-substrate/frontend"],
             capture_output=True, text=True, timeout=5,
         )
         services["ngs_frontend"] = bool(out.stdout.strip())

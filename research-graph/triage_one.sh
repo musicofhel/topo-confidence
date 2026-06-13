@@ -17,6 +17,16 @@ set -uo pipefail
 
 cd "$(dirname "$0")"
 
+# Resolve a real interpreter. `python` is only an interactive shell alias here;
+# under this non-interactive bash it is "command not found", which silently
+# killed every promote step (briefs written, status stuck at pending_triage).
+# Prefer the repo venv (has neo4j/yaml deps), fall back to python3.
+if [[ -x "../.venv/bin/python" ]]; then
+  PYTHON="../.venv/bin/python"
+else
+  PYTHON="python3"
+fi
+
 arxiv_id="${1:?usage: triage_one.sh <arxiv-id>}"
 
 TODAY="$(date +%Y-%m-%d)"
@@ -66,7 +76,7 @@ fi
 promote_log="${brief}.promote.log"
 (
   flock -x 9
-  python promote_brief.py "$brief" --update-existing
+  "$PYTHON" promote_brief.py "$brief" --update-existing
 ) 9>".promote.lock" > "$promote_log" 2>&1
 prc=$?
 if [[ "$prc" -eq 0 ]]; then
