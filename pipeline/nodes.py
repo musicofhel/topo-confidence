@@ -95,6 +95,11 @@ def select_experiment(state: ExperimentState) -> dict[str, Any]:
             if local_only and not _is_local_runnable(fe):
                 continue
             fe_id = fe.get("id", "")
+            # Skip FEs already attempted this session (success or failure) so a
+            # failing FE is not re-picked indefinitely in unlimited mode
+            # (max_runs=0). With max_runs>0 the cap above is the primary guard.
+            if fe_id in completed:
+                continue
             script = _find_recompute_script(fe_id)
             if script is not None:
                 expected = parse_fe_num(fe_id)
@@ -257,7 +262,15 @@ def handle_failure(state: ExperimentState) -> dict[str, Any]:
             "timestamp": time.time(),
         }
         span.set_attribute("error_summary", json.dumps(error))
-        return {"errors": [error]}
+        # Count the failed FE toward completed_this_session so it tells against
+        # max_runs and select_experiment terminates. Without this, a failing
+        # run loops select_experiment -> run_experiment -> handle_failure ->
+        # select_experiment forever (the same first-runnable FE is re-picked,
+        # max_runs is never reached) until langgraph's recursion_limit (10007)
+        # trips ~14 min later — meanwhile the SqliteSaver checkpointer
+        # accumulates ~11GB of per-superstep state. Mirrors promote()'s append
+        # on the success path.
+        return {"errors": [error], "completed_this_session": [fe_id]}
 
 
 # --- Phase 3: LLM nodes ---
