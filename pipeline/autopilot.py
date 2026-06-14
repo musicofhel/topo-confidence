@@ -39,6 +39,7 @@ AUTOPILOT_DIR = REPO_ROOT / ".autopilot"
 TRIGGER_FILE = AUTOPILOT_DIR / "trigger"
 BUDGET_FILE = AUTOPILOT_DIR / "budget.json"
 FAILURES_FILE = AUTOPILOT_DIR / "failures.json"
+COMPLETED_FILE = AUTOPILOT_DIR / "completed_experiments.json"
 FOLLOWUPS_DIR = AUTOPILOT_DIR / "followups"
 EXPERIMENT_LOCK = AUTOPILOT_DIR / "experiment.lock"
 
@@ -138,6 +139,34 @@ def _is_quarantined(item_id: str) -> bool:
     return _read_failures().get(item_id, 0) > MAX_RETRIES
 
 
+def _read_completed() -> dict[str, str]:
+    if COMPLETED_FILE.exists():
+        try:
+            return json.loads(COMPLETED_FILE.read_text())
+        except (json.JSONDecodeError, KeyError):
+            pass
+    return {}
+
+
+def _mark_completed(fe_id: str) -> None:
+    """Record a successfully-run experiment so it is not re-swept.
+
+    The experiment phase has no Neo4j 'done' state: _runnable_fes() returns
+    EVERY local-runnable scripted FE on every poll. Without a completed
+    marker the daemon works through the list once, clears skipped_this_cycle
+    when did_work goes False, and starts over from the top — re-running every
+    finished FE forever. Because the runs are deterministic recomputes over
+    fixed NPZ caches, each re-run is an idempotent no-op (identical
+    results.json -> empty commit) that only burns cycles and noises git log.
+    Marking a run done lets _runnable_fes drain to the genuinely-new FEs and
+    then idle. Reversible: delete this file (or an entry) to force a re-run,
+    e.g. after a recompute script is regenerated.
+    """
+    completed = _read_completed()
+    completed[fe_id] = time.strftime("%Y-%m-%dT%H:%M:%S")
+    COMPLETED_FILE.write_text(json.dumps(completed, indent=2, sort_keys=True))
+
+
 def _check_trigger() -> list[str]:
     """Read and clear the trigger file. Returns list of arxiv IDs."""
     if not TRIGGER_FILE.exists():
@@ -202,11 +231,18 @@ def _triage_one_paper(arxiv_id: str, *, dry_run: bool = False) -> bool:
 
 
 def _runnable_fes() -> list[dict[str, Any]]:
-    """FEs that are local-runnable and have a recompute script."""
+    """FEs that are local-runnable, have a recompute script, and have not yet run.
+
+    Already-completed FEs are filtered out (see _mark_completed) so the phase
+    advances to new work and idles instead of re-sweeping the whole backlog.
+    """
+    completed = _read_completed()
     fes = _query_neo4j_ready_fes()
     return [
         fe for fe in fes
-        if _is_local_runnable(fe) and _find_recompute_script(fe["id"]) is not None
+        if _is_local_runnable(fe)
+        and _find_recompute_script(fe["id"]) is not None
+        and fe["id"] not in completed
     ]
 
 
@@ -589,6 +625,7 @@ def run_loop(
                                     log.warning("Experiment failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
                                 elif result is not None:
                                     _clear_failure(f"run-{fe['id']}")
+                                    _mark_completed(fe["id"])
                                     committed = _auto_commit_results(fe["id"])
                                     if not committed:
                                         log.error("Auto-commit failed for %s, skipping classification", fe["id"])
