@@ -7,6 +7,8 @@ export interface PhaseStatus {
 	budget_cap: number;
 	current_item: string | null;
 	last_activity: string | null;
+	completed_count?: number;
+	completed_age?: number | null;
 }
 
 export interface StatusResponse {

@@ -475,6 +475,13 @@ class Handler(BaseHTTPRequestHandler):
             daemons = {}
             for phase in PHASES:
                 daemons[phase] = _check_phase(phase, budget_cap)
+            # The experiment phase has no Neo4j "done" state; expose how many FEs
+            # it has marked complete and how long ago the last one landed so the
+            # Stream Deck can show live FE progress (count ticking up == working).
+            if "experiment" in daemons:
+                cnt, age = _completed_count_and_age()
+                daemons["experiment"]["completed_count"] = cnt
+                daemons["experiment"]["completed_age"] = age
             self._json_response({"daemons": daemons})
             return
 

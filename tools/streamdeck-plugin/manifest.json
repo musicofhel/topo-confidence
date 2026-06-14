@@ -39,6 +39,21 @@
       ]
     },
     {
+      "Name": "Experiment Progress",
+      "UUID": "com.topoconfidence.daemon-monitor.experiment-progress",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Live experiment-phase FE progress: current FE + completed count. Green=working, yellow=idle, red=down.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": ["Keypad"],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
       "Name": "Forge Queue",
       "UUID": "com.topoconfidence.daemon-monitor.forge-queue",
       "Icon": "imgs/actions/daemon-monitor/icon",
