@@ -1,0 +1,24 @@
+[Unit]
+Description=topo-confidence autopilot daemon (phase=%i)
+After=docker.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=/home/musicofhel/topo-confidence
+# The triage phase shells out to `claude -p` (research-graph/triage_one.sh) and
+# the bot toolchain lives under nvm's node bin. systemd user services get a
+# minimal PATH (/usr/bin:/bin:... — no nvm), so `claude` resolved to
+# "command not found" (exit 127) and EVERY paper triage failed silently.
+# Prepend the nvm node bin (mirrors link-forge-bot.service) so claude resolves.
+Environment=PATH=/home/musicofhel/.nvm/versions/node/v22.22.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Match the user's normal invocation (start-research-pipeline.sh): uncapped daily
+# budget, 60s poll. The daemon tracks per-day budget_used internally.
+ExecStart=/home/musicofhel/topo-confidence/.venv/bin/python -m pipeline autopilot --phase %i --budget 1000000000 --poll 60
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/musicofhel/topo-confidence/.autopilot/daemon-%i.log
+StandardError=append:/home/musicofhel/topo-confidence/.autopilot/daemon-%i.log
+
+[Install]
+WantedBy=default.target

@@ -43,7 +43,11 @@ FOLLOWUPS_DIR = AUTOPILOT_DIR / "followups"
 EXPERIMENT_LOCK = AUTOPILOT_DIR / "experiment.lock"
 
 TRIAGE_TIMEOUT = 1800
-EXPERIMENT_TIMEOUT = 14400
+# Outer wall-clock cap on `pipeline run` for one FE. Kept comfortably above the
+# inner per-script timeout in nodes.run_experiment (1800s) to allow for the
+# langgraph nodes around it (generate_brief, parse, classify) but far below the
+# old 14400s, which let a stuck run hold the experiment lock for 4h.
+EXPERIMENT_TIMEOUT = 3600
 MAX_RETRIES = 2
 
 
@@ -113,6 +117,21 @@ def _record_failure(item_id: str) -> int:
     failures[item_id] = failures.get(item_id, 0) + 1
     FAILURES_FILE.write_text(json.dumps(failures, indent=2))
     return failures[item_id]
+
+
+def _clear_failure(item_id: str) -> None:
+    """Drop an item's failure count after a SUCCESS.
+
+    Without this, failures.json only ever grows and a transient/systemic
+    failure (e.g. a broken PATH or a bad CLI flag) permanently poisons the
+    backlog: every affected item sticks at count>MAX_RETRIES and is never
+    retried even after the root cause is fixed. Clearing on success makes
+    quarantine self-healing and bounds the file size.
+    """
+    failures = _read_failures()
+    if item_id in failures:
+        del failures[item_id]
+        FAILURES_FILE.write_text(json.dumps(failures, indent=2))
 
 
 def _is_quarantined(item_id: str) -> bool:
@@ -521,6 +540,8 @@ def run_loop(
                     if not ok:
                         count = _record_failure(f"triage-{arxiv_id}")
                         log.warning("Triage failed for %s (attempt %d/%d)", arxiv_id, count, MAX_RETRIES + 1)
+                    else:
+                        _clear_failure(f"triage-{arxiv_id}")
                     skipped_this_cycle.add(arxiv_id)
 
             # Phase 2: Generate script for one scriptless FE
@@ -538,6 +559,8 @@ def run_loop(
                     if path is None and not dry_run:
                         count = _record_failure(f"gen-{fe['id']}")
                         log.warning("Script gen failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
+                    elif path is not None:
+                        _clear_failure(f"gen-{fe['id']}")
                     skipped_this_cycle.add(fe['id'])
 
             # Phase 3: Run one experiment
@@ -565,6 +588,7 @@ def run_loop(
                                     count = _record_failure(f"run-{fe['id']}")
                                     log.warning("Experiment failed for %s (attempt %d/%d)", fe["id"], count, MAX_RETRIES + 1)
                                 elif result is not None:
+                                    _clear_failure(f"run-{fe['id']}")
                                     committed = _auto_commit_results(fe["id"])
                                     if not committed:
                                         log.error("Auto-commit failed for %s, skipping classification", fe["id"])

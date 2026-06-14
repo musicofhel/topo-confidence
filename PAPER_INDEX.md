@@ -32224,3 +32224,738 @@ H-929, H-930, H-931; H-8, H-10; F-1, F-2, F-3, F-7, F-10; EXP-57 (FE881).
 - Wang et al. 2025b, "Beyond the 80/20 rule: high-entropy minority tokens drive effective RL" (2506.01939-ish) — NOT in graph; the entropy baseline FlowTracer compares against.
 - 2509.12886 (already graphed, REPLICATED — "The LLM Already Knows: difficulty from hidden reps") — conceptual sibling: both read internal state for token/problem-level signal; FlowTracer is the attention-flow counterpart to that hidden-state-difficulty result.
 - 2306.03341 (graphed, CONTRADICTED — ITI per-head) — FlowTracer's per-head/per-layer attention attribution overlaps the per-head ITI mechanism still pending in P11-FE97.
+
+## 2510.26745 — Deep sequence models tend to memorize geometrically; it is unclear why. (Noroozizadeh, Nagarajan, Rosenfeld, Kumar, 2025)
+
+**Relevance:** A theory/mechanistic paper arguing that deep sequence models store atomic facts as
+*geometric memory* — a low-rank factorization of the adjacency matrix whose top directions are the
+top eigenvectors of the (negative) graph Laplacian (Fiedler vectors), encoding global multi-hop
+distance — and that this geometry arises from a spectral bias naturally produced by cross-entropy
+minimization, without rank/bottleneck/multi-hop pressures. Although demonstrated on symbolic
+path-star graphs and a 2-layer linear (Node2Vec) sandbox, the spectral-geometry lens maps directly
+onto this project's strongest results: DoM ≈ PC1 (top eigenvector, cos 0.9216), the cov-spectrum
+probe (0.7928, the project's best), and the PH-is-null finding (informative structure is linear-
+spectral, not topological). It supplies candidate mechanisms for F-2 (DoM as global geometric-memory
+coordinate), F-3 (prefill/final orthogonality as global-vs-bipartite eigendirections), F-7 (D-bucket
+as the "adulterated"/associative spectral region), and H-5 (familiarity = spectral proximity).
+
+**Key claim we tested:** The dominant, informative direction of a model's representation geometry is
+the top Laplacian/Fiedler eigenvector encoding global structure — i.e. the correctness-predictive
+prefill direction should *be* the top eigenvector of the L19 covariance, and the informative readout
+is spectral rather than topological.
+
+**Our result:** **TO TEST** — Strong prior support already on file (DoM≈PC1 at cos 0.9216; cov-
+spectrum 0.7928 > topology; PH ≈ Gaussian null), but the specific Fiedler-readout, EVD/SVD-folding,
+and spectral-coverage tests (P11-FE1292/226746/226747) have not been run. The memorization-
+proximity confound on F-2 (P11-FE1295) is the highest-stakes open question.
+
+**Related experiments:** P11-FE1292, P11-FE1293, P11-FE1294, P11-FE1295, H-941, H-942,
+FE291, FE881.
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Graph-Laplacian / Fiedler spectral embedding of an entity set** — embed items by the top
+  eigenvectors of the (negative) graph Laplacian of a similarity/adjacency graph; these encode global
+  multi-hop distance.
+  *Replication cost*: ~20–40 min CPU on the cached 500×1536 L19 prefill matrix (build kNN graph →
+  Laplacian → eigsh top-k).
+  *We'd plausibly run this*: yes — it is a different dimensionality reduction to compare head-to-head
+  with PCA/DoM on the same cached activations (R4 / FE-A).
+- **EVD-vs-SVD eigendirection decomposition (spectral folding)** — diagnose whether two directions
+  are top-positive vs most-negative eigendirections of one operator; weight-untied SVD "folds" the
+  negative spectrum into top singular directions.
+  *Replication cost*: ~10 min CPU (one eigendecomposition of cached L19 covariance + two projections).
+  *We'd plausibly run this*: yes — direct test of R2 / F-3 (FE-B).
+- **Top-k-eigenvector projection-energy diagnostic** — measure how much of an item's representation
+  lives in the leading vs trailing eigenspace ("geometric" vs "associative/adulterated" coverage).
+  *Replication cost*: ~15 min CPU on cached covariance + per-problem prefill vectors.
+  *We'd plausibly run this*: yes — direct test of R3 / F-7 (FE-C).
+- **Multi-hop cosine-similarity heatmaps** — visualize node-node cosine structure to read off cluster
+  geometry; here applied to per-problem prefill vectors stratified by correctness.
+  *Replication cost*: ~10 min CPU.
+  *We'd plausibly run this*: yes (cheap visualization, low ROI on its own).
+- **Eigenvector-projection-norm training dynamics** — track ‖projection of embedding onto each
+  eigenvector‖ over training to see the spectral contraction.
+  *Replication cost*: needs training-time checkpoints / multiple model snapshots — H100/new-data.
+  *We'd plausibly run this*: no — we don't train; only relevant if H-8 (checkpoint stability) is run.
+- **Weight-tied 2-layer linear Node2Vec sandbox** — minimal model isolating spectral bias.
+  *Replication cost*: needs a new toy training setup.
+  *We'd plausibly run this*: no — off-topic for the MATH-500 hidden-state pipeline.
+
+### Approaches & framings
+
+- **Associative vs geometric memory dichotomy** — reframes "what a model stores" as lookup-table vs
+  low-rank-factorized-with-global-structure. Intersects H-5 (familiarity vs decomposability) and the
+  DoM-as-readout interpretation in F-2: gives a name to "what the prefill direction is reading."
+- **Spectral bias as the source of representation geometry** — top Laplacian eigenvectors emerge
+  naturally from cross-entropy minimization, no rank/bottleneck/multi-hop pressure required.
+  Intersects the cov-spectrum result (FE881, 0.7928) and PC1≈DoM (FE291): supplies a "why" for the
+  spectral-readout findings being the strongest probes.
+- **"Adulterated" geometry / measurable headroom** — Transformer geometry = clean spectral geometry
+  contaminated by associative memory. Intersects F-7 (D-bucket = the adulterated region) and the
+  PC1-residualization move in FE881.
+- **Bipartite geometric memory (negative eigendirections)** — a second, zig-zagging geometry on the
+  most-negative spectrum. Intersects F-3: a concrete candidate identity for the final-token DoM
+  direction.
+- **Implicit in-weights reasoning replaces ℓ-fold composition with 1-step navigation** — reframes
+  "hard reasoning" as geometric reachability. Intersects H-5's "decomposability" axis.
+
+### Datasets & benchmarks
+
+- **Path-star graphs (Bachmann & Nagarajan '24 topology)** — synthetic symbolic graphs, in-weights
+  and in-context variants. Not released as a standard benchmark; trivially regenerable. Applicable?
+  no — symbolic graph task, not connected to MATH-500 / hidden-state correctness.
+- **Grid / Cycle / Irregular toy graphs** — synthetic, used for Fiedler-vector visualizations.
+  Applicable? no.
+
+(No real-language or math benchmarks introduced; the paper is symbolic + theoretical.)
+
+### Implementation details worth capturing
+
+- Spectral bias claim is for the **negative graph Laplacian** `≈ A − D`; learned embeddings align
+  with its **top (Fiedler) eigenvectors**. For us: the analogue is the top eigenvectors of the L19
+  activation covariance (PC1 = global/Fiedler analogue).
+- **Weight tying matters**: untied two-layer models factorize via SVD (folds negative eigenvalues
+  into top singular directions → bipartite geometry); tied models factorize via EVD (clean global
+  geometry). Relevant when interpreting prefill vs final DoM (R2).
+- Geometry emerges **without** low-rank constraint — embedding dimension can exceed the structure's
+  rank; the dynamics self-stabilize by contracting `Φ` onto the Fiedler eigenspace and pushing the
+  rest to the coefficient matrix's null space.
+- "Associative first, geometry later" training dynamics — geometric memory appears only after many
+  more gradient steps than associative memory (relevant to H-8 checkpoint-stability framing).
+- No code link surfaced in the HTML body; appendix §B.2.2 specifies the Transformer architecture for
+  the Fig. 1 visualization.
+
+### Replicable intermediates
+
+- **cos(DoM, PC1) = 0.9216 (FE291)** — already the cleanest cross-check of "DoM = top eigenvector."
+  Re-state under the geometric-memory lens; no new compute.
+- **Cov-spectrum eigvals (FE881 `pc1_resid_cov_spectrum_results.json`)** — cached. Test R2/R4 by
+  projecting prefill_DoM and final_DoM onto this eigenbasis and tabulating which eigenrank each loads
+  on (top-positive vs most-negative). ~10 min CPU.
+- **Cached L19 prefill 500×1536 matrix** — build kNN-graph Laplacian Fiedler embedding, AUROC vs
+  correctness, compare to 0.7731 / 0.7928 (FE-A). ~30 min CPU.
+- **Per-problem prefill vectors + D-bucket labels** — top-k eigenvector projection-energy per
+  problem, test D-bucket collective position (FE-C). ~15 min CPU.
+
+### Cross-paper signals
+
+- 2405.07987 — already in graph (status: graphed/TO TEST). The paper explicitly cites the Platonic
+  Representation Hypothesis [92,75] as a direction its geometry sandbox could illuminate; both argue
+  convergent low-rank structure across model families.
+- 2410.13640 (CoE / Chain-of-Embedding) — already in graph (PARTIALLY CONFIRMED). Conceptually
+  adjacent: trajectory geometry as a self-evaluation readout vs this paper's static embedding
+  geometry; worth cross-linking under the "geometry-as-signal" theme.
+- The paper's core references (Bachmann & Nagarajan path-star; Levy & Goldberg PMI/Word2Vec; Saxe
+  et al. deep-linear SVD; Qiu et al. NetMF) are foundational spectral/graph-embedding theory, **not**
+  in scope for the correctness-geometry graph — do not recommend admission.
+
+## 2605.10781 — Rebellious Student: Reversing Teacher Signals for Reasoning Exploration with Self-Distilled RLVR (Anonymous/Qwen-based authors, 2026)
+
+**Relevance:** A training-time RLVR method (RLRT) that augments GRPO by reinforcing, on correct rollouts, the tokens where a student diverges from an information-advantaged teacher — "information asymmetry" as an exploration axis. It does not study hidden-state correctness readouts, so it is not a direct competitor to F-2/F-4/F-9; its value to us is as a *stress test*. It is the cleanest available intervention to ask whether our fixed-checkpoint findings (the L19 prefill DoM AUROC 0.7731, the asymmetric-collapse F-4) survive the dominant modern post-training recipe, and whether RLRT's "correct = productive divergence" thesis contradicts our "correct = harder collapse" geometry.
+
+**Key claim we tested:** In our terms — valuable correct reasoning is exploratory divergence (sparse, positionally-distributed high-asymmetry tokens), and RLVR exploration targeted at those tokens improves reasoning across base/instruct/thinking checkpoints.
+
+**Our result:** **TO TEST** No experiment run yet. Two tracks queued: a cheap cached-activation dispersion check (P11-FE1296 / H-944) adjudicating divergence-vs-collapse against F-4, and an H100 RLRT-vs-GRPO durability run (P11-FE1297 / H-943) re-measuring F-2 and F-4 on post-training checkpoints.
+
+**Related experiments:** P11-FE1296, P11-FE1297, H-943, H-944
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **RLRT (RLVR with Reversed Teacher)** — augments GRPO by reinforcing, on *correct* rollouts, the tokens where the student succeeded along a path the (information-advantaged) teacher would not have predicted.
+  *Replication cost*: H100 day(s) — requires RL fine-tuning of Qwen.
+  *We'd plausibly run this*: yes, but only as a Tier-2 durability probe of F-2/F-4, not as a method we adopt.
+- **Reversed self-distillation signal (information asymmetry)** — teacher = same model conditioned on extra info; per-token weight = gap between teacher and student token probabilities, *read in reverse* (reward divergence on success instead of suppressing it).
+  *Replication cost*: needs fresh forward passes (teacher conditioned on answer/hint) to get per-token logit gaps — we don't have these cached.
+  *We'd plausibly run this*: no, unless we re-run extraction with a hinted-teacher pass.
+- **Full-trajectory token-reinforcement heatmaps** (Appendix H) — visualize which token positions receive the reversed signal across a trajectory.
+  *Replication cost*: 30min CPU *if* we had per-token L19 traces; our cache is prefill + final-token aggregates.
+  *We'd plausibly run this*: no, blocked on per-token cache.
+- **GRPO baseline** — standard group-relative policy optimization, used as the comparison arm.
+  *Replication cost*: H100 day(s).
+  *We'd plausibly run this*: only as the control arm of the RLRT durability experiment.
+
+### Approaches & framings
+
+- **"Information asymmetry as a design axis for RLVR."** Reframes exploration from uniform entropy/diversity bonuses to *targeted* reinforcement of student-vs-teacher divergence. Intersects our framings by offering a mechanistic candidate for *why* the prefill geometry might or might not move under training — exploration is concentrated on specific tokens, not spread uniformly.
+- **"Read the self-distillation signal in reverse."** Conceptual inversion: the same teacher-student gap that overwrites the student on success can instead mark self-driven reasoning. Intersects F-3/F-4 — if "good" reasoning is divergence rather than collapse, our collapse-asymmetry story needs a quality-stratified retelling.
+
+### Datasets & benchmarks
+
+- **MATH** — competition math; directly comparable to our MATH-500 1024-tok regime. Applicable? yes — same task family, lets us re-measure F-2 on a post-RLRT checkpoint.
+- **AIME** — harder competition math, small N. Applicable? partially — useful for cross-difficulty but not our cached regime.
+- **GSM8K** — grade-school math. Applicable? partially — easier; weak overlap with our hard-MATH cache.
+- **Qwen3 (base / instruction-tuned / thinking-tuned)** — model family, not a dataset, but note: our cache is Qwen-2.5-1.5B/7B, so an exact-checkpoint replication would need Qwen3 or a Qwen-2.5 RLRT run. Applicable? yes with a fresh fine-tune.
+
+### Implementation details worth capturing
+
+- Three checkpoint regimes evaluated: Qwen3 **base, instruction-tuned, thinking-tuned** — RLRT reportedly beats self-distillation and exploration baselines on all three.
+- Algorithm = GRPO + a token-level reweighting term keyed on teacher-vs-student token-probability gap on correct rollouts.
+- Theoretical scaffolding: Theorems 1–2 (Appendix C) on reasoning-boundary / exploration constraints; hyperparameters in Appendices F–G (learning rates, rollout counts — not legible in the PDF metadata extract, would need the appendix tables).
+- No public code link surfaced in the abstract/intro; verify before assuming a repo exists.
+- **Gotcha:** "teacher" and "student" are the *same* model — the teacher just gets extra context. There is no separate model to load; the asymmetry is entirely from conditioning.
+
+### Replicable intermediates
+
+- **Off-DoM dispersion check (correct vs incorrect), cached now.** Using `pathway11_h100/...` L19 prefill NPZ (500×1536), residualize out the DoM direction and compare effective dimensionality / participation ratio of the correct vs incorrect groups. This is the smallest cross-check of RLRT's "correct = exploratory divergence" premise against our F-4 "correct collapses harder" finding — no training required.
+- Everything tied to RLRT's *headline* (benchmark-accuracy gains from training) is **not** replicable without an H100 RL run.
+
+### Cross-paper signals
+
+- 2203.11171 — already in graph (status: graphed; REPLICATED + EXTENDED). RLRT positions itself against self-consistency-style exploration; our self-consistency entry is the natural comparison anchor.
+- GRPO / DeepSeekMath (RLVR base method) — likely NOT in graph as a triaged node; recommend admission if we pursue the Tier-2 RLRT experiment, since GRPO is the control arm and the reward-baseline reference. (Verify exact arxiv id before admitting — not confirmed present.)
+
+## 2604.24662 — Information bottleneck for learning the phase space of dynamics from high-dimensional experimental data / DySIB (Martini, Abdelaleem, Gulati, Nemenman, 2026)
+
+**Relevance:** A statistical-physics representation-learning paper, not about LLMs, but its core machinery transfers cleanly to our cached residual-stream trajectories. DySIB learns low-dimensional interpretable dynamical state variables purely in latent space by maximizing predictive mutual information (InfoNCE) between compressed past/future windows under a bottleneck-dimension regularizer, with a residual δ-predictor (`z_y = z_x + μ_δ(z_x)`) encoding differential dynamics and a data-processing-inequality MI-saturation criterion that self-consistently reads off intrinsic dimension and temporal order. These are directly applicable tools for three of our findings: F-3 (the δ-predictor is a latent-flow test of prefill/final "orthogonality"), F-1 (MI-saturation is a magnitude-free intrinsic-dimension estimator for "breathing"), and F-9 (n_F temporal-order is the formal single-layer-sufficiency test).
+
+**Key claim we tested:** In our terms — "the correctness-relevant structure of the residual stream is a low-dimensional *dynamical* (across-layer/token) latent recoverable by predictive MI, and the prefill→final transformation is a smooth residual flow, not two unrelated static directions."
+
+**Our result:** **TO TEST.** Not yet run. The δ-predictor flow test (P11-FE1298) and the MI-saturation dimensionality cross-check (P11-FE1299) are cheap CPU experiments on existing caches and would directly stress F-3 and F-1. The correctness-prediction variants (P11-FE1300/246623/246624) assume activation-trajectory geometry adds portable signal over the free length+logprob baseline — a premise (`geometry-portable-signal`) already REFUTED in this program — so they are admitted MOOTED and serve only to record that the obvious DySIB-as-correctness-probe idea was considered and is closed.
+
+**Related experiments:** P11-FE1298, P11-FE1299, P11-FE1300, P11-FE1301, P11-FE1302; H-945, H-946; cf. H-926, H-919, F-3, F-1, F-9.
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **DySIB / DVSIB objective** — `L = Ĩ_E(X;Z_X) + Ĩ_E(Y;Z_Y) − β·Ĩ_NCE(Z_X;Z_Y)` (Eq. 13): two variational Gaussian encoders compress past/future windows, InfoNCE lower-bounds the latent–latent MI, KL terms upper-bound the compression. *Replication cost*: small NNs (3-layer MLP width 256 encoder, width-64 δ-predictor) — trainable on CPU for our 500×1536 cache in ~1–2 hr. *We'd plausibly run this*: yes — it's a tiny model and the inputs are cached activations, but the correctness-prediction variant is moot under refuted premises (see FEs).
+- **δ-predictor (residual latent-dynamics critic)** — `r(z_y|z_x) = N(z_x + μ_δ(z_x), diag(exp(ℓ_δ(z_x))))` (Eq. 10): models the future latent as a small differential increment of the past, serving as the InfoNCE critic. *Replication cost*: trivial (one small MLP) once latents exist; ~20–40 min CPU. *We'd plausibly run this*: yes — directly tests F-3 / H-926 prefill→final flow structure.
+- **Tied (shared) past/future encoder** — same DNN encodes X and Y to enforce time-translation invariance; overlapping windows (n_s < n_F) still non-trivial because shared bottleneck encodes overlapping frames differently. *Replication cost*: a constraint, free. *We'd plausibly run this*: yes (it's the right inductive bias for a layer trajectory).
+- **MI-saturation-under-DPI intrinsic-dimension selection** — take the smallest `k_z` at which InfoNCE MI increments fall inside the error bars; same criterion on `n_F` gives temporal order. *Replication cost*: a sweep over `k_z`/`n_F`, ~1–2 hr CPU total. *We'd plausibly run this*: yes — a second-moment-free dimensionality estimator for F-1.
+- **InfoNCE MI estimator with explicit error bars** — batch-contrastive `Ĩ_NCE` (Eq. 12) with bootstrap error bars [55,59] used as the saturation stopping rule. *Replication cost*: standard, included in DySIB train loop. *We'd plausibly run this*: yes.
+- **Random-feature linear probe + tiny-MLP probe on frozen latent** — low-capacity readouts that check whether target variables are *already accessible* in the latent, not reconstructable only by a powerful model. *Replication cost*: minutes CPU. *We'd plausibly run this*: yes — exactly our DoM/correctness probe protocol; transfers directly.
+- **Overparameterized bottleneck for variance reduction** — choosing `k_z` larger than the intrinsic dimension reduces seed-to-seed variability without changing intrinsic dimensionality (Fig. S4). *Replication cost*: free design choice. *We'd plausibly run this*: yes.
+
+### Approaches & framings
+
+- **"Prediction in latent space, not data space" (JEPA-aligned).** The model never reconstructs observations; all information lives in the compressed latent. *Intersection*: our whole program reads *static* latent directions; DySIB reframes the question as "what predicts the *next* latent state," which is the temporal/across-layer axis F-3/F-9 sidestep.
+- **Dynamics as differential increments (residual δ-flow).** Physics lives in small changes to state, encoded as a residual connection in latent space. *Intersection*: directly recasts F-3's prefill→final orthogonality and gives H-926 its estimator.
+- **Self-consistent dimensionality via MI saturation (DPI bound).** Intrinsic dimension and temporal order are *read off the data*, not chosen by hand or by eigenvalue thresholds. *Intersection*: a magnitude-free alternative to PR/d_eff "breathing" (F-1) and to participation-ratio dimension estimates throughout the program.
+- **Information-relevant ≠ reconstruction-relevant.** Autoencoders preserve all salient variation including dynamics-irrelevant variability; predictive IB keeps only what predicts the future. *Intersection*: mirrors our own finding that PH/cov descriptors integrate over and lose the load-bearing shape (F-10 sharpening); same "the readout determines what survives" logic.
+
+### Datasets & benchmarks
+
+- **Pendulum video dataset (from ref [29], Chen et al.)** — 1200 trajectories, 60 frames each (1 s @ 60 fps), downsampled 128×128 RGB → 28×28 grayscale (D = 784); ground-truth θ, ω, energies per frame (held out from training). Accessibility: derived from a published prior-work dataset, likely available. Applicable? **no** — physical-pendulum video, no bearing on MATH-500 / hidden-state pipeline beyond being the method's demo.
+
+### Implementation details worth capturing
+
+- Frame encoder Φ: 3-layer MLP, hidden width 256, ReLU. Heads Ψ_μ, Ψ_ℓ: parallel linear maps (linear heads "nearly perfect" for this simple problem; deeper heads needed for longer `n_F`/complex systems).
+- δ-predictor: 3-layer MLP, hidden width 64, ReLU.
+- Gaussian variational posteriors with reparameterization trick; standard-normal priors for the KL/compression terms.
+- β fixed = 100 (objective primarily predictive; bottleneck dimension `k_z` is the *primary* regularizer, KL only weak regularization).
+- Stride n_s = 1 (overlapping windows) in main analysis; non-overlapping windows give qualitatively similar results (App. C2).
+- Per parameter value, report the run with **highest test MI across 10 seeds** (filters failed local optima); all MI/probe metrics on a 200-trajectory held-out test set.
+- Sample efficiency: MI grows ~log₂(N); accurate θ recovery needs only ~4–8 trajectories, ω needs ~256 — predictive-MI latents are extremely data-cheap (relevant: our cache is only 500 problems).
+- No code link surfaced in the extracted text; builds on DVSIB [47] (Abdelaleem et al.) whose implementation may be public.
+
+### Replicable intermediates
+
+- **δ-predictor flow test (F-3 cross-check), runnable now.** Inputs already cached: prefill L19 cloud and final-token L19 cloud for the 1.5B MATH-500 set (the same arrays behind `scratch/pathway10_temporal_and_verifier_results.json` cos = 0.046 and `pathway11_h100/song_zhong/results.json`). Fit a small residual δ-predictor `z_final ≈ z_prefill + μ_δ(z_prefill)` on PCA-reduced latents; report InfoNCE MI and `||μ_δ||` distribution. Low MI / large incoherent δ → F-3's orthogonality survives; high MI / small smooth δ → one dynamical manifold.
+- **MI-saturation intrinsic-dimension vs breathing curve (F-1 cross-check), runnable now.** Use the per-layer cached activations behind the F-1 breathing/PR curves; run the `k_z` saturation sweep per layer and overlay against PR/d_eff. No new forward passes.
+- **n_F = 1 vs n_F = 2 correctness-MI (F-9 cross-check), runnable now** on the 28-layer per-problem trajectory cache used for FE321 (zigzag) — same NPZ, no new data.
+- None of these need fresh GPU passes; all three reuse existing 1024-tok 1.5B L19 / 28-layer caches.
+
+### Cross-paper signals
+
+- 1807.03748 (van den Oord et al., CPC / InfoNCE) — NOT in graph. Foundational for DySIB's decoder MI estimator; generic contrastive-MI method, **not** recommend for admission (off-perimeter — no correctness-geometry content).
+- 2301.08243 (JEPA / I-JEPA, LeCun et al.) — NOT in graph. DySIB explicitly parallels JEPA's "predict in latent space." Off-perimeter; **not** recommend admission unless the program pivots to latent-dynamics modeling.
+- Otherwise none worth flagging — references are predominantly statistical-physics / information-bottleneck / dynamical-systems papers outside the project perimeter.
+
+## 2606.12397 — Redesign Mixture-of-Experts Routers with Manifold Power Iteration (Wu, Lv, Xie, Lin; 2026)
+
+**Relevance:** A weight-space MoE-training paper, off-topic for our correctness/hidden-state program in subject but valuable in method. It formalizes a cheap online tool — single-step power iteration ("Power-then-Retract") plus a normalized projection metric λ — to drive and measure a vector's alignment with the principal singular direction of a weight matrix. We borrow exactly this tooling to test the standing weight-space question under F-2: is the L19 prefill DoM correctness direction (AUROC 0.7731, ≈PC1) a principal singular read of the L19 MLP weights, or an off-principal tail read? The paper also supplies a premise we can adversarially test — "the principal singular direction is the most expressive description of a matrix" — against our PC1-residualized cov-spectrum result (0.7928), where correctness signal demonstrably survives orthogonal to the dominant direction.
+
+**Key claim we tested:** A functionally important read of a weight matrix should align with that matrix's leading singular direction, which carries the highest information density.
+
+**Our result:** **TO TEST** — three Tier-1 CPU experiments queued (P11-FE1303/2398/2399). If λ(DoM, W_L19) ≈ random and a single-`v₁` read ceilings below the 0.7928 residualized cov-spectrum, the paper's principal-direction-sufficiency premise is refuted *for correctness reads in our setting* (it would remain valid for its own MoE-routing claim). No result computed yet.
+
+**Related experiments:** P11-FE1303, P11-FE1304, P11-FE1305, H-947, H-948; touches FE881/FE882 (cov-spectrum), FE291 (DoM/PC1).
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Manifold Power Iteration (MPI), "Power-then-Retract"** — recover a weight matrix's principal singular direction online with one matrix-vector step `R̂ = R·W·Wᵀ`, then L2-retract `R' = C·R̂/‖R̂‖₂`. No SVD needed; converges to `v₁` over steps.
+  *Replication cost*: 5–15min CPU on cached/downloaded L19 MLP weights (1536×8960 SwiGLU; even exact SVD is seconds).
+  *We'd plausibly run this*: **yes** — direct tool to test DoM-as-principal-weight-read (Refutations 1, 3).
+- **λ normalized-projection alignment metric (Eq. 11)** — `λ = ‖R'·W‖₂ / (‖R'‖₂·‖W‖₂) ∈ [0,1]`, the cosine-like alignment of a read vector with a matrix's dominant row-space. Their Table 5 reports per-layer λ ≈ 0.22–0.37 (vanilla) vs 0.62–0.70 (MPI).
+  *Replication cost*: seconds CPU.
+  *We'd plausibly run this*: **yes** — the headline quantity for our weight-read test; gives an interpretable baseline (random ≈ low, principal ≈ 1).
+- **Rayleigh-quotient / squared-projection objective (Eq. 3)** — `max ‖R W‖²/‖R‖²`, framing vector-matrix alignment as steepest ascent on `W Wᵀ`. Pure theory lens.
+  *Replication cost*: n/a (analytical).
+  *We'd plausibly run this*: **no** as an experiment, but useful framing for interpreting λ results.
+- **L2 retraction with `C = C'·N^(-1/2)` scale law** — norm-constrained gating-logit boundedness for training stability/load balance.
+  *Replication cost*: n/a — training-time only.
+  *We'd plausibly run this*: **no** — irrelevant to read-out probing on a frozen model.
+
+### Approaches & framings
+
+- **"A read vector should encode the principal singular direction of the matrix it reads."** Reframes our supervised DoM as a candidate (possibly *failed*) principal weight read — turns "what is the DoM geometrically?" into a concrete, testable weight-space question. Intersects F-2 / H-740 / H-744 / H-256.
+- **Power-then-Retract as steepest ascent on the Rayleigh quotient under minimal update.** An optimization lens that could reframe how *any* learned probe direction relates to the weights it reads from — i.e., is a logistic-regression DoM implicitly doing power iteration on `W_L19`, or pulling orthogonal to it? Intersects F-2/F-3.
+- **Per-layer alignment profile (Table 5).** The idea of plotting a single alignment scalar across all layers is a cheap diagnostic we could borrow to ask *which* layer's MLP weights the correctness direction best aligns with — independent test of the L19 choice. Intersects F-2 layer-selection and H-921 (Fisher-J layer choice).
+
+### Datasets & benchmarks
+
+- **ARC-C, MMLU, TriviaQA, NaturalQuestions, BBH, GSM8K, MBPP** — standard LM eval suite used for downstream accuracy of pretrained MoE. Applicable? **no** — used for end-task accuracy of their MoE models, not for hidden-state probing; no overlap with our MATH-500 / L19 pipeline.
+- **Olmo 3 held-out Math/Code perplexity sets** — bits-per-byte LM eval. Applicable? **no** — perplexity benchmark, not a correctness-labeled hidden-state corpus.
+
+(GSM8K is math-adjacent but is used here only for downstream accuracy of MoE pretraining, not as a hidden-state source.)
+
+### Implementation details worth capturing
+
+- PyTorch pseudo-code (Fig. 1): `R_hat = (R.unsqueeze(1) @ wg.transpose(1,2) @ wg).squeeze(); R_prime = normalize(R_hat, p=2, dim=-1); C = C_prime * N**-0.5; logits = C * (x @ R_prime.T)`.
+- **Single** power iteration per training step is optimal; 10 iterations gave *worse* downstream (-1.39pt) and 5% lower throughput — "aggressive alignment disrupts stability." (Useful caution: full convergence to `v₁` is not always desirable.)
+- `C := C'/√N` keeps gating-logit L∞ at O(1) independent of expert count N (Eq. 7).
+- Built on `megablocks.layers.moe.MoE`; 0.2% training slowdown at 11B; router weights pre-computable at load → zero inference overhead.
+- Post-hoc λ verification (Table 5) confirms MPI roughly doubles router↔expert principal alignment (≈0.25 → ≈0.65).
+
+### Replicable intermediates
+
+- **λ(DoM, W_L19) sanity check.** Load Qwen-2.5-1.5B L19 MLP weights (`mlp.gate_proj`/`up_proj`/`down_proj`; downloadable from HF, ~seconds), power-iterate (or SVD) for `v₁`, and compute Eq. 11 λ against the cached DoM vector used in FE291 / `pathway11_h100`. Compare to a random-vector baseline. This is the smallest possible test of the admission-note hypothesis and Refutation 1.
+- **λ(PC1, W_L19) cross-check.** Same against the cached PC1 (cov-spectrum / `pca_covariance/results.json`, FE291). Since cos(DoM,PC1)=0.9216, λ(PC1,·) should track λ(DoM,·) — a consistency check.
+- **Single-`v₁` read AUROC ceiling.** Project the 500×1536 cached L19 prefill activations onto `v₁`, score correctness AUROC, and compare against PC1-residualized cov-spectrum (0.7928) and full ceiling (0.7847) to test Refutation 2's sufficiency claim.
+
+## 2606.12289 — The Standard Interpretable Model (Barbiero, De Felice, Espinosa Zarlenga, Giannini, Bonchi, Jamnik, Marra, Noris, 2026)
+
+**Relevance:** A general theory of interpretable ML grounded in Lagrangian mechanics: interpretability premises → symmetries → constraints → a Lagrangian whose minima are accurate-and-interpretable models. Three symmetries are directly load-bearing for us: Symmetry I (concept meaning = the induced preorder, invariant under monotonic maps — the formal justification for our rank-based AUROC reporting), Symmetry II (interpretable ⇔ output gradients lie in the concept-gradient span ⇔ steerable), and the empirical CoT-faithfulness result on Qwen2.5 (prediction Jacobian is independent of the CoT Jacobian, violation > 0.8) — a parallel-method echo of F-3's prefill⟂final orthogonality (cos 0.046). Their Premise II ("predictions depending on hidden latent directions are uninterpretable") names exactly what our L19 DoM is: a maximally predictive (AUROC 0.7731), maximally non-concept-aligned direction.
+
+**Key claim we tested:** Two things in our terms — (1) the information driving Qwen2.5's next-token prediction is geometrically independent of the information in its reasoning trace; (2) a predictive latent direction is interpretable only if its score-ordering is monotone w.r.t. a human concept preorder.
+
+**Our result:** **TO TEST** — F-3 (cos 0.046) is a single-direction analogue of SIM's subspace CoT-faithfulness violation, but we have not yet measured (a) whether that orthogonality is correctness-conditional (P11-FE1306/1231) nor (b) whether DoM passes Symmetry I against difficulty (P11-FE1307). cos(DoM,PC1)=0.9216 already reads as a rank-1 Symmetry-II alignment. Their methods (Constraint-II subspace overlap, Symmetry-I preorder violation) are cheap to run on our cached activations and could either sharpen or deflate F-2/F-3/F-9.
+
+**Related experiments:** P11-FE1306, P11-FE1307, P11-FE1308, P11-FE1309, H-949, H-950; bears on F-2, F-3, F-9, F-8, H-5.
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Constraint-II subspace-alignment metric** — `1 − ||Q_aᵀQ_b||²_F / rank(∇f)` where Q_a, Q_b are orthonormal bases (via SVD) of two gradient/feature subspaces; rank approximated by the 99.9%-energy effective rank. A normalized Grassmann/principal-angle overlap (0 = subspaces nested, 1 = orthogonal).
+  *Replication cost*: ~20min CPU — two SVDs on cached 500×1536 matrices.
+  *We'd plausibly run this*: **yes** — directly re-tests F-3 and F-9 with a finer metric than cosine/AUROC.
+- **Symmetry-I preorder-violation rate** — fraction of sample pairs whose model-score order disagrees with a target preorder; rank-based, invariant to strictly monotonic score transforms. For a binary correctness label this equals `1 − AUROC`; for a graded difficulty label it generalizes AUROC to ordinal targets.
+  *Replication cost*: ~15min CPU.
+  *We'd plausibly run this*: **yes** — recasts our AUROC as a SIM-grounded interpretability metric and lets us test DoM against an *ordinal* difficulty preorder (H-5).
+- **Jacobian-subspace CoT-faithfulness probe** — autodiff the next-token prediction Jacobian ∇f and the CoT-token Jacobian ∇c w.r.t. the residual stream, then score subspace overlap (Constraint II).
+  *Replication cost*: H100 (fresh forward+backward passes per problem).
+  *We'd plausibly run this*: **yes (Tier 2)** — it is SIM's own method applied to our exact F-3 question on Qwen-2.5-1.5B/MATH-500.
+- **Prototype-ordering semantic repair (Fig 10)** — sort prototypes by a target attribute, assign each test point to its nearest prototype in latent space, read off the induced ordering; recovers correct concept semantics with *no fine-tuning*.
+  *Replication cost*: ~30min CPU on cached activations.
+  *We'd plausibly run this*: **yes** — test whether L19 activations, prototype-sorted by difficulty, recover a difficulty preorder (a constructive version of R2).
+- **Top-K concept/dimension masking + effective-rank sparsification** — mask all but the top-K activated coordinates, recompute the Jacobian, measure how prediction dependency concentrates (SIM: Steerling-8B depends on ~500 of 33k concepts, sparsifiable to top-16; violation follows `√(1−K/16)`).
+  *Replication cost*: ~20min CPU.
+  *We'd plausibly run this*: **partly already** (FE291 (PC1,PC9)=0.7856 is this spirit) — extend to "how many PCs does the correctness signal structurally depend on."
+- **Constraint-compilation via Deep Set / monotone architecture** — compile an invariance into the architecture (e.g. `f = f₂(Σ f₁(z))`) so the symmetry holds by construction rather than by penalty.
+  *Replication cost*: training a new model.
+  *We'd plausibly run this*: **no** — architectural; our pipeline reads frozen activations, doesn't train interpretable heads.
+
+### Approaches & framings
+
+- **Interpretability as preserved invariants ("immutables") under a Lagrangian** — recasts "is f interpretable for human h" as: which properties of f remain invariant under a group of transformations, with a Lagrangian `L = T − V` whose minima are accurate-and-interpretable models. Intersects our framing by giving DoM-as-correctness-readout a precise interpretability status: it is a predictive direction that violates Premises I–III (a non-concept latent), so "the model knows but can't explain" becomes a formal statement, not a metaphor.
+- **Symmetry I — concept meaning = the induced preorder, not the score scale** (invariant under strictly monotonic maps). This is the theoretical justification for our rank-based AUROC/coverage reporting over MAE/calibration, and supplies an ordinal generalization for testing DoM against graded difficulty (H-5).
+- **Symmetry II — interpretable ⇔ output gradients lie in the concept-gradient span ⇔ steerable through concepts** (Eq 4–6, links explicitly to Turner et al. steerability and Vandenhirtz intervenability). Intersects our (now REFUTED) `dom-steering` / `dom-causal-lever` premises: SIM predicts steerability *only if* ∇f ⊆ span(∇c); our refutation of DoM steering (FE269) is consistent with DoM's output-gradient lying *outside* any clean concept subspace.
+- **CoT explanations are not interpretable** (a prediction is interpretable only if it actually depends on the explanation) — a conceptual sharpening of F-3 and of the prefill-vs-final orthogonality story.
+
+### Datasets & benchmarks
+
+- **MNIST red-intensity sequence** — synthetic copies with increasing red intensity for Symmetry-I VLM tests. ~tens of images. Applicable? **no** — vision concept probe, unrelated to MATH-500.
+- **Z×C / C×Y synthetic controlled data** — low-dimensional toy data for validating Symmetries I–III. Applicable? **no** — controlled-setting validation only.
+- **Steerling-8B concept set (Guide Labs, 2026)** — concept-based LLM with ~33,000 supervised + ~101,000 unsupervised concepts; explicit concept hidden state h̄. Likely gated/proprietary. Applicable? **no** for our pipeline, but a notable reference point for "predictions depend on ~500 concepts, sparsifiable to 16."
+- **Qwen2.5 CoT prompting (no released dataset)** — uses our model family for the CoT-faithfulness experiment. Applicable? **conceptually yes** (same family), but no reusable dataset is released.
+
+### Implementation details worth capturing
+
+- Constraint II approximates `rank(∇_z h̄)` by the **99.9%-energy effective rank** of the Jacobian — a usable convention for our subspace-overlap computations.
+- They use **h̄ (concept hidden state) as a proxy for f** because "the two coincide up to a linear map," and compute ∇h̄ instead of ∇f for efficiency — relevant if we ever Jacobian-probe: pick a layer where the readout is linear in the residual.
+- VLM pairwise semantics tested with **3-sample majority vote** for robustness.
+- Symmetry-II local enforcement (DNN+L) needs **~1000 epochs** before the constraint violation drops — local optimization is slow and only locally valid; architectural compilation (DNN+A) is exact by construction. (Cautions any "train a faithfulness penalty" plan.)
+- λ₃ ∈ [1e-5, 10] sweeps the concept-formula complexity knob (Constraint III).
+- A PyTorch **"Concepts"** library (Section 5.2) provides core modules/functionals for compiling these constraints; potential code reference if we ever build concept heads.
+
+### Replicable intermediates
+
+- **1-D Constraint II is already computed.** cos(DoM, PC1) = **0.9216** (FE291) is the rank-1 Symmetry-II alignment between the correctness "concept gradient" (DoM) and PC1 — no new run needed to state that the correctness direction is ~Symmetry-II-aligned with the dominant covariance axis.
+- **Symmetry-I violation of prefill DoM = `1 − 0.7731 = 0.2269`** pairwise mis-ordering rate (binary correctness preorder) — a direct restatement of the headline AUROC in SIM's metric, computable from the existing OOF scores in `pathway11_h100/prefill_gated_compute/results.json`.
+- **Subspace Constraint-II between prefill-DoM and final-DoM subspaces** — take top-k prefill PCs and top-k final PCs from the cached P11 H100 prefill + final activation NPZs, build Q_prefill / Q_final via SVD, compute `||Q_prefillᵀ Q_final||²_F / k`. Cross-checks F-3 (cos 0.046) with SIM's own subspace metric on data we already hold.
+
+### Cross-paper signals
+
+- 2305.04388 — **NOT in graph; recommend admission.** Turpin et al. "Language Models Don't Always Say What They Think" — SIM cites it for CoT unfaithfulness; directly corroborates F-3's prefill⟂final orthogonality from a behavioral angle.
+- 2310.01405 — **NOT in graph; recommend admission.** Turner et al. activation steering ("steerability," ActAdd) — SIM's Symmetry-II steerability lineage; bears on our REFUTED `dom-steering` premise (does ∇f lie in a steerable concept span?).
+- 2304.06129 — **NOT in graph; weak recommend.** Oikarinen et al. label-free concept bottleneck — SIM's concept-map machinery; tangential to our correctness pipeline.
+- 2306.03341 — **already in graph (status: graphed; CONTRADICTED partial).** Li et al. ITI — SIM's intervenability/steerability ancestor; SIM's Symmetry-II formalizes exactly the "is the prediction in a steerable concept subspace" question ITI assumes.
+
+## 2604.06374 — The Illusion of Superposition? A Principled Analysis of Latent Thinking in Language Models (Rizvi-Martel, Rabusseau, Mosbach, 2026)
+
+**Relevance:** A Mila interpretability study of latent continuous CoT (Soft Thinking, Coconut) that, en route to its main "superposition rarely occurs" result, establishes a mechanism of strong relevance to us: **pretraining on next-token prediction installs a content-independent last-layer entropy collapse** (pretrained Qwen2-1.5B collapses uniform random-token superpositions identically for k=2…100; random-init weights do not). It uses MATH500 — our exact eval set — and Qwen2-1.5B, our model family. The collapse mechanism is a candidate null for F-4 (asymmetric final-token collapse) and a confound for F-5 (content-dependent breathing); the fine-tuned-Coconut "96.6% accuracy with no latent tokens / answer-already-in-the-question" shortcut is a candidate reframe of F-2/F-8 prefill correctness signal as question-static rather than reasoning-dynamic.
+
+**Key claim we tested:** In our terms — the final-layer commitment dynamics of a pretrained model are content-independent (driven by the unembedding geometry), so collapse/entropy readouts at the final token/layer should be flat across problem content and correctness.
+
+**Our result:** **TO TEST** — Three cheap local cross-checks are queued (FE1374 logit-lens entropy content-(in)dependence, FE1375 random-token-mixture collapse control, FE1376 DoM-vs-difficulty redundancy) plus one H100 multi-layer trajectory (FE1377) to locate where F-4's asymmetric collapse emerges. No result yet; the paper's prediction (content-independent final-layer collapse) is a genuine adversarial null for F-4/F-5.
+
+**Related experiments:** P11-FE1310, P11-FE1311, P11-FE1312, P11-FE1313, H-951, H-952, H-944, H-950, H-5
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Logit Lens entropy profiling across layers** — project intermediate hidden states `h^(ℓ)` through the unembedding `U`, softmax, take Shannon entropy at each layer to trace where the model commits.
+  *Replication cost*: ~30min CPU on cached L19 (need only the Qwen-2.5-1.5B LM head `U`, downloadable; one-layer version is trivial). Full 28-layer version needs fresh multi-layer extraction (H100).
+  *We'd plausibly run this*: yes — it is the single cheapest cross-check against F-4/F-5 and we already have the L19 prefill cache.
+- **Single-token soft→discrete intervention (KL + cosine)** — run two forward passes differing only in one token (soft vs argmax embedding), compare hidden states by KL and cosine across layers.
+  *Replication cost*: H100 (needs soft-thinking generation) — not applicable to static cache.
+  *We'd plausibly run this*: no — requires Soft-Thinking decoding we don't run.
+- **Entity-level belief-evolution probing** — categorize entities into {correct-next, wrong-neighbor, target, other}, track the normalized logit-lens distribution over these classes across reasoning steps to distinguish step-by-step reasoning from shortcut/echo-chamber.
+  *Replication cost*: needs a symbolic-entity task (ProsQA/ProntoQA); not directly MATH-500-shaped. ~1 day to adapt.
+  *We'd plausibly run this*: no — our task has no discrete entity graph; the *belief-evolution-across-CoT-steps* idea is borrowable though (see FE1377).
+- **Synthetic uniform-superposition entropy curve (pretrained vs random-init control)** — feed convex combinations of k uniformly-random token embeddings, plot per-layer entropy for trained vs randomly-initialized weights to isolate the pretraining contribution.
+  *Replication cost*: ~30min CPU (one extra forward pass on random tokens + random-init control).
+  *We'd plausibly run this*: yes — clean control that tells us whether our L19 geometry is pretraining-imposed.
+- **Mixing-weight entropy** — Shannon entropy of the convex-combination weights `p_t` used to build a soft token (measures how peaky the "superposition" really is).
+  *Replication cost*: trivial but only meaningful for soft-thinking decoding.
+  *We'd plausibly run this*: no.
+- **Capacity/depth ablation (2/4/8/12 layers)** — train from scratch at varying depth, read shortcut-vs-superposition off the belief curve.
+  *Replication cost*: needs from-scratch training; not in scope.
+  *We'd plausibly run this*: no.
+
+### Approaches & framings
+
+- **"Pretraining as a commitment prior."** The reframing that next-token-prediction *itself* installs a last-layer collapse-to-discrete bias is a clean mechanistic lens for our F-4/F-5 collapse phenomena — it predicts a content-independent saturation that our "content-dependent breathing" claim must beat.
+- **Forced vs learned superposition (Defs 2–3).** A typed distinction: superposition imposed at the input vs emergent from training. Intersects our framing in that our DoM/PC1 signal is a *learned*-representation property of a pretrained model — by the paper's taxonomy, exactly the regime where superposition collapses, so any "multi-candidate" reading of D-bucket fragility (F-7) is suspect.
+- **Shortcut / echo-chamber explanation of latent-CoT gains.** The claim that latent tokens add ~3% via answer-already-in-the-question intersects H-5/H-950: it predicts prefill correctness signal is question-static, not reasoning-dynamic.
+- **"Flexibility, not superposition."** The closing reframe (continuous CoT helps by escaping the discretization bottleneck, not by parallel search) is orthogonal to our findings but worth filing for any future latent-reasoning extension.
+
+### Datasets & benchmarks
+
+- **MATH500** (Lightman et al. 2023) — 500 problems, the paper's main-text benchmark. Applicable? **yes** — identical to our canonical MATH-500 1024-tok regime; this is the rare triage paper sharing our exact eval set.
+- **GSM8K** (Cobbe et al. 2021, 500-example test subset) — grade-school math. HF, open. Applicable? partially — easier distribution; usable as an OOD difficulty contrast for the shortcut test.
+- **AIME2024** — competition math, tiny (30 problems). Open. Applicable? marginal — too small for AUROC but a hard-tail probe.
+- **ProsQA / ProntoQA** (synthetic graph-traversal QA, symbolic 40-token tokenizer variant) — used for entity-belief probing. Applicable? **no** — no entity graph in MATH-500; only the methodology transfers.
+
+### Implementation details worth capturing
+
+- Models: **QwQ-32B** (reasoning) main text; **Qwen2-1.5B** (base) in appendix — note this is Qwen**2**-1.5B, close kin to our Qwen-2.5-1.5B, so the unembedding-collapse result is near-directly relevant to our model family.
+- Logit Lens applied at **5 strategic layers**; entropy sampled every **50 decoding steps**.
+- Fig. 5 control: **50 samples per condition**, ±1 std bands; pretrained-vs-random-init weights is the key isolation design.
+- From-scratch model: GPT-2-style, 8 heads, 768-dim; 2-layer chosen to match Zhu et al. (2025) theory; trained so step *i* uses *i* latent thoughts to predict node *i* (never trained on the full gold CoT).
+- Table 2 anchors: fine-tuned Coconut ProsQA 99.0% (with latents) vs 96.6% (no latents) vs 85.3% discrete CoT; from-scratch 2L: 94.5 (w/) vs 13.8 (w/o) — the with/without gap is the superposition fingerprint.
+- No code link surfaced in the body (acknowledges NVIDIA compute; NSERC/CIFAR funding). Logit-lens is standard `softmax(U h^(ℓ))`.
+
+### Replicable intermediates
+
+- **Logit-lens entropy on cached L19 prefill**: load Qwen-2.5-1.5B `lm_head` weight `U` (HF), apply `softmax(U @ h)` to the 500×1536 cached L19 prefill activations (`pathway11_h100/...` Stage-2 NPZ), compute per-problem Shannon entropy, split by the correct/incorrect labels in `pathway11_h100/prefill_gated_compute/results.json`. Cross-check: does final-(L19)-layer logit-lens entropy differ correct-vs-incorrect (F-4/F-5 prediction) or is it flat (paper prediction)?
+- **Random-token-mixture control**: build k uniform-random-token convex combinations, push through the same L19→`U` head, confirm the paper's collapse-curve shape reproduces on our extractor — tells us whether our L19 geometry is pretraining-imposed.
+- **DoM-vs-logit-lens-entropy redundancy**: regress correctness on DoM score and logit-lens entropy/top-1-prob; report incremental AUROC over the 0.7731 DoM baseline using the existing OOF 5-fold split.
+
+### Cross-paper signals
+
+- **2203.11171** — already in graph (status: graphed; Self-Consistency, REPLICATED + EXTENDED). Cited by this paper as a CoT-improvement baseline; same self-consistency lineage we already track.
+- **2412.06769** (Coconut — Hao et al. 2024) — NOT in graph; recommend admission. Central method this paper dissects; foundational for any latent-CoT extension and for the "shortcut" reading of prefill correctness.
+- **2509.19170** (Butt et al., "Soft tokens, hard truths" — RL-trained continuous CoT) — NOT in graph; recommend admission. The paper flags it as the untested next regime; relevant if we ever probe RL-trained latent reasoning.
+- **2510.15522** (Deng et al., latent reasoning as vocabulary-space superposition) — NOT in graph; recommend admission. Direct counter-claimant to this paper on whether superposition can be trained in.
+- **2402.18312** (Dutta et al., mechanistic understanding of CoT) — NOT in graph; weak-recommend. Mechanistic-CoT lens adjacent to our layer-wise work (P8).
+- Soft Thinking (Zhang et al. 2025) and Zhu et al. 2025 (superposition theory) — arxiv IDs not given in body; admit if the latent-CoT cluster is pursued.
+
+## 2605.27671 — Evolving and Detecting Multi-Turn Deception using Geometric Signatures (Kumar & Cummings, 2026)
+
+**Relevance:** Methodologically adjacent, topically distant. The paper's subject (detecting multi-turn jailbreak intent from sentence embeddings) is unrelated to residual-stream correctness, but its detector is a clean source of cheap, label-light *set-level geometric descriptors* — angular coverage, distance ratio, and a linearity (covariance eigengap) feature — that are well-defined on our cached L19 activation clouds and lie partly outside our existing DoM / cov-spectrum / PH feature families. The set/collective framing also corroborates F-7's collective-not-per-problem signature.
+
+**Key claim we tested:** In our terms — hand-engineered set-level geometric configuration features carry robust, label-light signal about a coordinated property of a *group* of items, surviving rewording and truncation.
+
+**Our result:** **TO TEST** Pending P11-FE1314/276712/276713. Angular coverage and distance ratio are eigenvalue-magnitude-invariant and absent from F-10's PH test, so they are a fair adversary to the cov-spectrum ceiling (0.7928) and the F-10 Gaussian-null verdict; linearity directly re-tests F-4 asymmetric collapse. Note the correctness-prediction transfer relies on the already-refuted geometry-portable-signal premise — a positive result would be a resurrection trigger rather than a clean win.
+
+**Related experiments:** P11-FE1314, P11-FE1315, P11-FE1316, H-953, H-954; compare against F-2, F-4, F-7, F-9, F-10, FE881.
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Angular coverage** — `1 − max_{i,j} cos(e_i − t, e_j − t)`; how thoroughly a set of vectors "surrounds" a reference/target point t in embedding space.
+  *Replication cost*: ~20min CPU on cached NPZ.
+  *We'd plausibly run this*: yes — a configuration descriptor genuinely outside our DoM/cov-spectrum family.
+- **Distance ratio** — `min_i‖e_i − t‖ / max_i‖e_i − t‖`; spread of nearest-to-farthest distance from the reference.
+  *Replication cost*: ~10min CPU.
+  *We'd plausibly run this*: yes — eigenvalue-magnitude-invariant, complements cov-spectrum.
+- **Linearity (covariance eigengap)** — `(λ1 − λ2)/(λ1 + ε)` on the centered set covariance; dominance of the top PC.
+  *Replication cost*: ~10min CPU (we already compute λ-spectra; this is a 1-line derived stat).
+  *We'd plausibly run this*: yes — a direct re-test of F-4 collapse asymmetry with the paper's metric.
+- **Pairwise cosine-similarity stats (mean/std/min/max)** — 4 scalar summaries of the within-set similarity matrix.
+  *Replication cost*: trivial, minutes.
+  *We'd plausibly run this*: yes — cheap to bolt onto any cached cloud.
+- **7-feature → 3-layer MLP detector (7,16,12,1), ReLU, dropout p=0.5, AdamW, focal loss γ=4, Platt scaling, 70/30 split.**
+  *Replication cost*: minutes on CPU once features exist.
+  *We'd plausibly run this*: yes, but on n=500 a logistic head is the honest comparator; an MLP risks overfitting at our sample size.
+- **NSGA-II multi-objective evolutionary prompt optimization with co-evolving mutation operators (Outlines constrained generation, Pareto deception-vs-adherence trade-off).**
+  *Replication cost*: needs new generative pipeline + LLM calls.
+  *We'd plausibly run this*: no — off-topic for correctness geometry; the data-generation half of the paper has no bearing on our pipeline.
+- **Frozen sentence-embedding (all-MiniLM-L6-v2, 384-d) set-level featurization** — embed each item, derive set geometry rather than train end-to-end.
+  *Replication cost*: n/a (we use residual activations, not sentence embeddings).
+  *We'd plausibly run this*: no for text embeddings; yes as a design pattern (engineer cheap geometry, fit a small head).
+
+### Approaches & framings
+
+- **Set/collective geometry as the unit of analysis.** Treat the *configuration* of a group of vectors (not any single vector) as the signal. Intersects F-7 directly (collective D-bucket signature) and offers a concrete featurization to operationalize it.
+- **Label-light, explainable geometry over end-to-end black boxes.** Hand-engineer a handful of transparent geometric scalars, then fit a tiny head. Intersects F-9/F-10 parsimony debate — a competing claim that *engineered* (not topological) geometry carries robust signal.
+- **Invariance-as-evidence ("stable geometric footprint").** A signal that survives rewording and turn-truncation is argued to be semantic, not surface. This is the same robustness-test logic we apply to truncation confounds; useful framing for arguing a residual-stream signal is content- rather than length-driven (touches H-5 familiarity-vs-decomposability and the 256-tok truncation lessons).
+
+### Datasets & benchmarks
+
+- **MultiChallenge / Scale AI conversational dataset** (`arxiv 2501.17399`, github ekwinox117/multi-challenge) — 139 five-turn dialogue sets sampled as benign negatives. HF/github accessible. Applicable? no — conversational dialogue, not math reasoning; no hidden-state pipeline.
+- **Authors' synthetic deceptive question sets** — 60 deceptive + 10 control human-evaluated sets, 350 questions; "currently being prepared for public release" (not released; mutation operators deliberately withheld). Applicable? no — bomb-making deception domain, irrelevant to MATH-500.
+
+### Implementation details worth capturing
+
+- Detector input is a fixed **7-dim** vector (3 geometric + 4 pairwise stats); MLP is tiny (7→16→12→1) with dropout 0.5 and **focal loss γ=4** to handle class imbalance, then **Platt scaling** for calibration, early stopping on F1.
+- Features are **well-defined for set size ≥ 3** — the truncation robustness test simply recomputes them on the first 3 of 5 turns. Directly relevant: our per-token/per-problem clouds far exceed size 3, so all features are computable.
+- Geometry is referenced to a **target/topic embedding t** (the "task"); for our use we'd substitute t = group mean, final-token state, or the supervised DoM endpoint.
+- `ε` guard in linearity to avoid divide-by-zero; cosine *distance* `S=1−cos` used as the similarity proxy.
+- Small-n caveat from the authors themselves: deceptive set is tiny, padded with out-of-distribution negatives — the reported F1s likely overstate; treat as a method demo, not a benchmark.
+
+### Replicable intermediates
+
+- **Linearity (eigengap) on cached L19 clouds vs F-4.** We already compute covariance eigenvalues for the cov-spectrum probe (`pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json`); `(λ1−λ2)/(λ1)` is a one-line derived stat — compute per correct/incorrect group on the cached `pathway11_h100/prefill_gated_compute/` NPZ and two-sample test against F-4's asymmetric-collapse prediction. Minutes.
+- **Angular coverage + distance ratio on cached NPZ vs F-10 Gaussian null.** Compute both descriptors on the 500×1536 cached L19 activations (t = group mean), run the existing F-10 Gaussian-null permutation baseline, compare. ~30min CPU.
+- **Concatenation lift vs 0.7928.** Append angular coverage + distance ratio to the cov-spectrum feature set, refit logistic OOF 5-fold, compare to the 0.7928 anchor. ~30min CPU.
+
+### Cross-paper signals
+
+- 2501.17399 — NOT in graph; MultiChallenge multi-turn benchmark (Scale AI). Low priority for us — conversational, not reasoning/hidden-state — recommend admission only if a multi-turn track is ever opened.
+- 1908.10084 (SentenceBERT, Reimers & Gurevych) — NOT in graph; the embedding backbone. Foundational but off our residual-stream topic; not worth admitting.
+- Remaining references are jailbreak/safety (2410.15236, 2408.15221, 2412.03235) and evolutionary prompt optimization (Promptbreeder 2309.16797, AutoPrompt 2010.15980) — none on residual-stream correctness geometry; none worth flagging.
+
+## 2605.23821 — Hierarchical Concept Geometry in Language Models Emerges from Word Co-occurrence (Nava & Wyart, 2026)
+
+**Relevance:** A distributional theory proving that hierarchical/orthogonal concept geometry in word2vec and Gemma 2B unembeddings is the spectral shadow of co-occurrence statistics (M\* eigendecomposition + Haar-wavelet block structure), not a hierarchy-specific functional mechanism. It supplies a concrete, testable *null model* for our claim that the L19 prefill DoM/PC1 axis is a correctness computation: the same machinery (whitening, Gram-spectrum, top-k eigenspace alignment) can be turned on our cached activations to ask whether the 0.7731 AUROC and cos(DoM,PC1)=0.9216 are inherited lexical-statistics artifacts. Deflationary in the same spirit as our F-10 and the REFUTED geometry-portable-signal premise.
+
+**Key claim we tested:** Leading eigenvectors of a representation Gram matrix are dictated by the co-occurrence decay kernel, so "meaningful" geometric directions can arise without any functional mechanism — our terms: PC1/DoM correctness axis may be a co-occurrence-spectrum artifact, not a correctness direction.
+
+**Our result:** **TO TEST** Three Tier-1 CPU experiments (P11-FE1317 whitening test of DoM AUROC; P11-FE1318 eigenspace-alignment null for prefill/final orthogonality; P11-FE1319 co-occurrence-Gram alignment vs PC1) can adjudicate within ~1hr on cached NPZs. No result yet.
+
+**Related experiments:** P11-FE1317, P11-FE1318, P11-FE1319, P11-FE1320, P11-FE1321; H-955, H-956; FE291 (PC1≈DoM), FE881 (cov-spectrum 0.7928).
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Normalized co-occurrence matrix M\* + eigendecomposition (Eq. 1)** — PMI-like matrix Mᵢⱼ\* = (Pᵢⱼ−PᵢPⱼ)/√… ≈ log(Pᵢⱼ/PᵢPⱼ); embeddings = top-d eigenvectors scaled by √eigenvalue (Eq. 2).
+  *Replication cost*: 20min CPU (co-occurrence from our own 500 prompts).
+  *We'd plausibly run this*: yes — gives a concrete null model for our PC1/DoM axis.
+- **Top-k eigenspace (Grassmann) alignment g(k)=‖UₖᵀVₖ‖²_F / k (Eq. 10) + alignment-area statistic (Eq. 11)** — degeneracy-robust subspace comparison between two Gram matrices, with a shuffled-label baseline.
+  *Replication cost*: 5min CPU on cached Gram matrices.
+  *We'd plausibly run this*: yes — drop-in robust replacement for our cos(DoM, X) single-vector comparisons (F-3) and a clean way to compare prefill vs final eigenspaces.
+- **Whitening of representations before spectral analysis (ṽ = Σ^(−1/2)(v−μ), Park et al.)** — centers+whitens to remove global anisotropy prior to Gram/PC analysis.
+  *Replication cost*: 10min CPU.
+  *We'd plausibly run this*: yes — direct test of whether DoM AUROC is anisotropy-driven.
+- **Haar-wavelet multi-resolution basis on a tree (scaling modes φ_ℓ, wavelet modes ψ_{u,r})** — analytic basis that block-diagonalizes a hierarchy-symmetric Gram matrix; explains coarse-to-fine eigenvalue ordering (Cauchy interlacing across subtree heights).
+  *Replication cost*: theory; only applicable if we impose a tree on MATH problems (e.g. topic taxonomy).
+  *We'd plausibly run this*: no — our problem set has no clean WordNet-style hierarchy.
+- **Exponential decay-kernel fit f(d)=α·e^(−βd) (Eq. 9; organism fit α=1.967, β=1.235)** — parametric co-occurrence kernel as a function of semantic-graph distance.
+  *Replication cost*: 15min CPU.
+  *We'd plausibly run this*: yes (as the generative null for the Gram matrices above).
+- **Concept-vector orthogonality diagnostic cos(ℓ̄_w − ℓ̄_p, ℓ̄_p)** — Park et al.'s parent/child-innovation orthogonality test, estimated on 70% of descendant tokens.
+  *Replication cost*: 30min CPU (needs a concept/parent labeling we don't have for MATH).
+  *We'd plausibly run this*: no — no parent/child concept structure in our correctness setting.
+
+### Approaches & framings
+
+- **"Geometry emerges from pairwise statistics, not from function"** — reframes any geometric correctness/concept signal as a candidate co-occurrence/embedding-spectrum artifact until a null model excludes it. Directly intersects F-2/F-3/F-7 and reinforces the REFUTED `geometry-portable-signal` premise — gives it a *mechanistic* (not just empirical) explanation.
+- **Coarse-to-fine spectral organization** — the rank order of eigenvectors itself carries meaning (scaling mode first, then progressively finer splits). Suggests we should look at *which* PC index our correctness signal lives in (we already know PC1 + PC9, FE291 2-feat AUROC 0.7856) and ask whether that index structure is co-occurrence-predicted.
+- **Subspace-level rather than vector-level comparison** — because degeneracy makes single eigenvectors rotation-arbitrary, robust claims must be about eigenspaces. A methodological caution for all our single-direction (DoM) claims.
+
+### Datasets & benchmarks
+
+- **WordNet noun hypernym graph** — standard lexical database, fully accessible (`nltk.corpus.wordnet`). Applicable? no — our pipeline has no hypernym/taxonomy structure to map onto MATH problems.
+- **word2vec embeddings (constructed from M\*, d=2048)** — derivable from any corpus. Applicable? indirectly — only as the null-model construction, not as a benchmark.
+- **Gemma 2B unembeddings** — open weights (HF, gated-by-license but accessible). Applicable? no for MATH correctness, but yes as a *second model* if we ever test cross-architecture co-occurrence-vs-correctness.
+
+### Implementation details worth capturing
+
+- Vocabulary filtered to (i) WordNet noun lemma, (ii) matching Gemma token, (iii) no polysemy — to get unambiguous word–sense.
+- WordNet DAG → arborescence by max-depth parent selection, then contract paths through ineligible nodes (Appendix C.6).
+- Perfect binary subtrees of depth L=3 sampled uniformly via DP counts (L=2 in appendix); ≤5,000 trees per root.
+- d=2048 chosen to match Gemma's representation dim for apples-to-apples spectral comparison.
+- Whitening uses **full-vocabulary** mean μ and covariance Σ (not per-subtree).
+- Shuffled-label baseline = globally permute (word, vector) pairs — the controlling null for every alignment claim.
+- Negative eigenvalues of indefinite M\* truncated to zero; decay law preserved on the positive spectrum (Appendix D).
+- Code "will be released" — not yet available.
+
+### Replicable intermediates
+
+- **Whitening test of DoM AUROC**: load cached L19 prefill NPZ (500×1536, `pathway11_h100/prefill_gated_compute/`), compute Σ^(−1/2)(v−μ) over the 500 prompts, recompute DoM and OOF 5-fold AUROC. Cross-checks F-2's 0.7731 against the anisotropy-artifact hypothesis. (~10min CPU.)
+- **Eigenspace alignment prefill vs final**: compute g(k) (Eq. 10) between cached prefill and final L19 activation Gram matrices as a degeneracy-robust version of cos=0.046 (F-3). Artifacts: same NPZ + `scratch/pathway10_temporal_and_verifier_results.json` directions. (~5min CPU.)
+- **Co-occurrence Gram from the 500 MATH prompts**: build token co-occurrence on our own prompt corpus, fit f(d)=αe^(−βd) over token-pair distances, and align its top-k eigenspace against our activation Gram. (~30min CPU.)
+
+### Cross-paper signals
+
+- 2311.03658 — already in graph (status: graphed). Park & Veitch "linear representation hypothesis / geometry of LLMs" — this paper's whitening procedure and orthogonality framing come directly from it.
+- 2602.15029 — already in graph (status: graphed). Karkada, Nava, Wyart "Symmetry in language statistics shapes the geometry of model representations" — same author group, the continuous-attribute companion to this hierarchical-attribute paper.
+- 2406.01506 — NOT in graph; recommend admission. Park, Choe, Jiang, Veitch "Geometry of categorical and hierarchical concepts in LLMs" (ICLR 2025) — the functional account this paper is explicitly deflating; high relevance to our DoM-as-concept-direction framing.
+- 2604.07886 — NOT in graph; recommend admission. Sakata et al. "Linear representations of hierarchical concepts in LMs" (2026) — linear-probe recoverability of hypernym structure; relevant to whether our DoM probe is reading lexical hierarchy.
+- 2405.07987 — already in graph (status: TO TEST). Platonic Representation Hypothesis — same "convergent geometry from statistics" lineage; this paper supplies a concrete co-occurrence mechanism.
+
+## 2605.26733 — STARS: Stabilizing Recurrent Dynamics for Test-Time Scalable Latent Reasoning in Looped Language Models (Yang, Han, Zhang, Wei, Shao, Guo, Li; 2026)
+
+**Relevance:** STARS works on Looped Language Models — architectures that recur a shared transformer block at test time — and identifies a peak-then-collapse failure mode in accuracy vs recurrence depth. It reframes reasoning as uncertainty reduction toward an asymptotically stable fixed point and trains a Jacobian-Spectral-Radius regularizer (spectral radius < 1 ⇒ asymptotic stability) so deeper recurrence keeps helping. This is directly adjacent to our correctness-geometry program: it proposes that the correctness-relevant quantity is a *dynamical-stability* property (spectral radius / convergence margin) rather than a fixed linear direction, which is a candidate generative mechanism for F-2's L19 DoM signal and an inverse-signed competitor to F-4's asymmetric-collapse reading and H-4's training-EoS framing.
+
+**Key claim we tested:** In our terms — a per-problem stability/convergence statistic (spectral radius of the iterated map, or geometric decay of layer-to-layer residuals) carries correctness signal that the static L19 prefill DoM only partially captures.
+
+**Our result:** **TO TEST** — three Tier-1 CPU experiments (FE2673301–04) check spectral-radius, layer-as-iteration convergence, contraction-map, and breathing-vs-stability correlations against the 0.7731 / 0.7928 ceilings using already-cached activations; one Tier-2 H100 experiment (FE2673305) tests the looped-inference peak-then-collapse curve directly. No number is promotable until the GitHub repo's JSR loss and convergence metric are read (PDF text was not legible).
+
+**Related experiments:** P11-FE1322, P11-FE1323, P11-FE1324, P11-FE1325, P11-FE1326, H-957, H-958, H-959; adjacent to H-4, H-954, H-955, F-2, F-4, F-9.
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **Jacobian Spectral Radius (JSR) regularization** — penalize the spectral radius of the recurrent block's Jacobian toward < 1 to guarantee asymptotic stability of the iterated map; estimated via random loop sampling (and, by convention in this literature, power iteration on Jacobian-vector products). *Replication cost:* the *training* regularizer needs an H100 + a looped architecture; but a **read-only spectral-radius proxy** on cached trajectories is ~20–40min CPU. *We'd plausibly run this:* yes (the read-only proxy) — directly tests Refutations 1/3/4 against F-2/H-4.
+- **Reasoning-as-uncertainty-reduction metric** — per-iteration uncertainty/convergence signal used to define "converged." *Replication cost:* 15–30min CPU to compute an analogue (entropy or dispersion reduction) on cached prefill→final features. *We'd plausibly run this:* yes — overlaps CoE (F-9) and the selective stack (F-8).
+- **Residual / fixed-point distance `||h_{t+1} − h_t||` across recurrence** — convergence diagnostic across loop depth. *Replication cost:* ~10–20min CPU using layer index as the depth axis on cached per-layer residuals. *We'd plausibly run this:* yes — cheap, directly probes F-4.
+- **Random loop-depth sampling at train time** — stochastic recurrence count to regularize across depths. *Replication cost:* H100 + looped model. *We'd plausibly run this:* no (training-time, needs looped arch we don't run locally).
+
+### Approaches & framings
+
+- **Reasoning = convergence to an asymptotically stable fixed point.** Recasts "is this answer reliable?" as "did the latent state converge stably or diverge?" — intersects F-2/F-4/F-9 by offering a dynamical-systems generative model for the linear DoM readout we already exploit.
+- **Stability–effectiveness trade-off across recurrence depth.** Performance peaks then collapses with depth; the peak-and-collapse curve is itself a per-model signature. Intersects F-4 (collapse) and the test-time-scaling angle of F-8/H-19.
+- **Spectral radius as a *control* knob, not just a *diagnostic*.** STARS doesn't only measure stability, it trains for it — reframes our purely observational geometry program (REFUTED premise `dom-causal-lever`) by relocating the causal lever from a *direction* to a *spectral property of the dynamics*. This is the genuinely new framing: our causal-lever refutations targeted directions, not spectral radius.
+
+### Datasets & benchmarks
+
+- **GSM8K** (Cobbe et al. 2021) — ~8.5k grade-school math, MIT-licensed, HF-accessible. Applicable? partially — different difficulty band than MATH-500 but same arithmetic-reasoning family; usable if we ever extend beyond MATH-500.
+- **MATH / NuminaMath** (Li et al. 2024 family) — MATH-500 is our canonical benchmark; NuminaMath is HF-accessible. Applicable? yes — our entire 1024-tok pipeline is MATH-500.
+- **Standard eval harness** (lm-evaluation-harness style) — open. Applicable? indirectly (tooling only).
+
+No new dataset is introduced; STARS contributes a *training method*, not data.
+
+### Implementation details worth capturing
+
+- Code released: **https://github.com/njuyxw/STARS** — check for the JSR loss implementation, the power-iteration / random-loop-sampling estimator, and the convergence/uncertainty metric definition (the three items the PDF would not surface legibly).
+- Architectures: Looped/recurrent-block variants of Gemma, Llama, Qwen2/Qwen3 — our cached data is non-looped Qwen-2.5-1.5B, so the *method* transfers only as a layer-as-iteration analogue, not as a drop-in.
+- Spectral-radius estimation: expect power iteration on Jacobian-vector products (autograd `vjp`/`jvp`); "random loop sampling" amortizes the regularizer across recurrence depths to keep training cheap.
+- Gotcha: the peak-then-collapse curve means *more recurrence is not monotonically better* without the regularizer — any naive "loop more = better" experiment will see the collapse, which is exactly the phenomenon to measure.
+
+### Replicable intermediates
+
+- **Layer-as-iteration convergence rate** on the cached per-layer residuals (Pathway 8 extracted per-layer activations across all 28 layers for the per-layer PH work — verify the cache survives in DATA_MANIFEST before relying on it). Compute geometric decay ratio of `||h_{L+1}−h_L||` over late layers, score AUROC vs **0.7731**.
+- **Spectral-radius / leading-eigenvalue proxy** from the already-cached covariance spectrum (`pathway11_h100/cov_spectrum/pc1_resid_cov_spectrum_results.json`, FE881). We already have top-20 log-eigvals at 0.7928; STARS predicts λ_max (the spectral radius) and the spectral gap specifically should separate correct/incorrect — a 5-line read on the cached spectrum.
+- **Contraction-map fit** `h_final ≈ A·h_prefill + b` on cached L19 prefill + final DoM projections (`scratch/pathway10_temporal_and_verifier_results.json` has prefill/final pairs; cos=0.046) — fit ‖A‖ and test convergence-residual vs correctness.
+
+### Cross-paper signals
+
+- 2410.13640 — already in graph (status: graphed). CoE / Chain-of-Embedding: same "hidden-trajectory as self-evaluation / uncertainty" family as STARS's uncertainty-reduction framing; STARS is effectively a *training-time* enforcement of what CoE measures observationally. Source of our CoE-60 features (F-9).
+- 2604.22709 — already in graph (status: graphed). Abstract/latent CoT ("Thinking Without Words"): STARS is latent reasoning via recurrence; both bear on whether breathing/DoM are properties of *verbalized* vs *latent* reasoning (H-22, H-410).
+- 1909.01377 (Deep Equilibrium Models, Bai/Kolter/Koltun) — NOT in graph; recommend admission. The fixed-point / implicit-equilibrium foundation STARS builds on; directly supplies the "distance-to-fixed-point" formalism for our F-2/F-4 reinterpretation.
+- 1807.03819 (Universal Transformers, Dehghani et al.) — NOT in graph; recommend admission. Justifies the layer-as-iteration analogue that makes the Tier-1 cached experiments legitimate.
+- 2301.13196 (Looped Transformers as Programmable Computers, Giannou et al.) — NOT in graph; recommend admission (lower priority). Foundational for the LoopLM architecture class STARS modifies.
+
+## 2605.26713 — Transformers Can Learn Posterior Predictive Distributions In-Context (Kang, Lee, Cheng, 2026)
+
+**Relevance:** Theory paper (ICML 2026, stat.ML/cs.LG) on prior-data fitted networks (PFNs) for GP
+regression. It gives a constructive proof that transformer self-attention implements an iterative
+(Richardson/preconditioned-GD) solver for the posterior-predictive mean *and variance*, that an MLP
+head maps those moments to a binned piecewise-constant predictive density, and that approximation
+error contracts exponentially in depth `L` with rate set by the sample-Gram eigenvalues `λ(G)` —
+gated by attention normalization, which enables generalization beyond the pretraining context size.
+It does not study reasoning correctness, residual-stream geometry, or any LLM-on-MATH setting, so it
+is off-core; its value to this project is purely method-transfer: (i) the spectral-convergence lens
+sharpens H-957's "which matrix?" question (sample-Gram vs feature covariance), (ii) the
+depth-monotone error-decrease theorem is an external argument that a multi-layer trajectory feature
+should beat the single-layer F-2/F-9 readout, and (iii) the binned-PPD head is an alternative
+calibrated confidence design competing with F-8's scalar DoM threshold.
+
+**Key claim we tested:** In our terms — "the spectrum that governs a transformer's in-context
+prediction quality lives in the sample-Gram matrix and is gated by normalization, and prediction
+quality refines monotonically with depth."
+
+**Our result:** **TO TEST** Mapped to three cached-activation cross-checks (FE2671391 sample-Gram
+vs feature-cov spectrum; FE2671392 binned head vs F-8; FE2671393 across-layer contraction-rate
+feature). None run yet.
+
+**Related experiments:** P11-FE1327, P11-FE1328, P11-FE1329, H-960, H-961; touches
+FE881 (cov-spectrum 0.7928), F-2, F-8, F-9, H-957, H-958, H-959.
+
+**Status:** TO TEST
+
+### Methodologies extracted
+
+- **In-context iterative (Richardson / preconditioned-GD) solver readout** — treat the L-layer stack
+  as an iterative solver and measure its per-sample contraction rate / fixed-point residual across
+  layers. *Replication cost*: 20–40min CPU on cached multi-layer activations (if cached; L19-only
+  cache insufficient). *We'd plausibly run this*: yes — directly feeds H-957/H-958/H-959 and the
+  trajectory-vs-single-layer question.
+- **Sample-Gram eigenvalue-spread feature** — eigen-decompose the `n×n` Gram of cached activations
+  (vs the `d×d` feature covariance the project already uses) and use the spectrum (`λ_max/λ_min`,
+  log-eigvals) as a probe. *Replication cost*: ~10min CPU on the cached `500×1536` matrix.
+  *We'd plausibly run this*: yes — cheapest direct cross-check against FE881's 0.7928.
+- **Binned / piecewise-constant ("Riemann") predictive-density head** — MLP head mapping features to
+  `C` bin logits → softmax → piecewise-constant density, trained with truncated NLL; gives calibrated
+  coverage. *Replication cost*: ~20min CPU to train on cached L19 features. *We'd plausibly run this*:
+  yes — alternative confidence head for F-8.
+- **Total-variation distance for distributional approximation error** — `TV(p_n, q*) = O(|Γ|)+ε` bin-
+  width error decomposition. *Replication cost*: trivial (a metric). *We'd plausibly run this*: maybe
+  — only if we adopt a distributional confidence head.
+- **Attention-score-matrix spectral / normalization analysis** — eigenvalues of the (normalized)
+  attention score matrix as the generalization gate. *Replication cost*: needs attention maps →
+  fresh forward pass (H100) or cached attention. *We'd plausibly run this*: no for now — out of the
+  static-activation budget.
+
+### Approaches & framings
+
+- **"ICL = iterative GD/Richardson solver in the forward pass."** Reframes the residual trajectory as
+  optimization dynamics with a quantifiable contraction rate; intersects H-957/H-958/H-959 squarely
+  and supplies the formal vocabulary (convergence rate, fixed point, conditioning) those hypotheses
+  are reaching for informally.
+- **"Distributional (PPD) vs point prediction."** Reframes correctness estimation as emitting a
+  *distribution* (binned density with coverage guarantees) rather than a scalar AUROC threshold;
+  intersects F-8 and any conformal/calibration hypothesis.
+- **"Normalization is the generalization gate."** Spectral argument that attention normalization is
+  what keeps the solver stable beyond the training regime; a lens on why LayerNorm/RMSNorm geometry
+  (the project's "breathing", F-1/F-5) might matter for stable readouts rather than being incidental.
+
+### Datasets & benchmarks
+
+- **Synthetic GP-regression prior-predictive data** — generated on the fly from a GP prior; not
+  released as a fixed set. Applicable? no — not reasoning/MATH, no hidden-state correctness labels.
+- **Sacramento home-price dataset (Kuhn 2008)** — small tabular spatial regression, public.
+  Applicable? no — illustrative tabular UQ, unrelated to the pipeline.
+- **TabPFN benchmark suite (Hollmann et al.; referenced, not run here)** — tabular classification/
+  regression. Applicable? no.
+
+### Implementation details worth capturing
+
+- Architecture for the proofs: `L` masked self-attention blocks `Z^{(l+1)} = Z^{(l)} + S^{(l)}Z^{(l)}
+  + Attn(...)` (residual + learnable skip + attention) followed by an MLP head emitting `C` bin
+  logits; token = `[xᵀ, y]`, query token has masked label.
+- Convergence requires step size `η^{(l)} < 2/(λ₁(G)+σ²)` with `Σ η^{(l)} = ∞`; error contracts as
+  `exp(−η(λ_n(G)+σ²)L)`.
+- Output discretization: partition `Γ = {γ₁<…<γ_{C+1}}` of `(a,b]` with tail mass `ε`; bin-width
+  error `O(|Γ|)` in TV.
+- LayerNorm / multi-head / embeddings treated as expressivity refinements, not needed for the core
+  construction — useful caveat: their proofs are single-head, LN-free.
+- No public code link surfaced in the text; experiments are simulations (Figures 2,4,5,10) plus the
+  Sacramento illustration.
+
+### Replicable intermediates
+
+- **Sample-Gram spectrum vs feature-cov spectrum cross-check.** Load the cached L19 prefill
+  `500×1536` matrix (the same one behind FE881 `pc1_resid_cov_spectrum_results.json` / FE291
+  `pca_covariance`), form the `500×500` Gram, take its top-k log-eigenvalues, and run the same OOF
+  5-fold logistic readout used for 0.7928. One script, ~10min CPU. Tests Refutation 1 directly.
+- **Eigenvalue-spread (`λ_max/λ_min`, condition number) as a scalar confidence feature** on the same
+  cached matrix — trivial, compares against the F-2 0.7731 single-direction AUROC.
+- **Binned-head retrofit on cached L19 features** — train a tiny `C`-bin softmax head predicting
+  correctness-confidence, compare ECE / selective accuracy@0.5 to F-8's 71.6%. ~20min CPU.
+
+### Cross-paper signals
+
+- 2212.07677 (Von Oswald et al., "Transformers learn in-context by gradient descent") — NOT in graph.
+  Foundational to the iterative-solver framing this paper builds on; admit only if we pursue the
+  ICL-as-solver lens for H-957/H-958.
+- 2306.00297 (Ahn et al., "Transformers learn to implement preconditioned gradient descent") — NOT in
+  graph. Same lens; the "preconditioning = spectrum reshaping" idea connects to the cov-spectrum
+  probe. Admit only if the solver-readout FE below hits.
+- 2208.01066 (Garg et al., "What can transformers learn in-context?") — NOT in graph. Background ICL;
+  low priority for this geometry-correctness project.

@@ -148,16 +148,26 @@ def run_experiment(state: ExperimentState) -> dict[str, Any]:
     with traced_subprocess(
         tracer, "experiment.run", fe_id=fe_id, script_path=script_path
     ) as span:
+        # Cap every BLAS backend a generated script might pull in (OpenBLAS is
+        # the usual pip-numpy backend, but MKL/numexpr fan out independently of
+        # OPENBLAS_NUM_THREADS). Belt-and-suspenders with the experiment
+        # daemon's CPUQuota cgroup cap.
         env = {
             **os.environ,
             "OMP_NUM_THREADS": "4",
             "OPENBLAS_NUM_THREADS": "4",
+            "MKL_NUM_THREADS": "4",
+            "NUMEXPR_NUM_THREADS": "4",
         }
         result = subprocess.run(
             [str(VENV_PYTHON), script_path],
             capture_output=True,
             text=True,
-            timeout=14400,
+            # 30 min: legit cached-NPZ numpy analysis never needs hours. The old
+            # 14400s (4h) was an H100-era leftover and just widened the window in
+            # which a pathological script could peg CPU. The MemoryMax cgroup cap
+            # handles RAM blow-ups; this bounds runaway compute time.
+            timeout=1800,
             env=env,
             cwd=str(REPO_ROOT),
         )
@@ -304,8 +314,17 @@ def _call_claude(
         try:
             prompt = f"{system}\n\n---\n\n{user_msg}"
             result = subprocess.run(
-                [claude_bin, "-p", "--output-format", "json",
-                 "--bare", "--tools", ""],
+                # Do NOT pass --bare: `claude --bare` ("minimal mode") bypasses
+                # the OAuth credential store (~/.claude/.credentials.json) →
+                # apiKeySource:none → authentication_failed / "Not logged in",
+                # so every generate_brief call failed (exit 1, empty stderr) and
+                # the experiment phase died fast at this node. `--tools ""` alone
+                # still suppresses tool use (the tool_use loop guard below is the
+                # backstop) without breaking auth. Same fix as
+                # generate_recompute.py. Unbraked only after the experiment
+                # daemon's MemoryMax/CPUQuota cgroup cage was verified
+                # (2026-06-14) — fixing this lets recompute scripts actually run.
+                [claude_bin, "-p", "--output-format", "json", "--tools", ""],
                 input=prompt,
                 capture_output=True,
                 text=True,

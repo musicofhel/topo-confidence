@@ -6,7 +6,7 @@ change the story.
 
 **Priority key.** HIGH | MEDIUM | LOW | PARKED.
 
-**Numbering continues monotonically. Next ID: H-941.**
+**Numbering continues monotonically. Next ID: H-962.**
 
 ## Cost + time summary (at a glance)
 
@@ -9940,6 +9940,204 @@ survives a new and strong confound.
 **Test:** Partition prompt/generation tokens into delimiter vs content; compare per-token L19 DoM-projection separability and breathing amplitude across the two classes (needs per-token states — pair with the H-939 re-extract, or use a small CPU pilot on the no_cot per-token text where available). ~0.5 H100 day if bundled with H-939.
 **Requires:** per-token L19 states + token-type tagging; H100 for the extract.
 **Would change:** Confirm → qualifies F-5's "content-dependent, not AR-mechanics" — the signal is partly structural/positional. Reject → strengthens F-5.
+**Blocks:** nothing
+
+---
+
+
+### H-941: The L19 prefill DoM direction is the model's top-Laplacian (global geometric-memory) coordinate
+**Priority:** HIGH
+**Motivated by:** 2510.26745 + F-2 + FE291 (cos(DoM,PC1)=0.9216)
+**Test:** Build the Fiedler/Laplacian spectral embedding of the cached 500×1536 L19 prefill matrix (P11-FE1292), compare its top eigenvectors to DoM/PC1, and check AUROC vs correctness. If the Fiedler-1 vector ≈ DoM ≈ PC1 and carries the bulk of the 0.7731, the prefill direction *is* the global geometric-memory coordinate. ~30 min CPU.
+**Requires:** CPU; cached L19 prefill NPZ (Qwen-2.5-1.5B, MATH-500, 1024-tok).
+**Would change:** On confirm, F-2/H-5 are reframed mechanistically (DoM = spectral memorization geometry, not a bespoke "correctness circuit"). On reject, the prefill signal is *not* the dominant spectral direction and the geometric-memory framing does not apply.
+**Blocks:** nothing
+
+### H-942: Prefill and final-token DoM occupy positive vs negative eigendirections of one L19 spectrum (single-operator orthogonality)
+**Priority:** HIGH
+**Motivated by:** 2510.26745 + F-3 (cos=0.046)
+**Test:** Eigendecompose the L19 covariance / pooled Gram matrix; project both DoM directions and inspect eigen-rank + sign profile (P11-FE1293). ~15 min CPU.
+**Requires:** CPU; cached L19 prefill + final-token NPZ.
+**Would change:** On confirm, F-3's "two structurally distinct circuits" collapses to a global-vs-bipartite split of one spectral operator (SVD-folding). On reject, the directions are genuinely independent and the two-circuits framing stands.
+**Blocks:** nothing
+
+---
+
+
+### H-943: The L19 prefill DoM correctness signal (AUROC 0.7731) is invariant to reversed-teacher RLVR fine-tuning
+**Priority:** MEDIUM
+**Motivated by:** 2605.10781 + F-2
+**Test:** RLRT vs GRPO fine-tune of Qwen-2.5-1.5B on MATH, re-extract L19 prefill, re-fit OOF 5-fold DoM probe, compare AUROC and cos(DoM_pre, DoM_post). ~1 H100 day.
+**Requires:** H100; Qwen-2.5-1.5B; RLRT/GRPO training loop; fresh extraction of L19 prefill.
+**Would change:** On confirm (AUROC within ±0.02, cos≥0.9), F-2 is elevated from a checkpoint property to a training-robust readout. On reject, F-2 is reframed as recipe-dependent geometry, weakening any "intrinsic correctness direction" claim.
+**Blocks:** nothing
+
+### H-944: High-divergence correct rollouts show higher off-DoM dispersion than incorrect ones, contradicting uniform "correct collapses harder"
+**Priority:** MEDIUM
+**Motivated by:** 2605.10781 + F-4
+**Test:** Residualize DoM from cached L19 NPZ; compute participation ratio of correct vs incorrect groups, then stratify correct by token-logprob-surprise and re-compare. ~45 min CPU.
+**Requires:** CPU; cached L19 prefill + final-token NPZ; per-rollout mean logprob (already cached for the free baseline).
+**Would change:** On confirm, F-4's collapse asymmetry is a mixture artifact masking an exploratory high-quality sub-population. On reject, collapse asymmetry holds even for divergent correct rollouts and RLRT's exploration framing does not map onto our geometry.
+**Blocks:** nothing
+
+---
+
+
+### H-945: The prefill→final-token residual-stream transformation is a smooth low-dimensional latent flow, recasting F-3's cos≈0 as a tangent-comparison artifact
+**Priority:** HIGH
+**Motivated by:** 2604.24662 (DySIB δ-predictor) + F-3 + H-926
+**Test:** Fit a DySIB residual δ-predictor `z_final ≈ z_prefill + μ_δ(z_prefill)` on PCA-reduced cached L19 prefill/final clouds (P11-FE1298); measure InfoNCE predictive MI and `||μ_δ||`. ~40 min CPU.
+**Requires:** CPU; cached 1.5B L19 prefill + final-token clouds (already exist).
+**Would change:** Confirm → F-3 reframed: prefill and final DoM are states of one flow, not orthogonal circuits (downgrades "geometrically unrelated subspaces"). Reject → F-3's structural-orthogonality reading strengthened against a dynamical alternative.
+**Blocks:** H-926 (subsumes its flow estimator)
+
+### H-946: The MI-saturation intrinsic dimension of the residual stream is approximately constant across layers, making F-1 "breathing" a second-moment artifact
+**Priority:** MEDIUM
+**Motivated by:** 2604.24662 (DySIB self-consistent dimensionality) + F-1
+**Test:** Per-layer DySIB InfoNCE-MI-saturation `k_z` sweep on cached activations, overlaid on the PR/d_eff breathing curve (P11-FE1299). ~2 hr CPU.
+**Requires:** CPU; per-layer cached activations behind F-1.
+**Would change:** Confirm (constant `k_z` under varying PR) → F-1 breathing is a covariance-magnitude effect, not changing degrees of freedom. Reject (`k_z` tracks PR) → breathing reflects genuine dimensional change, strengthening F-1.
+**Blocks:** nothing
+
+---
+
+
+### H-947: The L19 prefill DoM correctness direction is an off-principal-singular read of the L19 MLP weights
+**Priority:** HIGH
+**Motivated by:** 2606.12397 + F-2 (AUROC 0.7731, cos(DoM,PC1)=0.9216)
+**Test:** Power-iterate `v₁` of Qwen-2.5-1.5B L19 SwiGLU weights, compute λ (Eq. 11) between `v₁` and cached DoM and against a random baseline; cross-check with λ(PC1, W_L19). ~20min CPU.
+**Requires:** CPU; Qwen-2.5-1.5B L19 MLP weights (HF download), cached DoM/PC1 vectors.
+**Would change:** Confirm (high λ) → DoM is interpretable as a dominant weight read, supports H-740/H-744. Reject (λ ≈ random) → correctness lives in a low-spectral-mass / off-principal subspace, weakening any "principal direction is the informative object" framing and constraining mechanistic accounts of F-2.
+**Blocks:** nothing
+
+### H-948: No single principal singular/PC direction is sufficient for the L19 correctness signal — the residualized spectrum is load-bearing
+**Priority:** MEDIUM
+**Motivated by:** 2606.12397 + F-9 / FE881 (PC1-residualized cov-spectrum 0.7928 vs full ceiling 0.7847)
+**Test:** AUROC of a single weight-`v₁` read and of PC1 alone vs PC1-residualized cov-spectrum (0.7928) and full-1536-d ceiling (0.7847). ~25min CPU.
+**Requires:** CPU; cached L19 prefill activations (500×1536), cov-spectrum eigval cache.
+**Would change:** Confirm → the paper's "principal direction is the optimal compressed representation" premise does not transfer to correctness; the off-principal spectrum is where the marginal AUROC lives. Reject (single direction matches spectrum ceiling) → strengthens a one-direction account of correctness and the paper's premise.
+**Blocks:** nothing
+
+---
+
+
+### H-949: F-3's prefill/final DoM orthogonality is the generic SIM CoT-faithfulness violation, not a correctness-specific signature
+**Priority:** HIGH
+**Motivated by:** 2606.12289 + F-3 (EXP-37/48/51)
+**Test:** Compute SIM Constraint-II subspace overlap between prefill-DoM and final-DoM subspaces (P11-FE1306, cheap) and the Jacobian version (P11-FE1309, H100), each split correct vs incorrect on cached/refresh Qwen-2.5-1.5B MATH-500.
+**Requires:** CPU for the PC-subspace version; H100 for the Jacobian version; cached P11 prefill+final NPZs.
+**Would change:** Confirm (overlap differs by correctness) → F-3 upgraded to genuinely correctness-conditional structure. Reject (uniformly high violation) → F-3 demoted to a restatement of generic CoT unfaithfulness (Turpin/Barez), weakening the "two circuits" narrative.
+**Blocks:** nothing
+
+### H-950: The L19 prefill DoM score violates SIM Symmetry I against a graded difficulty preorder — DoM is a predictive non-concept latent, not a "difficulty" feature
+**Priority:** MEDIUM
+**Motivated by:** 2606.12289 + F-2 + H-5
+**Test:** SIM Symmetry-I preorder-violation rate of DoM-score vs a GPT/length difficulty label on MATH-500 (P11-FE1307), plus the prototype-ordering repair check (Fig 10) to see if any latent re-ordering recovers the difficulty preorder.
+**Requires:** CPU, cached L19 prefill activations, a difficulty label.
+**Would change:** High violation → H-5's "DoM = familiarity/decomposability" reading rejected; DoM reframed as Premise-II-uninterpretable (predictive but not concept-aligned). Low violation → H-5 strengthened and DoM gains a concrete semantic interpretation.
+**Blocks:** nothing
+
+---
+
+
+### H-951: MATH-500 final-layer logit-lens entropy collapse is content-independent, making F-4/F-5 collapse asymmetry an intermediate-layer phenomenon
+**Priority:** HIGH
+**Motivated by:** 2604.06374 (Fig 5 pretrained-weight collapse) + F-4 + F-5 + EXP (P11 prefill cache)
+**Test:** Project cached L19 prefill (500×1536) through Qwen-2.5-1.5B unembedding, compute logit-lens Shannon entropy per problem; compare correct-vs-incorrect and against a uniform-random-token-mixture control; if available, extend to a 28-layer trajectory (FE1377). ~30min CPU (L19) / 0.5 H100 day (full).
+**Requires:** CPU + Qwen-2.5-1.5B lm_head; cached L19 NPZ for the cheap version, fresh multi-layer extraction for the full version.
+**Would change:** Confirm → F-4's "correct collapses harder" and F-5's "content-dependent" both narrow to intermediate layers, with final-layer behavior reattributed to a pretraining commitment prior. Reject → strengthens F-4/F-5 against a strong content-independent null.
+**Blocks:** nothing
+
+### H-952: The L19 prefill DoM correctness signal is a single-pass, question-determined readout (redundant with question difficulty), not reasoning-trajectory geometry
+**Priority:** HIGH
+**Motivated by:** 2604.06374 (96.6%-no-latent shortcut; answer extracted from question representation) + F-2 + F-8 + H-5 + H-950
+**Test:** Regress MATH-500 correctness on prefill DoM score and a question-only difficulty readout (logit-lens top-1/entropy at L19, plus 2509.12886-style perceived difficulty); report incremental AUROC of DoM over difficulty on the existing OOF 5-fold split. ~25min CPU.
+**Requires:** CPU; cached L19 prefill + results.json labels; optional difficulty-probe features.
+**Would change:** Confirm (DoM ≈ difficulty) → demotes F-2/F-8 from "reasoning geometry" to "static question difficulty," consistent with the shortcut picture. Reject (DoM adds signal over difficulty) → DoM encodes something beyond input difficulty, strengthening F-2.
+**Blocks:** H-5, H-950
+
+---
+
+
+### H-953: Set-level configuration descriptors (angular coverage, distance ratio) add correctness signal beyond the covariance spectrum
+**Priority:** MEDIUM
+**Motivated by:** 2605.27671 + F-2 (0.7731) / cov-spectrum FE881 (0.7928) / F-10
+**Test:** Compute angular coverage `1−max_{i,j}cos(e_i−t,e_j−t)` and distance ratio `min‖e_i−t‖/max‖e_i−t‖` (t = group mean) on cached L19 prefill NPZ; (a) compare each to the F-10 Gaussian-null floor, (b) concatenate to the cov-spectrum feature set and refit logistic OOF 5-fold vs 0.7928. ~45min CPU.
+**Requires:** CPU; cached `pathway11_h100/prefill_gated_compute/` NPZ + `cov_spectrum` results.
+**Would change:** Confirm → eigenvalue-magnitude-invariant configuration carries non-redundant signal; reopens geometry-portable-signal and lifts the geometry ceiling above 0.7928. Reject → strengthens F-9/F-10 parsimony (even hand-picked non-spectral descriptors add nothing).
+**Blocks:** nothing
+
+### H-954: F-4 asymmetric collapse does not survive the eigengap (linearity) operationalization
+**Priority:** MEDIUM
+**Motivated by:** 2605.27671 + F-4
+**Test:** Compute linearity `(λ1−λ2)/(λ1+ε)` on correct vs incorrect final-token clouds from cached L19 NPZ; two-sample test the F-4-predicted ordering (correct = higher eigengap). ~20min CPU.
+**Requires:** CPU; cached final-token L19 activations.
+**Would change:** Reject (groups indistinguishable) → F-4 collapse asymmetry is metric-specific and should be downgraded. Confirm → F-4 robust across collapse operationalizations.
+**Blocks:** nothing
+
+---
+
+
+### H-955: The L19 prefill DoM/PC1 correctness axis is substantially an inherited co-occurrence-spectrum artifact
+**Priority:** HIGH
+**Motivated by:** 2605.23821 + F-2 (cos(DoM,PC1)=0.9216, AUROC 0.7731) + REFUTED premise geometry-portable-signal
+**Test:** Whiten cached L19 prefill activations (Σ^-1/2(v-μ)) and recompute DoM AUROC (P11-FE1317); build a co-occurrence-kernel Gram from the 500 prompts and measure top-k eigenspace alignment with the activation Gram (P11-FE1319). ~1hr CPU total.
+**Requires:** CPU, cached `pathway11_h100/prefill_gated_compute/` NPZ; nltk/gensim for co-occurrence; no new forward passes.
+**Would change:** On confirm (whitening collapses AUROC and/or high co-occurrence alignment), F-2 is re-framed as a lexical-statistics artifact and the geometry-portable-signal refutation gains a mechanism. On reject (AUROC survives whitening, low alignment), DoM is content-specific and this paper's deflation does not reach our correctness setting.
+**Blocks:** nothing
+
+### H-956: Prefill/final DoM orthogonality (cos=0.046) is generic whitened-high-dim near-orthogonality, not a distinct structural computation
+**Priority:** MEDIUM
+**Motivated by:** 2605.23821 + F-3 (cos=0.046, "structural not positional")
+**Test:** Compute the null distribution of cos between random direction pairs in the whitened L19 activation space and the degeneracy-robust eigenspace alignment g(k) between prefill and final Grams (P11-FE1318). ~15min CPU.
+**Requires:** CPU, cached prefill+final L19 activations and direction vectors.
+**Would change:** On confirm (0.046 inside the null), F-3's "structural orthogonality" weakens to a generic geometric fact. On reject (0.046 far below null), the orthogonality is special and survives the co-occurrence deflation.
+**Blocks:** nothing
+
+---
+
+
+### H-957: A test-time spectral-radius / convergence-rate statistic is the dynamical quantity that the L19 prefill DoM linearly reads out
+**Priority:** HIGH
+**Motivated by:** 2605.26733 + F-2 + FE881
+**Test:** Compute λ_max and spectral gap from the cached L19 residual covariance, and a layer-as-iteration convergence-rate metric from the cached per-layer residuals; check whether either reaches/exceeds AUROC 0.7731 and whether L19 DoM residualizes away under it. ~1hr CPU.
+**Requires:** CPU; cached cov spectrum (FE881) + per-layer residual cache (verify in DATA_MANIFEST).
+**Would change:** On confirm, F-2's mechanism is recast as a shadow of convergence dynamics; on reject, the linear-direction account of F-2 stands and STARS's framing is inapplicable to static-pass models.
+**Blocks:** H-958
+
+### H-958: The F-4 "asymmetric collapse" is stable fixed-point convergence (correct) vs divergence/oscillation (incorrect), not harder collapse
+**Priority:** MEDIUM
+**Motivated by:** 2605.26733 + F-4 + H-954
+**Test:** Classify each problem's late-layer dynamics as converging (geometric residual-delta decay, preserved effective rank) vs collapsing (rank loss); test whether the correct group is stable-convergent. ~30min CPU.
+**Requires:** CPU; cached per-layer residuals.
+**Would change:** On confirm, F-4's collapse label is re-signed as benign convergence; on reject, F-4's collapse description survives.
+**Blocks:** nothing
+
+### H-959: Looped-block recurrence on Qwen-2.5-1.5B reproduces STARS's peak-then-collapse curve on MATH-500, and the peak-depth stability proxy beats static DoM
+**Priority:** MEDIUM
+**Motivated by:** 2605.26733 + F-2 + admission-note H-805
+**Test:** Re-extract MATH-500 with the middle block recurred N=1..K times; plot accuracy vs depth; compare a per-problem spectral-radius proxy at peak depth against the 0.7731 static DoM. ~1 H100 day.
+**Requires:** H100; looped-inference wrapper around Qwen-2.5-1.5B; fresh forward passes.
+**Would change:** On confirm, a dynamical readout supersedes static DoM and motivates a STARS-style stabilized extractor; on reject, static single-pass geometry remains the canonical regime.
+**Blocks:** nothing
+
+---
+
+
+### H-960: The sample-Gram eigenvalue spectrum, not the feature-covariance spectrum, is the object that carries the L19 correctness signal
+**Priority:** MEDIUM
+**Motivated by:** 2605.26713 + FE881 (cov-spectrum 0.7928) / H-957
+**Test:** Form the 500×500 sample-Gram of cached L19 prefill activations, extract top-k log-eigenvalues and condition number, run the FE881 OOF 5-fold logistic readout; compare AUROC to the feature-cov-spectrum 0.7928. ~15min CPU.
+**Requires:** CPU; cached L19 prefill NPZ (FE291/FE881 inputs), no new data.
+**Would change:** Confirm ⇒ H-957 reframes the relevant matrix (sample-Gram, per the paper's theorem) and the cov-spectrum probe is a proxy; Reject ⇒ corroborates the feature-covariance framing as the right spectral object.
+**Blocks:** nothing
+
+### H-961: A binned (piecewise-constant density) confidence head over L19 features is better-calibrated than the scalar DoM selective rule at matched coverage
+**Priority:** LOW
+**Motivated by:** 2605.26713 + F-8 (71.6% answered acc @ 0.5 coverage)
+**Test:** Train a C-bin softmax/Riemann head (truncated NLL, C∈{8,16,32}) on cached L19 features; compare ECE and answered-accuracy@0.5 vs the DoM threshold rule. ~25min CPU.
+**Requires:** CPU; cached L19 prefill features + correctness labels.
+**Would change:** Confirm ⇒ F-8's selective stack gains a calibrated distributional head; Reject ⇒ the scalar DoM threshold is not leaving calibration on the table.
 **Blocks:** nothing
 
 ---

@@ -93,6 +93,21 @@ def _validate_script(code: str, script_path: Path) -> list[str]:
                 if node.value.startswith("/home/") or node.value.startswith("/tmp/"):
                     errors.append(f"Path outside repo: {node.value}")
 
+    # Advisory (non-blocking): flag the one RAM-blowup pattern that can OOM the
+    # 23GB WSL VM — loading the per-problem NPZ caches (math500_*/problem_*.npz,
+    # ~157MB each, ~78GB if all 500 are held). The experiment daemon's MemoryMax
+    # cgroup cap is the hard backstop; this is just early warning at gen time.
+    loads_many = "np.load" in code and (
+        ".glob(" in code or "iglob" in code or "listdir" in code or "rglob" in code
+    )
+    touches_per_problem = "problem_" in code or "math500_7b" in code
+    if loads_many and touches_per_problem:
+        log.warning(
+            "RAM-lint: %s globs+loads per-problem NPZ caches — verify it streams "
+            "(load one at a time) rather than stacking all ~78GB. MemoryMax cgroup "
+            "cap will OOM-kill it if it overruns.", script_path.name,
+        )
+
     return errors
 
 
@@ -157,8 +172,15 @@ def generate_for_fe(fe: dict[str, Any], *, dry_run: bool = False) -> Path | None
     prompt = f"{system}\n\n---\n\n{user_msg}"
     try:
         result = subprocess.run(
-            [claude_bin, "-p", "--output-format", "json",
-             "--bare", "--tools", ""],
+            # NOTE: do NOT pass --bare here. `claude --bare` ("minimal mode")
+            # bypasses the OAuth credential store (~/.claude/.credentials.json),
+            # so the call comes back apiKeySource:none → "Not logged in" →
+            # authentication_failed, and every scriptgen attempt fails (exit 1,
+            # empty stderr). Triage works only because it uses
+            # --dangerously-skip-permissions, which loads creds normally.
+            # `--tools ""` alone still suppresses tool use (and the tool_use
+            # guard below is the backstop), without breaking auth.
+            [claude_bin, "-p", "--output-format", "json", "--tools", ""],
             input=prompt,
             capture_output=True,
             text=True,
