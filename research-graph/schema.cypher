@@ -27,7 +27,30 @@ CREATE CONSTRAINT tag_name IF NOT EXISTS
 CREATE CONSTRAINT future_experiment_id IF NOT EXISTS
   FOR (fe:FutureExperiment) REQUIRE fe.id IS UNIQUE;
 
+// Premise / Method / Dataset uniqueness — prevent silent duplicates on any
+// re-run of premises.py / promote_brief.py (added 2026-06-14, rebuild §5).
+CREATE CONSTRAINT premise_id IF NOT EXISTS
+  FOR (p:Premise) REQUIRE p.id IS UNIQUE;
+
+CREATE CONSTRAINT method_key IF NOT EXISTS
+  FOR (m:Method) REQUIRE m.key IS UNIQUE;
+
+CREATE CONSTRAINT dataset_key IF NOT EXISTS
+  FOR (d:Dataset) REQUIRE d.key IS UNIQUE;
+
 // ---- Lookup indexes -------------------------------------------------
+
+// FE status/roi are filtered/sorted on every moot-sweep and queue regen across
+// ~1,300 nodes — unindexed before the 2026-06-14 rebuild (§5).
+CREATE INDEX future_experiment_status IF NOT EXISTS
+  FOR (fe:FutureExperiment) ON (fe.status);
+
+CREATE INDEX future_experiment_roi IF NOT EXISTS
+  FOR (fe:FutureExperiment) ON (fe.roi_score);
+
+CREATE INDEX premise_status IF NOT EXISTS
+  FOR (p:Premise) ON (p.status);
+
 
 CREATE INDEX experiment_pathway IF NOT EXISTS
   FOR (e:Experiment) ON (e.pathway_id);

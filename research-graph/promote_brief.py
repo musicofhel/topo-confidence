@@ -342,7 +342,8 @@ def assert_claims_gate(parsed: dict[str, Any], brief_path: Path) -> None:
 # FutureExperiment writes (direct Neo4j, mirrors add_future_experiment.py)
 # ---------------------------------------------------------------------------
 
-VALID_STATUS = {"READY", "TRIGGERED", "BLOCKED", "COMPLETED", "ABANDONED"}
+VALID_STATUS = {"READY", "TRIGGERED", "BLOCKED", "COMPLETED", "ABANDONED",
+                "MOOTED", "ANSWERED"}
 VALID_PRIORITY = {"CRITICAL", "HIGH", "MEDIUM", "LOW"}
 
 

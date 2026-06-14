@@ -63,7 +63,7 @@ def fetch_all() -> list[dict[str, Any]]:
            [t IN triggered_by WHERE t.arxiv_id IS NOT NULL] AS triggered_by,
            [x IN depends_on WHERE x IS NOT NULL] AS depends_on,
            [x IN would_update WHERE x IS NOT NULL] AS would_update
-    ORDER BY fe.roi_score DESC, fe.id
+    ORDER BY coalesce(fe.roi_score, 0) DESC, fe.id
     """
     with _driver() as drv, drv.session() as s:
         return [dict(r) for r in s.run(cypher)]
@@ -214,7 +214,7 @@ def generate(experiments: list[dict[str, Any]], papers: list[dict[str, Any]]) ->
 
     # Within each tier, sort: highest ROI first, then TRIGGERED before READY before BLOCKED, then id
     for tier, items in by_tier.items():
-        items.sort(key=lambda f: (-f["roi_score"], STATUS_ORDER.get(f["status"], 99), f["id"]))
+        items.sort(key=lambda f: (-(f["roi_score"] or 0), STATUS_ORDER.get(f["status"], 99), f["id"]))
 
     out: list[str] = []
     out.append("# Next Experiments — Priority Queue")

@@ -1,0 +1,5 @@
+# Rebuild verification diff — 2026-06-14T13:30:59Z
+# LIVE=NEXT_EXPERIMENTS.md (regenerated)  GOLD=golden 2026-06-13
+# Comparing FE identity lines (### headers + closed-adjacency bullets, reason tail stripped)
+# left-only (<) = in LIVE not GOLD ; right-only (>) = in GOLD not LIVE
+#---------------------------------------------------------------

@@ -12,12 +12,23 @@ services:
       NEO4J_dbms_memory_heap_initial__size: 512m
       NEO4J_dbms_memory_heap_max__size: 1G
       NEO4J_dbms_memory_pagecache_size: 512m
+      # APOC online cypher export (zero-downtime backup target, rebuild §6)
+      NEO4J_apoc_export_file_enabled: "true"
+      # honor the absolute /backups path instead of confining to the import dir
+      NEO4J_apoc_import_file_use__neo4j__config: "false"
+      # shrink the unsynced-loss window on the 9p bind mount (rebuild §0/§6)
+      NEO4J_db_checkpoint_interval_time: "15m"
     volumes:
       - ./data:/data
+      - ./backups:/backups
+    # Data-aware fail-loud healthcheck (rebuild §7): an empty/wiped DB reports
+    # UNHEALTHY instead of "RETURN 1 OK". ($ escaped $$ for compose.) During a
+    # legitimate empty rebuild the container is briefly unhealthy — bolt still
+    # serves, so seed scripts connect fine; it flips healthy once findings land.
     healthcheck:
-      test: ["CMD-SHELL", "cypher-shell -u neo4j -p topo_graph_dev 'RETURN 1' || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "[ \"$$(cypher-shell -u neo4j -p topo_graph_dev --format plain 'MATCH (f:Finding) RETURN count(f)' | tail -1)\" -ge 1 ] || exit 1"]
+      interval: 30s
       timeout: 10s
-      retries: 12
-      start_period: 30s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped

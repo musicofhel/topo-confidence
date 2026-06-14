@@ -2,7 +2,7 @@
 
 _Auto-generated from the research graph. Do not edit directly._
 _Regenerate: `cd research-graph && python generate_next_experiments.py`_
-_Generated: 2026-06-14 13:30 UTC_
+_Generated: 2026-06-13 16:30 UTC_
 
 ---
 
@@ -15594,330 +15594,330 @@ check whether any experiment's status should change.
 
 | arxiv_id | title | triggers experiment(s) | status |
 |---|---|---|---|
-| [1802.04443](https://arxiv.org/abs/1802.04443) | On Characterizing the Capacity of Neural Networks using Algebraic Topology | P11-FE27, P11-FE28 | READY |
-| [1804.08838](https://arxiv.org/abs/1804.08838) | Measuring the Intrinsic Dimension of Objective Landscapes | P11-FE29, P11-FE30, P10-FE6 | READY |
-| [1811.00852](https://arxiv.org/abs/1811.00852) | Understanding Deep Neural Networks Using Topological Data Analysis | P11-FE31, P11-FE32 | READY |
-| [1812.09764](https://arxiv.org/abs/1812.09764) | Neural Persistence: A Complexity Measure for Deep Neural Networks Using Algebraic Topology | P11-FE34, P11-FE35, P11-FE36 | READY |
-| [1906.00722](https://arxiv.org/abs/1906.00722) | Topological Autoencoders | P11-FE38, P11-FE39 | READY |
-| [1912.02164](https://arxiv.org/abs/1912.02164) | Plug and Play Language Models: A Simple Approach to Controlled Text Generation | P10-FE8, P11-FE40, P11-FE41 | BLOCKED, READY |
-| [2006.15595](https://arxiv.org/abs/2006.15595) | Rethinking Positional Encoding in Language Pre-training | P11-FE926, P11-FE927, P11-FE928 | READY |
-| [2012.13255](https://arxiv.org/abs/2012.13255) | Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning | P11-FE806, P11-FE807, P11-FE808, P11-FE809 | READY |
+| [1802.04443](https://arxiv.org/abs/1802.04443) | On Characterizing the Capacity of Neural Networks using Algebraic Topology | P11-FE28, P11-FE27 | READY |
+| [1804.08838](https://arxiv.org/abs/1804.08838) | Measuring the Intrinsic Dimension of Objective Landscapes | P10-FE6, P11-FE30, P11-FE29 | READY |
+| [1811.00852](https://arxiv.org/abs/1811.00852) | Understanding Deep Neural Networks Using Topological Data Analysis | P11-FE32, P11-FE31 | READY |
+| [1812.09764](https://arxiv.org/abs/1812.09764) | Neural Persistence: A Complexity Measure for Deep Neural Networks Using Algebraic Topology | P11-FE36, P11-FE35, P11-FE34 | READY |
+| [1906.00722](https://arxiv.org/abs/1906.00722) | Topological Autoencoders | P11-FE39, P11-FE38 | READY |
+| [1912.02164](https://arxiv.org/abs/1912.02164) | Plug and Play Language Models: A Simple Approach to Controlled Text Generation | P11-FE41, P11-FE40, P10-FE8 | BLOCKED, READY |
+| [2006.15595](https://arxiv.org/abs/2006.15595) | Rethinking Positional Encoding in Language Pre-training | P11-FE928, P11-FE927, P11-FE926 | READY |
+| [2012.13255](https://arxiv.org/abs/2012.13255) | Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning | P11-FE809, P11-FE808, P11-FE807, P11-FE806 | READY |
 | [2025.35346](https://arxiv.org/abs/2025.35346) | SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers | P11-FE43 | BLOCKED |
-| [2103.14743](https://arxiv.org/abs/2103.14743) | Outlier-robust subsampling techniques for persistent homology | P11-FE50, P8-FE7 | READY |
-| [2106.00012](https://arxiv.org/abs/2106.00012) | Persistent Homology Captures the Generalization of Neural Networks Without A Validation Set | P11-FE51, P11-FE52, P11-FE53, P11-FE54 | READY |
-| [2205.09630](https://arxiv.org/abs/2205.09630) | Acceptability Judgements via Examining the Topology of Attention Maps | P11-FE63, P11-FE64, P7-FE4 | READY |
-| [2205.14334](https://arxiv.org/abs/2205.14334) | Teaching Models to Express Their Uncertainty in Words | P11-FE813, P11-FE810, P11-FE811, P11-FE812, P11-FE814 | BLOCKED, READY |
-| [2210.00069](https://arxiv.org/abs/2210.00069) | Topological Singularity Detection at Multiple Scales | P11-FE815, P11-FE816, P8-FE10 | READY |
-| [2211.00593](https://arxiv.org/abs/2211.00593) | Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 small | P11-FE66, P11-FE65, P11-FE67, P11-FE68, P11-FE86 | BLOCKED, READY |
-| [2302.09664](https://arxiv.org/abs/2302.09664) | (untitled) | P11-FE192, P11-FE1020, P11-FE1021, P11-FE1022, P11-FE1023 | READY |
-| [2304.14997](https://arxiv.org/abs/2304.14997) | Towards Automated Circuit Discovery for Mechanistic Interpretability | P11-FE81, P11-FE83, P11-FE84, P11-FE82 | BLOCKED, READY |
-| [2305.00586](https://arxiv.org/abs/2305.00586) | How does GPT-2 compute greater-than?: Interpreting mathematical abilities in a pre-trained language model | P11-FE86, P11-FE87, P11-FE88, P11-FE89 | READY |
-| [2305.09731](https://arxiv.org/abs/2305.09731) | (untitled) | P11-FE70, P11-FE1010 | READY |
-| [2305.12766](https://arxiv.org/abs/2305.12766) | (untitled) | P11-FE1011, P11-FE1012, P11-FE1013, P11-FE1014, P11-FE1015 | READY |
-| [2305.14160](https://arxiv.org/abs/2305.14160) | (untitled) | P11-FE69, P11-FE1006, P11-FE1007, P11-FE1008, P11-FE1009 | BLOCKED, READY |
-| [2306.02873](https://arxiv.org/abs/2306.02873) | DecompX: Explaining Transformers Decisions by Propagating Token Decomposition | P11-FE91, P11-FE90, P11-FE92 | BLOCKED, READY |
-| [2306.04488](https://arxiv.org/abs/2306.04488) | Rewarded soups: towards Pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards | P11-FE1127, P11-FE1128, P11-FE1129 | READY |
-| [2307.13339](https://arxiv.org/abs/2307.13339) | (untitled) | P11-FE844, P11-FE1041, P11-FE1042 | READY |
+| [2103.14743](https://arxiv.org/abs/2103.14743) | Outlier-robust subsampling techniques for persistent homology | P8-FE7, P11-FE50 | READY |
+| [2106.00012](https://arxiv.org/abs/2106.00012) | Persistent Homology Captures the Generalization of Neural Networks Without A Validation Set | P11-FE54, P11-FE53, P11-FE52, P11-FE51 | READY |
+| [2205.09630](https://arxiv.org/abs/2205.09630) | Acceptability Judgements via Examining the Topology of Attention Maps | P7-FE4, P11-FE64, P11-FE63 | READY |
+| [2205.14334](https://arxiv.org/abs/2205.14334) | Teaching Models to Express Their Uncertainty in Words | P11-FE814, P11-FE813, P11-FE812, P11-FE811, P11-FE810 | BLOCKED, READY |
+| [2210.00069](https://arxiv.org/abs/2210.00069) | Topological Singularity Detection at Multiple Scales | P8-FE10, P11-FE816, P11-FE815 | READY |
+| [2211.00593](https://arxiv.org/abs/2211.00593) | Interpretability in the Wild: a Circuit for Indirect Object Identification in GPT-2 small | P11-FE86, P11-FE68, P11-FE67, P11-FE66, P11-FE65 | BLOCKED, READY |
+| [2302.09664](https://arxiv.org/abs/2302.09664) | (untitled) | P11-FE1023, P11-FE1022, P11-FE1021, P11-FE1020, P11-FE192 | READY |
+| [2304.14997](https://arxiv.org/abs/2304.14997) | Towards Automated Circuit Discovery for Mechanistic Interpretability | P11-FE84, P11-FE83, P11-FE82, P11-FE81 | BLOCKED, READY |
+| [2305.00586](https://arxiv.org/abs/2305.00586) | How does GPT-2 compute greater-than?: Interpreting mathematical abilities in a pre-trained language model | P11-FE89, P11-FE88, P11-FE87, P11-FE86 | READY |
+| [2305.09731](https://arxiv.org/abs/2305.09731) | (untitled) | P11-FE1010, P11-FE70 | READY |
+| [2305.12766](https://arxiv.org/abs/2305.12766) | (untitled) | P11-FE1015, P11-FE1014, P11-FE1013, P11-FE1012, P11-FE1011 | READY |
+| [2305.14160](https://arxiv.org/abs/2305.14160) | (untitled) | P11-FE1009, P11-FE1008, P11-FE1007, P11-FE1006, P11-FE69 | BLOCKED, READY |
+| [2306.02873](https://arxiv.org/abs/2306.02873) | DecompX: Explaining Transformers Decisions by Propagating Token Decomposition | P11-FE92, P11-FE91, P11-FE90 | BLOCKED, READY |
+| [2306.04488](https://arxiv.org/abs/2306.04488) | Rewarded soups: towards Pareto-optimal alignment by interpolating weights fine-tuned on diverse rewards | P11-FE1129, P11-FE1128, P11-FE1127 | READY |
+| [2307.13339](https://arxiv.org/abs/2307.13339) | (untitled) | P11-FE1042, P11-FE1041, P11-FE844 | READY |
 | [2308.08742](https://arxiv.org/abs/2308.08742) | PMET: Precise Model Editing in a Transformer | P11-FE106, P11-FE105 | BLOCKED, READY |
 | [2308.10248](https://arxiv.org/abs/2308.10248) | Steering Language Models With Activation Engineering | P11-FE111 | READY |
-| [2309.11028](https://arxiv.org/abs/2309.11028) | The Topology and Geometry of Neural Representations | P11-FE870, P11-FE871 | READY |
-| [2310.04625](https://arxiv.org/abs/2310.04625) | (untitled) | P11-FE195, P11-FE1024, P11-FE1025, P11-FE1026, P11-FE1027 | READY |
-| [2310.04861](https://arxiv.org/abs/2310.04861) | Uncovering hidden geometry in Transformers via disentangling position and context | P11-FE117, P11-FE118 | READY |
-| [2310.13121](https://arxiv.org/abs/2310.13121) | Understanding Addition in Transformers | P11-FE124, P11-FE125, P11-FE127, P11-FE128 | READY |
-| [2310.17230](https://arxiv.org/abs/2310.17230) | Codebook Features: Sparse and Discrete Interpretability for Neural Networks | P11-FE129, P11-FE131 | READY |
-| [2311.01460](https://arxiv.org/abs/2311.01460) | Implicit Chain of Thought Reasoning via Knowledge Distillation | P11-FE132, P11-FE133, P11-FE134, P11-FE135 | READY |
-| [2311.03757](https://arxiv.org/abs/2311.03757) | Manifold learning: what, how, and why | P11-FE910, P11-FE911, P11-FE912, P11-FE913 | READY |
-| [2311.04897](https://arxiv.org/abs/2311.04897) | Future Lens: Anticipating Subsequent Tokens from a Single Hidden State | P11-FE820, P11-FE817, P11-FE818, P11-FE819 | BLOCKED, READY |
-| [2311.06668](https://arxiv.org/abs/2311.06668) | (untitled) | P11-FE72, P11-FE1016, P11-FE1017, P11-FE1019 | READY |
-| [2312.03813](https://arxiv.org/abs/2312.03813) | Improving Activation Steering in Language Models with Mean-Centring | P11-FE141, P11-FE142, P11-FE143 | READY |
-| [2312.04762](https://arxiv.org/abs/2312.04762) | The Graph Lottery Ticket Hypothesis: Finding Sparse, Informative Graph Structure | P11-FE120476A, P11-FE120476B, P11-FE120476C | READY |
-| [2312.06681](https://arxiv.org/abs/2312.06681) | Steering Llama 2 via Contrastive Activation Addition | P11-FE144, P11-FE147, P11-FE148, P11-FE149, P10-FE34 | READY |
-| [2401.10474](https://arxiv.org/abs/2401.10474) | LDReg: Local Dimensionality Regularized Self-Supervised Learning | P11-FE150, P11-FE151, P11-FE152, P11-FE153 | READY |
-| [2401.12181](https://arxiv.org/abs/2401.12181) | (untitled) | P11-FE284, P11-FE1028, P11-FE1029, P11-FE1030, P11-FE1031, P11-FE1032 | READY |
-| [2401.13558](https://arxiv.org/abs/2401.13558) | Task structure and nonlinearity jointly determine learned representational geometry | P11-FE154, P11-FE155, P11-FE156, P11-FE157, P11-FE158 | READY |
-| [2402.00865](https://arxiv.org/abs/2402.00865) | Towards Optimal Feature-Shaping Methods for Out-of-Distribution Detection | P11-FE159, P11-FE160, P11-FE161 | READY |
-| [2402.10528](https://arxiv.org/abs/2402.10528) | Can We Verify Step by Step for Incorrect Answer Detection? | P11-FE168, P11-FE169, P11-FE170, P11-FE171, P11-FE172, P9-FE4 | READY, TRIGGERED |
-| [2402.11917](https://arxiv.org/abs/2402.11917) | A Mechanistic Analysis of a Transformer Trained on a Symbolic Multi-Step Reasoning Task | P11-FE177, P11-FE178, P11-FE179, P11-FE180 | READY |
+| [2309.11028](https://arxiv.org/abs/2309.11028) | The Topology and Geometry of Neural Representations | P11-FE871, P11-FE870 | READY |
+| [2310.04625](https://arxiv.org/abs/2310.04625) | (untitled) | P11-FE1027, P11-FE1026, P11-FE1025, P11-FE1024, P11-FE195 | READY |
+| [2310.04861](https://arxiv.org/abs/2310.04861) | Uncovering hidden geometry in Transformers via disentangling position and context | P11-FE118, P11-FE117 | READY |
+| [2310.13121](https://arxiv.org/abs/2310.13121) | Understanding Addition in Transformers | P11-FE128, P11-FE127, P11-FE125, P11-FE124 | READY |
+| [2310.17230](https://arxiv.org/abs/2310.17230) | Codebook Features: Sparse and Discrete Interpretability for Neural Networks | P11-FE131, P11-FE129 | READY |
+| [2311.01460](https://arxiv.org/abs/2311.01460) | Implicit Chain of Thought Reasoning via Knowledge Distillation | P11-FE135, P11-FE134, P11-FE133, P11-FE132 | READY |
+| [2311.03757](https://arxiv.org/abs/2311.03757) | Manifold learning: what, how, and why | P11-FE913, P11-FE912, P11-FE911, P11-FE910 | READY |
+| [2311.04897](https://arxiv.org/abs/2311.04897) | Future Lens: Anticipating Subsequent Tokens from a Single Hidden State | P11-FE820, P11-FE819, P11-FE818, P11-FE817 | BLOCKED, READY |
+| [2311.06668](https://arxiv.org/abs/2311.06668) | (untitled) | P11-FE1019, P11-FE1017, P11-FE1016, P11-FE72 | READY |
+| [2312.03813](https://arxiv.org/abs/2312.03813) | Improving Activation Steering in Language Models with Mean-Centring | P11-FE143, P11-FE142, P11-FE141 | READY |
+| [2312.04762](https://arxiv.org/abs/2312.04762) | The Graph Lottery Ticket Hypothesis: Finding Sparse, Informative Graph Structure | P11-FE120476C, P11-FE120476B, P11-FE120476A | READY |
+| [2312.06681](https://arxiv.org/abs/2312.06681) | Steering Llama 2 via Contrastive Activation Addition | P10-FE34, P11-FE149, P11-FE148, P11-FE147, P11-FE144 | READY |
+| [2401.10474](https://arxiv.org/abs/2401.10474) | LDReg: Local Dimensionality Regularized Self-Supervised Learning | P11-FE153, P11-FE152, P11-FE151, P11-FE150 | READY |
+| [2401.12181](https://arxiv.org/abs/2401.12181) | (untitled) | P11-FE1032, P11-FE1031, P11-FE1030, P11-FE1029, P11-FE1028, P11-FE284 | READY |
+| [2401.13558](https://arxiv.org/abs/2401.13558) | Task structure and nonlinearity jointly determine learned representational geometry | P11-FE158, P11-FE157, P11-FE156, P11-FE155, P11-FE154 | READY |
+| [2402.00865](https://arxiv.org/abs/2402.00865) | Towards Optimal Feature-Shaping Methods for Out-of-Distribution Detection | P11-FE161, P11-FE160, P11-FE159 | READY |
+| [2402.10528](https://arxiv.org/abs/2402.10528) | Can We Verify Step by Step for Incorrect Answer Detection? | P11-FE172, P11-FE171, P11-FE170, P11-FE169, P11-FE168, P9-FE4 | READY, TRIGGERED |
+| [2402.11917](https://arxiv.org/abs/2402.11917) | A Mechanistic Analysis of a Transformer Trained on a Symbolic Multi-Step Reasoning Task | P11-FE180, P11-FE179, P11-FE178, P11-FE177 | READY |
 | [2402.15610](https://arxiv.org/abs/2402.15610) | Selective "Selective Prediction": Reducing Unnecessary Abstention in Vision-Language Reasoning | P11-FE187, P11-FE186 | BLOCKED, READY |
-| [2403.05767](https://arxiv.org/abs/2403.05767) | Extending Activation Steering to Broad Skills and Multiple Behaviours | P11-FE68, P11-FE195, P11-FE196 | READY |
-| [2403.18680](https://arxiv.org/abs/2403.18680) | Non-Linear Inference Time Intervention: Improving LLM Truthfulness | P11-FE199, P11-FE197, P11-FE198, P11-FE201 | BLOCKED, READY |
-| [2404.02252](https://arxiv.org/abs/2404.02252) | SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers | P11-FE202, P11-FE204, P11-FE205, P11-FE207 | READY |
-| [2404.05971](https://arxiv.org/abs/2404.05971) | Does Transformer Interpretability Transfer to RNNs? | P11-FE208, P11-FE209, P11-FE210 | READY |
-| [2404.12038](https://arxiv.org/abs/2404.12038) | Uncovering Safety Risks of Large Language Models through Concept Activation Vector | P11-FE213, P11-FE212, P10-FE12 | BLOCKED, READY |
-| [2405.10928](https://arxiv.org/abs/2405.10928) | The Local Interaction Basis: Identifying Computationally-Relevant and Sparsely Interacting Features in Neural Networks | P10-FE14, P11-FE226, P11-FE227 | BLOCKED, READY |
-| [2405.12250](https://arxiv.org/abs/2405.12250) | Your Transformer is Secretly Linear | P11-FE228, P11-FE229, P11-FE230, P11-FE231, P11-FE232 | READY |
-| [2405.15302](https://arxiv.org/abs/2405.15302) | Understanding the Language Model to Solve the Symbolic Multi-Step Reasoning Problem from the Perspective of Buffer Mechanism | P11-FE233, P11-FE234, P11-FE235, P11-FE236, P11-FE237 | READY |
-| [2405.20974](https://arxiv.org/abs/2405.20974) | SaySelf: Teaching LLMs to Express Confidence with Self-Reflective Rationales | P11-FE247, P11-FE248, P11-FE249 | READY |
-| [2406.00045](https://arxiv.org/abs/2406.00045) | Personalized Steering of Large Language Models: Versatile Steering Vectors Through Bi-directional Preference Optimization | P11-FE251, P11-FE252, P11-FE250, P11-FE253 | BLOCKED, READY |
-| [2406.04028](https://arxiv.org/abs/2406.04028) | Contrastive Sparse Autoencoders for Interpreting Planning of Chess-Playing Agents | P11-FE254, P11-FE255, P11-FE256 | READY |
-| [2406.04093](https://arxiv.org/abs/2406.04093) | (untitled) | P11-FE481, P11-FE1033, P11-FE1034, P11-FE1035, P11-FE1036 | READY |
-| [2406.04331](https://arxiv.org/abs/2406.04331) | PaCE: Parsimonious Concept Engineering for Large Language Models | P11-FE257, P11-FE258, P11-FE259 | READY |
-| [2406.04370](https://arxiv.org/abs/2406.04370) | Large Language Model Confidence Estimation via Black-Box Access | P11-FE260, P11-FE261, P11-FE262 | READY |
-| [2406.11614](https://arxiv.org/abs/2406.11614) | Intrinsic Test of Unlearning Using Parametric Knowledge Traces | P11-FE263, P11-FE264, P11-FE265 | READY |
-| [2406.11624](https://arxiv.org/abs/2406.11624) | Words in Motion: Extracting Interpretable Control Vectors for Motion Transformers | P11-FE266, P11-FE267 | READY |
-| [2406.11717](https://arxiv.org/abs/2406.11717) | Refusal in Language Models Is Mediated by a Single Direction | P11-FE268, P11-FE271, P11-FE553, P11-FE7 | READY, TRIGGERED |
-| [2406.17563](https://arxiv.org/abs/2406.17563) | Multi-property Steering of Large Language Models with Dynamic Activation Composition | P11-FE280, P11-FE281 | READY |
-| [2407.11094](https://arxiv.org/abs/2407.11094) | Robust Score-Based Quickest Change Detection | P11-FE929, P8-FE11, P11-FE931 | READY |
-| [2408.10764](https://arxiv.org/abs/2408.10764) | Predicting Rewards Alongside Tokens: Non-disruptive Parameter Insertion for Efficient Inference Intervention in Large Language Model | P11-FE825, P11-FE826, P11-FE824, P11-FE827 | BLOCKED, READY |
-| [2409.02228](https://arxiv.org/abs/2409.02228) | Unforgettable Generalization in Language Models | P11-FE288, P11-FE289, P11-FE290 | READY |
-| [2409.05084](https://arxiv.org/abs/2409.05084) | Adaptive $k$-nearest neighbor classifier based on the local estimation of the shape operator | P11-FE988, P11-FE989, P11-FE990 | READY |
-| [2409.05907](https://arxiv.org/abs/2409.05907) | Programming Refusal with Conditional Activation Steering | P11-FE292, P11-FE293, P11-FE294 | READY |
-| [2409.13714](https://arxiv.org/abs/2409.13714) | TracrBench: Generating Interpretability Testbeds with Large Language Models | P11-FE296, P11-FE297 | READY |
+| [2403.05767](https://arxiv.org/abs/2403.05767) | Extending Activation Steering to Broad Skills and Multiple Behaviours | P11-FE196, P11-FE195, P11-FE68 | READY |
+| [2403.18680](https://arxiv.org/abs/2403.18680) | Non-Linear Inference Time Intervention: Improving LLM Truthfulness | P11-FE201, P11-FE199, P11-FE198, P11-FE197 | BLOCKED, READY |
+| [2404.02252](https://arxiv.org/abs/2404.02252) | SMITIN: Self-Monitored Inference-Time INtervention for Generative Music Transformers | P11-FE207, P11-FE205, P11-FE204, P11-FE202 | READY |
+| [2404.05971](https://arxiv.org/abs/2404.05971) | Does Transformer Interpretability Transfer to RNNs? | P11-FE210, P11-FE209, P11-FE208 | READY |
+| [2404.12038](https://arxiv.org/abs/2404.12038) | Uncovering Safety Risks of Large Language Models through Concept Activation Vector | P11-FE213, P10-FE12, P11-FE212 | BLOCKED, READY |
+| [2405.10928](https://arxiv.org/abs/2405.10928) | The Local Interaction Basis: Identifying Computationally-Relevant and Sparsely Interacting Features in Neural Networks | P10-FE14, P11-FE227, P11-FE226 | BLOCKED, READY |
+| [2405.12250](https://arxiv.org/abs/2405.12250) | Your Transformer is Secretly Linear | P11-FE232, P11-FE231, P11-FE230, P11-FE229, P11-FE228 | READY |
+| [2405.15302](https://arxiv.org/abs/2405.15302) | Understanding the Language Model to Solve the Symbolic Multi-Step Reasoning Problem from the Perspective of Buffer Mechanism | P11-FE237, P11-FE236, P11-FE235, P11-FE234, P11-FE233 | READY |
+| [2405.20974](https://arxiv.org/abs/2405.20974) | SaySelf: Teaching LLMs to Express Confidence with Self-Reflective Rationales | P11-FE249, P11-FE248, P11-FE247 | READY |
+| [2406.00045](https://arxiv.org/abs/2406.00045) | Personalized Steering of Large Language Models: Versatile Steering Vectors Through Bi-directional Preference Optimization | P11-FE253, P11-FE252, P11-FE251, P11-FE250 | BLOCKED, READY |
+| [2406.04028](https://arxiv.org/abs/2406.04028) | Contrastive Sparse Autoencoders for Interpreting Planning of Chess-Playing Agents | P11-FE256, P11-FE255, P11-FE254 | READY |
+| [2406.04093](https://arxiv.org/abs/2406.04093) | (untitled) | P11-FE1036, P11-FE1035, P11-FE1034, P11-FE1033, P11-FE481 | READY |
+| [2406.04331](https://arxiv.org/abs/2406.04331) | PaCE: Parsimonious Concept Engineering for Large Language Models | P11-FE259, P11-FE258, P11-FE257 | READY |
+| [2406.04370](https://arxiv.org/abs/2406.04370) | Large Language Model Confidence Estimation via Black-Box Access | P11-FE262, P11-FE261, P11-FE260 | READY |
+| [2406.11614](https://arxiv.org/abs/2406.11614) | Intrinsic Test of Unlearning Using Parametric Knowledge Traces | P11-FE265, P11-FE264, P11-FE263 | READY |
+| [2406.11624](https://arxiv.org/abs/2406.11624) | Words in Motion: Extracting Interpretable Control Vectors for Motion Transformers | P11-FE267, P11-FE266 | READY |
+| [2406.11717](https://arxiv.org/abs/2406.11717) | Refusal in Language Models Is Mediated by a Single Direction | P11-FE553, P11-FE271, P11-FE268, P11-FE7 | READY, TRIGGERED |
+| [2406.17563](https://arxiv.org/abs/2406.17563) | Multi-property Steering of Large Language Models with Dynamic Activation Composition | P11-FE281, P11-FE280 | READY |
+| [2407.11094](https://arxiv.org/abs/2407.11094) | Robust Score-Based Quickest Change Detection | P11-FE931, P8-FE11, P11-FE929 | READY |
+| [2408.10764](https://arxiv.org/abs/2408.10764) | Predicting Rewards Alongside Tokens: Non-disruptive Parameter Insertion for Efficient Inference Intervention in Large Language Model | P11-FE827, P11-FE826, P11-FE825, P11-FE824 | BLOCKED, READY |
+| [2409.02228](https://arxiv.org/abs/2409.02228) | Unforgettable Generalization in Language Models | P11-FE290, P11-FE289, P11-FE288 | READY |
+| [2409.05084](https://arxiv.org/abs/2409.05084) | Adaptive $k$-nearest neighbor classifier based on the local estimation of the shape operator | P11-FE990, P11-FE989, P11-FE988 | READY |
+| [2409.05907](https://arxiv.org/abs/2409.05907) | Programming Refusal with Conditional Activation Steering | P11-FE294, P11-FE293, P11-FE292 | READY |
+| [2409.13714](https://arxiv.org/abs/2409.13714) | TracrBench: Generating Interpretability Testbeds with Large Language Models | P11-FE297, P11-FE296 | READY |
 | [2409.16146](https://arxiv.org/abs/2409.16146) | Controlling Risk of Retrieval-augmented Generation: A Counterfactual Prompting Framework | P11-FE300, P11-FE298 | BLOCKED, READY |
-| [2410.04962](https://arxiv.org/abs/2410.04962) | Activation Scaling for Steering and Interpreting Language Models | P11-FE313, P11-FE314, P11-FE315, P11-FE316, P11-FE317 | READY |
-| [2410.08417](https://arxiv.org/abs/2410.08417) | Bilinear MLPs enable weight-based mechanistic interpretability | P11-FE318, P11-FE320 | READY |
-| [2410.12299](https://arxiv.org/abs/2410.12299) | Semantics-Adaptive Activation Intervention for LLMs via Dynamic Steering Vectors | P11-FE324, P11-FE325 | READY |
-| [2410.12462](https://arxiv.org/abs/2410.12462) | Bridging the Language Gaps in Large Language Models with Inference-Time Cross-Lingual Intervention | P11-FE327, P11-FE329 | READY |
-| [2410.12877](https://arxiv.org/abs/2410.12877) | Improving Instruction-Following in Language Models through Activation Steering | P11-FE330, P11-FE331, P11-FE332, P11-FE333, P11-FE334 | READY |
-| [2410.23054](https://arxiv.org/abs/2410.23054) | Controlling Language and Diffusion Models by Transporting Activations | P11-FE342, P11-FE339, P11-FE340, P11-FE341 | BLOCKED, READY |
-| [2411.08790](https://arxiv.org/abs/2411.08790) | Can sparse autoencoders be used to decompose and interpret steering vectors? | P11-FE343, P11-FE344, P11-FE345 | READY |
-| [2412.15115](https://arxiv.org/abs/2412.15115) | Qwen2.5 Technical Report | P11-FE349, P11-FE350, P11-FE351, P11-FE352 | READY |
-| [2412.15296](https://arxiv.org/abs/2412.15296) | Confidence in the Reasoning of Large Language Models | P11-FE354, P11-FE355 | READY |
-| [2501.05764](https://arxiv.org/abs/2501.05764) | Controlling Large Language Models Through Concept Activation Vectors | P11-FE828, P11-FE829, P11-FE830 | READY |
-| [2501.09929](https://arxiv.org/abs/2501.09929) | Interpretable Steering of Large Language Models with Feature Guided Activation Additions | P10-FE42, P10-FE44, P10-FE43 | BLOCKED, READY |
-| [2501.11036](https://arxiv.org/abs/2501.11036) | LF-Steering: Latent Feature Activation Steering for Enhancing Semantic Consistency in Large Language Models | P11-FE361, P11-FE363 | READY |
-| [2501.12934](https://arxiv.org/abs/2501.12934) | Correctness Assessment of Code Generated by Large Language Models Using Internal Representations | P11-FE364, P11-FE365, P11-FE366, P11-FE367, P11-FE368 | READY |
-| [2502.01126](https://arxiv.org/abs/2502.01126) | Language Models Prefer What They Know: Relative Confidence Estimation via Confidence Preferences | P11-FE373, P11-FE374, P11-FE375, P11-FE376 | READY |
-| [2502.01657](https://arxiv.org/abs/2502.01657) | Improving Rule-based Reasoning in LLMs using Neurosymbolic Representations | P11-FE377, P11-FE379, P11-FE380 | READY |
+| [2410.04962](https://arxiv.org/abs/2410.04962) | Activation Scaling for Steering and Interpreting Language Models | P11-FE317, P11-FE316, P11-FE315, P11-FE314, P11-FE313 | READY |
+| [2410.08417](https://arxiv.org/abs/2410.08417) | Bilinear MLPs enable weight-based mechanistic interpretability | P11-FE320, P11-FE318 | READY |
+| [2410.12299](https://arxiv.org/abs/2410.12299) | Semantics-Adaptive Activation Intervention for LLMs via Dynamic Steering Vectors | P11-FE325, P11-FE324 | READY |
+| [2410.12462](https://arxiv.org/abs/2410.12462) | Bridging the Language Gaps in Large Language Models with Inference-Time Cross-Lingual Intervention | P11-FE329, P11-FE327 | READY |
+| [2410.12877](https://arxiv.org/abs/2410.12877) | Improving Instruction-Following in Language Models through Activation Steering | P11-FE334, P11-FE333, P11-FE332, P11-FE331, P11-FE330 | READY |
+| [2410.23054](https://arxiv.org/abs/2410.23054) | Controlling Language and Diffusion Models by Transporting Activations | P11-FE342, P11-FE341, P11-FE340, P11-FE339 | BLOCKED, READY |
+| [2411.08790](https://arxiv.org/abs/2411.08790) | Can sparse autoencoders be used to decompose and interpret steering vectors? | P11-FE345, P11-FE344, P11-FE343 | READY |
+| [2412.15115](https://arxiv.org/abs/2412.15115) | Qwen2.5 Technical Report | P11-FE352, P11-FE351, P11-FE350, P11-FE349 | READY |
+| [2412.15296](https://arxiv.org/abs/2412.15296) | Confidence in the Reasoning of Large Language Models | P11-FE355, P11-FE354 | READY |
+| [2501.05764](https://arxiv.org/abs/2501.05764) | Controlling Large Language Models Through Concept Activation Vectors | P11-FE830, P11-FE829, P11-FE828 | READY |
+| [2501.09929](https://arxiv.org/abs/2501.09929) | Interpretable Steering of Large Language Models with Feature Guided Activation Additions | P10-FE44, P10-FE43, P10-FE42 | BLOCKED, READY |
+| [2501.11036](https://arxiv.org/abs/2501.11036) | LF-Steering: Latent Feature Activation Steering for Enhancing Semantic Consistency in Large Language Models | P11-FE363, P11-FE361 | READY |
+| [2501.12934](https://arxiv.org/abs/2501.12934) | Correctness Assessment of Code Generated by Large Language Models Using Internal Representations | P11-FE368, P11-FE367, P11-FE366, P11-FE365, P11-FE364 | READY |
+| [2502.01126](https://arxiv.org/abs/2502.01126) | Language Models Prefer What They Know: Relative Confidence Estimation via Confidence Preferences | P11-FE376, P11-FE375, P11-FE374, P11-FE373 | READY |
+| [2502.01657](https://arxiv.org/abs/2502.01657) | Improving Rule-based Reasoning in LLMs using Neurosymbolic Representations | P11-FE380, P11-FE379, P11-FE377 | READY |
 | [2502.03407](https://arxiv.org/abs/2502.03407) | Detecting Strategic Deception Using Linear Probes | P11-FE381 | READY |
-| [2502.03628](https://arxiv.org/abs/2502.03628) | The Hidden Life of Tokens: Reducing Hallucination of Large Vision-Language Models via Visual Information Steering | P11-FE382, P11-FE383, P11-FE384 | READY |
-| [2502.04043](https://arxiv.org/abs/2502.04043) | Probe-Free Low-Rank Activation Intervention | P11-FE386, P11-FE387, P11-FE388 | READY |
-| [2502.05242](https://arxiv.org/abs/2502.05242) | Beyond External Monitors: Enhancing Transparency of Large Language Models for Easier Monitoring | P11-FE389, P11-FE390, P11-FE391, P10-FE21 | READY |
-| [2502.05911](https://arxiv.org/abs/2502.05911) | GRAIT: Gradient-Driven Refusal-Aware Instruction Tuning for Effective Hallucination Mitigation | P11-FE392, P11-FE393, P11-FE394, P11-FE395 | READY |
-| [2502.06115](https://arxiv.org/abs/2502.06115) | Task-driven Layerwise Additive Activation Intervention | P11-FE396, P11-FE397, P11-FE398 | READY |
-| [2502.06233](https://arxiv.org/abs/2502.06233) | Confidence Improves Self-Consistency in LLMs | P11-FE399, P11-FE400, P11-FE401, P11-FE402 | READY |
+| [2502.03628](https://arxiv.org/abs/2502.03628) | The Hidden Life of Tokens: Reducing Hallucination of Large Vision-Language Models via Visual Information Steering | P11-FE384, P11-FE383, P11-FE382 | READY |
+| [2502.04043](https://arxiv.org/abs/2502.04043) | Probe-Free Low-Rank Activation Intervention | P11-FE388, P11-FE387, P11-FE386 | READY |
+| [2502.05242](https://arxiv.org/abs/2502.05242) | Beyond External Monitors: Enhancing Transparency of Large Language Models for Easier Monitoring | P10-FE21, P11-FE391, P11-FE390, P11-FE389 | READY |
+| [2502.05911](https://arxiv.org/abs/2502.05911) | GRAIT: Gradient-Driven Refusal-Aware Instruction Tuning for Effective Hallucination Mitigation | P11-FE395, P11-FE394, P11-FE393, P11-FE392 | READY |
+| [2502.06115](https://arxiv.org/abs/2502.06115) | Task-driven Layerwise Additive Activation Intervention | P11-FE398, P11-FE397, P11-FE396 | READY |
+| [2502.06233](https://arxiv.org/abs/2502.06233) | Confidence Improves Self-Consistency in LLMs | P11-FE402, P11-FE401, P11-FE400, P11-FE399 | READY |
 | [2502.06884](https://arxiv.org/abs/2502.06884) | Learning Conformal Abstention Policies for Adaptive Risk Management in Large Language and Vision-Language Models | P10-FE22 | READY |
-| [2502.11096](https://arxiv.org/abs/2502.11096) | Mixture of Tunable Experts -- Behavior Modification of DeepSeek-R1 at Inference Time | P11-FE409, P11-FE408, P11-FE410, P10-FE24 | BLOCKED, READY |
+| [2502.11096](https://arxiv.org/abs/2502.11096) | Mixture of Tunable Experts -- Behavior Modification of DeepSeek-R1 at Inference Time | P10-FE24, P11-FE410, P11-FE409, P11-FE408 | BLOCKED, READY |
 | [2502.18862](https://arxiv.org/abs/2502.18862) | One-shot Optimized Steering Vectors Mediate Safety-relevant Behaviors in LLMs | P11-FE836 | READY |
-| [2502.20914](https://arxiv.org/abs/2502.20914) | Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable? | P11-FE1053, P11-FE1054, P11-FE1055 | READY |
-| [2503.02233](https://arxiv.org/abs/2503.02233) | Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling | P11-FE413, P11-FE414, P11-FE411 | BLOCKED, READY |
-| [2503.10602](https://arxiv.org/abs/2503.10602) | TruthPrInt: Mitigating Large Vision-Language Models Object Hallucination Via Latent Truthful-Guided Pre-Intervention | P11-FE415, P11-FE417, P11-FE418 | READY |
-| [2503.12730](https://arxiv.org/abs/2503.12730) | TinySQL: A Progressive Text-to-SQL Dataset for Mechanistic Interpretability Research | P10-FE25, P11-FE419, P11-FE420, P11-FE422, P11-FE423, P11-FE424 | BLOCKED, READY |
-| [2503.14130](https://arxiv.org/abs/2503.14130) | Inference-Time Intervention in Large Language Models for Reliable Requirement Verification | P10-FE26, P10-FE27, P11-FE425 | READY |
+| [2502.20914](https://arxiv.org/abs/2502.20914) | Everything, Everywhere, All at Once: Is Mechanistic Interpretability Identifiable? | P11-FE1055, P11-FE1054, P11-FE1053 | READY |
+| [2503.02233](https://arxiv.org/abs/2503.02233) | Enhancing LLM Reliability via Explicit Knowledge Boundary Modeling | P11-FE414, P11-FE413, P11-FE411 | BLOCKED, READY |
+| [2503.10602](https://arxiv.org/abs/2503.10602) | TruthPrInt: Mitigating Large Vision-Language Models Object Hallucination Via Latent Truthful-Guided Pre-Intervention | P11-FE418, P11-FE417, P11-FE415 | READY |
+| [2503.12730](https://arxiv.org/abs/2503.12730) | TinySQL: A Progressive Text-to-SQL Dataset for Mechanistic Interpretability Research | P10-FE25, P11-FE424, P11-FE423, P11-FE422, P11-FE420, P11-FE419 | BLOCKED, READY |
+| [2503.14130](https://arxiv.org/abs/2503.14130) | Inference-Time Intervention in Large Language Models for Reliable Requirement Verification | P11-FE425, P10-FE27, P10-FE26 | READY |
 | [2503.dual-route-induction](https://arxiv.org/abs/2503.dual-route-induction) | (untitled) | P11-FE840 | READY |
-| [2504.01002](https://arxiv.org/abs/2504.01002) | Token embeddings violate the manifold hypothesis | P11-FE427, P11-FE426, P10-FE28 | BLOCKED, READY |
-| [2504.21773](https://arxiv.org/abs/2504.21773) | MAC-Tuning: LLM Multi-Compositional Problem Reasoning with Enhanced Knowledge Boundary Awareness | P11-FE444, P11-FE445, P11-FE446 | READY |
-| [2505.01595](https://arxiv.org/abs/2505.01595) | Always Tell Me The Odds: Fine-grained Conditional Probability Estimation | P11-FE451, P11-FE452, P11-FE453, P11-FE454 | READY |
-| [2505.04881](https://arxiv.org/abs/2505.04881) | ConCISE: Confidence-guided Compression in Step-by-step Efficient Reasoning | P11-FE456, P11-FE457 | BLOCKED, READY |
-| [2505.10465](https://arxiv.org/abs/2505.10465) | Superposition Yields Robust Neural Scaling | P11-FE872, P11-FE873, P11-FE874, P11-FE875 | READY |
-| [2505.15442](https://arxiv.org/abs/2505.15442) | On the Generalization vs Fidelity Paradox in Knowledge Distillation | P11-FE461, P11-FE462, P11-FE458, P11-FE460 | BLOCKED, READY |
-| [2505.15624](https://arxiv.org/abs/2505.15624) | Mechanistic Insights into Grokking from the Embedding Layer | P11-FE463, P11-FE464, P11-FE465 | READY |
+| [2504.01002](https://arxiv.org/abs/2504.01002) | Token embeddings violate the manifold hypothesis | P10-FE28, P11-FE427, P11-FE426 | BLOCKED, READY |
+| [2504.21773](https://arxiv.org/abs/2504.21773) | MAC-Tuning: LLM Multi-Compositional Problem Reasoning with Enhanced Knowledge Boundary Awareness | P11-FE446, P11-FE445, P11-FE444 | READY |
+| [2505.01595](https://arxiv.org/abs/2505.01595) | Always Tell Me The Odds: Fine-grained Conditional Probability Estimation | P11-FE454, P11-FE453, P11-FE452, P11-FE451 | READY |
+| [2505.04881](https://arxiv.org/abs/2505.04881) | ConCISE: Confidence-guided Compression in Step-by-step Efficient Reasoning | P11-FE457, P11-FE456 | BLOCKED, READY |
+| [2505.10465](https://arxiv.org/abs/2505.10465) | Superposition Yields Robust Neural Scaling | P11-FE875, P11-FE874, P11-FE873, P11-FE872 | READY |
+| [2505.15442](https://arxiv.org/abs/2505.15442) | On the Generalization vs Fidelity Paradox in Knowledge Distillation | P11-FE462, P11-FE461, P11-FE460, P11-FE458 | BLOCKED, READY |
+| [2505.15624](https://arxiv.org/abs/2505.15624) | Mechanistic Insights into Grokking from the Embedding Layer | P11-FE465, P11-FE464, P11-FE463 | READY |
 | [2505.17306](https://arxiv.org/abs/2505.17306) | Refusal Direction is Universal Across Safety-Aligned Languages | P11-FE467, P11-FE466 | BLOCKED, READY |
-| [2505.19184](https://arxiv.org/abs/2505.19184) | When Two LLMs Debate, Both Think They'll Win | P11-FE472, P11-FE473, P11-FE474 | READY |
-| [2505.20309](https://arxiv.org/abs/2505.20309) | Guiding Giants: Lightweight Controllers for Weighted Activation Steering in LLMs | P11-FE475, P11-FE476, P11-FE477 | READY |
-| [2505.20322](https://arxiv.org/abs/2505.20322) | Beyond Prompt Engineering: Robust Behavior Control in LLMs via Steering Target Atoms | P11-FE480, P11-FE478, P11-FE479, P11-FE481 | BLOCKED, READY |
-| [2505.23224](https://arxiv.org/abs/2505.23224) | MMBoundary: Advancing MLLM Knowledge Boundary Awareness through Reasoning Step Confidence Calibration | P11-FE488, P11-FE489 | READY |
-| [2505.23556](https://arxiv.org/abs/2505.23556) | Understanding Refusal in Language Models with Sparse Autoencoders | P11-FE491, P11-FE492, P11-FE493 | BLOCKED |
-| [2506.03292](https://arxiv.org/abs/2506.03292) | HyperSteer: Activation Steering at Scale with Hypernetworks | P10-FE46, P10-FE45, P10-FE47 | BLOCKED, READY |
-| [2506.18167](https://arxiv.org/abs/2506.18167) | Understanding Reasoning in Thinking Language Models via Steering Vectors | P11-FE499, P11-FE500, P11-FE501 | READY |
-| [2507.02199](https://arxiv.org/abs/2507.02199) | Latent Chain-of-Thought? Decoding the Depth-Recurrent Transformer | P11-FE512, P11-FE513, P11-FE514 | READY |
-| [2507.06203](https://arxiv.org/abs/2507.06203) | A Survey on Latent Reasoning | P11-FE519, P11-FE520, P11-FE521, P11-FE523 | READY |
-| [2507.12428](https://arxiv.org/abs/2507.12428) | Can We Predict Alignment Before Models Finish Thinking? Towards Monitoring Misaligned Reasoning Models | P11-FE524, P11-FE525, P11-FE526, P11-FE527, P11-FE528 | READY |
-| [2507.16806](https://arxiv.org/abs/2507.16806) | Beyond Binary Rewards: Training LMs to Reason About Their Uncertainty | P11-FE841, P11-FE842 | READY |
-| [2507.17912](https://arxiv.org/abs/2507.17912) | SETOL: A Semi-Empirical Theory of (Deep) Learning | P11-FE900, P11-FE902 | READY |
-| [2508.11290](https://arxiv.org/abs/2508.11290) | SafeConstellations: Mitigating Over-Refusals in LLMs Through Task-Aware Representation Steering | P10-FE30, P11-FE529, P11-FE530, P11-FE531, P10-FE29 | BLOCKED, READY |
-| [2508.17621](https://arxiv.org/abs/2508.17621) | Steering When Necessary: Flexible Steering Large Language Models with Backtracking | P11-FE534, P11-FE532, P11-FE533 | BLOCKED, READY |
-| [2508.19505](https://arxiv.org/abs/2508.19505) | Caught in the Act: a mechanistic approach to detecting deception | P11-FE843, P11-FE844 | READY |
-| [2509.10625](https://arxiv.org/abs/2509.10625) | No Answer Needed: Predicting LLM Answer Accuracy from Question-Only Linear Probes | P11-FE110625A, P11-FE110625B, P11-FE110625C, P11-FE110625D, P11-FE8 | READY, TRIGGERED |
-| [2509.13450](https://arxiv.org/abs/2509.13450) | SteeringSafety: A Systematic Safety Evaluation Framework of Representation Steering in LLMs | P11-FE552, P11-FE553, P11-FE555 | READY |
-| [2509.22067](https://arxiv.org/abs/2509.22067) | The Rogue Scalpel: Activation Steering Compromises LLM Safety | P11-FE557, P11-FE558, P11-FE560 | READY |
-| [2509.22219](https://arxiv.org/abs/2509.22219) | Interpretable Discovery of One-parameter Subgroups: A Modular Framework for Elliptical, Hyperbolic, and Parabolic Symmetries | P11-FE896, P11-FE897, P11-FE898 | READY |
-| [2509.24202](https://arxiv.org/abs/2509.24202) | Can Large Language Models Express Uncertainty Like Human? | P11-FE845, P11-FE847, P11-FE848 | READY |
-| [2509.24248](https://arxiv.org/abs/2509.24248) | SpecExit: Accelerating Large Reasoning Model via Speculative Exit | P11-FE851, P11-FE849, P11-FE850 | BLOCKED, READY |
-| [2509.24988](https://arxiv.org/abs/2509.24988) | Generalized Correctness Models: Learning Calibrated and Model-Agnostic Correctness Predictors from Historical Patterns | P11-FE561, P11-FE562, P11-FE563, P11-FE564, P11-FE565 | READY |
-| [2510.00537](https://arxiv.org/abs/2510.00537) | Spectral Scaling Laws in Language Models: How Effectively Do Feed-Forward Networks Use Their Latent Space? | P11-FE852, P11-FE853, P11-FE854, P11-FE855 | READY |
-| [2510.01105](https://arxiv.org/abs/2510.01105) | Geometric Properties of Neural Multivariate Regression | P11-FE574, P11-FE575, P11-FE576 | READY |
-| [2510.01591](https://arxiv.org/abs/2510.01591) | CLUE: Non-parametric Verification from Experience via Hidden-State Clustering | P11-FE577, P11-FE578, P11-FE579, P11-FE580 | READY |
-| [2510.02956](https://arxiv.org/abs/2510.02956) | Confidence and Dispersity as Signals: Unsupervised Model Evaluation and Ranking | P11-FE581, P11-FE582, P11-FE583 | READY |
-| [2511.05963](https://arxiv.org/abs/2511.05963) | Next-Latent Prediction Transformers Learn Compact World Models | P11-FE1156, P11-FE1157, P11-FE1158, P11-FE1159 | READY |
-| [2511.08379](https://arxiv.org/abs/2511.08379) | SOM Directions are Better than One: Multi-Directional Refusal Suppression in Language Models | P11-FE862, P11-FE860, P11-FE861, P11-FE7 | BLOCKED, READY, TRIGGERED |
-| [2511.15210](https://arxiv.org/abs/2511.15210) | Unveiling Intrinsic Dimension of Texts: from Academic Abstract to Creative Story | P11-FE597, P11-FE598, P11-FE599, P11-FE600, P11-FE601 | READY |
-| [2512.07667](https://arxiv.org/abs/2512.07667) | Depth-Wise Activation Steering for Honest Language Models | P11-FE602, P11-FE603, P11-FE604 | READY |
-| [2512.15285](https://arxiv.org/abs/2512.15285) | Topological Metric for Unsupervised Embedding Quality Evaluation | P11-FE605, P11-FE606, P8-FE8 | READY |
-| [2512.16030](https://arxiv.org/abs/2512.16030) | Do Large Language Models Know What They Don't Know? Kalshibench: A New Benchmark for Evaluating Epistemic Calibration via Prediction Markets | P11-FE607, P11-FE608, P11-FE609 | READY |
-| [2512.16602](https://arxiv.org/abs/2512.16602) | Refusal Steering: Fine-grained Control over LLM Refusal Behaviour for Sensitive Topics | P11-FE611, P11-FE612, P11-FE613, P10-FE33 | READY |
-| [2512.19135](https://arxiv.org/abs/2512.19135) | Understanding Chain-of-Thought in Large Language Models via Topological Data Analysis | P8-FE9, P11-FE614, P11-FE615 | READY |
+| [2505.19184](https://arxiv.org/abs/2505.19184) | When Two LLMs Debate, Both Think They'll Win | P11-FE474, P11-FE473, P11-FE472 | READY |
+| [2505.20309](https://arxiv.org/abs/2505.20309) | Guiding Giants: Lightweight Controllers for Weighted Activation Steering in LLMs | P11-FE477, P11-FE476, P11-FE475 | READY |
+| [2505.20322](https://arxiv.org/abs/2505.20322) | Beyond Prompt Engineering: Robust Behavior Control in LLMs via Steering Target Atoms | P11-FE481, P11-FE480, P11-FE479, P11-FE478 | BLOCKED, READY |
+| [2505.23224](https://arxiv.org/abs/2505.23224) | MMBoundary: Advancing MLLM Knowledge Boundary Awareness through Reasoning Step Confidence Calibration | P11-FE489, P11-FE488 | READY |
+| [2505.23556](https://arxiv.org/abs/2505.23556) | Understanding Refusal in Language Models with Sparse Autoencoders | P11-FE493, P11-FE492, P11-FE491 | BLOCKED |
+| [2506.03292](https://arxiv.org/abs/2506.03292) | HyperSteer: Activation Steering at Scale with Hypernetworks | P10-FE47, P10-FE46, P10-FE45 | BLOCKED, READY |
+| [2506.18167](https://arxiv.org/abs/2506.18167) | Understanding Reasoning in Thinking Language Models via Steering Vectors | P11-FE501, P11-FE500, P11-FE499 | READY |
+| [2507.02199](https://arxiv.org/abs/2507.02199) | Latent Chain-of-Thought? Decoding the Depth-Recurrent Transformer | P11-FE514, P11-FE513, P11-FE512 | READY |
+| [2507.06203](https://arxiv.org/abs/2507.06203) | A Survey on Latent Reasoning | P11-FE523, P11-FE521, P11-FE520, P11-FE519 | READY |
+| [2507.12428](https://arxiv.org/abs/2507.12428) | Can We Predict Alignment Before Models Finish Thinking? Towards Monitoring Misaligned Reasoning Models | P11-FE528, P11-FE527, P11-FE526, P11-FE525, P11-FE524 | READY |
+| [2507.16806](https://arxiv.org/abs/2507.16806) | Beyond Binary Rewards: Training LMs to Reason About Their Uncertainty | P11-FE842, P11-FE841 | READY |
+| [2507.17912](https://arxiv.org/abs/2507.17912) | SETOL: A Semi-Empirical Theory of (Deep) Learning | P11-FE902, P11-FE900 | READY |
+| [2508.11290](https://arxiv.org/abs/2508.11290) | SafeConstellations: Mitigating Over-Refusals in LLMs Through Task-Aware Representation Steering | P10-FE30, P10-FE29, P11-FE531, P11-FE530, P11-FE529 | BLOCKED, READY |
+| [2508.17621](https://arxiv.org/abs/2508.17621) | Steering When Necessary: Flexible Steering Large Language Models with Backtracking | P11-FE534, P11-FE533, P11-FE532 | BLOCKED, READY |
+| [2508.19505](https://arxiv.org/abs/2508.19505) | Caught in the Act: a mechanistic approach to detecting deception | P11-FE844, P11-FE843 | READY |
+| [2509.10625](https://arxiv.org/abs/2509.10625) | No Answer Needed: Predicting LLM Answer Accuracy from Question-Only Linear Probes | P11-FE110625D, P11-FE110625C, P11-FE110625B, P11-FE110625A, P11-FE8 | READY, TRIGGERED |
+| [2509.13450](https://arxiv.org/abs/2509.13450) | SteeringSafety: A Systematic Safety Evaluation Framework of Representation Steering in LLMs | P11-FE555, P11-FE553, P11-FE552 | READY |
+| [2509.22067](https://arxiv.org/abs/2509.22067) | The Rogue Scalpel: Activation Steering Compromises LLM Safety | P11-FE560, P11-FE558, P11-FE557 | READY |
+| [2509.22219](https://arxiv.org/abs/2509.22219) | Interpretable Discovery of One-parameter Subgroups: A Modular Framework for Elliptical, Hyperbolic, and Parabolic Symmetries | P11-FE898, P11-FE897, P11-FE896 | READY |
+| [2509.24202](https://arxiv.org/abs/2509.24202) | Can Large Language Models Express Uncertainty Like Human? | P11-FE848, P11-FE847, P11-FE845 | READY |
+| [2509.24248](https://arxiv.org/abs/2509.24248) | SpecExit: Accelerating Large Reasoning Model via Speculative Exit | P11-FE851, P11-FE850, P11-FE849 | BLOCKED, READY |
+| [2509.24988](https://arxiv.org/abs/2509.24988) | Generalized Correctness Models: Learning Calibrated and Model-Agnostic Correctness Predictors from Historical Patterns | P11-FE565, P11-FE564, P11-FE563, P11-FE562, P11-FE561 | READY |
+| [2510.00537](https://arxiv.org/abs/2510.00537) | Spectral Scaling Laws in Language Models: How Effectively Do Feed-Forward Networks Use Their Latent Space? | P11-FE855, P11-FE854, P11-FE853, P11-FE852 | READY |
+| [2510.01105](https://arxiv.org/abs/2510.01105) | Geometric Properties of Neural Multivariate Regression | P11-FE576, P11-FE575, P11-FE574 | READY |
+| [2510.01591](https://arxiv.org/abs/2510.01591) | CLUE: Non-parametric Verification from Experience via Hidden-State Clustering | P11-FE580, P11-FE579, P11-FE578, P11-FE577 | READY |
+| [2510.02956](https://arxiv.org/abs/2510.02956) | Confidence and Dispersity as Signals: Unsupervised Model Evaluation and Ranking | P11-FE583, P11-FE582, P11-FE581 | READY |
+| [2511.05963](https://arxiv.org/abs/2511.05963) | Next-Latent Prediction Transformers Learn Compact World Models | P11-FE1159, P11-FE1158, P11-FE1157, P11-FE1156 | READY |
+| [2511.08379](https://arxiv.org/abs/2511.08379) | SOM Directions are Better than One: Multi-Directional Refusal Suppression in Language Models | P11-FE862, P11-FE861, P11-FE860, P11-FE7 | BLOCKED, READY, TRIGGERED |
+| [2511.15210](https://arxiv.org/abs/2511.15210) | Unveiling Intrinsic Dimension of Texts: from Academic Abstract to Creative Story | P11-FE601, P11-FE600, P11-FE599, P11-FE598, P11-FE597 | READY |
+| [2512.07667](https://arxiv.org/abs/2512.07667) | Depth-Wise Activation Steering for Honest Language Models | P11-FE604, P11-FE603, P11-FE602 | READY |
+| [2512.15285](https://arxiv.org/abs/2512.15285) | Topological Metric for Unsupervised Embedding Quality Evaluation | P8-FE8, P11-FE606, P11-FE605 | READY |
+| [2512.16030](https://arxiv.org/abs/2512.16030) | Do Large Language Models Know What They Don't Know? Kalshibench: A New Benchmark for Evaluating Epistemic Calibration via Prediction Markets | P11-FE609, P11-FE608, P11-FE607 | READY |
+| [2512.16602](https://arxiv.org/abs/2512.16602) | Refusal Steering: Fine-grained Control over LLM Refusal Behaviour for Sensitive Topics | P10-FE33, P11-FE613, P11-FE612, P11-FE611 | READY |
+| [2512.19135](https://arxiv.org/abs/2512.19135) | Understanding Chain-of-Thought in Large Language Models via Topological Data Analysis | P11-FE615, P11-FE614, P8-FE9 | READY |
 | [2512.23348](https://arxiv.org/abs/2512.23348) | Persistent Homology via Finite Topological Spaces | P11-FE616 | BLOCKED |
-| [2512.24560](https://arxiv.org/abs/2512.24560) | Localized Calibrated Uncertainty in Code Language Models | P11-FE617, P11-FE618, P11-FE619, P11-FE620 | READY |
-| [2601.00138](https://arxiv.org/abs/2601.00138) | Explicit Abstention Knobs for Predictable Reliability in Video Question Answering | P11-FE624, P11-FE621, P11-FE622, P11-FE623, P11-FE625 | BLOCKED, READY |
-| [2601.02179](https://arxiv.org/abs/2601.02179) | Confidence Estimation for LLMs in Multi-turn Interactions | P11-FE630, P11-FE631, P11-FE632 | READY |
-| [2601.06002](https://arxiv.org/abs/2601.06002) | The Molecular Structure of Thought: Mapping the Topology of Long Chain-of-Thought Reasoning | P11-FE879, P11-FE876, P11-FE877, P11-FE878 | BLOCKED, READY |
-| [2601.09269](https://arxiv.org/abs/2601.09269) | RISER: Orchestrating Latent Reasoning Skills for Adaptive Activation Steering | P11-FE633, P11-FE634, P11-FE635 | READY |
-| [2601.13015](https://arxiv.org/abs/2601.13015) | MeltRTL: Multi-Expert LLMs with Inference-time Intervention for RTL Code Generation | P11-FE636, P11-FE637, P11-FE638, P11-FE639 | READY |
-| [2601.14004](https://arxiv.org/abs/2601.14004) | Locate, Steer, and Improve: A Practical Survey of Actionable Mechanistic Interpretability in Large Language Models | P11-FE640, P11-FE641, P11-FE643, P11-FE644 | READY |
-| [2601.19375](https://arxiv.org/abs/2601.19375) | Selective Steering: Norm-Preserving Control Through Discriminative Layer Selection | P11-FE863, P11-FE864, P11-FE865 | READY |
-| [2602.00158](https://arxiv.org/abs/2602.00158) | RAPTOR: Ridge-Adaptive Logistic Probes | P11-FE647, P11-FE648, P11-FE645, P11-FE646 | BLOCKED, READY |
-| [2602.01893](https://arxiv.org/abs/2602.01893) | Geometric Analysis of Token Selection in Multi-Head Attention | P11-FE650, P11-FE651, P11-FE652, P11-FE653, P11-FE654, P11-FE655, P11-FE649 | BLOCKED, READY |
-| [2602.01992](https://arxiv.org/abs/2602.01992) | Emergent Analogical Reasoning in Transformers | P11-FE1174, P11-FE1175, P11-FE1176, P11-FE1177, P11-FE1178 | READY |
-| [2602.02103](https://arxiv.org/abs/2602.02103) | No Global Plan in Chain-of-Thought: Uncover the Latent Planning Horizon of LLMs | P11-FE656, P11-FE657, P11-FE658, P11-FE659 | READY |
-| [2602.02343](https://arxiv.org/abs/2602.02343) | Why Steering Works: Toward a Unified View of Language Model Parameter Dynamics | P11-FE660, P11-FE661, P11-FE662, P11-FE663, P11-FE664 | READY |
-| [2602.02710](https://arxiv.org/abs/2602.02710) | Maximum Likelihood Reinforcement Learning | P11-FE895, P11-FE891, P11-FE892, P11-FE893, P11-FE894 | BLOCKED, READY |
-| [2602.04428](https://arxiv.org/abs/2602.04428) | Fine-Grained Activation Steering: Steering Less, Achieving More | P11-FE665, P11-FE666, P11-FE667, P11-FE669 | READY |
-| [2602.04521](https://arxiv.org/abs/2602.04521) | $C$-$ΔΘ$: Circuit-Restricted Weight Arithmetic for Selective Refusal | P11-FE670, P11-FE671 | READY |
-| [2602.05943](https://arxiv.org/abs/2602.05943) | Orthogonal Model Merging | P11-FE887, P11-FE888, P11-FE890 | READY |
-| [2602.06941](https://arxiv.org/abs/2602.06941) | Endogenous Resistance to Activation Steering in Language Models | P11-FE673, P11-FE674, P11-FE675 | READY |
-| [2602.07276](https://arxiv.org/abs/2602.07276) | Steer2Adapt: Dynamically Composing Steering Vectors Elicits Efficient Adaptation of LLMs | P11-FE676, P11-FE677, P10-FE34 | READY |
-| [2602.08169](https://arxiv.org/abs/2602.08169) | Spherical Steering: Geometry-Aware Activation Rotation for Language Models | P11-FE679, P11-FE680, P11-FE681, P11-FE682 | READY |
-| [2602.10346](https://arxiv.org/abs/2602.10346) | Geometry-Aware Decoding with Wasserstein-Regularized Truncation and Mass Penalties for Large Language Models | P11-FE883, P11-FE884, P11-FE885, P11-FE886 | READY |
-| [2602.10496](https://arxiv.org/abs/2602.10496) | Low-Dimensional Execution Manifolds in Transformer Learning Dynamics: Evidence from Modular Arithmetic Tasks | P11-FE686, P11-FE683, P11-FE684 | BLOCKED, READY |
-| [2602.11910](https://arxiv.org/abs/2602.11910) | TADA! Tuning Audio Diffusion Models through Activation Steering | P11-FE687, P11-FE688, P11-FE689, P11-FE690 | READY |
-| [2602.12125](https://arxiv.org/abs/2602.12125) | Learning beyond Teacher: Generalized On-Policy Distillation with Reward Extrapolation | P11-FE1114, P11-FE1115 | BLOCKED, READY |
-| [2602.13567](https://arxiv.org/abs/2602.13567) | DistillLens: Symmetric Knowledge Distillation Through Logit Lens | P11-FE692, P11-FE693, P11-FE695 | READY |
-| [2602.15029](https://arxiv.org/abs/2602.15029) | Symmetry in language statistics shapes the geometry of model representations | P11-FE1146, P11-FE1147, P11-FE1148, P11-FE1149, P11-FE1150 | READY |
-| [2602.15293](https://arxiv.org/abs/2602.15293) | The Information Geometry of Softmax: Probing and Steering | P10-FE35, P11-FE696, P11-FE697 | READY |
-| [2602.15438](https://arxiv.org/abs/2602.15438) | Logit Distance Bounds Representational Similarity | P11-FE904, P11-FE905, P11-FE906, P11-FE907 | READY |
-| [2602.16490](https://arxiv.org/abs/2602.16490) | From Growing to Looping: A Unified View of Iterative Computation in LLMs | P11-FE1048, P11-FE1049, P11-FE1050, P11-FE1051, P11-FE1052 | READY |
-| [2602.23696](https://arxiv.org/abs/2602.23696) | Optimizer-Induced Low-Dimensional Drift and Transverse Dynamics in Transformer Training | P11-FE698, P11-FE699, P11-FE700, P11-FE701 | READY |
-| [2603.00437](https://arxiv.org/abs/2603.00437) | Self-Correction Inside the Model: Leveraging Layer Attention to Mitigate Hallucinations in Large Vision Language Models | P11-FE702, P11-FE703 | READY |
-| [2603.01025](https://arxiv.org/abs/2603.01025) | One-Token Verification for Reasoning Correctness Estimation | P11-FE704, P11-FE705, P11-FE706 | READY |
-| [2603.03163](https://arxiv.org/abs/2603.03163) | Conditioned Activation Transport for T2I Safety Steering | P11-FE707, P11-FE708, P11-FE710, P11-FE711 | READY |
-| [2603.12372](https://arxiv.org/abs/2603.12372) | Efficient Reasoning with Balanced Thinking | P11-FE712, P11-FE713, P11-FE714, P11-FE715, P11-FE716 | READY |
-| [2603.14923](https://arxiv.org/abs/2603.14923) | Directional Routing in Transformers | P11-FE717, P10-FE37 | READY |
-| [2603.18280](https://arxiv.org/abs/2603.18280) | Detection Is Cheap, Routing Is Learned: Why Refusal-Based Alignment Evaluation Fails | P11-FE720, P11-FE721, P11-FE722, P11-FE723 | READY |
-| [2603.23198](https://arxiv.org/abs/2603.23198) | Sparser, Faster, Lighter Transformer Language Models | P11-FE960, P11-FE961, P11-FE962, P11-FE963 | READY |
-| [2603.24787](https://arxiv.org/abs/2603.24787) | ReLope: KL-Regularized LoRA Probes for Multimodal LLM Routing | P11-FE724, P11-FE725, P11-FE726 | READY |
-| [2603.25052](https://arxiv.org/abs/2603.25052) | Closing the Confidence-Faithfulness Gap in Large Language Models | P11-FE727, P11-FE728, P11-FE729, P11-FE731 | READY |
-| [2604.01170](https://arxiv.org/abs/2604.01170) | Online Reasoning Calibration: Test-Time Training Enables Generalizable Conformal LLM Reasoning | P11-FE732, P11-FE733, P11-FE734, P11-FE735 | READY |
-| [2604.02608](https://arxiv.org/abs/2604.02608) | Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens | P11-FE1164, P11-FE1165, P11-FE1166, P11-FE1167 | READY |
-| [2604.09780](https://arxiv.org/abs/2604.09780) | The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise | P11-FE1043, P11-FE1044, P11-FE1045, P11-FE1046, P11-FE1047 | READY |
-| [2604.11962](https://arxiv.org/abs/2604.11962) | The Linear Centroids Hypothesis: How Deep Network Features Represent Data | P11-FE743, P11-FE744, P11-FE745 | READY |
-| [2604.12016](https://arxiv.org/abs/2604.12016) | Identity as Attractor: Geometric Evidence for Persistent Agent Architecture in LLM Activation Space | P11-FE1002, P11-FE1003, P11-FE1004, P11-FE1005 | READY |
-| [2604.15350](https://arxiv.org/abs/2604.15350) | The Spectral Geometry of Thought: Phase Transitions, Instruction Reversal, Token-Level Dynamics, and Perfect Correctness Prediction in How Transformers Reason | P11-FE750, P11-FE752, P11-FE6 | READY, TRIGGERED |
-| [2604.15706](https://arxiv.org/abs/2604.15706) | Target-Oriented Pretraining Data Selection via Neuron-Activated Graph | P11-FE914, P11-FE915, P11-FE916, P11-FE917 | READY |
-| [2604.19740](https://arxiv.org/abs/2604.19740) | (untitled) | P11-FE772, P11-FE1037, P11-FE1038, P11-FE1040 | READY |
-| [2604.19974](https://arxiv.org/abs/2604.19974) | Are LLM Uncertainty and Correctness Encoded by the Same Features? A Functional Dissociation via Sparse Autoencoders | P10-FE41, P11-FE768, P11-FE769, P10-FE5 | BLOCKED, READY, TRIGGERED |
-| [2604.20817](https://arxiv.org/abs/2604.20817) | Convergent Evolution: How Different Language Models Learn Similar Number Representations | P11-FE777, P11-FE773, P11-FE774, P11-FE775, P11-FE776 | BLOCKED, READY |
-| [2604.21016](https://arxiv.org/abs/2604.21016) | SGD at the Edge of Stability: The Stochastic Sharpness Gap | P11-FE932, P11-FE933 | READY |
-| [2604.23829](https://arxiv.org/abs/2604.23829) | Domain-Filtered Knowledge Graphs from Sparse Autoencoder Features | P11-FE803, P11-FE804, P11-FE805 | BLOCKED |
-| [2604.23985](https://arxiv.org/abs/2604.23985) | Representational Curvature Modulates Behavioral Uncertainty in Large Language Models | alphaXiv | P11-FE123985B, P11-FE123985C, P11-FE123985D, P11-FE123985E | READY |
-| [2604.25783](https://arxiv.org/abs/2604.25783) | Subliminal Steering: Stronger Encoding of Hidden Signals | P11-FE918, P11-FE920, P11-FE921, P10-FE49 | READY |
-| [2604.26841](https://arxiv.org/abs/2604.26841) | Language Diffusion Models are Associative Memories Capable of Retrieving Unseen Data | P11-FE26841d, P11-FE26841b, P11-FE26841c | BLOCKED, READY |
-| [2604.27169](https://arxiv.org/abs/2604.27169) | Semantic Structure of Feature Space in Large Language Models | P11-FE984, P11-FE985, P11-FE986 | READY |
+| [2512.24560](https://arxiv.org/abs/2512.24560) | Localized Calibrated Uncertainty in Code Language Models | P11-FE620, P11-FE619, P11-FE618, P11-FE617 | READY |
+| [2601.00138](https://arxiv.org/abs/2601.00138) | Explicit Abstention Knobs for Predictable Reliability in Video Question Answering | P11-FE625, P11-FE624, P11-FE623, P11-FE622, P11-FE621 | BLOCKED, READY |
+| [2601.02179](https://arxiv.org/abs/2601.02179) | Confidence Estimation for LLMs in Multi-turn Interactions | P11-FE632, P11-FE631, P11-FE630 | READY |
+| [2601.06002](https://arxiv.org/abs/2601.06002) | The Molecular Structure of Thought: Mapping the Topology of Long Chain-of-Thought Reasoning | P11-FE879, P11-FE878, P11-FE877, P11-FE876 | BLOCKED, READY |
+| [2601.09269](https://arxiv.org/abs/2601.09269) | RISER: Orchestrating Latent Reasoning Skills for Adaptive Activation Steering | P11-FE635, P11-FE634, P11-FE633 | READY |
+| [2601.13015](https://arxiv.org/abs/2601.13015) | MeltRTL: Multi-Expert LLMs with Inference-time Intervention for RTL Code Generation | P11-FE639, P11-FE638, P11-FE637, P11-FE636 | READY |
+| [2601.14004](https://arxiv.org/abs/2601.14004) | Locate, Steer, and Improve: A Practical Survey of Actionable Mechanistic Interpretability in Large Language Models | P11-FE644, P11-FE643, P11-FE641, P11-FE640 | READY |
+| [2601.19375](https://arxiv.org/abs/2601.19375) | Selective Steering: Norm-Preserving Control Through Discriminative Layer Selection | P11-FE865, P11-FE864, P11-FE863 | READY |
+| [2602.00158](https://arxiv.org/abs/2602.00158) | RAPTOR: Ridge-Adaptive Logistic Probes | P11-FE648, P11-FE647, P11-FE646, P11-FE645 | BLOCKED, READY |
+| [2602.01893](https://arxiv.org/abs/2602.01893) | Geometric Analysis of Token Selection in Multi-Head Attention | P11-FE655, P11-FE654, P11-FE653, P11-FE652, P11-FE651, P11-FE650, P11-FE649 | BLOCKED, READY |
+| [2602.01992](https://arxiv.org/abs/2602.01992) | Emergent Analogical Reasoning in Transformers | P11-FE1178, P11-FE1177, P11-FE1176, P11-FE1175, P11-FE1174 | READY |
+| [2602.02103](https://arxiv.org/abs/2602.02103) | No Global Plan in Chain-of-Thought: Uncover the Latent Planning Horizon of LLMs | P11-FE659, P11-FE658, P11-FE657, P11-FE656 | READY |
+| [2602.02343](https://arxiv.org/abs/2602.02343) | Why Steering Works: Toward a Unified View of Language Model Parameter Dynamics | P11-FE664, P11-FE663, P11-FE662, P11-FE661, P11-FE660 | READY |
+| [2602.02710](https://arxiv.org/abs/2602.02710) | Maximum Likelihood Reinforcement Learning | P11-FE895, P11-FE894, P11-FE893, P11-FE892, P11-FE891 | BLOCKED, READY |
+| [2602.04428](https://arxiv.org/abs/2602.04428) | Fine-Grained Activation Steering: Steering Less, Achieving More | P11-FE669, P11-FE667, P11-FE666, P11-FE665 | READY |
+| [2602.04521](https://arxiv.org/abs/2602.04521) | $C$-$ΔΘ$: Circuit-Restricted Weight Arithmetic for Selective Refusal | P11-FE671, P11-FE670 | READY |
+| [2602.05943](https://arxiv.org/abs/2602.05943) | Orthogonal Model Merging | P11-FE890, P11-FE888, P11-FE887 | READY |
+| [2602.06941](https://arxiv.org/abs/2602.06941) | Endogenous Resistance to Activation Steering in Language Models | P11-FE675, P11-FE674, P11-FE673 | READY |
+| [2602.07276](https://arxiv.org/abs/2602.07276) | Steer2Adapt: Dynamically Composing Steering Vectors Elicits Efficient Adaptation of LLMs | P10-FE34, P11-FE677, P11-FE676 | READY |
+| [2602.08169](https://arxiv.org/abs/2602.08169) | Spherical Steering: Geometry-Aware Activation Rotation for Language Models | P11-FE682, P11-FE681, P11-FE680, P11-FE679 | READY |
+| [2602.10346](https://arxiv.org/abs/2602.10346) | Geometry-Aware Decoding with Wasserstein-Regularized Truncation and Mass Penalties for Large Language Models | P11-FE886, P11-FE885, P11-FE884, P11-FE883 | READY |
+| [2602.10496](https://arxiv.org/abs/2602.10496) | Low-Dimensional Execution Manifolds in Transformer Learning Dynamics: Evidence from Modular Arithmetic Tasks | P11-FE686, P11-FE684, P11-FE683 | BLOCKED, READY |
+| [2602.11910](https://arxiv.org/abs/2602.11910) | TADA! Tuning Audio Diffusion Models through Activation Steering | P11-FE690, P11-FE689, P11-FE688, P11-FE687 | READY |
+| [2602.12125](https://arxiv.org/abs/2602.12125) | Learning beyond Teacher: Generalized On-Policy Distillation with Reward Extrapolation | P11-FE1115, P11-FE1114 | BLOCKED, READY |
+| [2602.13567](https://arxiv.org/abs/2602.13567) | DistillLens: Symmetric Knowledge Distillation Through Logit Lens | P11-FE695, P11-FE693, P11-FE692 | READY |
+| [2602.15029](https://arxiv.org/abs/2602.15029) | Symmetry in language statistics shapes the geometry of model representations | P11-FE1150, P11-FE1149, P11-FE1148, P11-FE1147, P11-FE1146 | READY |
+| [2602.15293](https://arxiv.org/abs/2602.15293) | The Information Geometry of Softmax: Probing and Steering | P11-FE697, P11-FE696, P10-FE35 | READY |
+| [2602.15438](https://arxiv.org/abs/2602.15438) | Logit Distance Bounds Representational Similarity | P11-FE907, P11-FE906, P11-FE905, P11-FE904 | READY |
+| [2602.16490](https://arxiv.org/abs/2602.16490) | From Growing to Looping: A Unified View of Iterative Computation in LLMs | P11-FE1052, P11-FE1051, P11-FE1050, P11-FE1049, P11-FE1048 | READY |
+| [2602.23696](https://arxiv.org/abs/2602.23696) | Optimizer-Induced Low-Dimensional Drift and Transverse Dynamics in Transformer Training | P11-FE701, P11-FE700, P11-FE699, P11-FE698 | READY |
+| [2603.00437](https://arxiv.org/abs/2603.00437) | Self-Correction Inside the Model: Leveraging Layer Attention to Mitigate Hallucinations in Large Vision Language Models | P11-FE703, P11-FE702 | READY |
+| [2603.01025](https://arxiv.org/abs/2603.01025) | One-Token Verification for Reasoning Correctness Estimation | P11-FE706, P11-FE705, P11-FE704 | READY |
+| [2603.03163](https://arxiv.org/abs/2603.03163) | Conditioned Activation Transport for T2I Safety Steering | P11-FE711, P11-FE710, P11-FE708, P11-FE707 | READY |
+| [2603.12372](https://arxiv.org/abs/2603.12372) | Efficient Reasoning with Balanced Thinking | P11-FE716, P11-FE715, P11-FE714, P11-FE713, P11-FE712 | READY |
+| [2603.14923](https://arxiv.org/abs/2603.14923) | Directional Routing in Transformers | P10-FE37, P11-FE717 | READY |
+| [2603.18280](https://arxiv.org/abs/2603.18280) | Detection Is Cheap, Routing Is Learned: Why Refusal-Based Alignment Evaluation Fails | P11-FE723, P11-FE722, P11-FE721, P11-FE720 | READY |
+| [2603.23198](https://arxiv.org/abs/2603.23198) | Sparser, Faster, Lighter Transformer Language Models | P11-FE963, P11-FE962, P11-FE961, P11-FE960 | READY |
+| [2603.24787](https://arxiv.org/abs/2603.24787) | ReLope: KL-Regularized LoRA Probes for Multimodal LLM Routing | P11-FE726, P11-FE725, P11-FE724 | READY |
+| [2603.25052](https://arxiv.org/abs/2603.25052) | Closing the Confidence-Faithfulness Gap in Large Language Models | P11-FE731, P11-FE729, P11-FE728, P11-FE727 | READY |
+| [2604.01170](https://arxiv.org/abs/2604.01170) | Online Reasoning Calibration: Test-Time Training Enables Generalizable Conformal LLM Reasoning | P11-FE735, P11-FE734, P11-FE733, P11-FE732 | READY |
+| [2604.02608](https://arxiv.org/abs/2604.02608) | Steerable but Not Decodable: Function Vectors Operate Beyond the Logit Lens | P11-FE1167, P11-FE1166, P11-FE1165, P11-FE1164 | READY |
+| [2604.09780](https://arxiv.org/abs/2604.09780) | The Myth of Expert Specialization in MoEs: Why Routing Reflects Geometry, Not Necessarily Domain Expertise | P11-FE1047, P11-FE1046, P11-FE1045, P11-FE1044, P11-FE1043 | READY |
+| [2604.11962](https://arxiv.org/abs/2604.11962) | The Linear Centroids Hypothesis: How Deep Network Features Represent Data | P11-FE745, P11-FE744, P11-FE743 | READY |
+| [2604.12016](https://arxiv.org/abs/2604.12016) | Identity as Attractor: Geometric Evidence for Persistent Agent Architecture in LLM Activation Space | P11-FE1005, P11-FE1004, P11-FE1003, P11-FE1002 | READY |
+| [2604.15350](https://arxiv.org/abs/2604.15350) | The Spectral Geometry of Thought: Phase Transitions, Instruction Reversal, Token-Level Dynamics, and Perfect Correctness Prediction in How Transformers Reason | P11-FE752, P11-FE750, P11-FE6 | READY, TRIGGERED |
+| [2604.15706](https://arxiv.org/abs/2604.15706) | Target-Oriented Pretraining Data Selection via Neuron-Activated Graph | P11-FE917, P11-FE916, P11-FE915, P11-FE914 | READY |
+| [2604.19740](https://arxiv.org/abs/2604.19740) | (untitled) | P11-FE1040, P11-FE1038, P11-FE1037, P11-FE772 | READY |
+| [2604.19974](https://arxiv.org/abs/2604.19974) | Are LLM Uncertainty and Correctness Encoded by the Same Features? A Functional Dissociation via Sparse Autoencoders | P10-FE41, P11-FE769, P11-FE768, P10-FE5 | BLOCKED, READY, TRIGGERED |
+| [2604.20817](https://arxiv.org/abs/2604.20817) | Convergent Evolution: How Different Language Models Learn Similar Number Representations | P11-FE777, P11-FE776, P11-FE775, P11-FE774, P11-FE773 | BLOCKED, READY |
+| [2604.21016](https://arxiv.org/abs/2604.21016) | SGD at the Edge of Stability: The Stochastic Sharpness Gap | P11-FE933, P11-FE932 | READY |
+| [2604.23829](https://arxiv.org/abs/2604.23829) | Domain-Filtered Knowledge Graphs from Sparse Autoencoder Features | P11-FE805, P11-FE804, P11-FE803 | BLOCKED |
+| [2604.23985](https://arxiv.org/abs/2604.23985) | Representational Curvature Modulates Behavioral Uncertainty in Large Language Models | alphaXiv | P11-FE123985E, P11-FE123985D, P11-FE123985C, P11-FE123985B | READY |
+| [2604.25783](https://arxiv.org/abs/2604.25783) | Subliminal Steering: Stronger Encoding of Hidden Signals | P10-FE49, P11-FE921, P11-FE920, P11-FE918 | READY |
+| [2604.26841](https://arxiv.org/abs/2604.26841) | Language Diffusion Models are Associative Memories Capable of Retrieving Unseen Data | P11-FE26841d, P11-FE26841c, P11-FE26841b | BLOCKED, READY |
+| [2604.27169](https://arxiv.org/abs/2604.27169) | Semantic Structure of Feature Space in Large Language Models | P11-FE986, P11-FE985, P11-FE984 | READY |
 | [2604.27241](https://arxiv.org/abs/2604.27241) | Root-to-Leaf Path Random Walks, Normalized Hodge Laplacians, and Cheeger Inequalities on Simplicial Complexes | P11-FE908 | READY |
-| [2604.28119](https://arxiv.org/abs/2604.28119) | Do Sparse Autoencoders Capture Concept Manifolds? | P11-FE934, P11-FE935, P11-FE936, P11-FE938 | READY |
-| [2605.01172](https://arxiv.org/abs/2605.01172) | A Theory of Generalization in Deep Learning | P11-FE01172A, P11-FE01172C, P11-FE01172D, P11-FE01172E | READY |
-| [2605.02105](https://arxiv.org/abs/2605.02105) | Sharpness-Aware Pretraining Mitigates Catastrophic Forgetting | P11-FE950, P11-FE951, P11-FE952, P11-FE953, P11-FE954, P11-FE955, P11-FE956, P11-FE957, P11-FE958, P11-FE959 | READY |
-| [2605.02167](https://arxiv.org/abs/2605.02167) | Manifold-Aligned Guided Integrated Gradients for Reliable Feature Attribution | P11-FE922, P11-FE923 | READY |
+| [2604.28119](https://arxiv.org/abs/2604.28119) | Do Sparse Autoencoders Capture Concept Manifolds? | P11-FE938, P11-FE936, P11-FE935, P11-FE934 | READY |
+| [2605.01172](https://arxiv.org/abs/2605.01172) | A Theory of Generalization in Deep Learning | P11-FE01172E, P11-FE01172D, P11-FE01172C, P11-FE01172A | READY |
+| [2605.02105](https://arxiv.org/abs/2605.02105) | Sharpness-Aware Pretraining Mitigates Catastrophic Forgetting | P11-FE959, P11-FE958, P11-FE957, P11-FE956, P11-FE955, P11-FE954, P11-FE953, P11-FE952, P11-FE951, P11-FE950 | READY |
+| [2605.02167](https://arxiv.org/abs/2605.02167) | Manifold-Aligned Guided Integrated Gradients for Reliable Feature Attribution | P11-FE923, P11-FE922 | READY |
 | [2605.02279](https://arxiv.org/abs/2605.02279) | Foundations of Riemannian Geometry for Riemannian Optimization: A Monograph with Detailed Derivations | P11-FE924 | READY |
-| [2605.03327](https://arxiv.org/abs/2605.03327) | DGPO: Distribution Guided Policy Optimization for Fine Grained Credit Assignment | P11-FE995, P11-FE996, P11-FE992, P11-FE993, P11-FE994 | BLOCKED, READY |
-| [2605.04255](https://arxiv.org/abs/2605.04255) | Entropic Riemannian Neural Optimal Transport | P11-FE973, P11-FE974, P11-FE975 | READY |
-| [2605.04344](https://arxiv.org/abs/2605.04344) | Perturbation is All You Need for Extrapolating Language Models | P11-FE971, P11-FE972 | READY |
-| [2605.04418](https://arxiv.org/abs/2605.04418) | Demystifying Manifold Constraints in LLM Pre-training | P11-FE942, P11-FE939, P11-FE940, P11-FE941, P11-FE946, P11-FE947, P11-FE948, P11-FE949 | BLOCKED, READY |
-| [2605.04971](https://arxiv.org/abs/2605.04971) | Why Geometric Continuity Emerges in Deep Neural Networks: Residual Connections and Rotational Symmetry Breaking | P11-FE976, P11-FE977, P11-FE978, P11-FE979, P11-FE980, P11-FE981, P11-FE982, P11-FE983 | READY |
-| [2605.05115](https://arxiv.org/abs/2605.05115) | Manifold Steering Reveals the Shared Geometry of Neural Network Representation and Behavior | P11-FE997, P11-FE998, P11-FE999, P11-FE1000, P11-FE1001 | READY |
-| [2605.05566](https://arxiv.org/abs/2605.05566) | Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration | P11-FE1087, P11-FE1083, P11-FE1084, P11-FE1085, P11-FE1086 | BLOCKED, READY |
-| [2605.05683](https://arxiv.org/abs/2605.05683) | Spectral Lens: Activation and Gradient Spectra as Diagnostics of LLM Optimization | P11-FE964, P11-FE965, P11-FE966, P11-FE967, P11-FE969, P11-FE970 | READY |
-| [2605.05715](https://arxiv.org/abs/2605.05715) | Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes | P11-FE1067, P11-FE1068, P11-FE1069 | READY |
-| [2605.05873](https://arxiv.org/abs/2605.05873) | CITE: Anytime-Valid Statistical Inference in LLM Self-Consistency | P11-FE943, P11-FE944, P11-FE945 | READY |
-| [2605.06216](https://arxiv.org/abs/2605.06216) | TIDE: Every Layer Knows the Token Beneath the Context | P11-FE1079, P11-FE1080, P11-FE1081, P11-FE1082 | READY |
-| [2605.07407](https://arxiv.org/abs/2605.07407) | Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer | P11-FE1072, P11-FE1073, P11-FE1074, P11-FE1075 | READY |
-| [2605.07420](https://arxiv.org/abs/2605.07420) | SR$^2$-LoRA: Self-Rectifying Inter-layer Relations in Low-Rank Adaptation for Class-Incremental Learning | P11-FE1076, P11-FE1077, P11-FE1078 | READY |
-| [2605.08424](https://arxiv.org/abs/2605.08424) | Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once | P11-FE1061, P11-FE1062, P11-FE1063, P11-FE1064, P11-FE1065 | READY |
-| [2605.08605](https://arxiv.org/abs/2605.08605) | Lattice Deduction Transformers | P11-FE1122, P11-FE1123 | READY |
-| [2605.09129](https://arxiv.org/abs/2605.09129) | Data-driven Circuit Discovery for Interpretability of Language Models | P11-FE1092, P11-FE1088, P11-FE1089, P11-FE1090, P11-FE1091 | BLOCKED, READY |
-| [2605.09969](https://arxiv.org/abs/2605.09969) | The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv | P11-FE1056, P11-FE1057, P11-FE1058, P11-FE1059, P11-FE1060 | READY |
-| [2605.12394](https://arxiv.org/abs/2605.12394) | Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory | P11-FE1105, P11-FE1101, P11-FE1102, P11-FE1103, P11-FE1104 | BLOCKED, READY |
-| [2605.12466](https://arxiv.org/abs/2605.12466) | Solve the Loop: Attractor Models for Language and Reasoning | P11-FE1106, P11-FE1107, P11-FE1108, P11-FE1109 | READY |
-| [2605.12671](https://arxiv.org/abs/2605.12671) | All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs | P11-FE1093, P11-FE1094, P11-FE1095, P11-FE1096 | READY |
-| [2605.13612](https://arxiv.org/abs/2605.13612) | Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning | P11-FE1116, P11-FE1117, P11-FE1118, P11-FE1119, P11-FE1120, P11-FE1121 | READY |
-| [2605.14685](https://arxiv.org/abs/2605.14685) | Spontaneous symmetry breaking and Goldstone modes for deep information propagation | P11-FE1097, P11-FE1098, P11-FE1099, P11-FE1100 | READY |
-| [2605.15154](https://arxiv.org/abs/2605.15154) | RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution | P11-FE1110, P11-FE1111, P11-FE1112, P11-FE1113 | READY |
-| [2605.16928](https://arxiv.org/abs/2605.16928) | Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps | P11-FE1142, P11-FE1143, P11-FE1144, P11-FE1145 | READY |
-| [2605.19376](https://arxiv.org/abs/2605.19376) | Generative Recursive Reasoning | alphaXiv | P11-FE1124, P11-FE1125, P11-FE1126 | READY |
-| [2605.19943](https://arxiv.org/abs/2605.19943) | Probabilistic Tiny Recursive Model | P11-FE1130, P11-FE1131, P11-FE1132 | READY |
-| [2605.21467](https://arxiv.org/abs/2605.21467) | DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards | P11-FE1138, P11-FE1139, P11-FE1140, P11-FE1141 | READY |
-| [2605.21488](https://arxiv.org/abs/2605.21488) | Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning | P11-FE1151, P11-FE1154, P11-FE1152, P11-FE1153, P11-FE1155 | BLOCKED, READY |
-| [2605.21842](https://arxiv.org/abs/2605.21842) | Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention | P11-FE1160, P11-FE1161, P11-FE1163 | READY |
-| [2605.22817](https://arxiv.org/abs/2605.22817) | Vector Policy Optimization: Training for Diversity Improves Test-Time Search | P11-FE1136, P11-FE1137, P11-FE1133, P11-FE1134, P11-FE1135 | BLOCKED, READY |
-| [2605.23901](https://arxiv.org/abs/2605.23901) | LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws | P11-FE1169, P11-FE1170, P11-FE1171, P11-FE1172, P11-FE1173 | READY |
-| [2605.26106](https://arxiv.org/abs/2605.26106) | Looped Diffusion Language Models | alphaXiv | P11-FE1195, P11-FE1196, P11-FE1197 | READY |
-| [2605.27970](https://arxiv.org/abs/2605.27970) | Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations | P11-FE1198, P11-FE1199, P11-FE1200, P11-FE1201 | READY |
-| [2605.27975](https://arxiv.org/abs/2605.27975) | Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models | P11-FE1186, P11-FE1187, P11-FE1188 | READY |
-| [2605.28149](https://arxiv.org/abs/2605.28149) | Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations | P11-FE1202, P11-FE1203, P11-FE1204, P11-FE1205, P11-FE1206 | READY |
-| [2605.28501](https://arxiv.org/abs/2605.28501) | Fitting Unknown Number of Hyperplanes with Manifold Optimization | P11-FE1210, P11-FE1211 | READY |
-| [2605.28649](https://arxiv.org/abs/2605.28649) | Interpretability-Guided Layer Selection over Subspace Projection: SAEs as Stethoscopes, Not Scalpels, for Raw Task Vector Model Editing | P11-FE1183, P11-FE1184, P11-FE1185 | READY |
-| [2605.29384](https://arxiv.org/abs/2605.29384) | Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies | P11-FE1179, P11-FE1180, P11-FE1181, P11-FE1182 | READY |
-| [2605.29548](https://arxiv.org/abs/2605.29548) | Why Larger Models Learn More: Effects of Capacity, Interference, and Rare-Task Retention | P11-FE1261, P11-FE1262, P11-FE1263, P11-FE1264 | READY |
-| [2605.29971](https://arxiv.org/abs/2605.29971) | Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning | P11-FE1190, P11-FE1191, P11-FE1192, P11-FE1193 | READY |
-| [2605.31175](https://arxiv.org/abs/2605.31175) | Towards Efficient LLMs Annealing with Principled Sample Selection | P11-FE1207, P11-FE1208, P11-FE1209 | READY |
-| [2606.01249](https://arxiv.org/abs/2606.01249) | Trust Region On-Policy Distillation | alphaXiv | P11-FE1212, P11-FE1213, P11-FE1214 | READY, TRIGGERED |
-| [2606.01495](https://arxiv.org/abs/2606.01495) | CART: Context-Anchored Recurrent Transformer -- A Parameter-Efficient Architecture with Learned Stability | P11-FE1215, P11-FE1216, P11-FE1217, P11-FE1218 | READY |
-| [2606.02765](https://arxiv.org/abs/2606.02765) | Representational Capacity: Geometric Limits on Feature Representation in Transformer Language Models | P11-FE1219, P11-FE1220, P11-FE1221, P11-FE1222, P11-FE1223 | READY |
-| [2606.03503](https://arxiv.org/abs/2606.03503) | ThoughtFold: Folding Reasoning Chains via Introspective Preference Learning | P11-FE1224, P11-FE1225, P11-FE1226, P11-FE1227 | READY |
-| [2606.03883](https://arxiv.org/abs/2606.03883) | Reasoning Structure of Large Language Models | P11-FE1228, P11-FE1229, P11-FE1230 | READY |
-| [2606.04010](https://arxiv.org/abs/2606.04010) | The Variance Brain Foundation Models Forgot: Third-Order Statistics Predict Cognition Where Billion-Parameter Models Fail | P11-FE1231, P11-FE1232, P11-FE1233, P11-FE1234 | READY |
-| [2606.04036](https://arxiv.org/abs/2606.04036) | Self-Distilled Policy Gradient | P11-FE1237, P11-FE1235, P11-FE1236 | BLOCKED, READY |
-| [2606.04212](https://arxiv.org/abs/2606.04212) | Edge of Stability Selectively Shapes Learning Across the Data Distribution | P11-FE1238, P11-FE1239, P11-FE1240, P11-FE1241 | READY |
-| [2606.04272](https://arxiv.org/abs/2606.04272) | RL Excursions during Pre-Training: Re-examining Policy Optimization for LLM training | P11-FE1242, P11-FE1243, P11-FE1244, P11-FE1245 | READY |
-| [2606.06447](https://arxiv.org/abs/2606.06447) | Latent Reasoning with Normalizing Flows | alphaXiv | P11-FE1269, P11-FE1265, P11-FE1266, P11-FE1267, P11-FE1268 | BLOCKED, READY |
-| [2606.07007](https://arxiv.org/abs/2606.07007) | A Geometric View for Understanding Concept Learning and Neuron Interpretation in Sparse Autoencoders | P11-FE1271, P11-FE1273, P11-FE1270, P11-FE1272 | BLOCKED, READY |
-| [2606.07082](https://arxiv.org/abs/2606.07082) | Paper page - On the Geometry of On-Policy Distillation | P11-FE1274, P11-FE1275, P11-FE1276, P11-FE1277 | READY |
-| [2606.07502](https://arxiv.org/abs/2606.07502) | Paper page - Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings | P11-FE1278, P11-FE1279, P11-FE1280 | READY |
-| [2606.07770](https://arxiv.org/abs/2606.07770) | Contrast encodes inductive bias: separating slow noise from dynamics in predictive representation learning | P11-FE1281, P11-FE1282, P11-FE1283, P11-FE1284 | READY |
-| [2606.07818](https://arxiv.org/abs/2606.07818) | Representational Similarity and Model Behavior in Multi-Agent Interaction | P11-FE1285, P11-FE1286, P11-FE1287, P11-FE1288 | READY |
-| [2606.10646](https://arxiv.org/abs/2606.10646) | Paper page - How Does Reasoning Flow? Tracing Attention-Induced Information Flow for Targeted RL in LLMs | P11-FE1289, P11-FE1290, P11-FE1291 | READY |
-| [2601.01552](https://arxiv.org/abs/2601.01552) | HalluZig: Zigzag PH on Attention | P11-FE627, P11-FE629, P11-FE626, P7-FE2 | BLOCKED, READY, TRIGGERED |
-| [2603.18940](https://arxiv.org/abs/2603.18940) | Entropy trajectory shape predicts LLM reasoning reliability | P11-FE1253, P11-FE1255 | READY |
-| [2603.20895](https://arxiv.org/abs/2603.20895) | LLM Router: Rethinking Routing with Prefill Activations | P11-FE1260, P11-FE1256, P11-FE1257, P11-FE1258, P11-FE1259 | BLOCKED, READY |
-| [2604.05655](https://arxiv.org/abs/2604.05655) | LLM Reasoning as Trajectories | P11-FE736, P11-FE737, P11-FE738, P11-FE739, P11-FE740, P11-FE741, P11-FE742 | READY |
-| [2604.14084](https://arxiv.org/abs/2604.14084) | TIP: Token Importance in OPD | P11-FE746, P11-FE747, P11-FE748, P10-FE4 | READY, TRIGGERED |
-| [2604.16217](https://arxiv.org/abs/2604.16217) | Conformal Prediction via Internal Representations | P11-FE753, P11-FE754, P11-FE755, P11-FE756, P11-FE757, P10-FE2 | READY, TRIGGERED |
-| [2604.18805](https://arxiv.org/abs/2604.18805) | AI scientists produce results without reasoning scientifically | P11-FE758, P11-FE759, P11-FE760, P11-FE761, P11-FE762, P11-FE763, P11-FE764, P11-FE765 | READY |
+| [2605.03327](https://arxiv.org/abs/2605.03327) | DGPO: Distribution Guided Policy Optimization for Fine Grained Credit Assignment | P11-FE996, P11-FE995, P11-FE994, P11-FE993, P11-FE992 | BLOCKED, READY |
+| [2605.04255](https://arxiv.org/abs/2605.04255) | Entropic Riemannian Neural Optimal Transport | P11-FE975, P11-FE974, P11-FE973 | READY |
+| [2605.04344](https://arxiv.org/abs/2605.04344) | Perturbation is All You Need for Extrapolating Language Models | P11-FE972, P11-FE971 | READY |
+| [2605.04418](https://arxiv.org/abs/2605.04418) | Demystifying Manifold Constraints in LLM Pre-training | P11-FE949, P11-FE948, P11-FE947, P11-FE946, P11-FE942, P11-FE941, P11-FE940, P11-FE939 | BLOCKED, READY |
+| [2605.04971](https://arxiv.org/abs/2605.04971) | Why Geometric Continuity Emerges in Deep Neural Networks: Residual Connections and Rotational Symmetry Breaking | P11-FE983, P11-FE982, P11-FE981, P11-FE980, P11-FE979, P11-FE978, P11-FE977, P11-FE976 | READY |
+| [2605.05115](https://arxiv.org/abs/2605.05115) | Manifold Steering Reveals the Shared Geometry of Neural Network Representation and Behavior | P11-FE1001, P11-FE1000, P11-FE999, P11-FE998, P11-FE997 | READY |
+| [2605.05566](https://arxiv.org/abs/2605.05566) | Nonsense Helps: Prompt Space Perturbation Broadens Reasoning Exploration | P11-FE1087, P11-FE1086, P11-FE1085, P11-FE1084, P11-FE1083 | BLOCKED, READY |
+| [2605.05683](https://arxiv.org/abs/2605.05683) | Spectral Lens: Activation and Gradient Spectra as Diagnostics of LLM Optimization | P11-FE970, P11-FE969, P11-FE967, P11-FE966, P11-FE965, P11-FE964 | READY |
+| [2605.05715](https://arxiv.org/abs/2605.05715) | Decodable but Not Corrected by Fixed Residual-Stream Linear Steering: Evidence from Medical LLM Failure Regimes | P11-FE1069, P11-FE1068, P11-FE1067 | READY |
+| [2605.05873](https://arxiv.org/abs/2605.05873) | CITE: Anytime-Valid Statistical Inference in LLM Self-Consistency | P11-FE945, P11-FE944, P11-FE943 | READY |
+| [2605.06216](https://arxiv.org/abs/2605.06216) | TIDE: Every Layer Knows the Token Beneath the Context | P11-FE1082, P11-FE1081, P11-FE1080, P11-FE1079 | READY |
+| [2605.07407](https://arxiv.org/abs/2605.07407) | Emergent Symbolic Structure in Health Foundation Models: Extraction, Alignment, and Cross-Modal Transfer | P11-FE1075, P11-FE1074, P11-FE1073, P11-FE1072 | READY |
+| [2605.07420](https://arxiv.org/abs/2605.07420) | SR$^2$-LoRA: Self-Rectifying Inter-layer Relations in Low-Rank Adaptation for Class-Incremental Learning | P11-FE1078, P11-FE1077, P11-FE1076 | READY |
+| [2605.08424](https://arxiv.org/abs/2605.08424) | Generalized Wasserstein Flow Matching: Transport Plans, Everywhere, All at Once | P11-FE1065, P11-FE1064, P11-FE1063, P11-FE1062, P11-FE1061 | READY |
+| [2605.08605](https://arxiv.org/abs/2605.08605) | Lattice Deduction Transformers | P11-FE1123, P11-FE1122 | READY |
+| [2605.09129](https://arxiv.org/abs/2605.09129) | Data-driven Circuit Discovery for Interpretability of Language Models | P11-FE1092, P11-FE1091, P11-FE1090, P11-FE1089, P11-FE1088 | BLOCKED, READY |
+| [2605.09969](https://arxiv.org/abs/2605.09969) | The Truth Lies Somewhere in the Middle (of the Generated Tokens) | alphaXiv | P11-FE1060, P11-FE1059, P11-FE1058, P11-FE1057, P11-FE1056 | READY |
+| [2605.12394](https://arxiv.org/abs/2605.12394) | Detecting overfitting in Neural Networks during long-horizon grokking using Random Matrix Theory | P11-FE1105, P11-FE1104, P11-FE1103, P11-FE1102, P11-FE1101 | BLOCKED, READY |
+| [2605.12466](https://arxiv.org/abs/2605.12466) | Solve the Loop: Attractor Models for Language and Reasoning | P11-FE1109, P11-FE1108, P11-FE1107, P11-FE1106 | READY |
+| [2605.12671](https://arxiv.org/abs/2605.12671) | All Circuits Lead to Rome: Rethinking Functional Anisotropy in Circuit and Sheaf Discovery for LLMs | P11-FE1096, P11-FE1095, P11-FE1094, P11-FE1093 | READY |
+| [2605.13612](https://arxiv.org/abs/2605.13612) | Deep Learning as Neural Low-Degree Filtering: A Spectral Theory of Hierarchical Feature Learning | P11-FE1121, P11-FE1120, P11-FE1119, P11-FE1118, P11-FE1117, P11-FE1116 | READY |
+| [2605.14685](https://arxiv.org/abs/2605.14685) | Spontaneous symmetry breaking and Goldstone modes for deep information propagation | P11-FE1100, P11-FE1099, P11-FE1098, P11-FE1097 | READY |
+| [2605.15154](https://arxiv.org/abs/2605.15154) | RoSHAP: A Distributional Framework and Robust Metric for Stable Feature Attribution | P11-FE1113, P11-FE1112, P11-FE1111, P11-FE1110 | READY |
+| [2605.16928](https://arxiv.org/abs/2605.16928) | Full Attention Strikes Back: Transferring Full Attention into Sparse within Hundred Training Steps | P11-FE1145, P11-FE1144, P11-FE1143, P11-FE1142 | READY |
+| [2605.19376](https://arxiv.org/abs/2605.19376) | Generative Recursive Reasoning | alphaXiv | P11-FE1126, P11-FE1125, P11-FE1124 | READY |
+| [2605.19943](https://arxiv.org/abs/2605.19943) | Probabilistic Tiny Recursive Model | P11-FE1132, P11-FE1131, P11-FE1130 | READY |
+| [2605.21467](https://arxiv.org/abs/2605.21467) | DelTA: Discriminative Token Credit Assignment for Reinforcement Learning from Verifiable Rewards | P11-FE1141, P11-FE1140, P11-FE1139, P11-FE1138 | READY |
+| [2605.21488](https://arxiv.org/abs/2605.21488) | Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning | P11-FE1155, P11-FE1154, P11-FE1153, P11-FE1152, P11-FE1151 | BLOCKED, READY |
+| [2605.21842](https://arxiv.org/abs/2605.21842) | Energy-Gated Attention: Spectral Salience as an Inductive Bias for Transformer Attention | P11-FE1163, P11-FE1161, P11-FE1160 | READY |
+| [2605.22817](https://arxiv.org/abs/2605.22817) | Vector Policy Optimization: Training for Diversity Improves Test-Time Search | P11-FE1137, P11-FE1136, P11-FE1135, P11-FE1134, P11-FE1133 | BLOCKED, READY |
+| [2605.23901](https://arxiv.org/abs/2605.23901) | LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws | P11-FE1173, P11-FE1172, P11-FE1171, P11-FE1170, P11-FE1169 | READY |
+| [2605.26106](https://arxiv.org/abs/2605.26106) | Looped Diffusion Language Models | alphaXiv | P11-FE1197, P11-FE1196, P11-FE1195 | READY |
+| [2605.27970](https://arxiv.org/abs/2605.27970) | Geometry of Human Perceptual Domains Emerges Transiently in LLM Representations | P11-FE1201, P11-FE1200, P11-FE1199, P11-FE1198 | READY |
+| [2605.27975](https://arxiv.org/abs/2605.27975) | Continual Learning in Modern Hopfield Networks with an Application to Diffusion Models | P11-FE1188, P11-FE1187, P11-FE1186 | READY |
+| [2605.28149](https://arxiv.org/abs/2605.28149) | Sign-Aware Gated Sparse Autoencoders: Modeling Anticorrelated Features with Bi-Jump-ReLU Activations | P11-FE1206, P11-FE1205, P11-FE1204, P11-FE1203, P11-FE1202 | READY |
+| [2605.28501](https://arxiv.org/abs/2605.28501) | Fitting Unknown Number of Hyperplanes with Manifold Optimization | P11-FE1211, P11-FE1210 | READY |
+| [2605.28649](https://arxiv.org/abs/2605.28649) | Interpretability-Guided Layer Selection over Subspace Projection: SAEs as Stethoscopes, Not Scalpels, for Raw Task Vector Model Editing | P11-FE1185, P11-FE1184, P11-FE1183 | READY |
+| [2605.29384](https://arxiv.org/abs/2605.29384) | Latent Terms: Dense Retrievers Contain Trivially Extractable BM25-ready Zipfian Vocabularies | P11-FE1182, P11-FE1181, P11-FE1180, P11-FE1179 | READY |
+| [2605.29548](https://arxiv.org/abs/2605.29548) | Why Larger Models Learn More: Effects of Capacity, Interference, and Rare-Task Retention | P11-FE1264, P11-FE1263, P11-FE1262, P11-FE1261 | READY |
+| [2605.29971](https://arxiv.org/abs/2605.29971) | Causal Interventions on Continuous Variables: A Case Study on Verb Bias in Steering Vectors for In-Context Learning | P11-FE1193, P11-FE1192, P11-FE1191, P11-FE1190 | READY |
+| [2605.31175](https://arxiv.org/abs/2605.31175) | Towards Efficient LLMs Annealing with Principled Sample Selection | P11-FE1209, P11-FE1208, P11-FE1207 | READY |
+| [2606.01249](https://arxiv.org/abs/2606.01249) | Trust Region On-Policy Distillation | alphaXiv | P11-FE1214, P11-FE1213, P11-FE1212 | READY, TRIGGERED |
+| [2606.01495](https://arxiv.org/abs/2606.01495) | CART: Context-Anchored Recurrent Transformer -- A Parameter-Efficient Architecture with Learned Stability | P11-FE1218, P11-FE1217, P11-FE1216, P11-FE1215 | READY |
+| [2606.02765](https://arxiv.org/abs/2606.02765) | Representational Capacity: Geometric Limits on Feature Representation in Transformer Language Models | P11-FE1223, P11-FE1222, P11-FE1221, P11-FE1220, P11-FE1219 | READY |
+| [2606.03503](https://arxiv.org/abs/2606.03503) | ThoughtFold: Folding Reasoning Chains via Introspective Preference Learning | P11-FE1227, P11-FE1226, P11-FE1225, P11-FE1224 | READY |
+| [2606.03883](https://arxiv.org/abs/2606.03883) | Reasoning Structure of Large Language Models | P11-FE1230, P11-FE1229, P11-FE1228 | READY |
+| [2606.04010](https://arxiv.org/abs/2606.04010) | The Variance Brain Foundation Models Forgot: Third-Order Statistics Predict Cognition Where Billion-Parameter Models Fail | P11-FE1234, P11-FE1233, P11-FE1232, P11-FE1231 | READY |
+| [2606.04036](https://arxiv.org/abs/2606.04036) | Self-Distilled Policy Gradient | P11-FE1237, P11-FE1236, P11-FE1235 | BLOCKED, READY |
+| [2606.04212](https://arxiv.org/abs/2606.04212) | Edge of Stability Selectively Shapes Learning Across the Data Distribution | P11-FE1241, P11-FE1240, P11-FE1239, P11-FE1238 | READY |
+| [2606.04272](https://arxiv.org/abs/2606.04272) | RL Excursions during Pre-Training: Re-examining Policy Optimization for LLM training | P11-FE1245, P11-FE1244, P11-FE1243, P11-FE1242 | READY |
+| [2606.06447](https://arxiv.org/abs/2606.06447) | Latent Reasoning with Normalizing Flows | alphaXiv | P11-FE1269, P11-FE1268, P11-FE1267, P11-FE1266, P11-FE1265 | BLOCKED, READY |
+| [2606.07007](https://arxiv.org/abs/2606.07007) | A Geometric View for Understanding Concept Learning and Neuron Interpretation in Sparse Autoencoders | P11-FE1273, P11-FE1272, P11-FE1271, P11-FE1270 | BLOCKED, READY |
+| [2606.07082](https://arxiv.org/abs/2606.07082) | Paper page - On the Geometry of On-Policy Distillation | P11-FE1277, P11-FE1276, P11-FE1275, P11-FE1274 | READY |
+| [2606.07502](https://arxiv.org/abs/2606.07502) | Paper page - Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings | P11-FE1280, P11-FE1279, P11-FE1278 | READY |
+| [2606.07770](https://arxiv.org/abs/2606.07770) | Contrast encodes inductive bias: separating slow noise from dynamics in predictive representation learning | P11-FE1284, P11-FE1283, P11-FE1282, P11-FE1281 | READY |
+| [2606.07818](https://arxiv.org/abs/2606.07818) | Representational Similarity and Model Behavior in Multi-Agent Interaction | P11-FE1288, P11-FE1287, P11-FE1286, P11-FE1285 | READY |
+| [2606.10646](https://arxiv.org/abs/2606.10646) | Paper page - How Does Reasoning Flow? Tracing Attention-Induced Information Flow for Targeted RL in LLMs | P11-FE1291, P11-FE1290, P11-FE1289 | READY |
+| [2601.01552](https://arxiv.org/abs/2601.01552) | HalluZig: Zigzag PH on Attention | P11-FE629, P11-FE627, P11-FE626, P7-FE2 | BLOCKED, READY, TRIGGERED |
+| [2603.18940](https://arxiv.org/abs/2603.18940) | Entropy trajectory shape predicts LLM reasoning reliability | P11-FE1255, P11-FE1253 | READY |
+| [2603.20895](https://arxiv.org/abs/2603.20895) | LLM Router: Rethinking Routing with Prefill Activations | P11-FE1260, P11-FE1259, P11-FE1258, P11-FE1257, P11-FE1256 | BLOCKED, READY |
+| [2604.05655](https://arxiv.org/abs/2604.05655) | LLM Reasoning as Trajectories | P11-FE742, P11-FE741, P11-FE740, P11-FE739, P11-FE738, P11-FE737, P11-FE736 | READY |
+| [2604.14084](https://arxiv.org/abs/2604.14084) | TIP: Token Importance in OPD | P11-FE748, P11-FE747, P11-FE746, P10-FE4 | READY, TRIGGERED |
+| [2604.16217](https://arxiv.org/abs/2604.16217) | Conformal Prediction via Internal Representations | P11-FE757, P11-FE756, P11-FE755, P11-FE754, P11-FE753, P10-FE2 | READY, TRIGGERED |
+| [2604.18805](https://arxiv.org/abs/2604.18805) | AI scientists produce results without reasoning scientifically | P11-FE765, P11-FE764, P11-FE763, P11-FE762, P11-FE761, P11-FE760, P11-FE759, P11-FE758 | READY |
 | [2604.19018](https://arxiv.org/abs/2604.19018) | LQR Steering | P11-FE767, P11-FE766 | BLOCKED, READY |
-| [2604.20614](https://arxiv.org/abs/2604.20614) | Too Sharp Too Sure (CalMO) | P11-FE770, P11-FE771, P11-FE772 | READY |
-| [2604.22271](https://arxiv.org/abs/2604.22271) | How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals | P11-FE779, P11-FE784, P11-FE18, P11-FE778, P11-FE781, P11-FE782, P11-FE783, P11-FE786, P11-FE787 | BLOCKED, READY |
-| [2604.22709](https://arxiv.org/abs/2604.22709) | Thinking Without Words: Efficient Latent Reasoning with Abstract Chain-of-Thought | P11-FE22, P11-FE788, P11-FE789, P11-FE790, P11-FE791, P11-FE792, P11-FE793, P11-FE794, P11-FE795, P11-FE796, P11-FE797, P11-FE798, P11-FE799, P11-FE800, P11-FE801 | BLOCKED, READY |
-| [2604.24712](https://arxiv.org/abs/2604.24712) | When Prompt Under-Specification Improves Code Correctness | P11-FE21, P11-FE866, P11-FE867, P11-FE868 | READY |
-| [2501.04519](https://arxiv.org/abs/2501.04519) | rStar-Math | P11-FE358, P11-FE356, P11-FE357, P11-FE359, P11-FE360 | BLOCKED, READY |
-| [2501.12948](https://arxiv.org/abs/2501.12948) | DeepSeek-R1 | P11-FE369, P10-FE20, P11-FE370, P11-FE371, P11-FE372, P11-FE5 | READY, TRIGGERED |
-| [2501.17148](https://arxiv.org/abs/2501.17148) | AxBench: Steering Benchmark | P10-FE46, P11-FE832, P11-FE833 | BLOCKED, READY |
-| [2502.06703](https://arxiv.org/abs/2502.06703) | Can 1B Surpass 405B | P11-FE404, P11-FE406 | READY |
-| [2504.05419](https://arxiv.org/abs/2504.05419) | Reasoning Models Know When They're Right | P11-FE429, P11-FE430, P11-FE431, P11-FE432, P11-FE433, P11-FE434, P11-FE435, P11-FE436, P11-FE437, P11-FE438, P11-FE439, P11-FE440 | READY |
-| [2504.07986](https://arxiv.org/abs/2504.07986) | SEAL: Steerable Reasoning Calibration | P11-FE441, P11-FE442 | READY |
-| [2504.10063](https://arxiv.org/abs/2504.10063) | TOHA: Topological Divergence on Attention | P11-FE839, P11-FE840, P7-FE2 | BLOCKED, READY, TRIGGERED |
-| [2505.00127](https://arxiv.org/abs/2505.00127) | Between Underthinking and Overthinking | P11-FE449, P11-FE450 | READY |
+| [2604.20614](https://arxiv.org/abs/2604.20614) | Too Sharp Too Sure (CalMO) | P11-FE772, P11-FE771, P11-FE770 | READY |
+| [2604.22271](https://arxiv.org/abs/2604.22271) | How LLMs Detect and Correct Their Own Errors: Internal Confidence Signals | P11-FE787, P11-FE786, P11-FE784, P11-FE783, P11-FE782, P11-FE781, P11-FE779, P11-FE778, P11-FE18 | BLOCKED, READY |
+| [2604.22709](https://arxiv.org/abs/2604.22709) | Thinking Without Words: Efficient Latent Reasoning with Abstract Chain-of-Thought | P11-FE801, P11-FE800, P11-FE799, P11-FE798, P11-FE797, P11-FE796, P11-FE795, P11-FE794, P11-FE793, P11-FE792, P11-FE791, P11-FE790, P11-FE789, P11-FE788, P11-FE22 | BLOCKED, READY |
+| [2604.24712](https://arxiv.org/abs/2604.24712) | When Prompt Under-Specification Improves Code Correctness | P11-FE868, P11-FE867, P11-FE866, P11-FE21 | READY |
+| [2501.04519](https://arxiv.org/abs/2501.04519) | rStar-Math | P11-FE360, P11-FE359, P11-FE358, P11-FE357, P11-FE356 | BLOCKED, READY |
+| [2501.12948](https://arxiv.org/abs/2501.12948) | DeepSeek-R1 | P11-FE372, P11-FE371, P11-FE370, P10-FE20, P11-FE369, P11-FE5 | READY, TRIGGERED |
+| [2501.17148](https://arxiv.org/abs/2501.17148) | AxBench: Steering Benchmark | P10-FE46, P11-FE833, P11-FE832 | BLOCKED, READY |
+| [2502.06703](https://arxiv.org/abs/2502.06703) | Can 1B Surpass 405B | P11-FE406, P11-FE404 | READY |
+| [2504.05419](https://arxiv.org/abs/2504.05419) | Reasoning Models Know When They're Right | P11-FE440, P11-FE439, P11-FE438, P11-FE437, P11-FE436, P11-FE435, P11-FE434, P11-FE433, P11-FE432, P11-FE431, P11-FE430, P11-FE429 | READY |
+| [2504.07986](https://arxiv.org/abs/2504.07986) | SEAL: Steerable Reasoning Calibration | P11-FE442, P11-FE441 | READY |
+| [2504.10063](https://arxiv.org/abs/2504.10063) | TOHA: Topological Divergence on Attention | P11-FE840, P11-FE839, P7-FE2 | BLOCKED, READY, TRIGGERED |
+| [2505.00127](https://arxiv.org/abs/2505.00127) | Between Underthinking and Overthinking | P11-FE450, P11-FE449 | READY |
 | [2505.18706](https://arxiv.org/abs/2505.18706) | Bias-Only Steering (Sinii) | P11-FE469 | READY |
-| [2505.21772](https://arxiv.org/abs/2505.21772) | CCPS Calibration | P11-FE483, P11-FE486, P11-FE482, P11-FE485 | BLOCKED, READY |
-| [2505.24850](https://arxiv.org/abs/2505.24850) | Harnessing Negative Signals: Reinforcement Distillation from Teacher Data for LLM Reasoning (REDI) | P11-FE1246, P11-FE1247, P11-FE1248 | READY |
-| [2506.00653](https://arxiv.org/abs/2506.00653) | Linear Representation Transferability (LRT) | P11-FE494, P11-FE495, P11-FE496, P11-FE497, P11-FE498, P6-FE1 | READY, TRIGGERED |
-| [2506.18831](https://arxiv.org/abs/2506.18831) | STU-PID Steering | P11-FE503, P11-FE504, P11-FE505, P11-FE506 | READY |
-| [2506.24106](https://arxiv.org/abs/2506.24106) | Representation Dispersion Predictive Power | P11-FE507, P11-FE508, P11-FE509, P11-FE510, P11-FE511, P8-FE3 | READY, TRIGGERED |
-| [2507.06087](https://arxiv.org/abs/2507.06087) | CoRE: Metacognition via CoE | P11-FE517, P11-FE515, P11-FE516, P11-FE518 | BLOCKED, READY |
-| [2508.09883](https://arxiv.org/abs/2508.09883) | Beyond Scaling Law: A Data-Efficient Distillation Framework for Reasoning (DED) | P11-FE1249, P11-FE1250, P11-FE1251 | READY |
-| [2509.06608](https://arxiv.org/abs/2509.06608) | Small Vectors Big Effects | P11-FE536, P11-FE537 | READY |
-| [2509.11569](https://arxiv.org/abs/2509.11569) | D2HScore | P11-FE538, P11-FE539, P11-FE540, P11-FE541, P11-FE542, P11-FE543, P11-FE544, P11-FE545 | READY |
-| [2509.12886](https://arxiv.org/abs/2509.12886) | The LLM Already Knows (Zhu) | P11-FE546, P11-FE547, P11-FE549, P11-FE550 | READY |
-| [2509.26560](https://arxiv.org/abs/2509.26560) | Estimating Dimensionality of Neural Representations from Finite Samples | P11-FE566, P11-FE567, P11-FE568, P11-FE569, P11-FE570, P11-FE571, P11-FE572, P11-FE573, P11-FE606 | READY |
-| [2510.04309](https://arxiv.org/abs/2510.04309) | PID Steering | P10-FE32, P11-FE584, P11-FE585, P11-FE586 | BLOCKED, READY |
-| [2510.06477](https://arxiv.org/abs/2510.06477) | Attention Sinks = Compression Valleys (MCR) | P11-FE587, P11-FE588, P11-FE589, P11-FE590, P11-FE591, P11-FE592 | READY |
-| [2510.10494](https://arxiv.org/abs/2510.10494) | Tracing the Traces | P11-FE593, P11-FE594, P11-FE595, P11-FE596 | READY |
-| [2510.18147](https://arxiv.org/abs/2510.18147) | LLMs Encode Problem Difficulty | P10-FE48, P11-FE856, P11-FE857, P11-FE858, P11-FE859, P11-FE2 | READY, TRIGGERED |
-| [2310.03716](https://arxiv.org/abs/2310.03716) | A Long Way to Go (length in RLHF) | P11-FE112, P11-FE113, P11-FE114 | READY |
-| [2402.03744](https://arxiv.org/abs/2402.03744) | INSIDE / EigenScore | P11-FE163, P11-FE166, P11-FE164, P11-FE167 | BLOCKED, READY |
-| [2402.10978](https://arxiv.org/abs/2402.10978) | Conformal Factuality (Mohri & Hashimoto) | P11-FE173, P11-FE174, P11-FE175, P10-FE2 | READY, TRIGGERED |
-| [2402.13212](https://arxiv.org/abs/2402.13212) | Soft Self-Consistency | P11-FE4, P11-FE182, P11-FE183, P11-FE184 | READY |
-| [2402.18048](https://arxiv.org/abs/2402.18048) | Truthfulness via Local ID | P11-FE190, P11-FE191, P11-FE192, P4-FE2 | READY, TRIGGERED |
-| [2404.15255](https://arxiv.org/abs/2404.15255) | How to Use Activation Patching | P11-FE216, P11-FE217 | READY |
-| [2405.07987](https://arxiv.org/abs/2405.07987) | The Platonic Representation Hypothesis | P11-FE20, P11-FE218, P11-FE219, P11-FE220, P11-FE221, P11-FE222, P11-FE223, P11-FE224, P11-FE225 | READY |
-| [2405.15471](https://arxiv.org/abs/2405.15471) | High-Dim Abstraction Phase | P11-FE238, P11-FE239, P11-FE240, P11-FE241, P11-FE242 | READY |
-| [2405.17767](https://arxiv.org/abs/2405.17767) | Linguistic Collapse | P11-FE243, P11-FE244, P11-FE245, P11-FE246 | READY |
-| [2406.15927](https://arxiv.org/abs/2406.15927) | Semantic Entropy Probes (SEPs) | P11-FE171, P11-FE192, P11-FE272, P11-FE273, P11-FE274, P11-FE275, P11-FE276, P11-FE277, P11-FE278, P11-FE279, P11-FE625 | READY |
-| [2406.19384](https://arxiv.org/abs/2406.19384) | Stages of Inference (Lad, Gurnee, Tegmark) | P11-FE284, P11-FE285, P11-FE286, P11-FE287 | READY |
-| [2407.12404](https://arxiv.org/abs/2407.12404) | Generalization of Steering Vectors (Tan) | P11-FE821, P11-FE823 | READY |
-| [2410.02707](https://arxiv.org/abs/2410.02707) | LLMs Know More Than They Show | P11-FE301, P11-FE302, P11-FE303, P11-FE304, P11-FE305, P11-FE306 | READY |
-| [2410.04707](https://arxiv.org/abs/2410.04707) | Learning How Hard to Think (Damani) | P11-FE307, P11-FE309, P11-FE310, P11-FE311, P10-FE3 | READY, TRIGGERED |
-| [2410.11042](https://arxiv.org/abs/2410.11042) | Persistent Topological Features in LLMs | P11-FE322, P11-FE323 | READY |
-| [2410.13640](https://arxiv.org/abs/2410.13640) | Chain-of-Embedding (CoE) | P11-FE267, P9-FE5, P11-FE335, P9-FE6, P11-FE337, P11-FE338 | READY |
-| [2412.01113](https://arxiv.org/abs/2412.01113) | LLMs Faithfully Compute During CoT (Kudo) | P10-FE19, P11-FE346, P11-FE347, P11-FE348 | BLOCKED, READY |
-| [2302.00294](https://arxiv.org/abs/2302.00294) | Geometry of Hidden Representations | P11-FE73, P11-FE74, P11-FE75 | READY |
-| [2303.08112](https://arxiv.org/abs/2303.08112) | Tuned Lens | P11-FE77, P11-FE80, P11-FE76, P11-FE78, P11-FE79 | BLOCKED, READY |
-| [2306.03341](https://arxiv.org/abs/2306.03341) | Inference-Time Intervention (ITI) | P11-FE95, P11-FE99, P2-FE1, P11-FE94, P11-FE96, P11-FE98, P11-FE100, P10-FE34 | BLOCKED, READY |
-| [2306.03819](https://arxiv.org/abs/2306.03819) | LEACE: Linear Concept Erasure | P11-FE104, P4-FE1, P11-FE102, P11-FE103 | BLOCKED, READY |
-| [2310.06824](https://arxiv.org/abs/2310.06824) | Geometry of Truth (Marks & Tegmark) | P11-FE120, P11-FE122, P11-FE123 | READY, TRIGGERED |
-| [2311.03658](https://arxiv.org/abs/2311.03658) | Linear Representation Hypothesis | P11-FE136, P11-FE137, P11-FE139, P11-FE140 | READY |
-| [2203.11171](https://arxiv.org/abs/2203.11171) | Self-Consistency (Wang 2022) | P11-FE57, P11-FE59, P11-FE60, P11-FE62 | READY |
-| [2301.00234](https://arxiv.org/abs/2301.00234) | A Survey on In-context Learning | P11-FE69, P11-FE70, P11-FE72 | BLOCKED, READY |
-| [2102.11107](https://arxiv.org/abs/2102.11107) | Towards Causal Representation Learning | P11-FE45, P11-FE46, P11-FE47, P11-FE48, P11-FE49 | READY |
+| [2505.21772](https://arxiv.org/abs/2505.21772) | CCPS Calibration | P11-FE486, P11-FE485, P11-FE483, P11-FE482 | BLOCKED, READY |
+| [2505.24850](https://arxiv.org/abs/2505.24850) | Harnessing Negative Signals: Reinforcement Distillation from Teacher Data for LLM Reasoning (REDI) | P11-FE1248, P11-FE1247, P11-FE1246 | READY |
+| [2506.00653](https://arxiv.org/abs/2506.00653) | Linear Representation Transferability (LRT) | P11-FE498, P11-FE497, P11-FE496, P11-FE495, P11-FE494, P6-FE1 | READY, TRIGGERED |
+| [2506.18831](https://arxiv.org/abs/2506.18831) | STU-PID Steering | P11-FE506, P11-FE505, P11-FE504, P11-FE503 | READY |
+| [2506.24106](https://arxiv.org/abs/2506.24106) | Representation Dispersion Predictive Power | P11-FE511, P11-FE510, P11-FE509, P11-FE508, P11-FE507, P8-FE3 | READY, TRIGGERED |
+| [2507.06087](https://arxiv.org/abs/2507.06087) | CoRE: Metacognition via CoE | P11-FE518, P11-FE517, P11-FE516, P11-FE515 | BLOCKED, READY |
+| [2508.09883](https://arxiv.org/abs/2508.09883) | Beyond Scaling Law: A Data-Efficient Distillation Framework for Reasoning (DED) | P11-FE1251, P11-FE1250, P11-FE1249 | READY |
+| [2509.06608](https://arxiv.org/abs/2509.06608) | Small Vectors Big Effects | P11-FE537, P11-FE536 | READY |
+| [2509.11569](https://arxiv.org/abs/2509.11569) | D2HScore | P11-FE545, P11-FE544, P11-FE543, P11-FE542, P11-FE541, P11-FE540, P11-FE539, P11-FE538 | READY |
+| [2509.12886](https://arxiv.org/abs/2509.12886) | The LLM Already Knows (Zhu) | P11-FE550, P11-FE549, P11-FE547, P11-FE546 | READY |
+| [2509.26560](https://arxiv.org/abs/2509.26560) | Estimating Dimensionality of Neural Representations from Finite Samples | P11-FE606, P11-FE573, P11-FE572, P11-FE571, P11-FE570, P11-FE569, P11-FE568, P11-FE567, P11-FE566 | READY |
+| [2510.04309](https://arxiv.org/abs/2510.04309) | PID Steering | P11-FE586, P10-FE32, P11-FE585, P11-FE584 | BLOCKED, READY |
+| [2510.06477](https://arxiv.org/abs/2510.06477) | Attention Sinks = Compression Valleys (MCR) | P11-FE592, P11-FE591, P11-FE590, P11-FE589, P11-FE588, P11-FE587 | READY |
+| [2510.10494](https://arxiv.org/abs/2510.10494) | Tracing the Traces | P11-FE596, P11-FE595, P11-FE594, P11-FE593 | READY |
+| [2510.18147](https://arxiv.org/abs/2510.18147) | LLMs Encode Problem Difficulty | P11-FE859, P11-FE858, P11-FE857, P11-FE856, P10-FE48, P11-FE2 | READY, TRIGGERED |
+| [2310.03716](https://arxiv.org/abs/2310.03716) | A Long Way to Go (length in RLHF) | P11-FE114, P11-FE113, P11-FE112 | READY |
+| [2402.03744](https://arxiv.org/abs/2402.03744) | INSIDE / EigenScore | P11-FE167, P11-FE166, P11-FE164, P11-FE163 | BLOCKED, READY |
+| [2402.10978](https://arxiv.org/abs/2402.10978) | Conformal Factuality (Mohri & Hashimoto) | P11-FE175, P11-FE174, P11-FE173, P10-FE2 | READY, TRIGGERED |
+| [2402.13212](https://arxiv.org/abs/2402.13212) | Soft Self-Consistency | P11-FE184, P11-FE183, P11-FE182, P11-FE4 | READY |
+| [2402.18048](https://arxiv.org/abs/2402.18048) | Truthfulness via Local ID | P11-FE192, P11-FE191, P11-FE190, P4-FE2 | READY, TRIGGERED |
+| [2404.15255](https://arxiv.org/abs/2404.15255) | How to Use Activation Patching | P11-FE217, P11-FE216 | READY |
+| [2405.07987](https://arxiv.org/abs/2405.07987) | The Platonic Representation Hypothesis | P11-FE225, P11-FE224, P11-FE223, P11-FE222, P11-FE221, P11-FE220, P11-FE219, P11-FE218, P11-FE20 | READY |
+| [2405.15471](https://arxiv.org/abs/2405.15471) | High-Dim Abstraction Phase | P11-FE242, P11-FE241, P11-FE240, P11-FE239, P11-FE238 | READY |
+| [2405.17767](https://arxiv.org/abs/2405.17767) | Linguistic Collapse | P11-FE246, P11-FE245, P11-FE244, P11-FE243 | READY |
+| [2406.15927](https://arxiv.org/abs/2406.15927) | Semantic Entropy Probes (SEPs) | P11-FE625, P11-FE279, P11-FE278, P11-FE277, P11-FE276, P11-FE275, P11-FE274, P11-FE273, P11-FE272, P11-FE192, P11-FE171 | READY |
+| [2406.19384](https://arxiv.org/abs/2406.19384) | Stages of Inference (Lad, Gurnee, Tegmark) | P11-FE287, P11-FE286, P11-FE285, P11-FE284 | READY |
+| [2407.12404](https://arxiv.org/abs/2407.12404) | Generalization of Steering Vectors (Tan) | P11-FE823, P11-FE821 | READY |
+| [2410.02707](https://arxiv.org/abs/2410.02707) | LLMs Know More Than They Show | P11-FE306, P11-FE305, P11-FE304, P11-FE303, P11-FE302, P11-FE301 | READY |
+| [2410.04707](https://arxiv.org/abs/2410.04707) | Learning How Hard to Think (Damani) | P11-FE311, P11-FE310, P11-FE309, P11-FE307, P10-FE3 | READY, TRIGGERED |
+| [2410.11042](https://arxiv.org/abs/2410.11042) | Persistent Topological Features in LLMs | P11-FE323, P11-FE322 | READY |
+| [2410.13640](https://arxiv.org/abs/2410.13640) | Chain-of-Embedding (CoE) | P11-FE338, P11-FE337, P9-FE6, P11-FE335, P9-FE5, P11-FE267 | READY |
+| [2412.01113](https://arxiv.org/abs/2412.01113) | LLMs Faithfully Compute During CoT (Kudo) | P10-FE19, P11-FE348, P11-FE347, P11-FE346 | BLOCKED, READY |
+| [2302.00294](https://arxiv.org/abs/2302.00294) | Geometry of Hidden Representations | P11-FE75, P11-FE74, P11-FE73 | READY |
+| [2303.08112](https://arxiv.org/abs/2303.08112) | Tuned Lens | P11-FE80, P11-FE79, P11-FE78, P11-FE77, P11-FE76 | BLOCKED, READY |
+| [2306.03341](https://arxiv.org/abs/2306.03341) | Inference-Time Intervention (ITI) | P10-FE34, P11-FE100, P11-FE99, P11-FE98, P11-FE96, P11-FE95, P11-FE94, P2-FE1 | BLOCKED, READY |
+| [2306.03819](https://arxiv.org/abs/2306.03819) | LEACE: Linear Concept Erasure | P11-FE104, P11-FE103, P11-FE102, P4-FE1 | BLOCKED, READY |
+| [2310.06824](https://arxiv.org/abs/2310.06824) | Geometry of Truth (Marks & Tegmark) | P11-FE123, P11-FE122, P11-FE120 | READY, TRIGGERED |
+| [2311.03658](https://arxiv.org/abs/2311.03658) | Linear Representation Hypothesis | P11-FE140, P11-FE139, P11-FE137, P11-FE136 | READY |
+| [2203.11171](https://arxiv.org/abs/2203.11171) | Self-Consistency (Wang 2022) | P11-FE62, P11-FE60, P11-FE59, P11-FE57 | READY |
+| [2301.00234](https://arxiv.org/abs/2301.00234) | A Survey on In-context Learning | P11-FE72, P11-FE70, P11-FE69 | BLOCKED, READY |
+| [2102.11107](https://arxiv.org/abs/2102.11107) | Towards Causal Representation Learning | P11-FE49, P11-FE48, P11-FE47, P11-FE46, P11-FE45 | READY |
 | [2103.07353](https://arxiv.org/abs/2103.07353) | Fast Zigzag Persistence (Dey-Hou) | P8-FE5, P8-FE4 | BLOCKED, READY |
 | [2111.13171](https://arxiv.org/abs/2111.13171) | ID, PH and Generalization (Birdal) | P11-FE56 | READY |
-| [1207.6437](https://arxiv.org/abs/1207.6437) | Persistence Landscapes (Bubenik) | P9-FE2, P11-FE25 | READY |
+| [1207.6437](https://arxiv.org/abs/1207.6437) | Persistence Landscapes (Bubenik) | P11-FE25, P9-FE2 | READY |

@@ -1,6 +1,12 @@
 # Neo4j Docker volume
 data/
 
+# Online APOC backups (rotating binary dumps — restore artifacts, not source)
+backups/
+
+# Transient fail-loud monitor alert flag
+.graph-wipe-alert
+
 # Python
 __pycache__/
 *.pyc
