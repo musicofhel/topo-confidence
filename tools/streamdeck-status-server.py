@@ -357,6 +357,64 @@ def _check_forge_stage() -> dict:
     return result
 
 
+COMPLETED_FILE = AUTOPILOT_DIR / "completed_experiments.json"
+
+
+def _completed_count_and_age() -> tuple[int, float | None]:
+    """How many FEs the experiment phase has marked done, and how long ago the
+    last one landed (seconds). The completed-marker file is rewritten on every
+    successful run, so its mtime is a precise "is it still finishing FEs?" signal."""
+    if not COMPLETED_FILE.exists():
+        return 0, None
+    try:
+        count = len(json.loads(COMPLETED_FILE.read_text()))
+    except Exception:
+        count = 0
+    try:
+        age = time.time() - COMPLETED_FILE.stat().st_mtime
+    except OSError:
+        age = None
+    return count, age
+
+
+def _button_experiment() -> str:
+    """Compact plain-text summary of the experiment phase for a Stream Deck title.
+
+    Three short lines:  <glyph + phase> / <current-or-last FE> / done <count>
+      ✅ a run finished in the last 2 min (actively working through the queue)
+      💤 alive but no recent completion (queue drained / between polls)
+      ⛔ daemon stopped or Neo4j unreachable (can't pick FEs)
+    """
+    phase = _check_phase("experiment", DEFAULT_BUDGET_CAP)
+    count, age = _completed_count_and_age()
+
+    neo4j_up = False
+    try:
+        out = subprocess.run(
+            ["docker", "inspect", "--format", "{{.State.Running}}", "topo-research-graph"],
+            capture_output=True, text=True, timeout=5,
+        )
+        neo4j_up = out.stdout.strip() == "true"
+    except Exception:
+        pass
+
+    if phase["state"] == "stopped" or not neo4j_up:
+        glyph = "⛔"
+    elif age is not None and age < 120:
+        glyph = "✅"
+    else:
+        glyph = "💤"
+
+    fe = phase.get("current_item")
+    if not fe:
+        # fall back to the FE named in the last activity line ("Auto-committed ... P11-FE155")
+        la = phase.get("last_activity") or ""
+        m = re.search(r"(P\d+-FE\d+)", la)
+        fe = m.group(1) if m else "—"
+
+    return f"EXP {glyph}\n{fe}\ndone {count}"
+
+
 def _pipeline_status() -> dict:
     return {
         "link_forge_queue": _check_link_forge_queue(),
@@ -424,7 +482,24 @@ class Handler(BaseHTTPRequestHandler):
             self._json_response(_get_pipeline_cached())
             return
 
+        if parsed.path == "/button":
+            # Plain-text, ready to drop straight into a Stream Deck button title.
+            self._text_response(_button_experiment())
+            return
+
         self.send_error(404)
+
+    def _text_response(self, text: str, status: int = 200):
+        body = text.encode()
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionError):
+            pass
 
     def _json_response(self, data: dict, status: int = 200):
         body = json.dumps(data, indent=2).encode()
