@@ -7,6 +7,7 @@ Snapshot, not a live view — regenerate explicitly after seeding or status upda
 from __future__ import annotations
 
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -85,6 +86,11 @@ def fetch_watchlist() -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Markdown rendering
 # ---------------------------------------------------------------------------
+
+def _natkey(s: str) -> list:
+    """Natural-sort key so FE27 sorts before FE100, deterministically."""
+    return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", s)]
+
 
 def _arxiv_link(arxiv_id: str, title: str | None = None) -> str:
     label = title or arxiv_id
@@ -190,7 +196,7 @@ def render_watchlist(papers: list[dict[str, Any]]) -> str:
     ]
     for p in papers:
         triggers = p.get("triggers") or []
-        ids = ", ".join(t["fe_id"] for t in triggers)
+        ids = ", ".join(sorted((t["fe_id"] for t in triggers), key=_natkey))
         statuses = ", ".join(sorted({t["status"] for t in triggers}))
         title = p.get("title") or "(untitled)"
         link = _arxiv_link(p["arxiv_id"], p["arxiv_id"])

@@ -1,0 +1,9 @@
+# Rebuild verification — deterministic baseline (2026-06-14)
+#
+# After fixing watchlist FE-ID ordering non-determinism in
+# generate_next_experiments.py (_natkey sort), two consecutive
+# generator runs are byte-identical (modulo the _Generated timestamp),
+# and identity lines remain ZERO-diff vs the 2026-06-13 golden.
+#
+# diff (excluding timestamp) of run1 vs run2:
+# (empty above == deterministic)
