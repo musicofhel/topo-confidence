@@ -568,6 +568,29 @@ def _confgate_digesting() -> bool:
         return False
 
 
+def _confgate_launch_env() -> dict:
+    """Env for the spawned triage. This server runs under a systemd user unit
+    with the minimal default PATH (no ~/.nvm bin), so a bare `claude` in
+    triage_one.sh would be command-not-found (exit 127). Prepend any nvm node
+    bin dir that actually contains `claude` so the workers can find it."""
+    env = dict(os.environ)
+    # `claude -p` refuses to start inside an existing Claude session; the script
+    # unsets this itself, but strip it here too so a server launched from a
+    # session can't leak it in.
+    env.pop("CLAUDECODE", None)
+    extra = []
+    for cand in sorted((Path.home() / ".nvm" / "versions" / "node").glob("*/bin"), reverse=True):
+        if (cand / "claude").exists():
+            extra.append(str(cand))
+            break
+    local_bin = Path.home() / ".local" / "bin"
+    if local_bin.is_dir():
+        extra.append(str(local_bin))
+    if extra:
+        env["PATH"] = os.pathsep.join(extra + [env.get("PATH", "")])
+    return env
+
+
 def _confgate_start_digest() -> bool:
     """Launch triage_pending.sh detached if not already digesting. Returns the
     resulting digesting state. Idempotent — a second press while running is a
@@ -577,11 +600,7 @@ def _confgate_start_digest() -> bool:
     script = CONFGATE_DIR / "triage_pending.sh"
     if not script.exists():
         return False
-    env = dict(os.environ)
-    # `claude -p` refuses to start inside an existing Claude session; the script
-    # unsets this itself, but strip it here too so a server launched from a
-    # session can't leak it in.
-    env.pop("CLAUDECODE", None)
+    env = _confgate_launch_env()
     try:
         CONFGATE_BRIEFS.mkdir(parents=True, exist_ok=True)
         logf = open(CONFGATE_DIR / "triage_pending.log", "a")
