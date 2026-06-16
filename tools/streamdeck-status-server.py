@@ -13,17 +13,83 @@ import subprocess
 import sys
 import threading
 import time
-from datetime import date
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 
 AUTOPILOT_DIR = Path(__file__).resolve().parent.parent / ".autopilot"
 LINK_FORGE_QUEUE_DB = Path.home() / "link-forge" / "data" / "queue.db"
 TRIGGER_FILE = AUTOPILOT_DIR / "trigger"
 PHASES = ("triage", "scriptgen", "experiment")
 DEFAULT_PORT = 9876
-DEFAULT_BUDGET_CAP = 15
+
+# The Stream Deck "pause script gen" button holds the token-spending phases
+# (scriptgen + experiment) while leaving triage running, so papers keep getting
+# digested into the FE queue. Pause = write a `paused-<phase>` flag the daemon
+# checks each cycle; resume = remove it. No systemctl, no mid-item interruption.
+PAUSE_PHASES = ("scriptgen", "experiment")
+
+
+def _pause_flag(phase: str) -> Path:
+    return AUTOPILOT_DIR / f"paused-{phase}"
+
+
+def _scriptgen_paused() -> bool:
+    return any(_pause_flag(p).exists() for p in PAUSE_PHASES)
+
+
+def _set_scriptgen_paused(paused: bool) -> bool:
+    """Write/remove the pause flags for the token-spending phases. Returns the
+    resulting paused state. Best-effort, idempotent."""
+    for p in PAUSE_PHASES:
+        flag = _pause_flag(p)
+        try:
+            if paused:
+                flag.write_text("")
+            elif flag.exists():
+                flag.unlink()
+        except OSError:
+            pass
+    return _scriptgen_paused()
+
+
+_ready_fe_cache: dict = {"ts": 0.0, "val": None}
+_READY_FE_CACHE_TTL = 30
+
+
+def _ready_fe_count() -> int | None:
+    """READY/TRIGGERED FutureExperiment backlog — the queue that grows while
+    script gen is paused. Cached 30s; None if Neo4j is unreachable."""
+    now = time.time()
+    if now - _ready_fe_cache["ts"] < _READY_FE_CACHE_TTL:
+        return _ready_fe_cache["val"]
+    val = None
+    try:
+        out = subprocess.run(
+            ["docker", "exec", "topo-research-graph", "cypher-shell",
+             "-u", "neo4j", "-p", "topo_graph_dev",
+             "MATCH (fe:FutureExperiment) WHERE fe.status IN ['READY','TRIGGERED'] RETURN count(fe)"],
+            capture_output=True, text=True, timeout=10,
+        )
+        for line in reversed(out.stdout.strip().splitlines()):
+            line = line.strip()
+            if line.isdigit():
+                val = int(line)
+                break
+    except Exception:
+        pass
+    _ready_fe_cache["ts"] = now
+    _ready_fe_cache["val"] = val
+    return val
+
+
+def _button_scriptgen() -> str:
+    """Plain-text title for the pause button. Reflects current state + backlog."""
+    paused = _scriptgen_paused()
+    q = _ready_fe_count()
+    qline = f"q:{q}" if q is not None else "q:?"
+    glyph = "⏸ PAUSED" if paused else "▶ RUNNING"
+    return f"SCRIPT GEN\n{glyph}\n{qline}"
 
 DOCKER_CONTAINERS = [
     ("link_forge_neo4j", "link-forge-neo4j"),
@@ -79,19 +145,9 @@ def _is_alive(pid: int) -> bool:
         return False
 
 
-def _check_phase(phase: str, budget_cap: int) -> dict:
+def _check_phase(phase: str) -> dict:
     pid_file = AUTOPILOT_DIR / f"daemon-{phase}.pid"
-    budget_file = AUTOPILOT_DIR / f"budget-{phase}.json"
-    cap_file = AUTOPILOT_DIR / f"cap-{phase}.json"
     log_file = AUTOPILOT_DIR / f"daemon-{phase}.log"
-
-    # The daemon records its real per-day cap; prefer it over the client-supplied
-    # value so an uncapped (or re-capped) daemon is reported honestly.
-    if cap_file.exists():
-        try:
-            budget_cap = int(json.loads(cap_file.read_text()).get("cap", budget_cap))
-        except Exception:
-            pass
 
     alive = False
     pid = None
@@ -114,16 +170,6 @@ def _check_phase(phase: str, budget_cap: int) -> dict:
             if out.stdout.strip():
                 pid = int(out.stdout.strip().splitlines()[0])
                 alive = True
-        except Exception:
-            pass
-
-    budget_used = 0
-    budget_date = None
-    if budget_file.exists():
-        try:
-            data = json.loads(budget_file.read_text())
-            budget_used = data.get("calls", 0)
-            budget_date = data.get("date")
         except Exception:
             pass
 
@@ -167,8 +213,6 @@ def _check_phase(phase: str, budget_cap: int) -> dict:
 
     if not alive:
         state = "stopped"
-    elif budget_date == str(date.today()) and budget_used >= budget_cap:
-        state = "exhausted"
     elif last_activity and current_item:
         all_lines = []
         if log_file.exists():
@@ -177,7 +221,7 @@ def _check_phase(phase: str, budget_cap: int) -> dict:
             except Exception:
                 pass
         recent_sleep = any(
-            "sleeping" in l.lower() or "budget exhausted" in l.lower()
+            "sleeping" in l.lower()
             for l in all_lines if "INFO" in l
         )
         state = "idle" if recent_sleep else "active"
@@ -187,8 +231,6 @@ def _check_phase(phase: str, budget_cap: int) -> dict:
     return {
         "state": state,
         "pid": pid,
-        "budget_used": budget_used,
-        "budget_cap": budget_cap,
         "current_item": current_item,
         "last_activity": last_activity,
     }
@@ -385,7 +427,7 @@ def _button_experiment() -> str:
       💤 alive but no recent completion (queue drained / between polls)
       ⛔ daemon stopped or Neo4j unreachable (can't pick FEs)
     """
-    phase = _check_phase("experiment", DEFAULT_BUDGET_CAP)
+    phase = _check_phase("experiment")
     count, age = _completed_count_and_age()
 
     neo4j_up = False
@@ -453,12 +495,157 @@ def _get_pipeline_cached() -> dict:
     return val
 
 
+# ---------------------------------------------------------------------------
+# confgate paper-triage button
+#
+# A separate Stream Deck key for the confgate repo's research-graph (a STANDALONE
+# Neo4j on bolt:7689, not the topo docker graph). "Pending" = papers admitted as
+# :Paper{status:'pending_triage'} that DON'T YET HAVE A BRIEF — i.e. the queue of
+# papers still to be deep-triaged. Pressing the key launches triage_pending.sh,
+# which spawns one `claude -p` worker per paper and writes a brief each; as briefs
+# land the queue drains to 0. The button polls /confgate-state and triggers
+# /confgate-digest.
+# ---------------------------------------------------------------------------
+CONFGATE_DIR = Path.home() / "confgate" / "research-graph"
+CONFGATE_BRIEFS = CONFGATE_DIR / "briefs"
+
+_confgate_cache: dict = {"ts": 0.0, "val": None}
+_CONFGATE_CACHE_TTL = 20
+
+
+def _confgate_python() -> str:
+    """query.py needs the neo4j driver. Prefer the confgate venv, else the topo
+    venv, else system python3 (verified to have neo4j on this box)."""
+    for cand in (
+        Path.home() / "confgate" / ".venv" / "bin" / "python",
+        Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python",
+    ):
+        if cand.exists():
+            return str(cand)
+    return "python3"
+
+
+def _confgate_pending_count() -> int | None:
+    """Count :Paper{status:'pending_triage'} in the confgate graph that don't yet
+    have a brief on disk (briefs/triage-*-<id>.md). That's the to-digest queue —
+    it drops to 0 as triage writes briefs. Cached 20s; None if unreachable."""
+    now = time.time()
+    if now - _confgate_cache["ts"] < _CONFGATE_CACHE_TTL:
+        return _confgate_cache["val"]
+    val = None
+    try:
+        out = subprocess.run(
+            [_confgate_python(), "query.py", "pending", "--ids-only"],
+            cwd=str(CONFGATE_DIR), capture_output=True, text=True, timeout=15,
+        )
+        if out.returncode == 0:
+            ids = [ln.strip() for ln in out.stdout.splitlines() if ln.strip()]
+            briefed = set()
+            if CONFGATE_BRIEFS.is_dir():
+                for b in CONFGATE_BRIEFS.glob("triage-*-*.md"):
+                    # filename: triage-YYYY-MM-DD-<arxiv-id>.md
+                    stem = b.name[len("triage-"):-len(".md")]
+                    parts = stem.split("-", 3)
+                    if len(parts) == 4:
+                        briefed.add(parts[3])
+            val = sum(1 for i in ids if i not in briefed)
+    except Exception:
+        pass
+    _confgate_cache["ts"] = now
+    _confgate_cache["val"] = val
+    return val
+
+
+def _confgate_digesting() -> bool:
+    """True while a triage dispatcher or any per-paper worker is running."""
+    try:
+        r = subprocess.run(
+            ["pgrep", "-f", r"triage_(pending|one)\.sh"],
+            capture_output=True, text=True, timeout=5,
+        )
+        return r.returncode == 0 and bool(r.stdout.strip())
+    except Exception:
+        return False
+
+
+def _confgate_start_digest() -> bool:
+    """Launch triage_pending.sh detached if not already digesting. Returns the
+    resulting digesting state. Idempotent — a second press while running is a
+    no-op (the dispatcher + triage_one skip papers that already have a brief)."""
+    if _confgate_digesting():
+        return True
+    script = CONFGATE_DIR / "triage_pending.sh"
+    if not script.exists():
+        return False
+    env = dict(os.environ)
+    # `claude -p` refuses to start inside an existing Claude session; the script
+    # unsets this itself, but strip it here too so a server launched from a
+    # session can't leak it in.
+    env.pop("CLAUDECODE", None)
+    try:
+        CONFGATE_BRIEFS.mkdir(parents=True, exist_ok=True)
+        logf = open(CONFGATE_DIR / "triage_pending.log", "a")
+        subprocess.Popen(
+            ["bash", str(script)],
+            cwd=str(CONFGATE_DIR), env=env,
+            stdin=subprocess.DEVNULL, stdout=logf, stderr=logf,
+            start_new_session=True,  # detach: survives this request/handler
+        )
+    except Exception:
+        return False
+    _confgate_cache["ts"] = 0.0  # force the next /confgate-state to re-poll
+    return True
+
+
+def _confgate_state() -> dict:
+    digesting = _confgate_digesting()
+    return {
+        "pending": _confgate_pending_count(),
+        "digesting": digesting,
+        "reachable": True,
+    }
+
+
 class Handler(BaseHTTPRequestHandler):
+    def _handle_action(self, path: str) -> bool:
+        """Pause-button actions. Accept on GET and POST so any Stream Deck
+        web-request plugin works. Each returns the button title text so the key
+        updates immediately on press. Returns True if it handled the path."""
+        if path == "/pause-scriptgen":
+            _set_scriptgen_paused(True)
+            self._text_response(_button_scriptgen())
+            return True
+        if path == "/resume-scriptgen":
+            _set_scriptgen_paused(False)
+            self._text_response(_button_scriptgen())
+            return True
+        if path == "/toggle-scriptgen":
+            _set_scriptgen_paused(not _scriptgen_paused())
+            self._text_response(_button_scriptgen())
+            return True
+        if path == "/button-scriptgen":
+            self._text_response(_button_scriptgen())
+            return True
+        if path == "/confgate-digest":
+            _confgate_start_digest()
+            self._json_response(_confgate_state())
+            return True
+        return False
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        if self._handle_action(parsed.path):
+            return
+        self.send_error(404)
+
     def do_GET(self):
         parsed = urlparse(self.path)
 
         if parsed.path == "/ping":
             self._json_response({"ok": True})
+            return
+
+        if self._handle_action(parsed.path):
             return
 
         if parsed.path == "/health":
@@ -470,11 +657,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/status":
-            qs = parse_qs(parsed.query)
-            budget_cap = int(qs.get("budget_cap", [str(DEFAULT_BUDGET_CAP)])[0])
             daemons = {}
             for phase in PHASES:
-                daemons[phase] = _check_phase(phase, budget_cap)
+                daemons[phase] = _check_phase(phase)
             # The experiment phase has no Neo4j "done" state; expose how many FEs
             # it has marked complete and how long ago the last one landed so the
             # Stream Deck can show live FE progress (count ticking up == working).
@@ -492,6 +677,19 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/button":
             # Plain-text, ready to drop straight into a Stream Deck button title.
             self._text_response(_button_experiment())
+            return
+
+        if parsed.path == "/scriptgen-state":
+            # JSON the Stream Deck "Pause Script Gen" plugin action polls.
+            self._json_response({
+                "paused": _scriptgen_paused(),
+                "ready_fes": _ready_fe_count(),
+            })
+            return
+
+        if parsed.path == "/confgate-state":
+            # JSON the Stream Deck "confgate" plugin action polls.
+            self._json_response(_confgate_state())
             return
 
         self.send_error(404)
@@ -522,7 +720,20 @@ class Handler(BaseHTTPRequestHandler):
             pass
 
     def log_message(self, fmt, *args):
-        pass
+        # Lightweight request log so we can SEE whether the Stream Deck (or any
+        # client) actually reaches the server, and on which path. Writes one line
+        # per request to a dedicated file; failures are swallowed (never block a
+        # response on logging).
+        try:
+            line = "%s %s %s\n" % (
+                time.strftime("%H:%M:%S"),
+                self.client_address[0] if self.client_address else "?",
+                (fmt % args) if args else fmt,
+            )
+            with open(AUTOPILOT_DIR / "status-requests.log", "a") as f:
+                f.write(line)
+        except Exception:
+            pass
 
 
 def main():

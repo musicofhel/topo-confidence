@@ -57,6 +57,22 @@ def _ensure_dirs() -> None:
     FOLLOWUPS_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _pause_path(phase: str | None) -> Path:
+    """Flag file that idles a phase without stopping its service.
+
+    The Stream Deck pause button writes `.autopilot/paused-<phase>`; the daemon
+    keeps running (survives WSL restarts, never interrupts a mid-flight item) and
+    simply skips that phase's work each cycle. Triage is intentionally never
+    paused this way — papers keep getting digested and the FE queue grows while
+    the token-spending phases (scriptgen, experiment) are held.
+    """
+    return AUTOPILOT_DIR / f"paused-{phase or 'all'}"
+
+
+def _is_paused(phase: str | None) -> bool:
+    return _pause_path(phase).exists() or _pause_path(None).exists()
+
+
 def _budget_path(phase: str | None) -> Path:
     if phase:
         return AUTOPILOT_DIR / f"budget-{phase}.json"
@@ -581,7 +597,8 @@ def run_loop(
                     skipped_this_cycle.add(arxiv_id)
 
             # Phase 2: Generate script for one scriptless FE
-            if phase in (None, "scriptgen") and (phase is not None or not did_work):
+            if phase in (None, "scriptgen") and (phase is not None or not did_work) \
+                    and not _is_paused("scriptgen"):
                 scriptless = scriptless_local_fes()
                 scriptless = [fe for fe in scriptless
                               if not _is_quarantined(f"gen-{fe['id']}") and fe['id'] not in skipped_this_cycle]
@@ -600,7 +617,8 @@ def run_loop(
                     skipped_this_cycle.add(fe['id'])
 
             # Phase 3: Run one experiment
-            if phase in (None, "experiment") and (phase is not None or not did_work):
+            if phase in (None, "experiment") and (phase is not None or not did_work) \
+                    and not _is_paused("experiment"):
                 runnable = _runnable_fes()
                 runnable = [fe for fe in runnable
                             if not _is_quarantined(f"run-{fe['id']}") and fe['id'] not in skipped_this_cycle]

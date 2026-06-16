@@ -3,8 +3,6 @@ import type { DaemonState } from "./renderer.js";
 export interface PhaseStatus {
 	state: DaemonState;
 	pid: number | null;
-	budget_used: number;
-	budget_cap: number;
 	current_item: string | null;
 	last_activity: string | null;
 	completed_count?: number;
@@ -21,13 +19,11 @@ class Poller {
 	private interval: ReturnType<typeof setInterval> | null = null;
 	private listeners = new Map<string, Listener>();
 	private serverUrl = "http://localhost:9876";
-	private budgetCap = 15;
 	private lastData: StatusResponse | null = null;
 
-	register(id: string, callback: Listener, serverUrl?: string, budgetCap?: number): void {
+	register(id: string, callback: Listener, serverUrl?: string): void {
 		this.listeners.set(id, callback);
 		if (serverUrl) this.serverUrl = serverUrl;
-		if (budgetCap !== undefined) this.budgetCap = budgetCap;
 		if (this.lastData) callback(this.lastData);
 		if (!this.interval) this.start();
 	}
@@ -51,7 +47,7 @@ class Poller {
 
 	private async tick(): Promise<void> {
 		try {
-			const resp = await fetch(`${this.serverUrl}/status?budget_cap=${this.budgetCap}`);
+			const resp = await fetch(`${this.serverUrl}/status`);
 			if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 			this.lastData = (await resp.json()) as StatusResponse;
 		} catch {

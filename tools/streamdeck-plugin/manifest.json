@@ -29,7 +29,77 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Displays status of a topo-confidence autopilot daemon phase.",
       "PropertyInspectorPath": "ui/daemon-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Confgate Triage",
+      "UUID": "com.topoconfidence.daemon-monitor.confgate",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "confgate paper-triage queue. Orange=N papers waiting, press to digest; yellow blink=digesting; green 0=empty.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Triage Daemon",
+      "UUID": "com.topoconfidence.daemon-monitor.triage",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Triage daemon status (paper triage). Yellow=active, green=idle, red=stopped/no-conn.",
+      "PropertyInspectorPath": "ui/daemon-fixed.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Script Gen Daemon",
+      "UUID": "com.topoconfidence.daemon-monitor.scriptgen",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Script-generation daemon status. Yellow=active, green=idle, red=stopped/no-conn.",
+      "PropertyInspectorPath": "ui/daemon-fixed.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Experiment Daemon",
+      "UUID": "com.topoconfidence.daemon-monitor.experiment",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Experiment daemon status (up/down). For live FE progress use Experiment Progress instead.",
+      "PropertyInspectorPath": "ui/daemon-fixed.html",
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -44,7 +114,9 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Live experiment-phase FE progress: current FE + completed count. Green=working, yellow=idle, red=down.",
       "PropertyInspectorPath": "ui/pipeline-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -59,7 +131,9 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Link-forge queue depth monitor.",
       "PropertyInspectorPath": "ui/pipeline-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -74,7 +148,9 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Current link-forge processing stage (scrape/claude/embed/store).",
       "PropertyInspectorPath": "ui/pipeline-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -89,7 +165,9 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Research graph papers pending triage.",
       "PropertyInspectorPath": "ui/pipeline-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -104,7 +182,9 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Docker and service health overview.",
       "PropertyInspectorPath": "ui/pipeline-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -119,7 +199,26 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Autopilot trigger file paper count.",
       "PropertyInspectorPath": "ui/pipeline-monitor.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/actions/daemon-monitor/key",
+          "TitleAlignment": "middle"
+        }
+      ]
+    },
+    {
+      "Name": "Pause Script Gen",
+      "UUID": "com.topoconfidence.daemon-monitor.pause-scriptgen",
+      "Icon": "imgs/actions/daemon-monitor/icon",
+      "Tooltip": "Toggle: pause/resume the token-spending phases (scriptgen + experiment) while triage keeps digesting. Red=PAUSED, green=RUNNING, qN=READY-FE backlog.",
+      "PropertyInspectorPath": "ui/pipeline-monitor.html",
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {
@@ -134,7 +233,9 @@
       "Icon": "imgs/actions/daemon-monitor/icon",
       "Tooltip": "Start the research pipeline if it's not running. Shows UP/START status.",
       "PropertyInspectorPath": "ui/pipeline-start.html",
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "UserTitleEnabled": false,
       "States": [
         {

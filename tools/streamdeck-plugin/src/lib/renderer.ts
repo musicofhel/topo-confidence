@@ -1,4 +1,4 @@
-export type DaemonState = "active" | "idle" | "exhausted" | "stopped" | "no_conn";
+export type DaemonState = "active" | "idle" | "stopped" | "no_conn";
 
 type ButtonColor = "green" | "yellow" | "red";
 
@@ -50,7 +50,6 @@ export function renderSvg(opts: {
 			color = "yellow";
 			break;
 		case "idle":
-		case "exhausted":
 			color = "green";
 			break;
 		case "stopped":
